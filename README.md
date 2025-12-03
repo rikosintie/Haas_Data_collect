@@ -31,3 +31,37 @@ A new file is created each time using the naming format `machine-name_"part-numb
 For example - `Machine1_“265-4183”_20251202_151020.csv`
 
 ## CNC Program Format
+
+Haas has a YouTube channel and this [video](https://youtube.com/watch?v=g7hl2Lw4KdM&si=txrjMdDefbxXeBxp) clearly explains how to configure the control to send `DPRNT` statements to a USB flash drive or a telnet sever. The sample code can be found [here](https://www.haascnc.com/video/Video-Bonus-Content.html):
+
+## Here is a simple example
+
+```
+%
+O03020 (DPRNT PART DATA)
+G04 P1. (1 SECOND DWELL, JUST SO WE HAVE A CYCLE TIME)
+G103 P1 (LIMIT LOOKAHEAD)
+(DPRNT BLANK LINE)
+DPRNT[]
+(DPRNTS ALL TEXT, A PART NUMBER)
+DPRNT[ PART NUMBER: 265-4183, REV. X2]
+(DPRNT BLANK LINE)
+DPRNT[]
+(SIMPLE DATE AND TIME)
+DPRNT[ DATE YYMMDD: #3011[60]]
+DPRNT[ TIME HHMMSS: #3012[60]]
+(DPRNT BLANK LINE)
+DPRNT[]
+(DPRNT BLANK LINE)
+DPRNT[]
+(#3901 PARTS COUNTER)
+DPRNT[*PARTS*MADE:*#3901[90]]
+(DPRNT BLANK LINE)
+DPRNT[]
+(#3024 LAST PART TIMER)
+DPRNT[*TIME,*LAST PART:*#3024[40]*SECONDS]
+G103 (RETURN TO NORMAL LOOKAHEAD)
+DPRNT[End of Cycle]
+M30
+%
+```
