@@ -1,5 +1,10 @@
 # Haas_Data_collect
-Python scripts and Haas DPRNT code to output data from NG controls
+
+## Python scripts and Haas DPRNT code to output data from NG controls
+
+The Haas CNC control supports a command named DPRNT. It allows data such as date/time, cycle count, cycle time, inspecion data, etc to be sent to a file on a USB Flash drive or a computer. Here is a Haas YouTube video on setting up your machine, writing a program and collecting the data on a Flash drive or PC.
+
+[DRNT](https://youtube.com/watch?v=g7hl2Lw4KdM&si=txrjMdDefbxXeBxp)
 
 The script `Haas_logger.py` starts up and runs continuously until you press `ctrl_c`. When it receives the text string `End of Cycle` it writes the data to disk and resumes listening. 
 
