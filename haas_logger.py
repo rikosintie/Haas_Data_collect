@@ -1,25 +1,3 @@
-'''Haas CNC Data Logger
-Usage examples:
-
-# Machine 1
-python haas_logger.py --port 5062 --name "Machine1"
-
-# Machine 2
-python haas_logger.py --port 5063 --name "Machine2"
-
-# Machine 3
-python haas_logger.py -p 5064 -n "Machine3"
-
-# Machine 4
-python haas_logger.py -p 5065 -n "Mill_A"
-
-# Machine 5
-python haas_logger.py -p 5066 -n "Lathe_B"
-
-# Machine 6
-python haas_logger.py -p 5067 -n "VF2"
-'''
-
 import socket
 import threading
 import re
@@ -27,6 +5,7 @@ from datetime import datetime
 import os
 import argparse
 import csv
+import time
 from typing import Optional, Dict, Tuple
 
 class HaasDataLogger:
@@ -38,7 +17,7 @@ class HaasDataLogger:
     """
 
     def __init__(self, host: str = '0.0.0.0', port: int = 5062,
-        machine_name: Optional[str] = None) -> None:
+        machine_name: Optional[str] = None, append_mode: bool = False) -> None:
         """
         Initialize the Haas Data Logger.
 
@@ -46,11 +25,14 @@ class HaasDataLogger:
             host: IP address to bind the server to. Defaults to '0.0.0.0' (all interfaces).
             port: Port number to listen on. Defaults to 5062.
             machine_name: Custom name for the machine. If None, generates name from port.
+            append_mode: If True, append cycles to existing file per part number.
+                        If False, create new file for each cycle.
         """
         self.host = host
         self.port = port
         self.machine_name = machine_name or f"Machine_Port{port}"
         self.running = False
+        self.append_mode = append_mode
 
     def extract_part_number(self, data: str) -> Optional[str]:
         """
@@ -74,15 +56,16 @@ class HaasDataLogger:
         """
         Parse the CNC data into a dictionary for CSV output.
 
-        Extracts structured information including part number, revision, date, and time
-        from the raw CNC machine data string.
+        Extracts structured information including part number, revision, date, time,
+        parts counter, and last part timer from the raw CNC machine data string.
 
         Args:
             data: Raw data string received from the CNC machine.
 
         Returns:
             Dictionary containing parsed fields including Machine, Timestamp, Part_Number,
-            Revision, Date_YYMMDD, Time_HHMMSS, and Raw_Data.
+            Revision, Date_YYMMDD, Time_HHMMSS, Parts_Counter, Last_Part_Time_Seconds,
+            and Raw_Data.
         """
         result = {
             'Machine': self.machine_name,
@@ -91,6 +74,8 @@ class HaasDataLogger:
             'Revision': '',
             'Date_YYMMDD': '',
             'Time_HHMMSS': '',
+            'Parts_Counter': '',
+            'Last_Part_Time_Seconds': '',
             'Raw_Data': data
         }
 
@@ -111,6 +96,16 @@ class HaasDataLogger:
         if time_match:
             result['Time_HHMMSS'] = time_match.group(1).strip()
 
+        # Extract parts counter (PARTS MADE: ###)
+        parts_match = re.search(r'PARTS\s*MADE:\s*(\d+)', data, re.IGNORECASE)
+        if parts_match:
+            result['Parts_Counter'] = parts_match.group(1).strip()
+
+        # Extract last part timer (TIME, LAST PART: ### SECONDS)
+        timer_match = re.search(r'TIME,\s*LAST\s*PART:\s*(\d+(?:\.\d+)?)\s*SECONDS', data, re.IGNORECASE)
+        if timer_match:
+            result['Last_Part_Time_Seconds'] = timer_match.group(1).strip()
+
         return result
 
     def save_to_file(self, data: str, part_number: Optional[str]) -> str:
@@ -118,7 +113,9 @@ class HaasDataLogger:
         Save data to CSV file with part number and timestamp.
 
         Creates a CSV file in the cnc_logs directory with parsed machine data.
-        The filename includes the machine name, part number (if available), and timestamp.
+        In append mode, cycles for the same part number are added to one file.
+        In non-append mode, each cycle creates a new timestamped file.
+        Includes retry logic and backup file creation if the target file is locked.
 
         Args:
             data: Raw data string to be saved.
@@ -126,28 +123,84 @@ class HaasDataLogger:
 
         Returns:
             Full filepath where the data was saved.
+
+        Raises:
+            IOError: If the file cannot be written in non-append mode.
         """
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-        if part_number:
-            filename = f"{self.machine_name}_{part_number}_{timestamp}.csv"
-        else:
-            filename = f"{self.machine_name}_unknown_part_{timestamp}.csv"
-
         # Create logs directory if it doesn't exist
         os.makedirs('cnc_logs', exist_ok=True)
-        filepath = os.path.join('cnc_logs', filename)
 
         # Parse data into structured format
         parsed_data = self.parse_data_to_dict(data)
 
-        # Write to CSV
-        with open(filepath, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=parsed_data.keys())
-            writer.writeheader()
-            writer.writerow(parsed_data)
+        if self.append_mode:
+            # Append mode: Use same file for each part number
+            if part_number:
+                filename = f"{self.machine_name}_{part_number}.csv"
+            else:
+                filename = f"{self.machine_name}_unknown_part.csv"
 
-        print(f"[{self.machine_name}] Data saved to: {filepath}")
+            filepath = os.path.join('cnc_logs', filename)
+
+            # Check if file exists to determine if we need to write header
+            file_exists = os.path.isfile(filepath)
+
+            # Try to append to CSV with retry logic
+            max_retries = 3
+            retry_delay = 1  # seconds
+
+            for attempt in range(max_retries):
+                try:
+                    with open(filepath, 'a', newline='') as f:
+                        writer = csv.DictWriter(f, fieldnames=parsed_data.keys())
+                        if not file_exists:
+                            writer.writeheader()
+                        writer.writerow(parsed_data)
+
+                    print(f"[{self.machine_name}] Data appended to: {filepath}")
+                    break  # Success, exit retry loop
+
+                except (IOError, PermissionError) as e:
+                    if attempt < max_retries - 1:
+                        print(f"[{self.machine_name}] Warning: File locked or inaccessible, retrying in {retry_delay}s... (Attempt {attempt + 1}/{max_retries})")
+                        time.sleep(retry_delay)
+                    else:
+                        # Final attempt failed, create backup file with timestamp
+                        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                        backup_filename = f"{self.machine_name}_{part_number}_{timestamp}_BACKUP.csv"
+                        backup_filepath = os.path.join('cnc_logs', backup_filename)
+
+                        with open(backup_filepath, 'w', newline='') as f:
+                            writer = csv.DictWriter(f, fieldnames=parsed_data.keys())
+                            writer.writeheader()
+                            writer.writerow(parsed_data)
+
+                        print(f"[{self.machine_name}] ERROR: Could not write to {filepath} (file may be open in Excel)")
+                        print(f"[{self.machine_name}] Data saved to backup file: {backup_filepath}")
+                        filepath = backup_filepath
+        else:
+            # Normal mode: Create new file for each cycle with timestamp
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+            if part_number:
+                filename = f"{self.machine_name}_{part_number}_{timestamp}.csv"
+            else:
+                filename = f"{self.machine_name}_unknown_part_{timestamp}.csv"
+
+            filepath = os.path.join('cnc_logs', filename)
+
+            # Write to CSV
+            try:
+                with open(filepath, 'w', newline='') as f:
+                    writer = csv.DictWriter(f, fieldnames=parsed_data.keys())
+                    writer.writeheader()
+                    writer.writerow(parsed_data)
+
+                print(f"[{self.machine_name}] Data saved to: {filepath}")
+            except (IOError, PermissionError) as e:
+                print(f"[{self.machine_name}] ERROR: Could not write to {filepath}: {e}")
+                raise
+
         return filepath
 
     def handle_client(self, client_socket: socket.socket,
@@ -217,8 +270,11 @@ class HaasDataLogger:
         try:
             server_socket.bind((self.host, self.port))
             server_socket.listen(5)
-            print(f"[{self.machine_name}] Haas CNC Data Logger started on {self.host}:{self.port}")
+            mode_str = "APPEND mode" if self.append_mode else "NEW FILE mode"
+            print(f"[{self.machine_name}] Haas CNC Data Logger started on {self.host}:{self.port} ({mode_str})")
             print(f"[{self.machine_name}] Waiting for connections...")
+            if self.append_mode:
+                print(f"[{self.machine_name}] TIP: Close CSV files in Excel to avoid file lock issues")
             print(f"[{self.machine_name}] Press Ctrl+C to stop")
 
             while self.running:
@@ -253,10 +309,16 @@ if __name__ == "__main__":
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='''
 Examples:
-  python haas_logger.py                          # Start on default port 5062
-  python haas_logger.py -p 5063                  # Start on custom port
-  python haas_logger.py -p 5062 -n "Mill_1"     # Start with custom machine name
-  python haas_logger.py -H 192.168.1.100 -p 5062 # Bind to specific IP
+    python haas_logger.py                          # Start on default port 5062 (new file per cycle)
+    python haas_logger.py -a                       # Append mode - all cycles for same part in one file
+    python haas_logger.py -p 5063                  # Start on custom port
+    python haas_logger.py -p 5062 -n "Mill_1" -a  # Custom name with append mode
+    python haas_logger.py -H 192.168.1.100 -p 5062 # Bind to specific IP
+
+Notes:
+    - In append mode (-a), close CSV files before production runs to avoid file locks
+    - If a file is locked, the script will retry 3 times then create a backup file
+    - Use read-only mode in Excel if you need to view data during production
         '''
     )
 
@@ -270,6 +332,10 @@ Examples:
     parser.add_argument('-n', '--name',
                         dest='machine_name',
                         help='Machine name for logging (default: Machine_Port####)')
+    parser.add_argument('-a', '--append',
+                        action='store_true',
+                        dest='append_mode',
+                        help='Append mode: Save all cycles for same part number to one file')
 
     args = parser.parse_args()
 
@@ -277,7 +343,8 @@ Examples:
     logger = HaasDataLogger(
         host=args.host,
         port=args.port,
-        machine_name=args.machine_name
+        machine_name=args.machine_name,
+        append_mode=args.append_mode
     )
 
     try:
