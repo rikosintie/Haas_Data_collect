@@ -1,5 +1,12 @@
 # Haas_Data_collect
 
+## Haas Connect
+
+Haas provides a cloud-based monitoring system for all new Next Gen controls. Here is a video describing it:
+
+[Haas Connect Intro](https://youtu.be/bvz6Fdciodo?si=HqzlgCH-FUSv_iA2)
+
+
 ## Python scripts and Haas DPRNT code to output data from NG controls
 
 The Haas CNC control supports a command named DPRNT. It allows data such as date/time, cycle count, cycle time, inspecion data, etc to be sent to a file on a USB Flash drive or a computer. Here is a Haas YouTube video on setting up your machine, writing a program and collecting the data on a Flash drive or PC.
