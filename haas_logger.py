@@ -75,8 +75,7 @@ class HaasDataLogger:
             'Date_YYMMDD': '',
             'Time_HHMMSS': '',
             'Parts_Counter': '',
-            'Last_Part_Time_Seconds': '',
-            'Raw_Data': data
+            'Last_Part_Time_Seconds': ''
         }
 
         # Extract part number and revision
