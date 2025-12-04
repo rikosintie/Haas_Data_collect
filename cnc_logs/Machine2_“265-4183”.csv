@@ -1,0 +1,4 @@
+Machine,Timestamp,Part_Number,Revision,Date_YYMMDD,Time_HHMMSS,Parts_Counter,Last_Part_Time_Seconds
+Machine2,2025-12-04 10:58:15,“265-4183”,“X2”,251204,105815,,
+Machine2,2025-12-04 10:58:20,“265-4183”,“X2”,251204,105820,,
+Machine2,2025-12-04 10:58:23,“265-4183”,“X2”,251204,105823,,
