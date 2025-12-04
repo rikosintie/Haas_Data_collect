@@ -176,3 +176,102 @@ python haas_logger.py --port 5062 --name "Machine1"
 [Machine1] End of cycle detected!
 [Machine1] Data saved to: cnc_logs/Machine1_“265-4183”_20251202_151020.csv
 ```
+
+----------------------------------------------------------------
+
+## Installing the script
+
+**Windows 10 and Windows 11**
+
+If you haven't done any Python development on your Windows machine it doesn't have Python or Git installed. Python is the language the scripts are written in and Git is the industry standard version control system for NetDevOps. Follow the instructions below to install both packages.
+
+Installing Python on Windows is simple.
+
+- click the start menu
+- Type microsoft store and press enter
+- search for python 3.12
+- Click on the Free button
+- click on Get
+
+One advantage of installing Python on Windows is the installer installs Python, pip and the Python Virtual environment venv. You can use where python from cmd.exe to verify that Python is installed.
+
+`where python`
+C:\Users\mhubbard\AppData\Local\Microsoft\WindowsApps\python.exe
+
+You can also use the GUI tool Add or Remove Programs to verify Python is installed.
+
+### Test the installation on Windows
+
+type `python`
+
+You should see something like this:
+
+```python
+Python 3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+```
+
+To quit Python, type:
+
+`quit()`
+
+## Install Git
+
+If you are on Windows and don't have git installed, use
+
+`winget install --id Git.Git -e --source winget`
+
+from cmd or PowerShell to install Git.
+
+WinGet, also known as the Windows Package Manager, is pre-installed on Windows 11 versions 21H2 and later. If you don't have winget installed, you can install it using these steps:
+
+    Type microsoft store in the Windows search bar, press enter
+    Search for App Installer
+    Click on Get
+
+Or you can install the git package from The Official Git Page. It seems better to use the Microsoft Store but I'm not a Windows expert.
+
+**macOS**
+
+Apple provides a package called xcode-select full of developer tools like Python, git, and gcc (Gnu C Compiler), etc. To install xcode-select
+
+    Open a terminal
+    Type xcode-select --install, press enter
+
+You can list the tools using
+
+`ls /Library/Developer/CommandLineTools/usr/bin/`
+
+You now have Python, git, venv and many other dev tools.
+
+**Ubuntu 24.04 or higher**
+
+Ubuntu comes with Python installed. We only need to install `git` to clone the repository.
+
+`sudo apt install git`
+
+----------------------------------------------------------------
+
+## Clone the Repository
+
+All of the installation steps are done in the Mac/Linux terminal or cmd.exe/PowerShell on Windows. In my recent testing on Windows 11 24H2, I learned a lot about PowerShell on Windows 11. I created a page on what my setup looks like. I highly recommend installing the Windows Terminal and setting up PowerShell if you are a Windows user. Here is a link to the page - [Using PowerShell with the Network Discovery scripts](https://rikosintie.github.io/Discovery/Using_PowerShell/). PowerShell is also available on Mac/Linux. The configurations on the Using Powershell page work on all three OSes.
+
+Open the Mac/Linux terminal or cmd/PowerShell and cd to a location you want to install the scripts into. Then paste the following:
+
+```bash
+git clone https://github.com/rikosintie/Haas_Data_collect.git
+cd Haas_Data_collect
+```
+
+The cloning operation creates a subfolder named `Haas_Data_collect`
+
+Inside folder will be the :
+
+- haas_logger.py - The script to listen for the Haas machines output
+- cnc_logs - a folder to hold the data files
+- dprnt_example.txt - A sample CNC program with the dprnt statements
+- README.md - A copy of this readme file in markdown format
+
+Note: You should run `git clone https://github.com/rikosintie/Haas_Data_collect.git` on a regular basis. If there are any updates to the project this will copy them down and overwrite the existing script.
+
+You can now execute the script to collect data.
