@@ -18,6 +18,32 @@ The Haas CNC control supports a command named DPRNT. It allows data such as date
 
 [DRNT for Haas CNC Controls](https://youtube.com/watch?v=g7hl2Lw4KdM&si=txrjMdDefbxXeBxp)
 
+### Configuring the control to output drpnt
+
+On the `settings` page, search for dprnt
+
+- Option 261 - set to tcp port 
+- Option 262 - set to User Data
+- Option 263 - set to 5052
+
+The port number has to be unique per machine. For example, my shop has six machines:
+
+- Machine1 - set to 5052
+- Machine2 - set to 5053
+- Machine3 - set to 5054
+- Machine4 - set to 5055
+- Machine5 - set to 5056
+- Machine6 - set to 5057
+
+Here is a screenshot for machine1
+
+<p align="left" width="100%">
+    <img width="50%" src="https://github.com/rikosintie/Haas_Data_collect/blob/main/Haas-dprnt.png">
+</p>
+
+
+----------------------------------------------------------------
+
 The script `Haas_logger.py` starts up and runs continuously until you press `ctrl_c`. When it receives the text string `End of Cycle` it writes the data to disk and resumes listening.
 
 The port to receive on is a parameter so multiple copies can be started to collect from multiple CNC Machines at the same time.
