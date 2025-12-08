@@ -81,8 +81,8 @@ For example - `Machine1_“265-4183”_20251202_151020.csv`
 If you want all data from a machine collected in one file instead of one file per cycle use the `-a` append flag.
 
 ```bsh
-python haas_logger.py -h
-usage: haas_logger.py [-h] [-H HOST] [-p PORT] [-n MACHINE_NAME] [-a]
+python haas_logger2.py -h
+usage: haas_logger2.py [-h] [-H HOST] [-p PORT] [-n MACHINE_NAME] [-a]
 
 Haas CNC Data Logger - Listens for machine data and saves to files
 
@@ -92,18 +92,18 @@ options:
   -p, --port PORT       Port to listen on (default: 5062)
   -n, --name MACHINE_NAME
                         Machine name for logging (default: Machine_Port####)
-  -a, --append          Append mode: Save all cycles for same part number to one file
+  -a, --append          Append mode: Save all cycles for the same part number to one file
 
 Examples:
-    python haas_logger.py                          # Start on default port 5062 (new file per cycle)
-    python haas_logger.py -a                       # Append mode - all cycles for same part in one file
-    python haas_logger.py -p 5063                  # Start on custom port
-    python haas_logger.py -p 5062 -n "Mill_1" -a  # Custom name with append mode
-    python haas_logger.py -H 192.168.1.100 -p 5062 # Bind to specific IP
+    python haas_logger2.py                          # Start on default port 5062 (new file per cycle)
+    python haas_logger2.py -a                       # Append mode - all cycles for the same part in one file
+    python haas_logger2.py -p 5063                  # Start on custom port
+    python haas_logger2.py -p 5062 -n "Mill_1" -a  # Custom name with append mode
+    python haas_logger2.py -H 192.168.1.100 -p 5062 # Bind to specific IP
 
 Notes:
     - In append mode (-a), close CSV files before production runs to avoid file locks
-    - If a file is locked, the script will retry 3 times then create a backup file
+    - If a file is locked, the script will retry 3 times, then create a backup file
     - Use read-only mode in Excel if you need to view data during production
 ```
 
@@ -119,14 +119,14 @@ Haas has a YouTube channel and this [video](https://youtube.com/watch?v=g7hl2Lw4
 
 [This page on the Haas site](https://www.haascnc.com/video/Video-Bonus-Content.html) has links to all the Haas videos on YouTube.
 
-The sample code for dprnt can be found [here](https://www.haascnc.com/content/dam/haascnc/videos/bonus-content/ep63-dprnt/dprntexample_1.nc):
+The sample code for DPRNT can be found [here](https://www.haascnc.com/content/dam/haascnc/videos/bonus-content/ep63-dprnt/dprntexample_1.nc):
 
 ### Here is a simple example
 
 ```cnc
 %
 O03020 (DPRNT PART DATA)
-G04 P1. (1 SECOND DWELL, JUST SO WE HAVE A CYCLE TIME)
+G04 P1. (1 SECOND DWELL, SO WE HAVE A CYCLE TIME)
 G103 P1 (LIMIT LOOKAHEAD)
 (DPRNT BLANK LINE)
 DPRNT[]
@@ -158,7 +158,7 @@ M30
 **Screen output from haas_logger2.py when using the Append flag**
 
 ```python
-python haas_logger.py --port 5062 -a --name "Machine1"
+python haas_logger2.py --port 5062 -a --name "Machine1"
 [Machine1] Haas CNC Data Logger started on 0.0.0.0:5062 (APPEND mode)
 [Machine1] Waiting for connections...
 [Machine1] TIP: Close CSV files in Excel to avoid file lock issues
@@ -178,7 +178,7 @@ python haas_logger.py --port 5062 -a --name "Machine1"
 **Screen output from haas_logger2.py without the Append flag**
 
 ```python
-python haas_logger.py --port 5062 --name "Machine1"
+python haas_logger2.py --port 5062 --name "Machine1"
 [Machine1] Haas CNC Data Logger started on 0.0.0.0:5062
 [Machine1] Waiting for connections...
 [Machine1] Press Ctrl+C to stop
@@ -209,19 +209,19 @@ python haas_logger.py --port 5062 --name "Machine1"
 
 **Windows 10 and Windows 11**
 
-If you haven't done any Python development on your Windows machine it doesn't have Python or Git installed. Python is the language the scripts are written in and Git is the industry standard version control system for NetDevOps. Follow the instructions below to install both packages.
+If you haven't done any Python development on your Windows machine, it won't have Python or Git installed. Python is the language the scripts are written in and Git is the industry standard version control system for NetDevOps. Follow the instructions below to install both packages.
 
 Installing Python on Windows is simple.
 
 **NOTE: Select "Install for all users" during the installation. If you don't select the all users option, only the user account that did the installation will have access.**
 
 - click the start menu
-- Type microsoft store and press enter
-- search for python 3.12
+- Type Microsoft Store and press Enter
+- search for Python 3.12
 - Click on the Free button
 - click on Get
 
-One advantage of installing Python on Windows is the installer installs Python, pip and the Python Virtual environment venv. You can use where python from cmd.exe to verify that Python is installed.
+One advantage of installing Python on Windows is that the installer installs Python, pip, and the Python Virtual Environment venv. You can use where python from cmd.exe to verify that Python is installed.
 
 `where python`
 C:\Users\mhubbard\AppData\Local\Microsoft\WindowsApps\python.exe
@@ -270,7 +270,7 @@ You can list the tools using
 
 `ls /Library/Developer/CommandLineTools/usr/bin/`
 
-You now have Python, git, venv and many other dev tools.
+You now have Python, git, venv, and many other dev tools.
 
 **Ubuntu 24.04 or higher**
 
