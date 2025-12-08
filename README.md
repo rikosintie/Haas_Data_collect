@@ -44,30 +44,30 @@ Here is a screenshot for machine1
 
 ----------------------------------------------------------------
 
-The script `Haas_logger.py` starts up and runs continuously until you press `ctrl_c`. When it receives the text string `End of Cycle` it writes the data to disk and resumes listening.
+The script `Haas_logger2.py` starts up and runs continuously until you press `ctrl_c`. When it receives the text string `End of Cycle` it writes the data to disk and resumes listening.
 
-The port to receive on is a parameter so multiple copies can be started to collect from multiple CNC Machines at the same time.
+The port to receive on is a parameter, so multiple copies can be started to collect from numerous CNC Machines at the same time.
 
 ## Usage examples
 
 ```python
 # Machine 1
-python haas_logger.py --port 5062 --name "Lathe1"
+python haas_logger2.py -t 192.168.1.10  --port 5062 --name "Lathe1"
 
 # Machine 2
-python haas_logger.py --port 5063 --name "Lathe2"
+python haas_logger2.py -t 192.168.1.10  --port 5063 --name "Lathe2"
 
 # Machine 3
-python haas_logger.py -p 5064 -n "Lathe3"
+python haas_logger2.py -t 192.168.1.10  -p 5064 -n "Lathe3"
 
 # Machine 4
-python haas_logger.py -p 5065 -n "Mill1"
+python haas_logger2.py -t 192.168.1.10  -p 5065 -n "Mill1"
 
 # Machine 5
-python haas_logger.py -p 5066 -n "Mill2"
+python haas_logger2.py -t 192.168.1.10  -p 5066 -n "Mill2"
 
 # Machine 6
-python haas_logger.py -p 5067 -n "Mill3"
+python haas_logger2.py -t 192.168.1.10 -p 5067 -n "Mill3"
 ```
 
 A new file is created each time using the naming format: `machine-name_"part-number"_yymmdd_hh:mm:ss.csv`.
@@ -155,7 +155,7 @@ M30
 
 ----------------------------------------------------------------
 
-Screen output from haas_logger.py when using teh Append flag
+**Screen output from haas_logger2.py when using the Append flag**
 
 ```python
 python haas_logger.py --port 5062 -a --name "Machine1"
@@ -175,7 +175,7 @@ python haas_logger.py --port 5062 -a --name "Machine1"
 [Machine1] Connection closed from ('192.168.10.143', 46606)
 ```
 
-Screen output form haas_logger.py without the Append flag
+**Screen output from haas_logger2.py without the Append flag**
 
 ```python
 python haas_logger.py --port 5062 --name "Machine1"
@@ -213,6 +213,8 @@ If you haven't done any Python development on your Windows machine it doesn't ha
 
 Installing Python on Windows is simple.
 
+**NOTE: Select "Install for all users" during the installation. If you don't select the all users option, only the user account that did the installation will have access.**
+
 - click the start menu
 - Type microsoft store and press enter
 - search for python 3.12
@@ -249,13 +251,13 @@ If you are on Windows and don't have git installed, use
 
 from cmd or PowerShell to install Git.
 
-WinGet, also known as the Windows Package Manager, is pre-installed on Windows 11 versions 21H2 and later. If you don't have winget installed, you can install it using these steps:
+WinGet, also known as the Windows Package Manager, is pre-installed on Windows 11 versions 21H2 and later. If you don't have Winget installed, you can install it using these steps:
 
-    Type microsoft store in the Windows search bar, press enter
+    Type Microsoft Store in the Windows search bar, and press Enter
     Search for App Installer
     Click on Get
 
-Or you can install the git package from The Official Git Page. It seems better to use the Microsoft Store but I'm not a Windows expert.
+Or you can install the git package from The Official Git Page. It seems better to use the Microsoft Store, but I'm not a Windows expert.
 
 **macOS**
 
@@ -280,7 +282,7 @@ Ubuntu comes with Python installed. We only need to install `git` to clone the r
 
 ## Clone the Repository
 
-All of the installation steps are done in the Mac/Linux terminal or cmd.exe/PowerShell on Windows. In my recent testing on Windows 11 24H2, I learned a lot about PowerShell on Windows 11. I created a page on what my setup looks like. I highly recommend installing the Windows Terminal and setting up PowerShell if you are a Windows user. Here is a link to the page - [Using PowerShell with the Network Discovery scripts](https://rikosintie.github.io/Discovery/Using_PowerShell/). PowerShell is also available on Mac/Linux. The configurations on the Using Powershell page work on all three OSes.
+The installation steps are done in the Mac/Linux terminal or cmd.exe/PowerShell on Windows. In my recent testing on Windows 11 24H2, I learned a lot about PowerShell using on Windows 11. I created a page on what my setup looks like. I highly recommend installing the Windows Terminal and setting up PowerShell if you are a Windows user. Here is a link to the page - [Using PowerShell with the Network Discovery scripts](https://rikosintie.github.io/Discovery/Using_PowerShell/). PowerShell is also available on Mac/Linux. The configurations on the "Using PowerShell" page work on all three OSes.
 
 Open the Mac/Linux terminal or cmd/PowerShell and cd to a location you want to install the scripts into. Then paste the following:
 
@@ -291,13 +293,49 @@ cd Haas_Data_collect
 
 The cloning operation creates a subfolder named `Haas_Data_collect`
 
-Inside folder will be the :
+Inside the folder will be the :
 
-- haas_logger.py - The script to listen for the Haas machines output
+- haas_logger2.py - The script to listen for the Haas machines' output
 - cnc_logs - a folder to hold the data files
 - dprnt_example.txt - A sample CNC program with the dprnt statements
-- README.md - A copy of this readme file in markdown format
+- README.md - A copy of this README file in markdown format
 
-Note: You should run `git clone https://github.com/rikosintie/Haas_Data_collect.git` on a regular basis. If there are any updates to the project this will copy them down and overwrite the existing script.
+Note: You should run `git clone https://github.com/rikosintie/Haas_Data_collect.git` on a regular basis. If there are any updates to the project, this will copy them down and overwrite the existing script.
 
 You can now execute the script to collect data.
+
+## If you don't have access to a Haas control
+
+You can use the Linux `netcat` application to simulate a Haas control on a Linux laptop.
+
+- Open a terminal
+- paste in `sudo nc -lvkp 5062` and press Enter
+
+You will see `Listening on 0.0.0.0 5062` in the terminal. 
+
+Type the dprnt commands, pressing Enter after each one. 
+Type `End of Cycle` to write the data.
+
+```bash
+sudo nc -lvkp 5062
+[sudo] password for mhubbard: 
+Listening on 0.0.0.0 5062
+Connection received on 1S1K-G5-5587.pu.pri 41104
+PART NUMBER: 265-4183, REV. X2
+End of Cycle
+```
+
+In this example, my server is at 192.168.10.223.
+
+On the machine with the script running:
+
+```bash
+[Machine2] Attempting to connect to 192.168.10.223:5062...
+[Machine2] Successfully connected!
+[Machine2] Connected to ('192.168.10.223', 5062)
+[Machine2] Part number detected: 265-4183
+[Machine2] End of cycle detected!
+[Machine2] Data saved to: cnc_logs/Machine2_265-4183_20251208_121016.csv
+```
+
+
