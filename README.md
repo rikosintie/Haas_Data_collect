@@ -52,22 +52,22 @@ The port to receive on is a parameter, so multiple copies can be started to coll
 
 ```python
 # Machine 1
-python haas_logger2.py -t 192.168.1.10  --port 5062 --name "Lathe1"
+python haas_logger2.py -t 192.168.1.10  --port 5052 --name "Lathe1"
 
 # Machine 2
-python haas_logger2.py -t 192.168.1.10  --port 5063 --name "Lathe2"
+python haas_logger2.py -t 192.168.1.10  --port 5053 --name "Lathe2"
 
 # Machine 3
-python haas_logger2.py -t 192.168.1.10  -p 5064 -n "Lathe3"
+python haas_logger2.py -t 192.168.1.10  -p 5054 -n "Lathe3"
 
 # Machine 4
-python haas_logger2.py -t 192.168.1.10  -p 5065 -n "Mill1"
+python haas_logger2.py -t 192.168.1.10  -p 5055 -n "Mill1"
 
 # Machine 5
-python haas_logger2.py -t 192.168.1.10  -p 5066 -n "Mill2"
+python haas_logger2.py -t 192.168.1.10  -p 5056 -n "Mill2"
 
 # Machine 6
-python haas_logger2.py -t 192.168.1.10 -p 5067 -n "Mill3"
+python haas_logger2.py -t 192.168.1.10 -p 5057 -n "Mill3"
 ```
 
 A new file is created each time using the naming format: `machine-name_"part-number"_yymmdd_hh:mm:ss.csv`.
@@ -89,17 +89,17 @@ Haas CNC Data Logger - Listens for machine data and saves to files
 options:
   -h, --help            show this help message and exit
   -H, --host HOST       Host IP to bind to (default: 0.0.0.0)
-  -p, --port PORT       Port to listen on (default: 5062)
+  -p, --port PORT       Port to listen on (default: 5052)
   -n, --name MACHINE_NAME
                         Machine name for logging (default: Machine_Port####)
   -a, --append          Append mode: Save all cycles for the same part number to one file
 
 Examples:
-    python haas_logger2.py                          # Start on default port 5062 (new file per cycle)
+    python haas_logger2.py                          # Start on default port 5052 (new file per cycle)
     python haas_logger2.py -a                       # Append mode - all cycles for the same part in one file
-    python haas_logger2.py -p 5063                  # Start on custom port
-    python haas_logger2.py -p 5062 -n "Mill_1" -a  # Custom name with append mode
-    python haas_logger2.py -H 192.168.1.100 -p 5062 # Bind to specific IP
+    python haas_logger2.py -p 5053                  # Start on custom port
+    python haas_logger2.py -p 5052 -n "Mill_1" -a  # Custom name with append mode
+    python haas_logger2.py -H 192.168.1.100 -p 5052 # Bind to specific IP. If the server the script is running on has multiple IP addresses.
 
 Notes:
     - In append mode (-a), close CSV files before production runs to avoid file locks
@@ -158,8 +158,8 @@ M30
 **Screen output from haas_logger2.py when using the Append flag**
 
 ```python
-python haas_logger2.py --port 5062 -a --name "Machine1"
-[Machine1] Haas CNC Data Logger started on 0.0.0.0:5062 (APPEND mode)
+python haas_logger2.py --port 5052 -a --name "Machine1"
+[Machine1] Haas CNC Data Logger started on 0.0.0.0:5052 (APPEND mode)
 [Machine1] Waiting for connections...
 [Machine1] TIP: Close CSV files in Excel to avoid file lock issues
 [Machine1] Press Ctrl+C to stop
@@ -178,8 +178,8 @@ python haas_logger2.py --port 5062 -a --name "Machine1"
 **Screen output from haas_logger2.py without the Append flag**
 
 ```python
-python haas_logger2.py --port 5062 --name "Machine1"
-[Machine1] Haas CNC Data Logger started on 0.0.0.0:5062
+python haas_logger2.py --port 5052 --name "Machine1"
+[Machine1] Haas CNC Data Logger started on 0.0.0.0:5052
 [Machine1] Waiting for connections...
 [Machine1] Press Ctrl+C to stop
 [Machine1] Connection established from ('127.0.0.1', 43052)
@@ -309,17 +309,17 @@ You can now execute the script to collect data.
 You can use the Linux `netcat` application to simulate a Haas control on a Linux laptop.
 
 - Open a terminal
-- paste in `sudo nc -lvkp 5062` and press Enter
+- paste in `sudo nc -lvkp 5052` and press Enter
 
-You will see `Listening on 0.0.0.0 5062` in the terminal. 
+You will see `Listening on 0.0.0.0 5052` in the terminal. 
 
 Type the dprnt commands, pressing Enter after each one. 
 Type `End of Cycle` to write the data.
 
 ```bash
-sudo nc -lvkp 5062
+sudo nc -lvkp 5052
 [sudo] password for mhubbard: 
-Listening on 0.0.0.0 5062
+Listening on 0.0.0.0 5052
 Connection received on 1S1K-G5-5587.pu.pri 41104
 PART NUMBER: 265-4183, REV. X2
 End of Cycle
@@ -330,9 +330,9 @@ In this example, my server is at 192.168.10.223.
 On the machine with the script running:
 
 ```bash
-[Machine2] Attempting to connect to 192.168.10.223:5062...
+[Machine2] Attempting to connect to 192.168.10.223:5052...
 [Machine2] Successfully connected!
-[Machine2] Connected to ('192.168.10.223', 5062)
+[Machine2] Connected to ('192.168.10.223', 5052)
 [Machine2] Part number detected: 265-4183
 [Machine2] End of cycle detected!
 [Machine2] Data saved to: cnc_logs/Machine2_265-4183_20251208_121016.csv
