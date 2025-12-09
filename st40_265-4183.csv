@@ -1,0 +1,11 @@
+Machine,Timestamp,Part_Number,Revision,Date_YYMMDD,Time_HHMMSS,Parts_Counter,Last_Part_Time_Seconds
+st40,2025-12-09 15:13:58,265-4183,"X2
+
+ DATE YYMMDD: 251209
+ TIME HHMMSS: 150843
+
+
+ PARTS MADE: 626
+
+ TIME, LAST PART: 11 SECONDS
+End of Cycle",251209,150843,626,11
