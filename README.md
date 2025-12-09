@@ -46,28 +46,30 @@ Here is a screenshot for machine1
 
 The script `Haas_logger2.py` starts up and runs continuously until you press `ctrl_c`. When it receives the text string `End of Cycle` it writes the data to disk and resumes listening.
 
-The port to receive on is a parameter, so multiple copies can be started to collect from numerous CNC Machines at the same time.
+The port to receive on is a parameter, so multiple copies can be started on the same server to collect from numerous CNC Machines at the same time.
+
+-t is the IP address of the machine tool. The script will connect to the machine using that IP address like putty does in the Haas Video.
 
 ## Usage examples
 
 ```python
 # Machine 1
-python haas_logger2.py -t 192.168.1.10  --port 5052 --name "Lathe1"
+python haas_logger2.py -t 192.168.1.11  --port 5052 --name "Lathe1"
 
 # Machine 2
-python haas_logger2.py -t 192.168.1.10  --port 5053 --name "Lathe2"
+python haas_logger2.py -t 192.168.1.12  --port 5053 --name "Lathe2"
 
 # Machine 3
-python haas_logger2.py -t 192.168.1.10  -p 5054 -n "Lathe3"
+python haas_logger2.py -t 192.168.1.13  -p 5054 -n "Lathe3"
 
 # Machine 4
-python haas_logger2.py -t 192.168.1.10  -p 5055 -n "Mill1"
+python haas_logger2.py -t 192.168.1.14  -p 5055 -n "Mill1"
 
 # Machine 5
-python haas_logger2.py -t 192.168.1.10  -p 5056 -n "Mill2"
+python haas_logger2.py -t 192.168.1.15  -p 5056 -n "Mill2"
 
 # Machine 6
-python haas_logger2.py -t 192.168.1.10 -p 5057 -n "Mill3"
+python haas_logger2.py -t 192.168.1.16 -p 5057 -n "Mill3"
 ```
 
 A new file is created each time using the naming format: `machine-name_"part-number"_yymmdd_hh:mm:ss.csv`.
@@ -80,36 +82,49 @@ For example - `Machine1_“265-4183”_20251202_151020.csv`
 
 If you want all data from a machine collected in one file instead of one file per cycle use the `-a` append flag.
 
-```bsh
-python haas_logger2.py -h
-usage: haas_logger2.py [-h] [-H HOST] [-p PORT] [-n MACHINE_NAME] [-a]
+If you run the script with just `-h` as a flag the following help will be printed to the screen.
 
-Haas CNC Data Logger - Listens for machine data and saves to files
+```bash
+python haas_logger2.py -h                                             
+usage: haas_logger2.py [-h] [-H HOST] [-p PORT] [-n MACHINE_NAME] [-a] [-t TARGET_IP]
+
+Haas CNC Data Logger - Listens for or connects to machine data and saves to files
 
 options:
   -h, --help            show this help message and exit
-  -H, --host HOST       Host IP to bind to (default: 0.0.0.0)
-  -p, --port PORT       Port to listen on (default: 5052)
+  -H, --host HOST       Host IP to bind to in server mode (default: 0.0.0.0)
+  -p, --port PORT       Port to listen on or connect to (default: 5062)
   -n, --name MACHINE_NAME
                         Machine name for logging (default: Machine_Port####)
-  -a, --append          Append mode: Save all cycles for the same part number to one file
+  -a, --append          Append mode: Save all cycles for same part number to one file
+  -t, --target TARGET_IP
+                        Target IP address to connect to (client mode). If not specified, runs in server mode.
 
 Examples:
-    python haas_logger2.py                          # Start on default port 5052 (new file per cycle)
-    python haas_logger2.py -a                       # Append mode - all cycles for the same part in one file
-    python haas_logger2.py -p 5053                  # Start on custom port
-    python haas_logger2.py -p 5052 -n "Mill_1" -a  # Custom name with append mode
-    python haas_logger2.py -H 192.168.1.100 -p 5052 # Bind to specific IP. If the server the script is running on has multiple IP addresses.
+    SERVER MODE (machine connects to you):
+    python haas_logger.py                          # Listen on default port 5062
+    python haas_logger.py -p 5063 -a               # Listen on port 5063 with append mode
+    python haas_logger.py -H 0.0.0.0 -p 5062       # Listen on all interfaces
+
+    CLIENT MODE (you connect to machine):
+    python haas_logger.py -t 192.168.1.100         # Connect to machine at this IP
+    python haas_logger.py -t 192.168.1.100 -p 5063 # Connect to machine on custom port
+    python haas_logger.py -t 192.168.1.100 -a -n "Mill_1"  # Connect with append mode and custom name
 
 Notes:
+    - Use -t/--target to connect to a Haas machine (client mode)
+    - Without -t, the script waits for the machine to connect (server mode)
     - In append mode (-a), close CSV files before production runs to avoid file locks
-    - If a file is locked, the script will retry 3 times, then create a backup file
-    - Use read-only mode in Excel if you need to view data during production
+    - If a file is locked, the script will retry 3 times then create a backup file
+    - In client mode, the script will auto-reconnect if the connection is lost
 ```
 
 One file is created using the naming format: `machine-name_part-number.csv`.
 
 For example - `Machine1_strut.csv`
+
+**NOTE:** Server mode isn't for use with Haas Data Collection. It's a mode for testing the script. 
+The haas_simulator.py script is used to send data to the script running in server mode.
 
 ----------------------------------------------------------------
 
