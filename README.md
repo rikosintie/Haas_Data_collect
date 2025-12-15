@@ -3,6 +3,7 @@
 A repository for scripts and information related to collecting data from Hass CNC machine tools
 
 **Purpose:**
+
  The project enables Haas CNC machines with NG controls to output operational data using DPRNT commands, which the Python scripts then capture and log.
 
 **Core Scripts:**
