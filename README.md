@@ -2,6 +2,25 @@
 
 A repository for scripts and information related to collecting data from Hass CNC machine tools
 
+**Purpose:**
+ The project enables Haas CNC machines with NG controls to output operational data using DPRNT commands, which the Python scripts then capture and log.
+
+**Core Scripts:**
+
+- haas_logger2.py → Connects to a Haas machine over TCP/IP, receives DPRNT output, and writes it into CSV files.
+
+- haas_simulator.py → Simulates Haas machine output for testing without needing a live machine.
+
+**Workflow:**
+
+1. Set Haas Options 261, 262, 263 to enable TCP/IP output
+
+2. Python logger script connects to the machine’s IP/port.
+
+3. Haas NG control sends DPRNT messages over the network.
+
+4. Data is written into CSV files for later analysis.
+
 ----------------------------------------------------------------
 
 ## Haas Connect
