@@ -22,7 +22,7 @@ The Haas CNC control supports a command named DPRNT. It allows data such as date
 
 On the `settings` page, search for dprnt
 
-- Option 261 - set to tcp port 
+- Option 261 - set to tcp port
 - Option 262 - set to User Data
 - Option 263 - set to 5052
 
@@ -85,7 +85,7 @@ If you want all data from a machine collected in one file instead of one file pe
 If you run the script with just `-h` as a flag the following help will be printed to the screen.
 
 ```bash
-python haas_logger2.py -h                                             
+python haas_logger2.py -h
 usage: haas_logger2.py [-h] [-H HOST] [-p PORT] [-n MACHINE_NAME] [-a] [-t TARGET_IP]
 
 Haas CNC Data Logger - Listens for or connects to machine data and saves to files
@@ -123,7 +123,7 @@ One file is created using the naming format: `machine-name_part-number.csv`.
 
 For example - `Machine1_strut.csv`
 
-**NOTE:** Server mode isn't for use with Haas Data Collection. It's a mode for testing the script. 
+**NOTE:** Server mode isn't for use with Haas Data Collection. It's a mode for testing the script.
 The haas_simulator.py script is used to send data to the script running in server mode.
 
 ----------------------------------------------------------------
@@ -230,18 +230,31 @@ Installing Python on Windows is simple.
 
 **NOTE: Select "Install for all users" during the installation. If you don't select the all users option, only the user account that did the installation will have access.**
 
-- click the start menu
-- Type Microsoft Store and press Enter
-- search for Python 3.12
-- Click on the Free button
-- click on Get
+- Open the Edge browser
+- Go to this URL https://www.python.org/downloads/
+- Click on the button for Python 3.14.2 (or the latest version)
+- Select `Open File` so that the install starts when the download finishes.
+
+### Custom settings
+
+You must select `for all users (requires admin privileges). If you don't select the `all users option`, only the user account that did the installation will have access to run the scripts.
+
+<p align="left" width="100%">
+    <img width="50%" src="https://github.com/rikosintie/Haas_Data_collect/blob/main/python.png">
+</p>
+
+Click next, on this dialog check the check "Add Python to environment variables"
+
+For the path I recommend changing it to `c:\python3.14`. I like to start the script using a batch file and having a space in the path is a pain to deal with.
+
+Click `Install` to finish the installation.
 
 One advantage of installing Python on Windows is that the installer installs Python, pip, and the Python Virtual Environment venv. You can use where python from cmd.exe to verify that Python is installed.
 
 `where python`
-C:\Users\mhubbard\AppData\Local\Microsoft\WindowsApps\python.exe
+C:\python3.14\python.exe
 
-You can also use the GUI tool Add or Remove Programs to verify Python is installed.
+You can use the GUI tool Add or Remove Programs to verify Python is installed.
 
 ### Test the installation on Windows
 
@@ -250,7 +263,7 @@ type `python`
 You should see something like this:
 
 ```python
-Python 3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)] on win32
+Python 3.14.2 (tags/v3.14.2:df79316, Dec  5 2025, 17:18:21) [MSC v.1944 64 bit (AMD64)] on win32
 Type "help", "copyright", "credits" or "license" for more information.
 ```
 
@@ -319,6 +332,67 @@ Note: You should run `git clone https://github.com/rikosintie/Haas_Data_collect.
 
 You can now execute the script to collect data.
 
+----------------------------------------------------------------
+
+## If you can't install git
+
+Open the Edge browser and navigate to [Haas_Data_collect](https://github.com/rikosintie/Haas_Data_collect). Click the green `Code` button. At the bottom you will see `Download ZIP`. Once the zip file is downloaded extract the files.
+
+**NOTE: The unzip process with create two `Haas_Data_collect_main` folders. Navigate to the second one, highlight all the files, cut and paste them into the first folder.**
+
+----------------------------------------------------------------
+
+## Start up files
+
+If you have several Haas machines and want to collect data from all of them it gets tiresome to type the script command for each machine. I have created two Windows batch files that you can modify or your own use.
+
+**This batch file uses the Windows cmd.exe to open a new cmd process for each machine:**
+
+```bash
+set PY=C:\Python314\python.exe
+set SCRIPT=C:\Users\micha\Downloads\Haas_Data_collect-main\haas_logger2.py
+
+rem Start each CNC logger in its own window
+
+start "ST40"      cmd /k "%PY% %SCRIPT% -t 192.168.0.21 -a -p 5052 -n VF2SS"
+start "VF2SS "    cmd /k "%PY% %SCRIPT% -t 192.168.0.22 -a -p 5053 -n VF3"
+start "VF5SS "    cmd /k "%PY% %SCRIPT% -t 192.168.0.23 -a -p 5054 -n VF4"
+start "MINIMILL"  cmd /k "%PY% %SCRIPT% -t 192.168.0.24 -a -p 5055 -n MINIMILL"
+start "ST30"      cmd /k "%PY% %SCRIPT% -t 192.168.0.25 -a -p 5056 -n UMC500"
+start "ST30L"     cmd /k "%PY% %SCRIPT% -t 192.168.0.26 -a -p 5057 -n ST20"
+
+exit /b
+```
+
+You will need to change the PY variable to match where you installed Python, the `SCRIPT` variable to the path where you unzipped the files.
+
+Then update the IP Addresses and names to match your machines.
+
+----------------------------------------------------------------
+
+**This batch file uses the Windows terminal to open a new tab for each machine:**
+
+```bash
+@echo off
+REM Launch Haas loggers in separate tabs
+
+wt ^
+  new-tab -p "Haas Loggers ST40" ^
+  ; new-tab -p "Haas Loggers VF2SS" ^
+  ; new-tab -p "Haas Loggers VF5SS" ^
+  ; new-tab -p "Haas Loggers MINIMILL" ^
+  ; new-tab -p "Haas Loggers ST30" ^
+  ; new-tab -p "Haas Loggers ST30L"
+```
+
+You will need to change the PY variable to match where you installed Python, the `SCRIPT` variable to the path where you unzipped the files.
+
+Then update the IP Addresses and names to match your machines.
+
+I prefer the terminal script if you have the Windows terminal installed.
+
+----------------------------------------------------------------
+
 ## If you don't have access to a Haas control
 
 You can use the Linux `netcat` application to simulate a Haas control on a Linux laptop.
@@ -326,14 +400,14 @@ You can use the Linux `netcat` application to simulate a Haas control on a Linux
 - Open a terminal
 - paste in `sudo nc -lvkp 5052` and press Enter
 
-You will see `Listening on 0.0.0.0 5052` in the terminal. 
+You will see `Listening on 0.0.0.0 5052` in the terminal.
 
-Type the dprnt commands, pressing Enter after each one. 
+Type the dprnt commands, pressing Enter after each one.
 Type `End of Cycle` to write the data.
 
 ```bash
 sudo nc -lvkp 5052
-[sudo] password for mhubbard: 
+[sudo] password for mhubbard:
 Listening on 0.0.0.0 5052
 Connection received on 1S1K-G5-5587.pu.pri 41104
 PART NUMBER: 265-4183, REV. X2
@@ -352,5 +426,3 @@ On the machine with the script running:
 [Machine2] End of cycle detected!
 [Machine2] Data saved to: cnc_logs/Machine2_265-4183_20251208_121016.csv
 ```
-
-
