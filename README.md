@@ -450,3 +450,18 @@ On the machine with the script running:
 [Machine2] End of cycle detected!
 [Machine2] Data saved to: cnc_logs/Machine2_265-4183_20251208_121016.csv
 ```
+
+----------------------------------------------------------------
+
+## Appendix A - Allowed/Disallowed Characters
+
+### Allowed Characters
+
+- +,-.*()?:#{}_/
+- a-z A-Z 0-9
+
+### Disallowed characters, results in alarm 535
+
+- "&\;`~|'<>!@$%^=
+- other languages like αβγ汉字
+- ascii chars like ®±€
