@@ -240,12 +240,16 @@ Installing Python on Windows is simple.
 You must select `for all users (requires admin privileges). If you don't select the `all users option`, only the user account that did the installation will have access to run the scripts.
 
 <p align="left" width="100%">
-    <img width="50%" src="https://github.com/rikosintie/Haas_Data_collect/blob/main/python.png">
+    <img width="50%" src="https://github.com/rikosintie/Haas_Data_collect/blob/main/Python.png">
 </p>
 
 Click next, on this dialog check the check "Add Python to environment variables"
 
 For the path I recommend changing it to `c:\python3.14`. I like to start the script using a batch file and having a space in the path is a pain to deal with.
+
+<p align="left" width="100%">
+    <img width="50%" src="https://github.com/rikosintie/Haas_Data_collect/blob/main/Python1.png">
+</p>
 
 Click `Install` to finish the installation.
 
