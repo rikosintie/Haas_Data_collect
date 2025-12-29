@@ -1,0 +1,12 @@
+[Unit]
+Description={{description}}
+After=network.target
+
+[Service]
+User={{username}}
+WorkingDirectory=/home/{{username}}/Haas/Haas_Data_collect
+ExecStart=/usr/bin/python3 /home/mhubbard/Haas/Haas_Data_collect/haas_logger2.py -a -t {{ip_address}}  --port {{port}} --name {{name}}
+Type=idle
+
+[Install]
+WantedBy=multi-user.target
