@@ -1,0 +1,12 @@
+[Unit]
+Description=Haas Python logger for ST30L
+After=network.target
+
+[Service]
+User=mhubbard
+WorkingDirectory=/home/mhubbard/Haas/Haas_Data_collect
+ExecStart=/usr/bin/python3 /home/mhubbard/Haas/Haas_Data_collect/haas_logger2.py -a -t 192.168.10.145  --port 5057 --name ST30L
+Type=idle
+
+[Install]
+WantedBy=multi-user.target
