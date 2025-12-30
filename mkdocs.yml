@@ -7,11 +7,12 @@ nav:
   - home: README.md
   - Intro: Introduction.md
   - Usage: usage.md
+  - Pi_5_Appliance.md
 
 theme:
   name: material
   font:
-    text: Merriweather Sans
+    text: Ubuntu
     code: Red Hat Mono
   logo: img/ubuntu_icon1.png
   features:
