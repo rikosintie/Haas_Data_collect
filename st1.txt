@@ -1,0 +1,5 @@
+sudo cp st1.service /etc/systemd/system/st1.service
+sudo systemctl daemon-reload
+sudo systemctl enable st1.service
+sudo systemctl start st1.service
+sudo systemctl status st1.service

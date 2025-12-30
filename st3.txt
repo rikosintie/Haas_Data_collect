@@ -1,0 +1,5 @@
+sudo cp st3.service /etc/systemd/system/st3.service
+sudo systemctl daemon-reload
+sudo systemctl enable st3.service
+sudo systemctl start st3.service
+sudo systemctl status st3.service
