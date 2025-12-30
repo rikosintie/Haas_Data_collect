@@ -1,8 +1,12 @@
-# Haas_Data_collect
+# Haas Data Collection project
 
-A repository for scripts and information related to collecting data from Hass CNC machine tools
+This is the Github Pages documentation for the Haas Data Collection project.
 
-**Purpose:**
+The code for the project can be found at this [Github repository](https://github.com/rikosintie/Haas_Data_collect)
+
+----------------------------------------------------------------
+
+## Purpose
 
  The project enables Haas CNC machines with NG controls to output operational data using DPRNT commands, which the Python scripts then capture and log.
 
@@ -467,74 +471,3 @@ On the machine with the script running:
 - ascii chars like ®±€
 
 ----------------------------------------------------------------
-
-## Create a Raspberry Pi 5 Appliance
-
-Raspberry Pis have become popular for industrial applications. They are inexpensive, reliable and have a massive amount of blogs, YouTube videos, and magazines supporting them. Canonical, Ubuntu's publisher, has a dedicated Raspberry Pi page located [Here](https://ubuntu.com/download/raspberry-pi).
-
-Once you have Ubuntu installed, follow these instructions to:
-
-- clone the repository
-- Create the systemd service files
-- Enable the Haas data collection service
-
-#### Headless (Server version)
-
-If you are creating a headless (no desktop) version of an appliance using Ubuntu server you will be using ssh or a serial console cable to configure the Pi.
-
-#### Desktop Version
-
-If you installed the Desktop version of Ubuntu you can use a Keyboard, Mouse, Monitor to configure the Pi.
-
-
-### Clone the repository
-
-NOTE: Linux uses a case sensitive file system. So `Haas` is different than `haas`. Make sure you use `mkdir Haas` when you create the directory.
-
-Open a terminal on the Pi.
-- Create a folder named `Haas` using `mkdir Haas`.
-- Change to the Haas directory using `cd Haas`
-- Clone the repository using `git clone https://github.com/rikosintie/Haas_Data_collect.git'
-- Change to the `Haas_Data_collect` folder using `cd Haas_Data_collect`
-
-### The systemd service files
-
-The service files are where you define how to call the python script when the Pi starts up. In the repository there are six files representing six different machine tools. The Ports and IP addresses used are:
-
-- ST40     5052 192.168.10.140
-- VF2SS    5053 192.168.0.141
-- VF5SS    5054 192.168.0.142
-- MINIMILL 5055 192.168.0.143
-- ST30     5056 192.168.0.144
-- ST30L   5057 192.168.0.145
-
-You will  have different IP addresses on your machine tools. No problem, just make a table of the name you want, the port, and the IP Address. Then modify the existing service files. Here is the format:
-
-```bash
-[Unit]
-Description=Haas Python logger for ST40
-After=network.target
-
-[Service]
-User=mhubbard
-WorkingDirectory=/home/mhubbard/Haas/Haas_Data_collect
-ExecStart=/usr/bin/python3 /home/mhubbard/Haas/Haas_Data_collect/haas_logger2.py -a -t 192.168.10.140  --port 5052 --name ST40
-Type=idle
-
-[Install]
-WantedBy=multi-user.target
-```
-
-If you only have a handful of machines that's the quickest way to create the service files. If you have double or triple digits of machines you can use a Python script included in the repository and a spreadsheet to generate the files automatically.
-
-The format of the spreadsheet, `machines.xlsx`, is row 1 is a header with the following data:
-
-```bash
-description, username, ip_address, port, name
-```
-
-Fill out as many rows as you need, save it and run the following:
-
-`python3 conf-gen_xlsx_v1.py -f machines.xlsx`
-
-This creates the service files and save them to the root of the project. The script requires some dependencies. The installation process is documented at the end of this section.
