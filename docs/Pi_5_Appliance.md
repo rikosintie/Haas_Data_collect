@@ -45,7 +45,7 @@ If you are creating a headless (no desktop) version of an appliance using Ubuntu
 
 ### Desktop Version
 
-If you are new to Linux and building appliances you should pick the desktop. During the installation select "minimal" install since you don't need a word processor, spreadsheet, etc. The Desktop version of Ubuntu has the Gnome desktop which is similar to a Windows desktop. You can use a Keyboard, Mouse, Monitor to configure the Pi. This allows you to use a GUI text editor and other GUI tools.
+If you are new to Linux and building appliances you should pick the desktop. During the installation select "minimal" install since you don't need a word processor, spreadsheet, etc. The Desktop version of Ubuntu has the Gnome desktop which is similar to a Windows desktop. You can use a Keyboard, Mouse, and Monitor to configure the Pi. This allows you to use a GUI text editor and other GUI tools.
 
 ----------------------------------------------------------------
 
@@ -211,7 +211,7 @@ The status command also lists the amount of RAM used by the script. You can see 
 
 #### Other options for the service file
 
-systemd has capabilities far beyond what is needed to this script. H
+systemd has capabilities far beyond what is needed for this script. I used Gemini to research systemd for this project. Gemini has a lot of knowledge of `systemd` if you want to add more services to your appliance :smiley:
 
 The `Type=` directive in a systemd service file's [Service] section defines how the service manager determines that a service has successfully started.
 
@@ -229,11 +229,13 @@ Beyond simple, the available Type options include:
 
 ### Scaling up
 
-If you only have a handful of machines editing the included service files and changing the name of the `systemctl` commands is the quickest way to create the service files.
+If you only have a handful of machines editing the included service files and changing the name of the `systemctl` commands is the quickest way to create the service files and enable the services.
 
 If you have double or triple digits of machines that gets old fast. You can use the Python script, `conf-gen_xlsx_v1.py` included in the repository and a spreadsheet to generate the files and `systemd` commands automatically.
 
-The spreadsheet name is `machines.xlsx`. The format of the spreadsheet, is row 1 is a header with the following data:
+It's probably easier to clone the repo to your laptop and run the scripts on it. The script will run on Mac/Linux/Windows and you can create the spreadsheet on the laptop. Or just create the spreadsheet on the laptop and copy it to the appliance.
+
+The spreadsheet name is `machines.xlsx`. The format of the spreadsheet is row 1 is a header with the following data:
 
 ```bash
 description, username, ip_address, port, name
@@ -268,7 +270,7 @@ This creates the service files and saves them as `<name>.service` to the root of
 Run the following:
 `python3 conf-gen_xlsx_v1.py -f machines.xlsx -t systemd-template.txt`
 
-The files are saved as `<name>.txt` in the root of the project directory. Here are the contents of ST1.txt
+The files are saved as `<name>.txt` in the root of the project directory. Here are the contents of st1.txt
 
 ```bash
 sudo cp st1.service /etc/systemd/system/st1.service
@@ -325,7 +327,11 @@ Now you can type the following:
 The script requires some dependencies. Use the following to install them:
 
 ```bash
-python3 -m pip install pandas
+python -m pip install pandas
 python -m pip install jinja2
 python -m pip install openpyxl
 ```
+
+----------------------------------------------------------------
+
+## Install samba for Windows integration
