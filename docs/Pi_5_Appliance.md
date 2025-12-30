@@ -2,10 +2,10 @@
 
 Raspberry Pis have become popular for industrial applications. They are inexpensive, reliable and have a massive community of blogs, YouTube videos, and magazine articles supporting them.
 
-Canonical, Ubuntu's publisher, has a dedicated Raspberry Pi page located [Install Ubuntu
+Canonical, Ubuntu's publisher, has a dedicated Raspberry Pi page located here [Install Ubuntu
 on a Raspberry Pi](https://ubuntu.com/download/raspberry-pi).
 
-The RPi 5 is available in several different models. The difference is the amount of RAM. To build a dedicated RPi 5 for this project I recommend the 8GB RAM model. That is overkill for just the scripts used but the cost is negligible compared to the 4GB model and I find that it's always better to have more RAM for future proofing.
+The RPi 5 is available in several different models. The difference is the amount of RAM. To build a dedicated RPi 5 for this project I recommend the 8GB RAM model. That is overkill for just the scripts but the difference in cost is negligible compared to the 4GB model and I find that it's always better to have more RAM for future proofing.
 
 **On 12/29/2025 on the Amazon site:**
 Raspberry Pi 5 8GB - $93.99
@@ -25,11 +25,11 @@ Amazon has a [CanaKit Raspberry Pi 5 Starter Kit PRO - Turbine Black (128GB Edit
 - a 128GB SD card
 - CanaKit 45W PD Power Supply
 
-To build a high performance appliance for a manufacturing plant I think the Canakit is worth the cost. You can purchase Raspberry 5s from Micro Center, Ameridroid and many others if you want to piece it out instead of buying the Canakit.
+To build a high performance appliance for a manufacturing plant I think the Canakit is worth the cost. You can also purchase a Raspberry Pi 5 from Micro Center, Ameridroid and many others if you want to piece it out instead of buying the Canakit.
 
 ----------------------------------------------------------------
 
-## Creating a Raspberry Pi 5 Appliance
+## Which version of Ubuntu should you use
 
 Ubuntu comes in three versions:
 
@@ -37,21 +37,15 @@ Ubuntu comes in three versions:
 - Desktop - Includes the Gnome desktop
 - Core - A dedicated version for IoT devices. I haven't used it yet but its on my list of projects!
 
-### Which version should you use
-
-Follow the Ubuntu link above and install Ubuntu.
-
-#### Headless (Server version)
+### Headless (Server version)
 
 I am experienced with Ubuntu so the headless server version is my choice. I use ssh to manage the appliance and the scripts don't require the Gnome desktop. The server uses less RAM and resources since it doesn't run a desktop.
 
 If you are creating a headless (no desktop) version of an appliance using Ubuntu server you will be using ssh or a serial console cable to configure the Pi.
 
-#### Desktop Version
+### Desktop Version
 
-If you are new to Linux and building appliances you should pick the desktop. During the installation select "minimal" install since you don't need a word processor, spreadsheet, etc.
-
-If you installed the Desktop version of Ubuntu you can use a Keyboard, Mouse, Monitor to configure the Pi.
+If you are new to Linux and building appliances you should pick the desktop. During the installation select "minimal" install since you don't need a word processor, spreadsheet, etc. The Desktop version of Ubuntu has the Gnome desktop which is similar to a Windows desktop.You can use a Keyboard, Mouse, Monitor to configure the Pi.
 
 ----------------------------------------------------------------
 
@@ -68,6 +62,8 @@ As you can imagine, there are a lot of steps required to build a functional appl
 - Enable the Haas data collection service
 - Install Samba to create Windows shares
 
+The next sections will cover all of these topics in detail.
+
 ----------------------------------------------------------------
 
 ### Clone the repository
@@ -78,7 +74,7 @@ Open a terminal on the Pi.
 
 - Make sure you are in your home directory by running `cd ~`
 - Verify using `pwd` which is `print working directory` in Linux. You should see:
--
+
 ```bash
 ╭─mhubbard@ubuntu-server ~
 ╰─$ pwd
