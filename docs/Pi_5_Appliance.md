@@ -37,7 +37,7 @@ Ubuntu comes in three versions:
 - Desktop - Includes the Gnome desktop
 - Core - A dedicated version for IoT devices. I haven't used it yet but its on my list of projects!
 
-### Headless (Server version)
+### Server version (Headless)
 
 I am experienced with Ubuntu so the headless server version is my choice. I use ssh to manage the appliance and the scripts don't require the Gnome desktop. The server uses less RAM and resources since it doesn't run a desktop.
 
@@ -45,7 +45,7 @@ If you are creating a headless (no desktop) version of an appliance using Ubuntu
 
 ### Desktop Version
 
-If you are new to Linux and building appliances you should pick the desktop. During the installation select "minimal" install since you don't need a word processor, spreadsheet, etc. The Desktop version of Ubuntu has the Gnome desktop which is similar to a Windows desktop.You can use a Keyboard, Mouse, Monitor to configure the Pi.
+If you are new to Linux and building appliances you should pick the desktop. During the installation select "minimal" install since you don't need a word processor, spreadsheet, etc. The Desktop version of Ubuntu has the Gnome desktop which is similar to a Windows desktop. You can use a Keyboard, Mouse, Monitor to configure the Pi. This allows you to use a GUI text editor and other GUI tools.
 
 ----------------------------------------------------------------
 
@@ -55,7 +55,7 @@ Once you decide on a version, follow the instructions in the link above.
 
 ## What is needed to create the appliance
 
-As you can imagine, there are a lot of steps required to build a functional appliance from scratch. But once you had completed it, you will have gained a lot of useful knowledge!
+As you can imagine, there are a lot of steps required to build a functional appliance from scratch. But once you have completed it, you will have gained a lot of useful knowledge!
 
 - clone the repository - This is how you get the code from the repository
 - Create the systemd service files
@@ -130,7 +130,7 @@ WantedBy=multi-user.target
 
 ----------------------------------------------------------------
 
-#### Editing the files
+### Editing the files
 
 The systemd service files are located in `/etc/systemd/system/` so you must use sudo to edit them.
 
@@ -140,7 +140,19 @@ As an example, let's use the included st40.service file. You should be in the `H
 
 Use the following to edit the included st40.service file `sudo nano /etc/systemd/system/st40.service`
 
-This will open `st40.service` in the built in `nano` editor. For whatever reason, `nano` doesn't use the normal text editor keys. If you are brand new to Linux use this tutorial to learn nano [The beginners guide to Nano the Linux command line text editor](https://www.howtogeek.com/42980/the-beginners-guide-to-nano-the-linux-command-line-text-editor/)
+This will open `st40.service` in the built in `nano` editor.
+
+!!! Note
+    For whatever reason, `nano` doesn't use the normal text editor keys. If you are brand new to Linux use this tutorial to learn nano - [The beginners guide to Nano the Linux command line text editor](https://www.howtogeek.com/42980/the-beginners-guide-to-nano-the-linux-command-line-text-editor/)
+
+#### What you need to modify
+
+- Description - The description is shown when you check the status of the service. Change to something that makes sense in your environment
+- User - Your username probably isn't mhubbard. Change to your username
+- WorkingDirectory - I recommend you keep this format and just change the username in the path.
+- ExecStart - This is where the table of Names, ports, IP addresses comes in handy.
+
+Nothing else needs to be changed in the service file.
 
 ----------------------------------------------------------------
 
@@ -155,7 +167,7 @@ sudo systemctl start st40.service
 sudo systemctl status st40.service
 ```
 
-#### What the commmands do
+#### What the commands do
 
 - sudo systemctl daemon-reload - Forces `systemd` to read the changes
 - sudo systemctl enable st40.service - Tells `systemd` to run the service on boot
@@ -176,6 +188,15 @@ sudo systemctl status st40.service
              └─44301 /usr/bin/python3 /home/mhubbard/Haas/Haas_Data_collect/haas_logger2.py -a -t 192.168.10.122 --port 5052 --name ST40
 
 Dec 29 16:09:45 ubuntu-server systemd[1]: Started st40.service - Haas Python logger for ST40.
+```
+
+----------------------------------------------------------------
+
+Notice the description from the service file is shown. Also, `Main PID` can be useful during troubleshooting. That is the Process ID, similar to what you would see in the `Windows Task Manager`. In this case it's 44301 and we can track it using:
+
+```bash hl_lines="1"
+ps -ef | grep 5052
+mhubbard   44301       1  0 16:09 ?        00:00:00 /usr/bin/python3 /home/mhubbard/Haas/Haas_Data_collect/haas_logger2.py -a -t 192.168.10.122 --port 5052 --name ST40
 ```
 
 ----------------------------------------------------------------
