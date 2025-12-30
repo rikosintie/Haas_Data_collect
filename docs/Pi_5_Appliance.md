@@ -136,7 +136,7 @@ The systemd service files are located in `/etc/systemd/system/` so you must use 
 
 As an example, let's use the included st40.service file. You should be in the `Haas_Data_collect` directory. Use the following to copy `st40.service` to the `/etc/systemd/system/` directory:
 
-`cp st40.service /etc/systemd/system/st40.service`
+`sudo cp st40.service /etc/systemd/system/st40.service`
 
 Use the following to edit the included st40.service file `sudo nano /etc/systemd/system/st40.service`
 
@@ -144,6 +144,10 @@ This will open `st40.service` in the built in `nano` editor.
 
 !!! Note
     For whatever reason, `nano` doesn't use the normal text editor keys. If you are brand new to Linux use this tutorial to learn nano - [The beginners guide to Nano the Linux command line text editor](https://www.howtogeek.com/42980/the-beginners-guide-to-nano-the-linux-command-line-text-editor/)
+
+If you installed the desktop version of Ubuntu you can use the Gnome Text Editor GUI to edit the files by running:
+
+`sudo gnome-text-editor /etc/systemd/system/st40.service`
 
 #### What you need to modify
 
@@ -199,20 +203,129 @@ ps -ef | grep 5052
 mhubbard   44301       1  0 16:09 ?        00:00:00 /usr/bin/python3 /home/mhubbard/Haas/Haas_Data_collect/haas_logger2.py -a -t 192.168.10.122 --port 5052 --name ST40
 ```
 
+#### Memory Usage
+
+The status command also lists the amount of RAM used by the script. You can see that the peak usage was 7.1MB. I haven't seen the script use more than that so a Raspberry 5 with 8GB of RAM could support many machine tools.
+
+----------------------------------------------------------------
+
+#### Other options for the service file
+
+systemd has capabilities far beyond what is needed to this script. H
+
+The `Type=` directive in a systemd service file's [Service] section defines how the service manager determines that a service has successfully started.
+
+Beyond simple, the available Type options include:
+
+- exec: Similar to simple, but systemd considers the service started only after the main service binary has been successfully executed. This is often the preferred choice for long-running processes because it ensures errors like "missing file" are caught during startup.
+- forking: Used for traditional UNIX daemons that "fork" into the background. Systemd considers the service started when the parent process exits. It is highly recommended to use PIDFile= with this type so systemd can track the correct child process.
+- oneshot: Ideal for scripts that perform a task and then exit. Unlike simple, systemd waits for the process to exit before starting follow-up units. It is often paired with RemainAfterExit=yes to keep the service marked as "active" after completion.
+- notify: Similar to exec, but the application must explicitly send a "READY=1" signal to systemd (via sd_notify) once it is fully initialized. This is the most reliable way to handle services with long internal initialization periods.
+- notify-reload: A more recent addition that behaves like notify but also implements a standardized protocol for reloading. It expects the service to send "RELOADING=1" when it starts a configuration reload.
+- dbus: The service is considered started once it acquires a specific name on the D-Bus bus. You must specify the expected name using the BusName= directive.
+- idle: Similar to simple, but execution is delayed until all other active jobs are finished. This is primarily used to prevent service output from cluttering the boot console.
+
 ----------------------------------------------------------------
 
 ### Scaling up
 
-If you only have a handful of machines editing the included service files is the quickest way to create the service files. If you have double or triple digits of machines you can use a Python script included in the repository and a spreadsheet to generate the files automatically.
+If you only have a handful of machines editing the included service files and changing the name of the `systemctl` commands is the quickest way to create the service files.
 
-The format of the spreadsheet, `machines.xlsx`, is row 1 is a header with the following data:
+If you have double or triple digits of machines that gets old fast. You can use the Python script, `conf-gen_xlsx_v1.py` included in the repository and a spreadsheet to generate the files and `systemd` commands automatically.
+
+The spreadsheet name is `machines.xlsx`. The format of the spreadsheet, is row 1 is a header with the following data:
 
 ```bash
 description, username, ip_address, port, name
 ```
 
-Fill out as many rows as you need, save it and run the following:
+Fill out as many rows as you need, save it in the root of the project folder.
 
-`python3 conf-gen_xlsx_v1.py -f machines.xlsx`
+----------------------------------------------------------------
 
-This creates the service files and save them to the root of the project. The script requires some dependencies. The installation process is documented at the end of this section.
+Here is a example:
+
+| description    | username | ip_address    | name |
+|----------------|----------|---------------|------|
+| Logger for st1 | mhubbard | 192.168.0.140 | st1  |
+| Logger for st2 | mhubbard | 192.168.0.141 | st2  |
+| Logger for st3 | mhubbard | 192.168.0.142 | st3  |
+
+----------------------------------------------------------------
+
+#### Create the service files
+
+Run the following:
+
+`python3 conf-gen_xlsx_v1.py -f machines.xlsx -t service-template.txt`
+
+This creates the service files and saves them as `<name>.service` to the root of the project. Note that you can name the spreadsheet anything you want. Just change the `machines.xlsx` to the new filename.
+
+----------------------------------------------------------------
+
+#### Create the sudo commands
+
+Run the following:
+`python3 conf-gen_xlsx_v1.py -f machines.xlsx -t systemd-template.txt`
+
+The files are saved as `<name>.txt` in the root of the project directory. Here are the contents of ST1.txt
+
+```bash
+sudo cp st1.service /etc/systemd/system/st1.service
+sudo systemctl daemon-reload
+sudo systemctl enable st1.service
+sudo systemctl start st1.service
+sudo systemctl status st1.service
+```
+
+It's much easier to peer review a spreadsheet than a bunch of files! If the spreadsheet is accurate, you will instantly get the service files and the commands to install them.
+
+#### bash aliases
+
+During debugging you will find yourself typing the `systemctl` commands a lot. I recommend creating some bash aliases to cut down on the typing. Open the bashrc file on the Pi using `nano ~/.bashrc` or `gnome-text-editor ~/.bashrc`.
+
+!!! note
+    Notice the period in front of the bashrc filename. In Linux/Unix the period at the front of a filename means it is a hidden file. To see hidden files use `ls -la` which means show all files.
+
+Paste the following in at the bottom of the file:
+
+```bash
+alias gte='gnome-text-editor
+alias dmr='sudo systemctl daemon-reload'
+alias stop='(){sudo systemctl stop "$1".service}'
+alias start='(){sudo systemctl start "$1".service}'
+alias status='(){sudo systemctl status "$1".service}'
+alias servfile='(){sudo nano /etc/systemd/system."$1".service}'
+```
+
+Save the file with `ctrl+s`, close it with `ctrl+x` Update bash by typing `exec bash` and pressing enter.
+
+----------------------------------------------------------------
+
+#### What does the $1 do
+
+The `$1` is a placeholder, it gets replaced with the first text on the command line after the alias name. For example `stop st40` will become `sudo systemctl stop st40.service`.
+
+----------------------------------------------------------------
+
+#### Use the aliases
+
+Now you can type the following:
+
+- `gte ~/.bashrc` instead of `gnome-text-editor ~/.bashrc`
+- `stop st40` to stop the st40.service
+- `start st40` to start the st40.service
+- `status st40` to show the status of the st40.service
+- `dmr` to reload the daemons
+
+----------------------------------------------------------------
+
+### Install Dependencies
+
+The script requires some dependencies. Use the following to install them:
+
+```bash
+python3 -m pip install pandas
+python -m pip install jinja2
+python -m pip install openpyxl
+```
