@@ -2,26 +2,41 @@
 
 Why would you want to build a Raspberry 5 appliance when the python scripts will run on Windows? A couple reasons jump out:
 
-- The scripts need to run anytime the shop is working.
+- The scripts need to be running anytime the shop is working.
 - You will need to have shares available for the files to be copied
 
-The first reason means that a Windows computer would have to be up and running 24/7 with a user logged in. I don't think that many IT teams would find that acceptable. A cyber attack is most likely when a PC is on and a user is logged in.
+The first reason means that a Windows computer would have to be up and running 24/7 with a user logged in. I don't think that many IT security teams would find that acceptable. Also, if the scripts are on a user's Windows desktop and they shutdown in the evening or over weekends/holidays, data won't be collected. A cyber attack is most likely when a PC is powered on and a user is logged in.
 
-The work around to this is to use a tool like `NSSM (Non-Sucking Service Manager)` to install the script as a service. My scripts use standard Python libraries that will get updates from Microsoft. I researched `NSSM` and it appears to be abandoned. There are a few other ways to run Python as a service on Windows but you would still have to have a machine running 24/7 so the Pi is a less expensive method.
+The work around to a user being logged in is to use a tool like `NSSM (Non-Sucking Service Manager)` to install the script as a service. My Haas scripts use standard Python libraries that will get updates from Microsoft. I researched `NSSM` and it appears to be abandoned. There are a few other ways to run Python as a service on Windows but you would still have to have a machine running 24/7 so the Pi is a less expensive method.
 
-The second reason means creating file shares on the Windows computer that the scripts are running on. I have had a lot of wasted time in small shops making their MSP understand what is needed (a user account, the shares, security groupts, etc.) and getting it done while I'm onsite. Plus, creating shares on a personal workstation my violate IT security policy.
+The second reason means creating file shares on the Windows computer that the scripts are running on. I have had a lot of wasted time in small shops making their MSP understand what is needed (a user account, the shares, security groups, etc.) and getting it done while I'm onsite. Plus, creating shares on a personal workstation may violate IT security policy.
 
 A Raspberry Pi 5 appliance solves both of these problems. It can run 24/7 in the shop or in the server closet. It only uses 27W of power so no one will be upset at the cost. It's simple to create a service that starts during boot using the systemd init system that Ubuntu is built on. You will still need to discuss the appliance with the IT security team. In the Samaba section I will cover enabling the firewall and proving that SMB V1 is disabled.
 
 ## Ubuntu Pro coverage
 
-If you are building the appliance for personal use, Ubuntu has a service that is free for up to five devices called `Ubuntu Pro`. Think of it as the Microsoft support but for Ubuntu. The details are on the [Ubuntu Pro Pricing](https://ubuntu.com/pricing/pro) page. For business use, the Desktop version is $25/year for security updates, Kernel Livepatch, Advanced Active Directory policies for Ubuntu Desktop, etc. The server version is #$300/year.
+If you are building the appliance for personal use, Ubuntu has a service that is free for up to five devices called `Ubuntu Pro`. Think of it as Microsoft support but for Ubuntu. The details are on the [Ubuntu Pro Pricing](https://ubuntu.com/pricing/pro) page. For business use, the Desktop version is $25/year for security updates, Kernel Livepatch, Advanced Active Directory policies for Ubuntu Desktop, etc. The server version is #$300/year.
 
 ----------------------------------------------------------------
 
-## Why Raspberry Pi instead of a cheap SFF Intel machine
+## Why use a Raspberry Pi instead of a cheap SFF Intel machine
 
-Raspberry Pis have become popular for industrial applications. They are inexpensive, reliable and have a massive community of blogs, YouTube videos, and magazine articles supporting them. There is also a vibrant ecosystem of add-on hardware boards, sometimes called `Hats`. For example, Waveshare makes a $30 PoE hat that will power the RPI 5 from the Ethernet cable. Very convenient on the manufacturing floor. Here is a link to it - [PoE hat](https://www.waveshare.com/poe-hat-h.htm). Waveshare also produces a board with four 2.5Gbs Ethernet ports [Waveshare 4 port Ethernet](https://www.cnx-software.com/2025/12/30/add-four-gigabit-or-2-5gbps-ethernet-ports-to-the-raspberry-pi-5-with-this-expansion-board/)
+Raspberry Pis have become popular for industrial applications. They are inexpensive, reliable and have a massive community of blogs, YouTube videos, and magazine articles supporting them.
+
+Some example companies are:
+
+- [Revolution Pi](https://revolutionpi.com/en/products/revolution-pi-series) - Revolution Pi is your open-source Linux platform for future-oriented industrial solutions:
+  - Powered by the Raspberry Pi Compute Module
+  - Raspberry Pi OS-based, industry-optimized operating system
+- [Strato Pi](https://sferalabs.cc/strato-pi/) - Industrial Raspberry Pi for Maximum Reliability
+  - Edge Computing
+  - Industrial Automation
+  - Building & Energy Management
+  - Data Acquisition
+  - Marine
+  - Fleet Management
+
+There is also a vibrant ecosystem of add-on hardware boards, sometimes called `Hats`. For example, Waveshare makes a $30 PoE hat that will power the RPI 5 from the Ethernet cable. Very convenient on the manufacturing floor. Here is a link to it - [PoE hat](https://www.waveshare.com/poe-hat-h.htm). Waveshare also produces a board with four 2.5Gbs Ethernet ports - [Waveshare 4 port Ethernet](https://www.cnx-software.com/2025/12/30/add-four-gigabit-or-2-5gbps-ethernet-ports-to-the-raspberry-pi-5-with-this-expansion-board/)
 
 Finally, Waveshare makes great [e-paper displays](https://www.waveshare.com/product/displays/e-paper/3.97inch-e-paper-hat-plus.htm) for the Pi. I built a serial console server using a Pi Zero W and a Waveshare display. On startup:
 
@@ -44,8 +59,8 @@ In the future I might add one and display what machines are online. Here is the 
 The RPi 5 is available in several different models. The difference is the amount of RAM. To build a dedicated RPi 5 for this project I recommend the 8GB RAM model. That is overkill for just the scripts but the difference in cost is negligible compared to the 4GB model and I find that it's always better to have more RAM for future proofing.
 
 **On 12/29/2025 on the Amazon site:**
-Raspberry Pi 5 8GB - $93.99
-Raspberry Pi 5 4GB - $76.95
+- Raspberry Pi 5 8GB - $93.99
+- Raspberry Pi 5 4GB - $76.95
 
 You will need:
 
