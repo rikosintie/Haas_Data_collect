@@ -1,9 +1,45 @@
 # Raspberry Pi 5 Appliance
 
-Raspberry Pis have become popular for industrial applications. They are inexpensive, reliable and have a massive community of blogs, YouTube videos, and magazine articles supporting them.
+Why would you want to build a Raspberry 5 appliance when the python scripts will run on Windows? A couple reasons jump out:
 
-Canonical, Ubuntu's publisher, has a dedicated Raspberry Pi page located here [Install Ubuntu
-on a Raspberry Pi](https://ubuntu.com/download/raspberry-pi).
+- The scripts need to run anytime the shop is working.
+- You will need to have shares available for the files to be copied
+
+The first reason means that a Windows computer would have to be up and running 24/7 with a user logged in. I don't think that many IT teams would find that acceptable. A cyber attack is most likely when a PC is on and a user is logged in.
+
+The work around to this is to use a tool like `NSSM (Non-Sucking Service Manager)` to install the script as a service. My scripts use standard Python libraries that will get updates from Microsoft. I researched `NSSM` and it appears to be abandoned. There are a few other ways to run Python as a service on Windows but you would still have to have a machine running 24/7 so the Pi is a less expensive method.
+
+The second reason means creating file shares on the Windows computer that the scripts are running on. I have had a lot of wasted time in small shops making their MSP understand what is needed (a user account, the shares, security groupts, etc.) and getting it done while I'm onsite. Plus, creating shares on a personal workstation my violate IT security policy.
+
+A Raspberry Pi 5 appliance solves both of these problems. It can run 24/7 in the shop or in the server closet. It only uses 27W of power so no one will be upset at the cost. It's simple to create a service that starts during boot using the systemd init system that Ubuntu is built on. You will still need to discuss the appliance with the IT security team. In the Samaba section I will cover enabling the firewall and proving that SMB V1 is disabled.
+
+## Ubuntu Pro coverage
+
+If you are building the appliance for personal use, Ubuntu has a service that is free for up to five devices called `Ubuntu Pro`. Think of it as the Microsoft support but for Ubuntu. The details are on the [Ubuntu Pro Pricing](https://ubuntu.com/pricing/pro) page. For business use, the Desktop version is $25/year for security updates, Kernel Livepatch, Advanced Active Directory policies for Ubuntu Desktop, etc. The server version is #$300/year.
+
+----------------------------------------------------------------
+
+## Why Raspberry Pi instead of a cheap SFF Intel machine
+
+Raspberry Pis have become popular for industrial applications. They are inexpensive, reliable and have a massive community of blogs, YouTube videos, and magazine articles supporting them. There is also a vibrant ecosystem of add-on hardware boards, sometimes called `Hats`. For example, Waveshare makes a $30 PoE hat that will power the RPI 5 from the Ethernet cable. Very convenient on the manufacturing floor. Here is a link to it - [PoE hat](https://www.waveshare.com/poe-hat-h.htm). Waveshare also produces a board with four 2.5Gbs Ethernet ports [Waveshare 4 port Ethernet](https://www.cnx-software.com/2025/12/30/add-four-gigabit-or-2-5gbps-ethernet-ports-to-the-raspberry-pi-5-with-this-expansion-board/)
+
+Finally, Waveshare makes great [e-paper displays](https://www.waveshare.com/product/displays/e-paper/3.97inch-e-paper-hat-plus.htm) for the Pi. I built a serial console server using a Pi Zero W and a Waveshare display. On startup:
+
+- Shows me the ip addresses it got
+- Shows the MFG-S/N of the USB serial adapters that are connected.
+- If it gets internet access, it emails my `gmail` account it the address.
+
+The email is handy if the console is in a rack up high and can't see the display. Waveshare provides a python library to talk to the display and there are tons of YouTube videos and blogs on coding it..
+
+Here is a photo of my Pi Zero 2 W serial console. It has a PoE hat so that I can just plug it into a switch and it's ready to go. It has one FTDI serial cable connected. The `P 2003` means that I telnet to port 2003 to console to the device it's connected to.
+
+----------------------------------------------------------------
+
+![screenshot](img/pi.resized.jpg)
+
+In the future I might add one and display what machines are online. Here is the link to the Waveshare site - [3.97inch E-Paper Display](https://www.waveshare.com/product/displays/e-paper/epaper-2/3.97inch-e-paper-hat-plus.htm)
+
+----------------------------------------------------------------
 
 The RPi 5 is available in several different models. The difference is the amount of RAM. To build a dedicated RPi 5 for this project I recommend the 8GB RAM model. That is overkill for just the scripts but the difference in cost is negligible compared to the 4GB model and I find that it's always better to have more RAM for future proofing.
 
@@ -27,11 +63,14 @@ Amazon has a [CanaKit Raspberry Pi 5 Starter Kit PRO - Turbine Black (128GB Edit
 
 To build a high performance appliance for a manufacturing plant I think the Canakit is worth the cost. You can also purchase a Raspberry Pi 5 from Micro Center, Ameridroid and many others if you want to piece it out instead of buying the Canakit.
 
+!!! Note
+    The Canakit isn't compatible with the Waveshare PoE hat. You need to remove the case to use the hat.
+
 ----------------------------------------------------------------
 
 ## Which version of Ubuntu should you use
 
-Ubuntu comes in three versions:
+Ubuntu comes in three versions for the Raspberry 5:
 
 - Server - No desktop.
 - Desktop - Includes the Gnome desktop
@@ -46,6 +85,11 @@ If you are creating a headless (no desktop) version of an appliance using Ubuntu
 ### Desktop Version
 
 If you are new to Linux and building appliances you should pick the desktop. During the installation select "minimal" install since you don't need a word processor, spreadsheet, etc. The Desktop version of Ubuntu has the Gnome desktop which is similar to a Windows desktop. You can use a Keyboard, Mouse, and Monitor to configure the Pi. This allows you to use a GUI text editor and other GUI tools.
+
+### Download Raspberry 5 Ubuntu images
+
+Canonical, Ubuntu's publisher, has a dedicated Raspberry Pi page located here [Install Ubuntu
+on a Raspberry Pi](https://ubuntu.com/download/raspberry-pi). Follow the instructions on that page to install Ubuntu onto the Raspberry 5.
 
 ----------------------------------------------------------------
 
@@ -229,7 +273,7 @@ Beyond simple, the available Type options include:
 
 ### Scaling up
 
-If you only have a handful of machines editing the included service files and changing the name of the `systemctl` commands is the quickest way to create the service files and enable the services.
+If you only have a handful of machines, editing the included service files and changing the name of the `systemctl` commands is the quickest way to create the service files and enable the services.
 
 If you have double or triple digits of machines that gets old fast. You can use the Python script, `conf-gen_xlsx_v1.py` included in the repository and a spreadsheet to generate the files and `systemd` commands automatically.
 
