@@ -1,21 +1,32 @@
 # Raspberry Pi 5 Appliance
 
-Why would you want to build a Raspberry 5 appliance when the python scripts will run on Windows? A couple reasons jump out:
+----------------------------------------------------------------
+
+![screenshot](img/Tux-Raspbery-Pi5.resized.jpeg)
+
+Why would you want to build a Raspberry Pi 5 appliance when the Python scripts will run on Windows? A couple of reasons jump out:
 
 - The scripts need to be running anytime the shop is working.
 - You will need to have shares available for the files to be copied
 
-The first reason means that a Windows computer would have to be up and running 24/7 with a user logged in. I don't think that many IT security teams would find that acceptable. Also, if the scripts are on a user's Windows desktop and they shutdown in the evening or over weekends/holidays, data won't be collected. A cyber attack is most likely when a PC is powered on and a user is logged in.
+The first reason means that a Windows computer would have to be up and running 24/7 with a user logged in. I don't think that many IT security teams would find that acceptable. A cyber attack is most likely when a PC is powered on and a user is logged in. If the scripts are on a user's Windows desktop and they shut down in the evening or over weekends/holidays, data won't be collected.
 
-The work around to a user being logged in is to use a tool like `NSSM (Non-Sucking Service Manager)` to install the script as a service. My Haas scripts use standard Python libraries that will get updates from Microsoft. I researched `NSSM` and it appears to be abandoned. There are a few other ways to run Python as a service on Windows but you would still have to have a machine running 24/7 so the Pi is a less expensive method.
+The workaround to a user being logged in is to use a tool like `NSSM (Non-Sucking Service Manager)` to install the script as a service. My Haas scripts use standard Python libraries that will get updates from Microsoft. I researched `NSSM` and it appears to be abandoned. There are a few other ways to run Python as a service on Windows, but you would still have to have a machine running 24/7, so the Pi is a less expensive method. The attack surface of a hardened Linux appliance is smaller than a Windows 11 desktop.
 
 The second reason means creating file shares on the Windows computer that the scripts are running on. I have had a lot of wasted time in small shops making their MSP understand what is needed (a user account, the shares, security groups, etc.) and getting it done while I'm onsite. Plus, creating shares on a personal workstation may violate IT security policy.
 
-A Raspberry Pi 5 appliance solves both of these problems. It can run 24/7 in the shop or in the server closet. It only uses 27W of power so no one will be upset at the cost. It's simple to create a service that starts during boot using the systemd init system that Ubuntu is built on. You will still need to discuss the appliance with the IT security team. In the Samaba section I will cover enabling the firewall and proving that SMB V1 is disabled.
+A Raspberry Pi 5 appliance solves both of these problems. It can run 24/7 in the shop or in the server closet. It uses less than 20W of power so no one will be upset at the cost. It's simple to create a service that starts during boot using the systemd init system that Ubuntu is built on. You will still need to discuss the appliance with the IT security team. In the Samba section I will cover enabling the firewall and proving that SMB V1 is disabled.
 
 ## Ubuntu Pro coverage
 
-If you are building the appliance for personal use, Ubuntu has a service that is free for up to five devices called `Ubuntu Pro`. Think of it as Microsoft support but for Ubuntu. The details are on the [Ubuntu Pro Pricing](https://ubuntu.com/pricing/pro) page. For business use, the Desktop version is $25/year for security updates, Kernel Livepatch, Advanced Active Directory policies for Ubuntu Desktop, etc. The server version is #$300/year.
+If you are building the appliance for personal use, Ubuntu has a service that is free for up to five devices called `Ubuntu Pro`. Think of it as Microsoft support but for Ubuntu. The details are on the [Ubuntu Pro Pricing](https://ubuntu.com/pricing/pro) page. For business use, the desktop version is $25/yr and the server version is $300/yr.
+
+**Ubuntu Pro includes:**
+
+- Security updates
+- Kernel Livepatch
+- Advanced Active Directory policies for Ubuntu Desktop
+- And much more
 
 ----------------------------------------------------------------
 
@@ -23,18 +34,20 @@ If you are building the appliance for personal use, Ubuntu has a service that is
 
 Raspberry Pis have become popular for industrial applications. They are inexpensive, reliable and have a massive community of blogs, YouTube videos, and magazine articles supporting them.
 
-Some example companies are:
+If you have never seen Raspberry Pi 5s in the Industrial and Manufacturing spaces here are couple of example companies:
 
 - [Revolution Pi](https://revolutionpi.com/en/products/revolution-pi-series) - Revolution Pi is your open-source Linux platform for future-oriented industrial solutions:
-  - Powered by the Raspberry Pi Compute Module
-  - Raspberry Pi OS-based, industry-optimized operating system
+    1. Powered by the Raspberry Pi Compute Module
+    1. Raspberry Pi OS-based, industry-optimized operating system
 - [Strato Pi](https://sferalabs.cc/strato-pi/) - Industrial Raspberry Pi for Maximum Reliability
-  - Edge Computing
-  - Industrial Automation
-  - Building & Energy Management
-  - Data Acquisition
-  - Marine
-  - Fleet Management
+    1. Edge Computing
+    1. Industrial Automation
+    1. Building & Energy Management
+    1. Data Acquisition
+    1. Marine
+    1. Fleet Management
+
+It's worth a few minutes to look that homepages of those two companies.
 
 There is also a vibrant ecosystem of add-on hardware boards, sometimes called `Hats`. For example, Waveshare makes a $30 PoE hat that will power the RPI 5 from the Ethernet cable. Very convenient on the manufacturing floor. Here is a link to it - [PoE hat](https://www.waveshare.com/poe-hat-h.htm). Waveshare also produces a board with four 2.5Gbs Ethernet ports - [Waveshare 4 port Ethernet](https://www.cnx-software.com/2025/12/30/add-four-gigabit-or-2-5gbps-ethernet-ports-to-the-raspberry-pi-5-with-this-expansion-board/)
 
@@ -44,9 +57,9 @@ Finally, Waveshare makes great [e-paper displays](https://www.waveshare.com/prod
 - Shows the MFG-S/N of the USB serial adapters that are connected.
 - If it gets internet access, it emails my `gmail` account it the address.
 
-The email is handy if the console is in a rack up high and can't see the display. Waveshare provides a python library to talk to the display and there are tons of YouTube videos and blogs on coding it..
+The email is handy if the console is in a rack up high and you can't see the display. Waveshare provides a Python library to talk to the display and there are tons of YouTube videos and blogs on coding it..
 
-Here is a photo of my Pi Zero 2 W serial console. It has a PoE hat so that I can just plug it into a switch and it's ready to go. It has one FTDI serial cable connected. The `P 2003` means that I telnet to port 2003 to console to the device it's connected to.
+Here is a photo of my Pi Zero 2 W serial console. It has a PoE hat so that I can just plug it into a switch, and it's ready to go. It has one FTDI serial cable connected. The `P 2003` means that I telnet to port 2003 to console to the device it's connected to.
 
 ----------------------------------------------------------------
 
@@ -56,9 +69,10 @@ In the future I might add one and display what machines are online. Here is the 
 
 ----------------------------------------------------------------
 
-The RPi 5 is available in several different models. The difference is the amount of RAM. To build a dedicated RPi 5 for this project I recommend the 8GB RAM model. That is overkill for just the scripts but the difference in cost is negligible compared to the 4GB model and I find that it's always better to have more RAM for future proofing.
+The RPi 5 is available in several different models. The difference is the amount of RAM. To build a dedicated RPi 5 for this project I recommend the 8GB RAM model. That is overkill for just the scripts, but the difference in cost is negligible compared to the 4GB model, and I find that it's always better to have more RAM for future proofing.
 
-**On 12/29/2025 on the Amazon site:**
+**On 12/29/2025, Amazon's site offered this cost:**
+
 - Raspberry Pi 5 8GB - $93.99
 - Raspberry Pi 5 4GB - $76.95
 
@@ -76,7 +90,7 @@ Amazon has a [CanaKit Raspberry Pi 5 Starter Kit PRO - Turbine Black (128GB Edit
 - a 128GB SD card
 - CanaKit 45W PD Power Supply
 
-To build a high performance appliance for a manufacturing plant I think the Canakit is worth the cost. You can also purchase a Raspberry Pi 5 from Micro Center, Ameridroid and many others if you want to piece it out instead of buying the Canakit.
+To build a high performance appliance for a manufacturing plant, I think the Canakit is worth the cost. You can also purchase a Raspberry Pi 5 from Micro Center, Ameridroid and many others if you want to piece it out instead of buying the Canakit.
 
 !!! Note
     The Canakit isn't compatible with the Waveshare PoE hat. You need to remove the case to use the hat.
@@ -85,26 +99,26 @@ To build a high performance appliance for a manufacturing plant I think the Cana
 
 ## Which version of Ubuntu should you use
 
-Ubuntu comes in three versions for the Raspberry 5:
+Ubuntu comes in three versions for the Raspberry Pi 5:
 
 - Server - No desktop.
 - Desktop - Includes the Gnome desktop
-- Core - A dedicated version for IoT devices. I haven't used it yet but its on my list of projects!
+- Core - A dedicated version for IoT devices. I haven't used it yet, but it's on my list of projects!
 
 ### Server version (Headless)
 
-I am experienced with Ubuntu so the headless server version is my choice. I use ssh to manage the appliance and the scripts don't require the Gnome desktop. The server uses less RAM and resources since it doesn't run a desktop.
+I am experienced with Ubuntu, so the headless server version is my choice. I use SSH to manage the appliance, and the scripts don't require the Gnome desktop. The server uses less RAM and resources since it doesn't run a desktop.
 
-If you are creating a headless (no desktop) version of an appliance using Ubuntu server you will be using ssh or a serial console cable to configure the Pi.
+If you are creating a headless (no desktop) version of an appliance using Ubuntu server, you will be using SSH or a serial console cable to configure the Pi.
 
 ### Desktop Version
 
-If you are new to Linux and building appliances you should pick the desktop. During the installation select "minimal" install since you don't need a word processor, spreadsheet, etc. The Desktop version of Ubuntu has the Gnome desktop which is similar to a Windows desktop. You can use a Keyboard, Mouse, and Monitor to configure the Pi. This allows you to use a GUI text editor and other GUI tools.
+If you are new to Linux and building appliances you should pick the desktop. During the installation, select "minimal" install since you don't need a word processor, spreadsheet, etc. The desktop version of Ubuntu uses the Gnome desktop, which is similar to a Windows desktop. You can use a Keyboard, Mouse, and Monitor to configure the Pi. This allows you to use a GUI text editor and other GUI tools.
 
-### Download Raspberry 5 Ubuntu images
+### Download Raspberry Pi 5 Ubuntu images
 
-Canonical, Ubuntu's publisher, has a dedicated Raspberry Pi page located here [Install Ubuntu
-on a Raspberry Pi](https://ubuntu.com/download/raspberry-pi). Follow the instructions on that page to install Ubuntu onto the Raspberry 5.
+Canonical, Ubuntu's publisher, has a dedicated Raspberry Pi page located here: [Install Ubuntu
+on a Raspberry Pi](https://ubuntu.com/download/raspberry-pi). Follow the instructions on that page to install Ubuntu onto the Raspberry Pi 5.
 
 ----------------------------------------------------------------
 
@@ -116,7 +130,7 @@ Once you decide on a version, follow the instructions in the link above.
 
 As you can imagine, there are a lot of steps required to build a functional appliance from scratch. But once you have completed it, you will have gained a lot of useful knowledge!
 
-- clone the repository - This is how you get the code from the repository
+- Clone the repository - This is how you get the code from the repository
 - Create the systemd service files
 - Enable the Haas data collection service
 - Install Samba to create Windows shares
@@ -127,7 +141,7 @@ The next sections will cover all of these topics in detail.
 
 ### Clone the repository
 
-NOTE: Linux uses a case sensitive file system. So `Haas` is different than `haas`. Make sure you use `mkdir Haas` when you create the directory.
+NOTE: Linux uses a case sensitive file system. So `Haas` is different from `haas`. Make sure you use `mkdir Haas` when you create the directory.
 
 Open a terminal on the Pi.
 
@@ -152,9 +166,7 @@ Open a terminal on the Pi.
 
 Ubuntu uses an initialization (init) service named `systemd`. This service manages what services are initialized when Ubuntu starts up. We will use `systemd` to manage the Python scripts.
 
-The service files are where you define how to call the python script when the Pi starts up. In the repository there are six files representing six different machine tools. The Ports and IP addresses used are:
-
-----------------------------------------------------------------
+The service files are where you define how to call the Python script when the Pi starts up. In the repository there are six files representing six different machine tools. The ports and IP addresses used are:
 
 | Machine  | Port# |   IP Address   |
 |----------|-------|:--------------:|
@@ -167,7 +179,7 @@ The service files are where you define how to call the python script when the Pi
 
 ----------------------------------------------------------------
 
-You will have different names and IP addresses on your machine tools. No problem, just make a table of the name you want, the port, and the IP Address. Then modify the existing service files. Here is the format:
+You will have different names and IP addresses on your machine tools. No problem, just make a table of the name you want, the port, and the IP address. Then modify the existing service files. Here is the format:
 
 ```unixconfig
 [Unit]
@@ -184,7 +196,7 @@ Type=idle
 WantedBy=multi-user.target
 ```
 
-!!! warning
+!!! Warning
     Be extremely careful when you edit the files. Any mistake will prevent you from successfully receiving data from the machine and can be challenging to troubleshoot.
 
 ----------------------------------------------------------------
@@ -197,14 +209,14 @@ As an example, let's use the included st40.service file. You should be in the `H
 
 `sudo cp st40.service /etc/systemd/system/st40.service`
 
-Use the following to edit the included st40.service file `sudo nano /etc/systemd/system/st40.service`
+Use the following to edit the included st40.service file: `sudo nano /etc/systemd/system/st40.service`
 
 This will open `st40.service` in the built in `nano` editor.
 
 !!! Note
-    For whatever reason, `nano` doesn't use the normal text editor keys. If you are brand new to Linux use this tutorial to learn nano - [The beginners guide to Nano the Linux command line text editor](https://www.howtogeek.com/42980/the-beginners-guide-to-nano-the-linux-command-line-text-editor/)
+    For whatever reason, `nano` doesn't use the normal text editor keys. If you are brand new to Linux, use this tutorial to learn nano - [The beginners guide to Nano the Linux command line text editor](https://www.howtogeek.com/42980/the-beginners-guide-to-nano-the-linux-command-line-text-editor/)
 
-If you installed the desktop version of Ubuntu you can use the Gnome Text Editor GUI to edit the files by running:
+If you installed the desktop version of Ubuntu, you can use the GUI Gnome Text Editor GUI to edit the files by running:
 
 `sudo gnome-text-editor /etc/systemd/system/st40.service`
 
@@ -213,7 +225,7 @@ If you installed the desktop version of Ubuntu you can use the Gnome Text Editor
 - Description - The description is shown when you check the status of the service. Change to something that makes sense in your environment
 - User - Your username probably isn't mhubbard. Change to your username
 - WorkingDirectory - I recommend you keep this format and just change the username in the path.
-- ExecStart - This is where the table of Names, ports, IP addresses comes in handy.
+- ExecStart - This is where the table of names, ports, IP addresses comes in handy.
 
 Nothing else needs to be changed in the service file.
 
@@ -221,7 +233,7 @@ Nothing else needs to be changed in the service file.
 
 ### Configuring systemd to use the service files
 
-Once you have the service file modified use the following commands to setup the service:
+Once you have the service file modified, use the following commands to set up the service:
 
 ```bash
 sudo systemctl daemon-reload
@@ -264,7 +276,7 @@ mhubbard   44301       1  0 16:09 ?        00:00:00 /usr/bin/python3 /home/mhubb
 
 #### Memory Usage
 
-The status command also lists the amount of RAM used by the script. You can see that the peak usage was 7.1MB. I haven't seen the script use more than that so a Raspberry 5 with 8GB of RAM could support many machine tools.
+The status command also lists the amount of RAM used by the script. You can see that the peak usage was 7.1MB. I haven't seen the script use more than that, so a Raspberry Pi 5 with 8GB of RAM could support many machine tools.
 
 ----------------------------------------------------------------
 
@@ -290,7 +302,7 @@ Beyond simple, the available Type options include:
 
 If you only have a handful of machines, editing the included service files and changing the name of the `systemctl` commands is the quickest way to create the service files and enable the services.
 
-If you have double or triple digits of machines that gets old fast. You can use the Python script, `conf-gen_xlsx_v1.py` included in the repository and a spreadsheet to generate the files and `systemd` commands automatically.
+If you have double or triple digits of machines, that gets old fast. You can use the Python script, `conf-gen_xlsx_v1.py` included in the repository, and a spreadsheet to generate the files and `systemd` commands automatically.
 
 It's probably easier to clone the repo to your laptop and run the scripts on it. The script will run on Mac/Linux/Windows and you can create the spreadsheet on the laptop. Or just create the spreadsheet on the laptop and copy it to the appliance.
 
@@ -394,3 +406,9 @@ python -m pip install openpyxl
 ----------------------------------------------------------------
 
 ## Install samba for Windows integration
+
+----------------------------------------------------------------
+
+![screenshot](img/Tux-DC.resized.jpeg)
+
+----------------------------------------------------------------
