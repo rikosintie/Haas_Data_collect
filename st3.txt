@@ -3,3 +3,15 @@ sudo systemctl daemon-reload
 sudo systemctl enable st3.service
 sudo systemctl start st3.service
 sudo systemctl status st3.service
+
+# Create the directory for the share
+
+mkdir /home/mhubbard/Haas/st3
+
+Create the share configuration
+
+[st3]
+    comment = 
+    path = /home/mhubbard/Haas/st3
+    read only = no
+    browsable = yes

@@ -3,3 +3,15 @@ sudo systemctl daemon-reload
 sudo systemctl enable st2.service
 sudo systemctl start st2.service
 sudo systemctl status st2.service
+
+# Create the directory for the share
+
+mkdir /home/mhubbard/Haas/st2
+
+Create the share configuration
+
+[st2]
+    comment = 
+    path = /home/mhubbard/Haas/st2
+    read only = no
+    browsable = yes
