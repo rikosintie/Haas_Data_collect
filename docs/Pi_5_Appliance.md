@@ -11,7 +11,10 @@ Why would you want to build a Raspberry Pi 5 appliance when the Python scripts w
 
 The first reason means that a Windows computer would have to be up and running 24/7 with a user logged in. I don't think that many IT security teams would find that acceptable. A cyber attack is most likely when a PC is powered on and a user is logged in. If the scripts are on a user's Windows desktop and they shut down in the evening or over weekends/holidays, data won't be collected.
 
-The workaround to a user being logged in is to use a tool like `NSSM (Non-Sucking Service Manager)` to install the script as a service. My Haas scripts use standard Python libraries that will get updates from Microsoft. I researched `NSSM` and it appears to be abandoned. There are a few other ways to run Python as a service on Windows, but you would still have to have a machine running 24/7, so the Pi is a less expensive method. The attack surface of a hardened Linux appliance is smaller than a Windows 11 desktop.
+The workaround to a user being logged in is to use a tool like `NSSM (Non-Sucking Service Manager)` to install the script as a service. I researched `NSSM` and it appears to be abandoned so no security updates will be produced. My Haas scripts use standard Python libraries that will get updated anytime you update Python. There are a few other ways to run Python as a service on Windows, but you would still have to have a machine running 24/7, so the Pi is a less expensive method. The attack surface of a hardened Linux appliance is smaller than a Windows 11 desktop.
+
+!!! Note
+    Python doesn't get updated when you run Windows Update. Use `winget upgrade --id Python.Python.3` from a PowerShell terminal if you installed using winget or Update via Microsoft Store (If installed from there).
 
 The second reason means creating file shares on the Windows computer that the scripts are running on. I have had a lot of wasted time in small shops making their MSP understand what is needed (a user account, the shares, security groups, etc.) and getting it done while I'm onsite. Plus, creating shares on a personal workstation may violate IT security policy.
 
@@ -349,6 +352,16 @@ sudo systemctl daemon-reload
 sudo systemctl enable st1.service
 sudo systemctl start st1.service
 sudo systemctl status st1.service
+
+# Create the directory for the share
+mkdir /home/mhubbard/Haas/st1
+
+Create the share configuration
+[st1]
+    comment =
+    path = /home/mhubbard/Haas/st1
+    read only = no
+    browsable = yes
 ```
 
 It's much easier to peer review a spreadsheet than a bunch of files! If the spreadsheet is accurate, you will instantly get the service files and the commands to install them.
@@ -405,10 +418,471 @@ python -m pip install openpyxl
 
 ----------------------------------------------------------------
 
-## Install samba for Windows integration
+## Use Samba Server for Windows integration
 
 ----------------------------------------------------------------
 
 ![screenshot](img/Tux-DC.resized.jpeg)
 
 ----------------------------------------------------------------
+
+**What is a Samba Server?**
+
+A [Samba server](https://www.samba.org/) is an open-source software suite that enables seamless file and printer sharing between Linux/Unix systems and Windows systems. It implements the Server Message Block (SMB) and Common Internet File System (CIFS) protocols, which are standard for Windows-based file sharing. Samba also supports integration with Active Directory (AD) environments, making it a versatile tool for mixed-OS networks.
+
+- Active Directory Integration: It can act as an Active Directory Domain Controller or a member server, supporting protocols like LDAP and Kerberos.
+
+For my project I chose not to use Active Directory integration because 99% of MSPs will freak out if you say you need a Linux server connected to Active Directory. We are only dealing with one account for the machines, and a handful of accounts for the CNC Programmers, and Operations personnel that will use spreadsheets created by the scripts, so we will create local accounts on the Raspberry Pi 5. If you want use  Active Directory integration there are plenty of blogs/YouTube Videos available.
+
+### Install Samba Server
+
+We will need the table we created earlier for reference. The concept is to create a share on the `Haas` directory for the scripts to use and a directory/share for each Haas machine tool. This share will be used for the CNC programmer to drop programs into and the machine operator to load from.
+
+The final structure will look like this:
+
+```bash linenums='1' hl_lines='1'
+├── Haas
+│   ├── Haas_Data_collect
+│   │   ├── cnc_logs
+|   ├── minimill
+│   ├── st30
+│   ├── st30l
+│   ├── st40
+│   ├── vf2ss
+│   └── vf5ss
+```
+
+Open a terminal on the Raspberry Pi 5 and enter
+
+```bash hl_lines='1'
+sudo apt update && sudo apt install -y samba
+```
+
+This will install the Samba Server packages
+
+Configure the Samba Server to start on boot and start the Samba Server
+
+```bash
+sudo systemctl enable --now smbd
+sudo systemctl start smbd
+```
+
+If you want to restart the Samba Server use the following:
+
+```bash hl_lines='1'
+sudo systemctl restart smbd
+```
+
+#### Verify the installation
+
+Run the following to verify the Samba Server installation and location:
+
+```bash hl_lines='1'
+whereis samba
+```
+
+`samba: /usr/sbin/samba /usr/lib/x86_64-linux-gnu/samba /etc/samba /usr/libexec/samba /usr/share/samba /usr/share/man/man8/samba.8.gz /usr/share/man/man7/samba.7.gz`
+
+Now run this to view the Samba Server version:
+
+```bash hl_lines='1'
+samba --version
+```
+
+`Version 4.19.5-Ubuntu`
+
+As you can see, on January 4th, 2025 the current version is 4.19.5.
+
+Run the following to see the smb.conf file and service status
+
+```bash
+testparm -s
+```
+
+```bash
+Load smb config files from /etc/samba/smb.conf
+Loaded services file OK.
+Weak crypto is allowed by GnuTLS (e.g. NTLM as a compatibility fallback)
+
+Server role: ROLE_STANDALONE
+```
+
+This is just the top of the file. The entire smb.conf file will be displayed
+
+Run the following to display the Samba Server service status:
+
+```bash linenums='1' hl_lines='1'
+sudo systemctl status smbd
+
+● smbd.service - Samba SMB Daemon
+     Loaded: loaded (/usr/lib/systemd/system/smbd.service; enabled; preset: enabled)
+     Active: active (running) since Fri 2025-12-26 21:59:34 PST; 1 week 1 day ago
+       Docs: man:smbd(8)
+             man:samba(7)
+             man:smb.conf(5)
+   Main PID: 10736 (smbd)
+     Status: "smbd: ready to serve connections..."
+      Tasks: 4 (limit: 4601)
+     Memory: 24.9M (peak: 48.2M swap: 1.4M swap peak: 1.4M)
+        CPU: 23.914s
+     CGroup: /system.slice/smbd.service
+             ├─10736 /usr/sbin/smbd --foreground --no-process-group
+             ├─10739 "smbd: notifyd" .
+             ├─10740 "smbd: cleanupd "
+             └─75813 "smbd: client [192.168.10.143]"
+
+Dec 27 19:07:06 ubuntu-server smbd[20940]: pam_unix(samba:session): session opened for user mhubbard(uid=1000) by (uid=0)
+```
+
+----------------------------------------------------------------
+
+### Create the shares
+
+First we need to create the directories. We can refer to our table for the names:
+
+----------------------------------------------------------------
+
+| Machine  | Port# |   IP Address   |
+|----------|-------|:--------------:|
+| ST40     | 5052  | 192.168.10.141 |
+| VF2SS    | 5053  | 192.168.10.142 |
+| VF5SS    | 5054  | 192.168.10.143 |
+| MINIMILL | 5055  | 192.168.10.143 |
+| ST30     | 5056  | 192.168.10.144 |
+| ST30L    | 5057  | 192.168.10.145 |
+
+----------------------------------------------------------------
+
+If you are only doing a handful of machines use:
+
+```bash
+mkdir /home/mhubbard/Haas/ST40
+```
+
+And repeat for each machine. If you used the Python script under [Scaling up](Pi_5_Appliance.md/#scaling-up) with the `systemd-template.txt` it creates the 'mkdir' command along with the aliases.
+
+**Open the `smb.conf` file**
+
+```bash
+sudo nano /etc/samba/smb.conf
+```
+
+Go to the bottom of the file and paste this code in:
+
+```bash
+# Share for Haas CNC Programs
+
+[Haas]
+    comment = Haas
+    path = /home/mhubbard/Haas
+    read only = no
+    browsable = yes
+```
+
+This is the root directory. All other shares with be appended to the end of `/home/mhubbard/Haas`. For example:
+
+```bash linenums='1' hl_lines='1'
+[ST40]
+    comment = st40
+    path = /home/mhubbard/Haas/st40
+    read only = no
+    browsable = yes
+```
+
+If you used the Python script with the `systemd-template.txt`, it creates all of the smb.conf share commands. Open each file and copy the code after `Create the share configuration`.
+
+```bash linenums='1' hl_lines='13-17'
+sudo cp st1.service /etc/systemd/system/st1.service
+sudo systemctl daemon-reload
+sudo systemctl enable st1.service
+sudo systemctl start st1.service
+sudo systemctl status st1.service
+
+# Create the directory for the share
+
+mkdir /home/mhubbard/Haas/st1
+
+Create the share configuration
+
+[st1]
+    comment =
+    path = /home/mhubbard/Haas/st1
+    read only = no
+    browsable = yes
+```
+
+After you add all the share configurations, save `/etc/samba/smb.conf` and exit nano.
+
+Based on the [table](Pi_5_Appliance.md/#create-the-shares) above this is what the share section will look like:
+
+```bash linenums='1'
+# Share for Haas CNC Programs
+
+[Haas]
+    comment = Haas
+    path = /home/mhubbard/Haas
+    read only = no
+    browsable = yes
+[ST40]
+    comment = ST40
+    path = /home/mhubbard/Haas/st40
+    read only = no
+    browsable = yes
+[minimill]
+    comment = minimill
+    path = /home/mhubbard/Haas/minimill
+    read only = no
+    browsable = yes
+[VF2SS]
+    comment = vf2ss
+    path = /home/mhubbard/Haas/vf2ss
+    read only = no
+    browsable = yes
+[VF5SS]
+    comment = vf5ss
+    path = /home/mhubbard/Haas/vf5ss
+    read only = no
+    browsable = yes
+[ST30]
+    comment = st30
+    path = /home/mhubbard/Haas/st30
+    read only = no
+    browsable = yes
+[ST30L]
+    comment = st30l
+    path = /home/mhubbard/Haas/st30l
+    read only = no
+    browsable = yes
+```
+
+----------------------------------------------------------------
+
+### Restart the Samba Server and create the users
+
+This command restarts the samba service. You will need to run it any time you modify the `/etc/samba/smb.conf` file.
+
+```bash
+sudo systemctl restart smbd
+```
+
+You will need to build a list of users that will need to access the shares. In this example I have:
+
+```text
+Michael Hubbard - The administrator for the Raspberry Pi 5
+        haassvc - The limited permission account used on the Hass CNC control
+       haassvc2 - An account for the customer to manage the Raspberry Pi 5
+ Robert Goodwin - Operations. Needs access to the `cnc_logs` directory to move files
+  Manuel Chavez - CNC Setup technician. Needs to review the CNC Programs from his Windows desktop and review the spreadsheets
+```
+
+Run these command for each user:
+
+```bash linenums='1' hl_lines='1'
+sudo useradd -M -s /usr/sbin/nologin haassvc
+sudo smbpasswd -a haassvc
+```
+
+The first command creates the user `haassvc`.
+
+- The `-M` skips creating a user `home` directory..
+- The `-s /usr/sbin/nologin` disables shell login (good for service accounts that only need SMB access)
+
+The second command creates the Samba Server user. You will be prompted to enter and confirm a password. Here is the output for the `haassvc` user:
+
+```bash hl_lines='1'
+sudo smbpasswd -a haassvc
+New SMB password:
+Retype new SMB password:
+Added user haassvc.
+```
+
+#### Local Group Management
+
+I find it better to manage permissions using groups. For this project all uses will be in the same group. That isn't a security best practice since a disgruntled employee could delete everything. If you have compliance requirements or other concerns just repeat this process to create multiple groups.
+
+**To create the  HaasGroup group:**
+
+```bash
+sudo groupadd HaasGroup
+```
+
+**To add the haassvc User account to the group:**
+
+```bash
+sudo usermod -aG HaasGroup haassvc
+```
+
+**To see all users in the HaasGroup:**
+
+```bash hl_lines='1'
+cat /etc/group | grep Haas
+HaasGroup:x:1002:haassvc,mhubbard
+```
+
+**Set permissions on the folders:**
+
+You need to be in the root of your home director before changing permissions. Use the following to verify that you are in the correct location:
+
+```bash
+cd ~
+pwd
+ls -l
+```
+
+```bash
+/home/mhubbard
+drwx------ 3 mhubbard mhubbard   4096 Jun 15  2025 easy-rsa
+drwxrwxr-x 9 mhubbard HaasGroup  4096 Jan  4 20:26 Haas
+drwxrwxr-x 4 mhubbard mhubbard   4096 Jun 16  2024 reverse-proxy
+drwxrwxr-x 2 tftp     tftp      12288 Jan  3 23:00 tftp-root
+drwxrwxr-x 4 mhubbard mhubbard   4096 Dec 28 11:21 tools
+```
+
+We can see the `Haas` folder, so we are in the correct location. Now run:
+
+```bash linenums='1' hl_lines='1'
+sudo chown -R mhubbard:HaasGroup Haas
+ls -l
+```
+
+```bash
+drwx------ 3 mhubbard mhubbard   4096 Jun 15  2025 easy-rsa
+drwxrwxr-x 9 mhubbard HaasGroup  4096 Jan  4 20:26 Haas
+drwxrwxr-x 4 mhubbard mhubbard   4096 Jun 16  2024 reverse-proxy
+drwxrwxr-x 2 tftp     tftp      12288 Jan  3 23:00 tftp-root
+drwxrwxr-x 4 mhubbard mhubbard   4096 Dec 28 11:21 tools
+```
+
+Note the Haas directory had changed from `mhubbard mhubbard` to `mhubbard HaasGroup`. That means mhubbard is the owner and HaasGroup is the group that will be applied.
+
+**Now we will set the file permissions:**
+
+From the root of your home directory run:
+
+```bash
+chmod -R 766 Haas
+```
+
+There won't be any output from this command. Run a directory listing to see the results:
+
+```bash
+cd Haas
+ls -l
+```
+
+```bash
+ls -l
+total 52
+drwxrw-rw- 6 mhubbard HaasGroup 4096 Dec 29 20:30 Haas_Data_collect
+-rwxrw-rw- 1 mhubbard HaasGroup  646 Jan  4 20:26 lshare.sh
+drwxrw-rw- 2 mhubbard HaasGroup 4096 Dec 25 22:43 minimill
+-rwxrw-rw- 1 mhubbard HaasGroup 6923 Dec 26 22:29 smb-enum-shares.nse
+-rwxrw-rw- 1 mhubbard HaasGroup 6923 Dec 26 22:30 smb-enum-shares.nse.1
+-rwxrw-rw- 1 mhubbard HaasGroup 2620 Dec 26 23:01 smb_verify.sh
+drwxrw-rw- 2 mhubbard HaasGroup 4096 Dec 26 21:37 st30
+drwxrw-rw- 2 mhubbard HaasGroup 4096 Dec 26 21:37 st30l
+drwxrw-rw- 2 mhubbard HaasGroup 4096 Jan  4 15:18 st40
+drwxrw-rw- 2 mhubbard HaasGroup 4096 Dec 26 21:37 vf2ss
+drwxrw-rw- 2 mhubbard HaasGroup 4096 Dec 26 21:37 vf5ss
+```
+
+Now my account has `rwx` and the HaasGroup has `rw`.
+
+----------------------------------------------------------------
+
+### Verify the Samba Server
+
+testparm -s
+smbclient -L //192.168.10.223 -U mhubbard
+
+Here is a function that you can add to your ~/.zshrc file to display the paths to each share. use the following to open your ~./bashrc (or ~/.zshrc) file:
+
+```bash linenums='1' hl_lines='1'
+nano ~/.bashrc
+```
+
+Then paste this at the bottom of the file, save and exit.
+
+----------------------------------------------------------------
+
+```bash linenums='1' hl_lines='1'
+smb-shares() {
+    while IFS= read -r line; do
+        if [[ "$line" == \[*\] ]]; then
+            # Extract share name without brackets
+            name="${line#\[}"
+            name="${name%\]}"
+        fi
+        if [[ "$line" == *path\ =* ]]; then
+            # Skip global, printers, and print$ shares
+            if [[ "$name" != "global" && "$name" != "printers" && "$name" != "print$" ]]; then
+                # Extract path after "path = "
+                sharepath="${line#*path = }"
+                # Print formatted output
+                printf "%-12s %s\n" "$name" "$sharepath"
+            fi
+        fi
+    done < /etc/samba/smb.conf
+}
+```
+
+If you don't want to add the function to your .bashrc file you can use the `lshares.sh` file that is included with the repository. You have to make it executable using:
+
+```bash linenums='1' hl_lines='1'
+chmod +x lshare.sh
+```
+
+Then run the script from the `/home/mhubbard/Haas/Haas_Data_collect` direcory using:
+
+```bash linenums='1' hl_lines='1'
+./lshare.sh
+```
+
+----------------------------------------------------------------
+
+Here is the output of the function:
+
+```bash
+smb-shares
+Haas         /home/mhubbard/Haas
+ST40         /home/mhubbard/Haas/st40
+minimill     /home/mhubbard/Haas/minimill
+VF2SS        /home/mhubbard/Haas/vf2ss
+VF5SS        /home/mhubbard/Haas/vf5ss
+ST30         /home/mhubbard/Haas/st30
+ST30L        /home/mhubbard/Haas/st30l
+```
+
+----------------------------------------------------------------
+
+#### Disable SMBv1 on Linux or Unix when using Samba
+
+The `smb.conf` file should still be open. If not, run the following command to open the Samba Server configuration file:
+
+```bash linenums='1' hl_lines='1'
+sudo nano /etc/samba/smb.conf
+```
+
+Find the [global] section and append the following line:
+
+```bash linenums='1' hl_lines='1'
+min protocol = SMB2
+```
+
+Here is what it looks like on my server
+
+```bash linenums='1' hl_lines='1'
+#======================= Global Settings =======================
+
+[global]
+
+   client min protocol = SMB2
+   client max protocol = SMB3
+
+```
+
+
+!!! Note:
+    smbv1 was permanently removed for Samba Server version 4.16. This step is not strictly necassary, we will verify that smbvq is disabled later in the installation but I like to make absolutely sure smbv1 is not enabled!
+
+sudo sh -c 'cd /var/lib/samba/usershares && ls -l'
