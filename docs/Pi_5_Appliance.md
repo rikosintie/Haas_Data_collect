@@ -698,9 +698,44 @@ Added user haassvc.
 
 #### Local Group Management
 
-I find it better to manage permissions using groups. For this project all uses will be in the same group. That isn't a security best practice since a disgruntled employee could delete everything. If you have compliance requirements or other concerns just repeat this process to create multiple groups.
+I find it better to manage permissions using groups. For this project, all uses will be in the same group. That isn't a security best practice since a disgruntled employee could delete everything. If you have compliance requirements or other concerns just repeat this process to create multiple groups.
 
-**To create the  HaasGroup group:**
+You don't need to learn any of this to build an appliance. I am covering it for general knowledge. If you aren't interested please jump down [To Create the Haas Group](Pi_5_Appliance.md/#to-create-the-haasgroup-group). Claude and ChatGPT hve extensive knowledge of the Linux permission system if you run into a problem.
+
+Linux doesn't have the "Effective Permission" concept that Windows does.
+
+From Gemini:
+Effective file permissions in Windows 11 combine direct assignments, inheritance from parent folders, and group memberships, allowing you to control who can read, write, or execute files/folders through the Security tab in Properties.
+
+In Linux there is only `owner`, `group`, and `other`. Each user has a user ID, `UID`, each group has a group ID, `GID`. When you run `ls -l` you will get a listing of the directories and files with the user, group and other permissions along with the owner and the group associated with each entry.
+
+For example:
+
+```bash linenums='1' hl_lines='1'
+ls -l
+drwxrwxr-x 6 mhubbard HaasGroup 4096 Jan  5 12:05 Haas_Data_collect
+-rwxrwxr-x 1 mhubbard HaasGroup  646 Jan  4 20:26 lshare.sh
+drwxrwxr-x 2 mhubbard HaasGroup 4096 Dec 25 22:43 minimill
+```
+
+The letters break down like this. If the line starts with a `d` that is a directory.
+
+```bash
+ usr|grp|other
+ rwx|rwx|r-x
+ 421|421|421
+```
+
+The permissions use three binary digits (1 or 0) to make up the permissions. In the example, mhubbard has `rwx` which is 7 when you convert the binary `111` to decimal. The `HaasGroup` also has `rwx`. But `other` has `r-x` (101) which is 5 in decimal.  So this file has the equivalent of 775 permissions. That's 7 for `user`, 7 for `group` and 5 for `other`.
+
+If I logged in as mhubbard, I would have read, write, eXecute permission on the directories and files. Same if I logged in as haassvc and it was a member of the HaasGroup. But anyone else would only have read and eXecute.
+
+!!! Note
+    The eXecute permission can be confusing. If a file is a program it means the program can be execute. But if it's a directory it means you have permission to cd into the directory, or use the directory in a pathname. For example, if the `haassvc` user attempts to execute `cd /home/mhubbard/`Haas, the haassvc user needs eXecute permission on the `/` directory, the `home` directory, the `mhubbard` directory, and the `Haas` directory.
+
+----------------------------------------------------------------
+
+### To create the HaasGroup group
 
 ```bash
 sudo groupadd HaasGroup
@@ -742,6 +777,7 @@ We can see the `Haas` folder, so we are in the correct location. Now run:
 
 ```bash linenums='1' hl_lines='1'
 sudo chown -R mhubbard:HaasGroup Haas
+chmod o+x /home/mhubbard/
 ls -l
 ```
 
@@ -786,7 +822,7 @@ drwxrw-rw- 2 mhubbard HaasGroup 4096 Dec 26 21:37 vf2ss
 drwxrw-rw- 2 mhubbard HaasGroup 4096 Dec 26 21:37 vf5ss
 ```
 
-Now my account has `rwx` and the HaasGroup has `rw`.
+Now my account has `rwx` and the HaasGroup has `rw`. The the `other` group is read/write also.
 
 ----------------------------------------------------------------
 
