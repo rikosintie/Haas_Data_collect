@@ -677,9 +677,15 @@ Michael Hubbard - The administrator for the Raspberry Pi 5
 
 Run these command for each user:
 
-```bash linenums='1' hl_lines='1'
+```bash linenums='1' hl_lines='2 5 8'
+# Create user without shell access
 sudo useradd -M -s /usr/sbin/nologin haassvc
+
+# Add to Samba
 sudo smbpasswd -a haassvc
+
+# Enable the Samba user
+sudo smbpasswd -e haassvc
 ```
 
 The first command creates the user `haassvc`.
@@ -696,42 +702,21 @@ Retype new SMB password:
 Added user haassvc.
 ```
 
+Finally, `sudo smbpasswd -e haassvc` enables the smb username.
+
+**Verify the `haassvc` user settings
+
+```bash linenums='1' hl_lines='1'
+id haassvc
+```
+
+`uid=1001(haassvc) gid=1001(haassvc) groups=1001(haassvc),1002(HaasGroup)`
+
+----------------------------------------------------------------
+
 #### Local Group Management
 
 I find it better to manage permissions using groups. For this project, all uses will be in the same group. That isn't a security best practice since a disgruntled employee could delete everything. If you have compliance requirements or other concerns just repeat this process to create multiple groups.
-
-You don't need to learn any of this to build an appliance. I am covering it for general knowledge. If you aren't interested please jump down [To Create the Haas Group](Pi_5_Appliance.md/#to-create-the-haasgroup-group). Claude and ChatGPT hve extensive knowledge of the Linux permission system if you run into a problem.
-
-Linux doesn't have the "Effective Permission" concept that Windows does.
-
-From Gemini:
-Effective file permissions in Windows 11 combine direct assignments, inheritance from parent folders, and group memberships, allowing you to control who can read, write, or execute files/folders through the Security tab in Properties.
-
-In Linux there is only `owner`, `group`, and `other`. Each user has a user ID, `UID`, each group has a group ID, `GID`. When you run `ls -l` you will get a listing of the directories and files with the user, group and other permissions along with the owner and the group associated with each entry.
-
-For example:
-
-```bash linenums='1' hl_lines='1'
-ls -l
-drwxrwxr-x 6 mhubbard HaasGroup 4096 Jan  5 12:05 Haas_Data_collect
--rwxrwxr-x 1 mhubbard HaasGroup  646 Jan  4 20:26 lshare.sh
-drwxrwxr-x 2 mhubbard HaasGroup 4096 Dec 25 22:43 minimill
-```
-
-The letters break down like this. If the line starts with a `d` that is a directory.
-
-```bash
- usr|grp|other
- rwx|rwx|r-x
- 421|421|421
-```
-
-The permissions use three binary digits (1 or 0) to make up the permissions. In the example, mhubbard has `rwx` which is 7 when you convert the binary `111` to decimal. The `HaasGroup` also has `rwx`. But `other` has `r-x` (101) which is 5 in decimal.  So this file has the equivalent of 775 permissions. That's 7 for `user`, 7 for `group` and 5 for `other`.
-
-If I logged in as mhubbard, I would have read, write, eXecute permission on the directories and files. Same if I logged in as haassvc and it was a member of the HaasGroup. But anyone else would only have read and eXecute.
-
-!!! Note
-    The eXecute permission can be confusing. If a file is a program it means the program can be execute. But if it's a directory it means you have permission to cd into the directory, or use the directory in a pathname. For example, if the `haassvc` user attempts to execute `cd /home/mhubbard/`Haas, the haassvc user needs eXecute permission on the `/` directory, the `home` directory, the `mhubbard` directory, and the `Haas` directory.
 
 ----------------------------------------------------------------
 
@@ -741,22 +726,22 @@ If I logged in as mhubbard, I would have read, write, eXecute permission on the 
 sudo groupadd HaasGroup
 ```
 
-**To add the haassvc User account to the group:**
+**Add the haassvc User account to the group:**
 
 ```bash
 sudo usermod -aG HaasGroup haassvc
 ```
 
-**To see all users in the HaasGroup:**
+**List all users in the HaasGroup:**
 
 ```bash hl_lines='1'
 cat /etc/group | grep Haas
 HaasGroup:x:1002:haassvc,mhubbard
 ```
 
-**Set permissions on the folders:**
+### Set permissions on the folders
 
-You need to be in the root of your home director before changing permissions. Use the following to verify that you are in the correct location:
+You need to be in the root of your home director to review the current permissions. Use the following to verify that you are in the correct location:
 
 ```bash
 cd ~
@@ -764,39 +749,48 @@ pwd
 ls -l
 ```
 
-```bash
+```bash hl_lines='3'
 /home/mhubbard
 drwx------ 3 mhubbard mhubbard   4096 Jun 15  2025 easy-rsa
-drwxrwxr-x 9 mhubbard HaasGroup  4096 Jan  4 20:26 Haas
-drwxrwxr-x 4 mhubbard mhubbard   4096 Jun 16  2024 reverse-proxy
-drwxrwxr-x 2 tftp     tftp      12288 Jan  3 23:00 tftp-root
-drwxrwxr-x 4 mhubbard mhubbard   4096 Dec 28 11:21 tools
+drw-rw-r-- 9 mhubbard mhubbard  4096 Jan  4 20:26 Haas
+drw-rw-r-- 4 mhubbard mhubbard   4096 Jun 16  2024 reverse-proxy
+drw-rw-r-- 2 tftp     tftp      12288 Jan  3 23:00 tftp-root
+drw-rw-r-- 4 mhubbard mhubbard   4096 Dec 28 11:21 tools
 ```
 
-We can see the `Haas` folder, so we are in the correct location. Now run:
+We can see the `Haas` folder, so we are in the correct location. Note that the Haas directory has `mhubbard mhubbard` listed. We need to change that to `mhubbard HaasGroup`
 
-```bash linenums='1' hl_lines='1'
-sudo chown -R mhubbard:HaasGroup Haas
-chmod o+x /home/mhubbard/
+Now run:
+
+```bash hl_lines='2 5 8'
+# Allow traversal into /home/mhubbard (needed to reach Haas subdirectory)
+sudo chmod 774 /home/mhubbard
+
+# Set ownership for everything under Haas
+sudo chown -R mhubbard:HaasGroup /home/mhubbard/Haas
+
+# View the changes
 ls -l
 ```
 
 ```bash
 drwx------ 3 mhubbard mhubbard   4096 Jun 15  2025 easy-rsa
 drwxrwxr-x 9 mhubbard HaasGroup  4096 Jan  4 20:26 Haas
-drwxrwxr-x 4 mhubbard mhubbard   4096 Jun 16  2024 reverse-proxy
-drwxrwxr-x 2 tftp     tftp      12288 Jan  3 23:00 tftp-root
-drwxrwxr-x 4 mhubbard mhubbard   4096 Dec 28 11:21 tools
+drwxrwxr-- 4 mhubbard mhubbard   4096 Jun 16  2024 reverse-proxy
+drwxrwxr-- 2 tftp     tftp      12288 Jan  3 23:00 tftp-root
+drwxrwxr-- 4 mhubbard mhubbard   4096 Dec 28 11:21 tools
 ```
 
 Note the Haas directory had changed from `mhubbard mhubbard` to `mhubbard HaasGroup`. That means mhubbard is the owner and HaasGroup is the group that will be applied.
 
-**Now we will set the file permissions:**
+### Now we will set the file permissions
 
-From the root of your home directory run:
+From the following:
 
 ```bash
-chmod -R 766 Haas
+# Set permissions: directories get execute, files don't
+sudo find /home/mhubbard/Haas -type d -exec chmod 775 {} +
+sudo find /home/mhubbard/Haas -type f -exec chmod 664 {} +
 ```
 
 There won't be any output from this command. Run a directory listing to see the results:
@@ -809,20 +803,19 @@ ls -l
 ```bash
 ls -l
 total 52
-drwxrw-rw- 6 mhubbard HaasGroup 4096 Dec 29 20:30 Haas_Data_collect
--rwxrw-rw- 1 mhubbard HaasGroup  646 Jan  4 20:26 lshare.sh
-drwxrw-rw- 2 mhubbard HaasGroup 4096 Dec 25 22:43 minimill
--rwxrw-rw- 1 mhubbard HaasGroup 6923 Dec 26 22:29 smb-enum-shares.nse
--rwxrw-rw- 1 mhubbard HaasGroup 6923 Dec 26 22:30 smb-enum-shares.nse.1
--rwxrw-rw- 1 mhubbard HaasGroup 2620 Dec 26 23:01 smb_verify.sh
-drwxrw-rw- 2 mhubbard HaasGroup 4096 Dec 26 21:37 st30
-drwxrw-rw- 2 mhubbard HaasGroup 4096 Dec 26 21:37 st30l
-drwxrw-rw- 2 mhubbard HaasGroup 4096 Jan  4 15:18 st40
-drwxrw-rw- 2 mhubbard HaasGroup 4096 Dec 26 21:37 vf2ss
-drwxrw-rw- 2 mhubbard HaasGroup 4096 Dec 26 21:37 vf5ss
+drwxrwxr-- 6 mhubbard HaasGroup 4096 Jan  5 12:05 Haas_Data_collect
+-rwxrwxr-x 1 mhubbard HaasGroup  646 Jan  4 20:26 lshare.sh
+drwxrwxr-- 2 mhubbard HaasGroup 4096 Dec 25 22:43 minimill
+-rwxrwxr-x 1 mhubbard HaasGroup 2620 Dec 26 23:01 smb_verify.sh
+drwxrwxr-- 2 mhubbard HaasGroup 4096 Dec 26 21:37 st30
+drwxrwxr-- 2 mhubbard HaasGroup 4096 Dec 26 21:37 st30l
+drwxrwxr-- 2 mhubbard HaasGroup 4096 Jan  4 15:18 st40
+drwxrwxr-- 2 mhubbard HaasGroup 4096 Dec 26 21:37 vf2ss
+drwxrwxr-- 2 mhubbard HaasGroup 4096 Dec 26 21:37 vf5ss
+
 ```
 
-Now my account has `rwx` and the HaasGroup has `rw`. The the `other` group is read/write also.
+Now the `mhubbard` and HaasGroup accounts ha `rwx` to directories, the  `other` group is r--. Files will get rw-. The two scripts need execute so you have to run `chmod +x lshare.sh` and `chmod +x smb_verify.sh` is you want to run them.
 
 ----------------------------------------------------------------
 
@@ -891,6 +884,57 @@ ST30L        /home/mhubbard/Haas/st30l
 
 ----------------------------------------------------------------
 
+## Troubleshooting
+
+```bash title='Review the Jounal for user haassvc' hl_lines='1'
+id haassvc
+sudo journalctl -u smbd.service -n 50 --no-pager
+```
+
+```bash
+uid=1001(haassvc) gid=1001(haassvc) groups=1001(haassvc),1002(HaasGroup)
+Jan 05 11:05:55 ubuntu-server smbd[96113]: pam_unix(samba:session): session opened for user haassvc(uid=1001) by (uid=0)
+```
+
+----------------------------------------------------------------
+
+#### Brief introduction to Linux file permissions.
+
+You don't need to learn any of this to build an appliance. I am covering it for general knowledge. If you aren't interested please skip it. Claude and ChatGPT have extensive knowledge of the Linux file permissions if you run into a problem.
+
+**Linux doesn't have the "Effective Permission" concept that Windows does.**
+
+From Gemini:
+Effective file permissions in Windows 11 combine direct assignments, inheritance from parent folders, and group memberships, allowing you to control who can read, write, or execute files/folders through the Security tab in Properties.
+
+In Linux there is only `owner`, `group`, and `other`. Each user has a user ID, `UID`, each group has a group ID, `GID`. When you run `ls -l` you will get a listing of the directories and files with the user, group and other permissions along with the owner and the group associated with each entry.
+
+For example:
+
+```bash linenums='1' hl_lines='1'
+ls -l
+drwxrwxr-x 6 mhubbard HaasGroup 4096 Jan  5 12:05 Haas_Data_collect
+-rwxrwxr-x 1 mhubbard HaasGroup  646 Jan  4 20:26 lshare.sh
+drwxrwxr-x 2 mhubbard HaasGroup 4096 Dec 25 22:43 minimill
+```
+
+The letters break down like this. If the line starts with a `d` that is a directory.
+
+```bash
+ usr|grp|other
+ rwx|rwx|r-x
+ 421|421|421
+```
+
+The permissions use three binary digits (1 or 0) to make up the permissions. In the example, mhubbard has `rwx` which is 7 when you convert the binary `111` to decimal. The `HaasGroup` also has `rwx`. But `other` has `r-x` (101) which is 5 in decimal.  So this file has the equivalent of 775 permissions. That's 7 for `user`, 7 for `group` and 5 for `other`.
+
+If I logged in as mhubbard, I would have read, write, eXecute permission on the directories and files. Same if I logged in as haassvc and it was a member of the HaasGroup. But anyone else would only have read and eXecute.
+
+!!! Note
+    The eXecute permission can be confusing. If a file is a program it means the program can be execute. But if it's a directory it means you have permission to cd into the directory, or use the directory in a pathname. For example, if the `haassvc` user attempts to execute `cd /home/mhubbard/`Haas, the haassvc user needs eXecute permission on the `/` directory, the `home` directory, the `mhubbard` directory, and the `Haas` directory.
+
+----------------------------------------------------------------
+
 #### Disable SMBv1 on Linux or Unix when using Samba
 
 The `smb.conf` file should still be open. If not, run the following command to open the Samba Server configuration file:
@@ -916,7 +960,6 @@ Here is what it looks like on my server
    client max protocol = SMB3
 
 ```
-
 
 !!! Note:
     smbv1 was permanently removed for Samba Server version 4.16. This step is not strictly necassary, we will verify that smbvq is disabled later in the installation but I like to make absolutely sure smbv1 is not enabled!
