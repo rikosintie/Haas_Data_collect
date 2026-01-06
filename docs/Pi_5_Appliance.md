@@ -657,60 +657,13 @@ Based on the [table](Pi_5_Appliance.md/#create-the-shares) above this is what th
 
 ----------------------------------------------------------------
 
-### Restart the Samba Server and create the users
+### Restart the Samba Server
 
 This command restarts the samba service. You will need to run it any time you modify the `/etc/samba/smb.conf` file.
 
 ```bash
 sudo systemctl restart smbd
 ```
-
-You will need to build a list of users that will need to access the shares. In this example I have:
-
-```text
-Michael Hubbard - The administrator for the Raspberry Pi 5
-        haassvc - The limited permission account used on the Hass CNC control
-       haassvc2 - An account for the customer to manage the Raspberry Pi 5
- Robert Goodwin - Operations. Needs access to the `cnc_logs` directory to move files
-  Manuel Chavez - CNC Setup technician. Needs to review the CNC Programs from his Windows desktop and review the spreadsheets
-```
-
-Run these command for each user:
-
-```bash linenums='1' hl_lines='2 5 8'
-# Create user without shell access
-sudo useradd -M -s /usr/sbin/nologin haassvc
-
-# Add to Samba
-sudo smbpasswd -a haassvc
-
-# Enable the Samba user
-sudo smbpasswd -e haassvc
-```
-
-The first command creates the user `haassvc`.
-
-- The `-M` skips creating a user `home` directory..
-- The `-s /usr/sbin/nologin` disables shell login (good for service accounts that only need SMB access)
-
-The second command creates the Samba Server user. You will be prompted to enter and confirm a password. Here is the output for the `haassvc` user:
-
-```bash hl_lines='1'
-sudo smbpasswd -a haassvc
-New SMB password:
-Retype new SMB password:
-Added user haassvc.
-```
-
-Finally, `sudo smbpasswd -e haassvc` enables the smb username.
-
-**Verify the `haassvc` user settings
-
-```bash linenums='1' hl_lines='1'
-id haassvc
-```
-
-`uid=1001(haassvc) gid=1001(haassvc) groups=1001(haassvc),1002(HaasGroup)`
 
 ----------------------------------------------------------------
 
@@ -720,23 +673,10 @@ I find it better to manage permissions using groups. For this project, all uses 
 
 ----------------------------------------------------------------
 
-### To create the HaasGroup group
+### Create the HaasGroup group
 
 ```bash
 sudo groupadd HaasGroup
-```
-
-**Add the haassvc User account to the group:**
-
-```bash
-sudo usermod -aG HaasGroup haassvc
-```
-
-**List all users in the HaasGroup:**
-
-```bash hl_lines='1'
-cat /etc/group | grep Haas
-HaasGroup:x:1002:haassvc,mhubbard
 ```
 
 ### Set permissions on the folders
@@ -783,7 +723,7 @@ drwxrwxr-- 4 mhubbard mhubbard   4096 Dec 28 11:21 tools
 
 Note the Haas directory had changed from `mhubbard mhubbard` to `mhubbard HaasGroup`. That means mhubbard is the owner and HaasGroup is the group that will be applied.
 
-### Now we will set the file permissions
+### Set the file permissions
 
 From the following:
 
@@ -816,6 +756,183 @@ drwxrwxr-- 2 mhubbard HaasGroup 4096 Dec 26 21:37 vf5ss
 ```
 
 Now the `mhubbard` and HaasGroup accounts ha `rwx` to directories, the  `other` group is r--. Files will get rw-. The two scripts need execute so you have to run `chmod +x lshare.sh` and `chmod +x smb_verify.sh` is you want to run them.
+
+----------------------------------------------------------------
+
+### Create the users
+
+You will need to build a list of users that will need to access the shares. In this example I have:
+
+```text
+Michael Hubbard - The administrator for the Raspberry Pi 5
+        haassvc - The limited permission account used on the Hass CNC control
+       haassvc2 - An account for the customer to manage the Raspberry Pi 5
+ Robert Goodwin - Operations. Needs access to the `cnc_logs` directory to move files
+  Manuel Chavez - CNC Setup technician. Needs to review the CNC Programs from his Windows desktop and review the spreadsheets
+```
+
+Run these command for each user:
+
+```bash linenums='1' hl_lines='2 5 8'
+# Create user without shell access
+sudo useradd -M -s /usr/sbin/nologin haassvc
+
+# Add to Samba
+sudo smbpasswd -a haassvc
+
+# Enable the Samba user
+sudo smbpasswd -e haassvc
+```
+
+The first command creates the user `haassvc`.
+
+- The `-M` skips creating a user `home` directory..
+- The `-s /usr/sbin/nologin` disables shell login (good for service accounts that only need SMB access)
+
+The second command creates the Samba Server user. You will be prompted to enter and confirm a password. Here is the output for the `haassvc` user:
+
+```bash hl_lines='1'
+sudo smbpasswd -a haassvc
+New SMB password:
+Retype new SMB password:
+Added user haassvc.
+```
+
+Finally, `sudo smbpasswd -e haassvc` enables the smb username.
+
+**Add the haassvc User account to the group:**
+
+```bash
+sudo usermod -aG HaasGroup haassvc
+```
+
+#### List all users in the HaasGroup
+
+```bash hl_lines='1'
+cat /etc/group | grep Haas
+HaasGroup:x:1002:haassvc,mhubbard
+```
+
+#### Verify the `haassvc` user settings
+
+```bash linenums='1' hl_lines='1'
+id haassvc
+```
+
+`uid=1001(haassvc) gid=1001(haassvc) groups=1001(haassvc),1002(HaasGroup)`
+
+### Create users the easy way
+
+It's fairly simple create a user but it's a lot of individual commands which leaves room for errors. There is bash script to do the heavy lifting included in the repository. It gets installed when you clone the repository. To use it, first run the following command:
+
+```bash linenums='1' hl_lines='1'
+cd /home/mhubbard/Haas/Haas_Data_collect
+chmod +x setup_user.sh
+```
+
+There is no output from the `chmod` commmand. Now you can create new users by running the following. Here I am creating the `haassvc2` user. Replace `haassvc2` with the username you need to create:
+
+```bash linenums='1' hl_lines='1'
+sudo ./setup_user.sh haassvc2
+```
+
+*How the script works**
+- You will be asked for your password to activate `sudo`.
+- You will be  asked for the password to use for the username.
+- You will be  asked for the smbuser password. It MUST be the same as the Linux user!
+- It will then create and enable the smb user, add it to the group and display the result.
+
+----------------------------------------------------------------
+
+```bash linenums='1' hl_lines='1'
+[sudo] password for mhubbard:
+Attempting to create and configure user: haassvc2
+System user haassvc2 created.
+New password:
+Retype new password:
+passwd: password updated successfully
+New SMB password:
+Retype new SMB password:
+Added user haassvc2.
+Enabled user haassvc2.
+Configuration complete for haassvc2.
+Verifying user configuration:
+uid=1004(haassvc2) gid=1005(haassvc2) groups=1005(haassvc2),1002(HaasGroup)
+
+```
+
+----------------------------------------------------------------
+
+```bash linenums='1' hl_lines='1'
+#!/bin/bash
+
+# Function to create a new system user with specific configurations (e.g., Samba, group membership)
+# Usage: create_samba_user <username>
+create_samba_user() {
+    # Check if exactly one argument (the username) was provided
+    if [ "$#" -ne 1 ]; then
+        echo "Error: Usage requires exactly one argument: create_samba_user <username>" >&2
+        return 1
+    fi
+
+    local USERNAME="$1"
+    local GROUP_NAME="HaasGroup"
+
+    echo "Attempting to create and configure user: $USERNAME"
+
+    # 1. Create the system user without a home directory and a nologin shell
+    # Error trapping: '|| { ...; return 1; }' stops execution if a command fails
+    sudo useradd -M -s /usr/sbin/nologin "$USERNAME" || {
+        echo "Error creating system user $USERNAME. User may already exist or permissions issue." >&2
+        return 1
+    }
+    echo "System user $USERNAME created."
+
+    # 2. Set the system password (will prompt for a new password interactively)
+    # The user running this script will be prompted by 'passwd' to set the password.
+    sudo passwd "$USERNAME" || {
+        echo "Error setting system password for $USERNAME." >&2
+        return 1
+    }
+
+    # 3. Add user to Samba database and set the Samba password
+    # The user running this script will be prompted by 'smbpasswd' to set the Samba password.
+    sudo smbpasswd -a "$USERNAME" || {
+        echo "Error adding user to Samba database $USERNAME." >&2
+        # Clean up the system user if Samba setup fails
+        sudo userdel "$USERNAME"
+        return 1
+    }
+
+    # 4. Enable the Samba account
+    sudo smbpasswd -e "$USERNAME" || {
+        echo "Error enabling Samba account for $USERNAME." >&2
+        sudo userdel "$USERNAME"
+        return 1
+    }
+
+    # 5. Add the user to the specified group (e.g., HaasGroup)
+    # Note: Ensure 'HaasGroup' exists on your system beforehand.
+    sudo usermod -aG "$GROUP_NAME" "$USERNAME" || {
+        echo "Warning: Failed to add $USERNAME to the group $GROUP_NAME. Proceeding anyway." >&2
+    }
+
+    echo "Configuration complete for $USERNAME."
+
+    # 6. Display the final user ID/group information for verification
+    echo "Verifying user configuration:"
+    id "$USERNAME"
+}
+
+create_samba_user "$@"
+
+# --- Example Usage ---
+# To run this function, save the script (e.g., as setup_user.sh),
+# make it executable (chmod +x setup_user.sh), and run it.
+
+# Example 1: Create user 'jdoe'
+# create_samba_user jdoe
+```
 
 ----------------------------------------------------------------
 
