@@ -8,10 +8,10 @@ sudo systemctl status {{name}}.service
 
 mkdir /home/mhubbard/Haas/{{name}}
 
-Create the share configuration
+# Create the share configuration
 
 [{{name}}]
-    comment = {{descripiton}}
+    comment = {{description}}
     path = /home/mhubbard/Haas/{{name}}
     read only = no
     browsable = yes
