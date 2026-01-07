@@ -321,11 +321,11 @@ Fill out as many rows as you need, save it in the root of the project folder.
 
 Here is a example:
 
-| description    | username | ip_address    | name |
-|----------------|----------|---------------|------|
-| Logger for st1 | mhubbard | 192.168.0.140 | st1  |
-| Logger for st2 | mhubbard | 192.168.0.141 | st2  |
-| Logger for st3 | mhubbard | 192.168.0.142 | st3  |
+| description   -  | username | ip_address    |  name |
+|------------------|----------|---------------|-------|
+| Logger for ST40  | mhubbard | 192.168.0.140 | st40  |
+| Logger for ST30  | mhubbard | 192.168.0.141 | st30  |
+| Logger for ST30L | mhubbard | 192.168.0.142 | st30l |
 
 ----------------------------------------------------------------
 
@@ -344,22 +344,24 @@ This creates the service files and saves them as `<name>.service` to the root of
 Run the following:
 `python3 conf-gen_xlsx_v1.py -f machines.xlsx -t systemd-template.txt`
 
-The files are saved as `<name>.txt` in the root of the project directory. Here are the contents of st1.txt
+The files are saved as `<name>.txt` in the root of the project directory. Here are the contents of st40.txt
 
 ```bash
-sudo cp st1.service /etc/systemd/system/st1.service
+sudo cp st40.service /etc/systemd/system/st40.service
 sudo systemctl daemon-reload
-sudo systemctl enable st1.service
-sudo systemctl start st1.service
-sudo systemctl status st1.service
+sudo systemctl enable st40.service
+sudo systemctl start st40.service
+sudo systemctl status st40.service
 
 # Create the directory for the share
-mkdir /home/mhubbard/Haas/st1
 
-Create the share configuration
-[st1]
-    comment =
-    path = /home/mhubbard/Haas/st1
+mkdir /home/mhubbard/Haas/st40
+
+# Create the share configuration
+
+[st40]
+    comment = Logger for ST40
+    path = /home/mhubbard/Haas/st40
     read only = no
     browsable = yes
 ```
@@ -368,7 +370,7 @@ It's much easier to peer review a spreadsheet than a bunch of files! If the spre
 
 #### bash aliases
 
-During debugging you will find yourself typing the `systemctl` commands a lot. I recommend creating some bash aliases to cut down on the typing. Open the bashrc file on the Pi using `nano ~/.bashrc` or `gnome-text-editor ~/.bashrc`.
+During debugging you will find yourself typing the `systemctl` commands a lot. I recommend creating some bash aliases to cut down on the typing. Open the bashrc file on the Pi using `nano ~/.bashrc` or `gnome-text-editor ~/.bashrc`. If you are using zsh as your shell, the commands will be `nano ~/.zshrc` or `gnome-text-editor ~/.zshrc`
 
 !!! note
     Notice the period in front of the bashrc filename. In Linux/Unix the period at the front of a filename means it is a hidden file. To see hidden files use `ls -la` which means show all files.
@@ -398,7 +400,7 @@ The `$1` is a placeholder, it gets replaced with the first text on the command l
 
 Now you can type the following:
 
-- `gte ~/.bashrc` instead of `gnome-text-editor ~/.bashrc`
+- `gte st30l.service` instead of `gnome-text-editor st30l.service`
 - `stop st40` to stop the st40.service
 - `start st40` to start the st40.service
 - `status st40` to show the status of the st40.service
@@ -669,7 +671,9 @@ sudo systemctl restart smbd
 
 #### Local Group Management
 
-I find it better to manage permissions using groups. For this project, all uses will be in the same group. That isn't a security best practice since a disgruntled employee could delete everything. If you have compliance requirements or other concerns just repeat this process to create multiple groups.
+Linux uses groups to manage permissions for users. For this project, all users will be in the same group. That isn't a security best practice since a disgruntled employee could delete everything. If you have compliance requirements or other concerns, just repeat this process to create multiple groups. For example, create a user and group for each machine. Then add the user to the machine's share and use it as the username when setting up the account on the machine.
+
+Does this seem like a lot of extra work? Yes, but I actually had a disgruntled employee delete the configuration for the DNC system for a neighboring cell one time. Of course, he was a night shift employee, and did it at midnight on Friday. I got called on Saturday morning and had to drive an hour to the plant and restore it. So it depends on your valuation of the risk in your shop.
 
 ----------------------------------------------------------------
 
@@ -691,11 +695,7 @@ ls -l
 
 ```bash hl_lines='3'
 /home/mhubbard
-drwx------ 3 mhubbard mhubbard   4096 Jun 15  2025 easy-rsa
 drw-rw-r-- 9 mhubbard mhubbard  4096 Jan  4 20:26 Haas
-drw-rw-r-- 4 mhubbard mhubbard   4096 Jun 16  2024 reverse-proxy
-drw-rw-r-- 2 tftp     tftp      12288 Jan  3 23:00 tftp-root
-drw-rw-r-- 4 mhubbard mhubbard   4096 Dec 28 11:21 tools
 ```
 
 We can see the `Haas` folder, so we are in the correct location. Note that the Haas directory has `mhubbard mhubbard` listed. We need to change that to `mhubbard HaasGroup`
@@ -714,23 +714,22 @@ ls -l
 ```
 
 ```bash
-drwx------ 3 mhubbard mhubbard   4096 Jun 15  2025 easy-rsa
 drwxrwxr-x 9 mhubbard HaasGroup  4096 Jan  4 20:26 Haas
-drwxrwxr-- 4 mhubbard mhubbard   4096 Jun 16  2024 reverse-proxy
-drwxrwxr-- 2 tftp     tftp      12288 Jan  3 23:00 tftp-root
-drwxrwxr-- 4 mhubbard mhubbard   4096 Dec 28 11:21 tools
 ```
 
 Note the Haas directory had changed from `mhubbard mhubbard` to `mhubbard HaasGroup`. That means mhubbard is the owner and HaasGroup is the group that will be applied.
 
 ### Set the file permissions
 
-From the following:
+Run the following:
 
 ```bash
 # Set permissions: directories get execute, files don't
 sudo find /home/mhubbard/Haas -type d -exec chmod 775 {} +
 sudo find /home/mhubbard/Haas -type f -exec chmod 664 {} +
+chmod +x /home/$USER/Haas/Haas_Data_collect/lshare.sh
+chmod +x /home/$USER/Haas/Haas_Data_collect/smb_verify.sh
+chmod +x /home/$USER/Haas/Haas_Data_collect/setup_user.sh
 ```
 
 There won't be any output from this command. Run a directory listing to see the results:
@@ -744,9 +743,7 @@ ls -l
 ls -l
 total 52
 drwxrwxr-- 6 mhubbard HaasGroup 4096 Jan  5 12:05 Haas_Data_collect
--rwxrwxr-x 1 mhubbard HaasGroup  646 Jan  4 20:26 lshare.sh
 drwxrwxr-- 2 mhubbard HaasGroup 4096 Dec 25 22:43 minimill
--rwxrwxr-x 1 mhubbard HaasGroup 2620 Dec 26 23:01 smb_verify.sh
 drwxrwxr-- 2 mhubbard HaasGroup 4096 Dec 26 21:37 st30
 drwxrwxr-- 2 mhubbard HaasGroup 4096 Dec 26 21:37 st30l
 drwxrwxr-- 2 mhubbard HaasGroup 4096 Jan  4 15:18 st40
@@ -755,7 +752,15 @@ drwxrwxr-- 2 mhubbard HaasGroup 4096 Dec 26 21:37 vf5ss
 
 ```
 
-Now the `mhubbard` and HaasGroup accounts ha `rwx` to directories, the  `other` group is r--. Files will get rw-. The two scripts need execute so you have to run `chmod +x lshare.sh` and `chmod +x smb_verify.sh` is you want to run them.
+Now the account `mhubbard` and the group `HaasGroup` have `rwx` (read/write/execute) to directories. The `other` group has `r--` (read only). Files will have rw-, read/write.
+
+The three bash scripts:
+
+- lshare.sh
+- setup_users.sh
+- smb_verify.sh
+
+Have eXecute so that you can run them.
 
 ----------------------------------------------------------------
 
@@ -1012,6 +1017,10 @@ sudo journalctl -u smbd.service -n 50 --no-pager
 uid=1001(haassvc) gid=1001(haassvc) groups=1001(haassvc),1002(HaasGroup)
 Jan 05 11:05:55 ubuntu-server smbd[96113]: pam_unix(samba:session): session opened for user haassvc(uid=1001) by (uid=0)
 ```
+
+- smbclient //localhost/st40 -U haassvc
+-
+
 
 ----------------------------------------------------------------
 
