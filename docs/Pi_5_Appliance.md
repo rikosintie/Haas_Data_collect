@@ -769,11 +769,13 @@ Have eXecute so that you can run them.
 You will need to build a list of users that will need to access the shares. In this example I have:
 
 ```text
-Michael Hubbard - The administrator for the Raspberry Pi 5
-        haassvc - The limited permission account used on the Hass CNC control
-       haassvc2 - An account for the customer to manage the Raspberry Pi 5
- Robert Goodwin - Operations. Needs access to the `cnc_logs` directory to move files
-  Manuel Chavez - CNC Setup technician. Needs to review the CNC Programs from his Windows desktop and review the spreadsheets
+|     Username    | Role and Responsibility                                                                                     |
+|:---------------:|-------------------------------------------------------------------------------------------------------------|
+|     haassvc     | The limited permission account used on the Haas CNC control                                                 |
+|     haassvc2    | An account for the customer to manage the Raspberry Pi 5                                                    |
+| Michael Hubbard | The administrator for the Raspberry Pi 5                                                                    |
+|  Manuel Chavez  | CNC Setup technician. Needs to review the CNC Programs from his Windows desktop and review the spreadsheets |
+| Robert Goodwin  | Operations. Needs access to the `cnc_logs` directory to move files                                          |
 ```
 
 Run these command for each user:
@@ -838,10 +840,11 @@ chmod +x setup_user.sh
 There is no output from the `chmod` commmand. Now you can create new users by running the following. Here I am creating the `haassvc2` user. Replace `haassvc2` with the username you need to create:
 
 ```bash linenums='1' hl_lines='1'
-sudo ./setup_user.sh haassvc2
+sudo ./setup_user.sh haassvc
 ```
 
 *How the script works**
+
 - You will be asked for your password to activate `sudo`.
 - You will be  asked for the password to use for the username.
 - You will be  asked for the smbuser password. It MUST be the same as the Linux user!
