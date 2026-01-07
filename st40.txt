@@ -1,0 +1,17 @@
+sudo cp st40.service /etc/systemd/system/st40.service
+sudo systemctl daemon-reload
+sudo systemctl enable st40.service
+sudo systemctl start st40.service
+sudo systemctl status st40.service
+
+# Create the directory for the share
+
+mkdir /home/mhubbard/Haas/st40
+
+Create the share configuration
+
+[st40]
+    comment = Logger for ST40
+    path = /home/mhubbard/Haas/st40
+    read only = no
+    browsable = yes

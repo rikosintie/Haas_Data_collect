@@ -1,0 +1,17 @@
+sudo cp st30.service /etc/systemd/system/st30.service
+sudo systemctl daemon-reload
+sudo systemctl enable st30.service
+sudo systemctl start st30.service
+sudo systemctl status st30.service
+
+# Create the directory for the share
+
+mkdir /home/mhubbard/Haas/st30
+
+Create the share configuration
+
+[st30]
+    comment = Logger for ST30
+    path = /home/mhubbard/Haas/st30
+    read only = no
+    browsable = yes
