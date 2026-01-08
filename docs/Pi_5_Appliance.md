@@ -778,7 +778,9 @@ You will need to build a list of users that will need to access the shares. In t
 | Robert Goodwin  | Operations. Needs access to the `cnc_logs` directory to move files                                          |
 ```
 
-Run these command for each user:
+----------------------------------------------------------------
+
+**Run these command for each user:**
 
 ```bash linenums='1' hl_lines='2 5 8'
 # Create user without shell access
@@ -1027,7 +1029,7 @@ Jan 05 11:05:55 ubuntu-server smbd[96113]: pam_unix(samba:session): session open
 
 ----------------------------------------------------------------
 
-#### Brief introduction to Linux file permissions.
+### Brief introduction to Linux file permissions.
 
 You don't need to learn any of this to build an appliance. I am covering it for general knowledge. If you aren't interested please skip it. Claude and ChatGPT have extensive knowledge of the Linux file permissions if you run into a problem.
 
@@ -1063,34 +1065,8 @@ If I logged in as mhubbard, I would have read, write, eXecute permission on the 
     The eXecute permission can be confusing. If a file is a program it means the program can be execute. But if it's a directory it means you have permission to cd into the directory, or use the directory in a pathname. For example, if the `haassvc` user attempts to execute `cd /home/mhubbard/`Haas, the haassvc user needs eXecute permission on the `/` directory, the `home` directory, the `mhubbard` directory, and the `Haas` directory.
 
 ----------------------------------------------------------------
+![screenshot](img/Tux_firewall1.resized.png)
 
-#### Disable SMBv1 on Linux or Unix when using Samba
+----------------------------------------------------------------
 
-The `smb.conf` file should still be open. If not, run the following command to open the Samba Server configuration file:
-
-```bash linenums='1' hl_lines='1'
-sudo nano /etc/samba/smb.conf
-```
-
-Find the [global] section and append the following line:
-
-```bash linenums='1' hl_lines='1'
-min protocol = SMB2
-```
-
-Here is what it looks like on my server
-
-```bash linenums='1' hl_lines='1'
-#======================= Global Settings =======================
-
-[global]
-
-   client min protocol = SMB2
-   client max protocol = SMB3
-
-```
-
-!!! Note:
-    smbv1 was permanently removed for Samba Server version 4.16. This step is not strictly necassary, we will verify that smbvq is disabled later in the installation but I like to make absolutely sure smbv1 is not enabled!
-
-sudo sh -c 'cd /var/lib/samba/usershares && ls -l'
+## Securing the Appliance

@@ -8,6 +8,10 @@ nav:
   - Intro: Introduction.md
   - Usage: usage.md
   - Pi_5_Appliance.md
+  - Appendices:
+    - Appendix A - smbv1: 'appendices/appendix-a.md'
+    - Appendix B - File_Permissions: 'appendices/appendix-b.md'
+
 
 theme:
   name: material
