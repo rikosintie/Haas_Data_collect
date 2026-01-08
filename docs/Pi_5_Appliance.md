@@ -460,7 +460,7 @@ Open a terminal on the Raspberry Pi 5 and enter
 sudo apt update && sudo apt install -y samba
 ```
 
-This will install the Samba Server packages
+This will install the Samba Server packages. The `-y` means "Don't prompt for yes". If you want to be in control during the installation don't include the `-y`.
 
 Configure the Samba Server to start on boot and start the Samba Server
 
@@ -483,7 +483,9 @@ Run the following to verify the Samba Server installation and location:
 whereis samba
 ```
 
-`samba: /usr/sbin/samba /usr/lib/x86_64-linux-gnu/samba /etc/samba /usr/libexec/samba /usr/share/samba /usr/share/man/man8/samba.8.gz /usr/share/man/man7/samba.7.gz`
+```bash title='Command Output'
+samba: /usr/sbin/samba /usr/lib/x86_64-linux-gnu/samba /etc/samba /usr/libexec/samba /usr/share/samba /usr/share/man/man8/samba.8.gz /usr/share/man/man7/samba.7.gz
+```
 
 Now run this to view the Samba Server version:
 
@@ -491,7 +493,10 @@ Now run this to view the Samba Server version:
 samba --version
 ```
 
-`Version 4.19.5-Ubuntu`
+```bash title='Command Output'
+Version 4.19.5-Ubuntu
+```
+
 
 As you can see, on January 4th, 2025 the current version is 4.19.5.
 
@@ -501,7 +506,7 @@ Run the following to see the smb.conf file and service status
 testparm -s
 ```
 
-```bash
+```bash title='Command Output'
 Load smb config files from /etc/samba/smb.conf
 Loaded services file OK.
 Weak crypto is allowed by GnuTLS (e.g. NTLM as a compatibility fallback)
@@ -515,7 +520,9 @@ Run the following to display the Samba Server service status:
 
 ```bash linenums='1' hl_lines='1'
 sudo systemctl status smbd
+```
 
+```bash title='Command Output'
 ● smbd.service - Samba SMB Daemon
      Loaded: loaded (/usr/lib/systemd/system/smbd.service; enabled; preset: enabled)
      Active: active (running) since Fri 2025-12-26 21:59:34 PST; 1 week 1 day ago
@@ -667,6 +674,8 @@ This command restarts the samba service. You will need to run it any time you mo
 sudo systemctl restart smbd
 ```
 
+There is no output from this command.
+
 ----------------------------------------------------------------
 
 #### Local Group Management
@@ -682,6 +691,7 @@ Does this seem like a lot of extra work? Yes, but I actually had a disgruntled e
 ```bash
 sudo groupadd HaasGroup
 ```
+There is no output from this command.
 
 ### Set permissions on the folders
 
@@ -693,12 +703,12 @@ pwd
 ls -l
 ```
 
-```bash hl_lines='3'
+```bash title='Command Output'
 /home/mhubbard
-drw-rw-r-- 9 mhubbard mhubbard  4096 Jan  4 20:26 Haas
+drw-rw-r-- 9 mhubbard mhubbard  4096 Jan  4 20:26 Haas_Data_collect
 ```
 
-We can see the `Haas` folder, so we are in the correct location. Note that the Haas directory has `mhubbard mhubbard` listed. We need to change that to `mhubbard HaasGroup`
+We can see the `Haas_Data_collect` folder, so we are in the correct location. Note that the `Haas_Data_collect` directory has `mhubbard mhubbard` listed. We need to change that to `mhubbard HaasGroup`
 
 Now run:
 
@@ -713,11 +723,11 @@ sudo chown -R mhubbard:HaasGroup /home/mhubbard/Haas
 ls -l
 ```
 
-```bash
-drwxrwxr-x 9 mhubbard HaasGroup  4096 Jan  4 20:26 Haas
+```bash title='Command Output'
+drwxrwxr-x 9 mhubbard HaasGroup  4096 Jan  4 20:26 Haas_Data_collect
 ```
 
-Note the Haas directory had changed from `mhubbard mhubbard` to `mhubbard HaasGroup`. That means mhubbard is the owner and HaasGroup is the group that will be applied.
+Note the `Haas_Data_collect` directory had changed from `mhubbard mhubbard` to `mhubbard HaasGroup`. That means mhubbard is the owner and HaasGroup is the group that will be applied.
 
 ### Set the file permissions
 
@@ -732,14 +742,14 @@ chmod +x /home/$USER/Haas/Haas_Data_collect/smb_verify.sh
 chmod +x /home/$USER/Haas/Haas_Data_collect/setup_user.sh
 ```
 
-There won't be any output from this command. Run a directory listing to see the results:
+There is no output from this command. Run a directory listing to see the results:
 
 ```bash
-cd Haas
+cd ~
 ls -l
 ```
 
-```bash
+```bash title='Command Output'
 ls -l
 total 52
 drwxrwxr-- 6 mhubbard HaasGroup 4096 Jan  5 12:05 Haas_Data_collect
@@ -1064,6 +1074,8 @@ If I logged in as mhubbard, I would have read, write, eXecute permission on the 
 !!! Note
     The eXecute permission can be confusing. If a file is a program it means the program can be execute. But if it's a directory it means you have permission to cd into the directory, or use the directory in a pathname. For example, if the `haassvc` user attempts to execute `cd /home/mhubbard/`Haas, the haassvc user needs eXecute permission on the `/` directory, the `home` directory, the `mhubbard` directory, and the `Haas` directory.
 
+----------------------------------------------------------------
+
 ## Securing the Appliance
 
 ----------------------------------------------------------------
@@ -1071,3 +1083,15 @@ If I logged in as mhubbard, I would have read, write, eXecute permission on the 
 ![screenshot](img/Tux_firewall1.resized.png)
 
 ----------------------------------------------------------------
+
+The appliance is runnng on Ubuntu 24.04 which has many security features that Canonical has learned from being a very popular Internet Web server OS. Since the Raspberry Pi 5 appliance is only meant to transfer files to/from the Haas CNC control and the programmers, and connect to the Haas CNC controls using a redefined port and IP address to collect data, we can lock it down using local user accounts, file permissions, share permissions and the Uncomplicated Firewall (UFW).
+
+In addition to the Haas CNC ports we define, the Raspberry Pi 5 appliance needs to have SSH exposed to the customer user that is repsonsible for management of the appliance. Ubuntu 24.04 ships with OpenSSH 9.6 which has removed ssh-dss and made many other legacy protocols optional.You can verify the version using:
+```bash  hl_lines='1'
+ssh -V
+```
+```bash title='Command Output'
+OpenSSH_9.6p1 Ubuntu-3ubuntu13.14, OpenSSL 3.0.13 30 Jan 2024
+```
+
+title='Command Output'
