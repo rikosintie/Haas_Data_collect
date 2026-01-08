@@ -1064,9 +1064,10 @@ If I logged in as mhubbard, I would have read, write, eXecute permission on the 
 !!! Note
     The eXecute permission can be confusing. If a file is a program it means the program can be execute. But if it's a directory it means you have permission to cd into the directory, or use the directory in a pathname. For example, if the `haassvc` user attempts to execute `cd /home/mhubbard/`Haas, the haassvc user needs eXecute permission on the `/` directory, the `home` directory, the `mhubbard` directory, and the `Haas` directory.
 
+## Securing the Appliance
+
 ----------------------------------------------------------------
+
 ![screenshot](img/Tux_firewall1.resized.png)
 
 ----------------------------------------------------------------
-
-## Securing the Appliance
