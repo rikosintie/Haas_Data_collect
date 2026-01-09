@@ -8,14 +8,14 @@
 As you can imagine, there are a lot of steps required to build a functional appliance from scratch. But once you have completed it, you will have gained a lot of useful knowledge!
 
 - Clone the repository - This is how you get the code from the repository
-- Create the systemd service files
-- Enable the Haas data collection services
-- Install Samba to create Windows shares
-- Create the security group
-- Create the users
-- Add the users to the security group
-- Create the directories
-- Create the Samba shares
+- Create the systemd service files - Used to start the collection script per machine
+- Enable the systemd services - Configure the services to start on boot
+- Install Samba Server - Samba is used to create Windows shares
+- Create the security group - Used to secure the appliance
+- Create the users - Multiple users are need to function in production
+- Add the users to the security group - Required for sharing
+- Create the directories - A place to store files
+- Create the Samba shares - Allows Windows users to map a network drive to the appliance
 
 The next sections will cover all of these topics in detail.
 
@@ -25,15 +25,15 @@ The next sections will cover all of these topics in detail.
 
 !!! Note
     Linux uses a case sensitive file system. So `Haas` is different from `haas`. If you type a command, for example, `LS -l` and it says
+    ```bash linenums='1' hl_lines='1'
+    cd haas_data_collect
+    cd:cd:1: no such file or directory: haas_data_collect
+    ```
+    Make sure you have the case correct!
 
-```bash linenums='1' hl_lines='1'
-cd haas_data_collect
-cd:cd:1: no such file or directory: haas_data_collect
-```
+## Open a terminal on the Pi
 
-Make sure you have the case correct!
-
-Open a terminal on the Pi.
+If you are using ssh to connect, you are at the terminal already. If you are using the GUI, press `ctrl+alt+t` to open a terminal.
 
 - Make sure you are in your home directory by running `cd ~`
 - Verify using `pwd` which is `print working directory` in Linux. You should see:
@@ -53,7 +53,7 @@ Open a terminal on the Pi.
 
 ----------------------------------------------------------------
 
-### The systemd service files
+## The systemd service files
 
 Ubuntu uses an initialization (init) service named `systemd`. This service manages what services are initialized when Ubuntu starts up. We will use `systemd` to manage the Python scripts.
 
@@ -135,7 +135,7 @@ Nothing else needs to be changed in the service file.
 
 ----------------------------------------------------------------
 
-### Configuring systemd to use the service files
+## Configuring systemd to use the service files
 
 Once you have the service file modified, use the following commands to set up the service:
 
@@ -150,7 +150,7 @@ There is no output from these commands.
 
 ----------------------------------------------------------------
 
-#### What the commands do
+### What the commands do
 
 - sudo systemctl daemon-reload - Forces `systemd` to read the changes
 - sudo systemctl enable st40.service - Tells `systemd` to run the service on boot
@@ -214,7 +214,7 @@ Beyond simple, the available Type options include:
 
 ----------------------------------------------------------------
 
-### Scaling up
+## Scaling up
 
 If you only have a handful of machines, editing the included service files and changing the name of the `systemctl` commands is the quickest way to create the service files and enable the services.
 
@@ -242,7 +242,7 @@ Here is a example:
 
 ----------------------------------------------------------------
 
-#### Create the service files
+### Create the service files
 
 Run the following:
 
@@ -252,7 +252,7 @@ This creates the service files and saves them as `<name>.service` to the root of
 
 ----------------------------------------------------------------
 
-#### Create the sudo commands
+### Create the sudo commands
 
 Run the following:
 `python3 conf-gen_xlsx_v1.py -f machines.xlsx -t systemd-template.txt`
