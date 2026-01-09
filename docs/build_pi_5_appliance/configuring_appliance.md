@@ -1,4 +1,4 @@
-# What is needed to create the appliance
+# Let's build the appliance
 
 ----------------------------------------------------------------
 ![screenshot](img/Tux_sitting_at_a_workbench.resized.png)
@@ -8,10 +8,10 @@
 As you can imagine, there are a lot of steps required to build a functional appliance from scratch. But once you have completed it, you will have gained a lot of useful knowledge!
 
 - Clone the repository - This is how you get the code from the repository
-- Create the systemd service files - Used to start the collection script per machine
+- Create the systemd service files - Used to start the collection scripts per machine
 - Enable the systemd services - Configure the services to start on boot
 - Install Samba Server - Samba is used to create Windows shares
-- Create the security group - Used to secure the appliance
+- Create the security group - Used to allow Windows users access to  the appliance
 - Create the users - Multiple users are need to function in production
 - Add the users to the security group - Required for sharing
 - Create the directories - A place to store files
@@ -55,7 +55,7 @@ If you are using ssh to connect, you are at the terminal already. If you are usi
 
 ## The systemd service files
 
-Ubuntu uses an initialization (init) service named `systemd`. This service manages what services are initialized when Ubuntu starts up. We will use `systemd` to manage the Python scripts.
+Ubuntu uses an initialization (init) service named `systemd`. Systemd manages what services are initialized when Ubuntu starts up. We will use `systemd` to manage the Python scripts.
 
 The service files are where you define how to call the Python script when the Pi starts up. In the repository there are six files representing six different machine tools. The ports and IP addresses used are:
 
@@ -94,7 +94,7 @@ WantedBy=multi-user.target
 
 ### Editing the files
 
-The systemd service files are located in `/etc/systemd/system/` so you must use sudo to edit them.
+The systemd service files are located in `/etc/systemd/system/` so you must use sudo to edit them. Think of `sudo` as `UAC` in Windows. The advantage is that you can proactively use `sudo` and not have to deal with pop up dialogs asking for permission!
 
 As an example, let's use the included st40.service file. You should be in the `Haas_Data_collect` directory. Use the following to copy `st40.service` to the `/etc/systemd/system/` directory:
 
@@ -143,7 +143,6 @@ Once you have the service file modified, use the following commands to set up th
 sudo systemctl daemon-reload
 sudo systemctl enable st40.service
 sudo systemctl start st40.service
-sudo systemctl status st40.service
 ```
 
 There is no output from these commands.
@@ -152,10 +151,19 @@ There is no output from these commands.
 
 ### What the commands do
 
-- sudo systemctl daemon-reload - Forces `systemd` to read the changes
+- sudo systemctl daemon-reload - Forces `systemd` to read the changes in the systemd files
 - sudo systemctl enable st40.service - Tells `systemd` to run the service on boot
 - sudo systemctl start st40.service - Actually starts the `systemd` service
-- sudo systemctl status st40.service - Displays the status of the `systemd` service
+
+Once these commands are run the `st40.service` should be active.
+
+----------------------------------------------------------------
+
+**Run this command to check the status of the `st40.service`:**
+
+```bash
+sudo systemctl status st40.service
+```
 
 ```unixconfig hl_lines="2" title="Status of the st40.service"
 ╭─mhubbard@ubuntu-server ~
@@ -168,14 +176,14 @@ There is no output from these commands.
      Memory: 6.9M (peak: 7.1M)
         CPU: 37ms
      CGroup: /system.slice/st40.service
-             └─44301 /usr/bin/python3 /home/mhubbard/Haas_Data_collect/haas_logger2.py -a -t 192.168.10.122 --port 5052 --name ST40
+             └─115518 /usr/bin/python3 /home/mhubbard/Haas_Data_collect/haas_logger2.py -a -t 192.168.10.122 --port 5052 --name ST40
 
 Dec 29 16:09:45 ubuntu-server systemd[1]: Started st40.service - Haas Python logger for ST40.
 ```
 
 ----------------------------------------------------------------
 
-Notice the description from the service file is shown. Also, `Main PID` can be useful during troubleshooting. That is the Process ID, similar to what you would see in the `Windows Task Manager`. In this case it's 44301 and we can track it using:
+Notice the description from the service file is shown. Also, `Main PID` can be useful during troubleshooting. That is the Process ID, similar to what you would see in the `Windows Task Manager`. In this case it's 115518 and we can track it using:
 
 ```bash hl_lines="1"
 ps -ef | grep -E "115518|PID"
