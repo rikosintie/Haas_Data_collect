@@ -7,7 +7,13 @@ nav:
   - home: README.md
   - Intro: Introduction.md
   - Usage: usage.md
-  - Pi_5_Appliance.md
+  - Raspberry_Pi_5:
+      - Why build a Pi_5_Appliance: 'build_pi_5_appliance/why_pi_5_appliance.md'
+      - Installing_Ubuntu: 'build_pi_5_appliance/installing_ubuntu.md'
+      - Configuring_Appliance: 'build_pi_5_appliance/configuring_appliance.md'
+      - Connecting_to_Network: 'build_pi_5_appliance/connecting_to_network.md'
+      - Updating_Appliance: 'build_pi_5_appliance/updating_appliance.md'
+      - Securing_The_Appliance: 'build_pi_5_appliance/securing_appliance.md'
   - Appendices:
     - Appendix A - smbv1: 'appendices/appendix-a.md'
     - Appendix B - File_Permissions: 'appendices/appendix-b.md'
