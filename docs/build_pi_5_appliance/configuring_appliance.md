@@ -1,5 +1,10 @@
 # What is needed to create the appliance
 
+----------------------------------------------------------------
+![screenshot](img/Tux_sitting_at_a_workbench.resized.png)
+
+----------------------------------------------------------------
+
 As you can imagine, there are a lot of steps required to build a functional appliance from scratch. But once you have completed it, you will have gained a lot of useful knowledge!
 
 - Clone the repository - This is how you get the code from the repository
@@ -18,7 +23,15 @@ The next sections will cover all of these topics in detail.
 
 ## Clone the repository
 
-NOTE: Linux uses a case sensitive file system. So `Haas` is different from `haas`. Make sure you use `mkdir Haas` when you create the directory.
+!!! Note
+    Linux uses a case sensitive file system. So `Haas` is different from `haas`. If you type a command, for example, `LS -l` and it says
+
+```bash linenums='1' hl_lines='1'
+cd haas_data_collect
+cd:cd:1: no such file or directory: haas_data_collect
+```
+
+Make sure you have the case correct!
 
 Open a terminal on the Pi.
 
@@ -30,6 +43,9 @@ Open a terminal on the Pi.
 ╰─$ pwd
 /home/mhubbard
 ```
+
+!!! Note
+    The examples in this document will have `/home/mhubbard` and `/home/mhubbard/Haas_Data_collect`. When you install Ubuntu on your Raspberry Pi 5 you will use your own name. Please replace `mhubbard` with your name in all the code you enter!
 
 - Clone the repository using `git clone https://github.com/rikosintie/Haas_Data_collect.git`
 - Change to the `Haas_Data_collect` folder using `cd Haas_Data_collect`
