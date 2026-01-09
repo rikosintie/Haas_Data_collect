@@ -288,7 +288,7 @@ I have a lot of Jinja2 resources on my [Cisco DevNet](https://github.com/rikosin
 
 ----------------------------------------------------------------
 
-### bash aliases
+### Create bash aliases
 
 During debugging you will find yourself typing the `systemctl` commands a lot. I recommend creating some bash aliases to cut down on the typing. Open the bashrc file on the Pi using `nano ~/.bashrc` or `gnome-text-editor ~/.bashrc`. If you are using zsh as your shell, the commands will be `nano ~/.zshrc` or `gnome-text-editor ~/.zshrc`
 
@@ -340,7 +340,7 @@ python -m pip install openpyxl
 
 ----------------------------------------------------------------
 
-## Use Samba Server for Windows integration
+## Install Samba for Windows integration
 
 ----------------------------------------------------------------
 
@@ -417,7 +417,6 @@ samba --version
 Version 4.19.5-Ubuntu
 ```
 
-
 As you can see, on January 4th, 2025 the current version is 4.19.5.
 
 Run the following to see the smb.conf file and service status
@@ -465,7 +464,7 @@ Dec 27 19:07:06 ubuntu-server smbd[20940]: pam_unix(samba:session): session open
 
 ----------------------------------------------------------------
 
-### Create the shares
+## Create the shares
 
 First we need to create the directories. We can refer to our table for the names:
 
@@ -586,7 +585,7 @@ Based on the [table](configuring_appliance.md/#create-the-shares) above this is 
 
 ----------------------------------------------------------------
 
-### Restart the Samba Server
+## Restart the Samba Server
 
 This command restarts the samba service. You will need to run it any time you modify the `/etc/samba/smb.conf` file.
 
