@@ -15,3 +15,12 @@ mkdir /home/mhubbard/Haas/{{name}}
     path = /home/mhubbard/Haas/{{name}}
     read only = no
     browsable = yes
+    writable = yes
+    public = no
+    valid users = @HaasGroup, mhubbard # Ensure the user is valid
+    force user = mhubbard
+    force group = HaasGroup
+    create mask = 0664
+    force create mode = 0664
+    directory mask = 0775
+    force directory mode = 0775
