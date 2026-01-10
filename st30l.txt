@@ -8,10 +8,19 @@ sudo systemctl status st30l.service
 
 mkdir /home/mhubbard/Haas/st30l
 
-Create the share configuration
+# Create the share configuration
 
 [st30l]
     comment = Logger for ST30L
     path = /home/mhubbard/Haas/st30l
     read only = no
     browsable = yes
+    writable = yes
+    public = no
+    valid users = @HaasGroup, mhubbard # Ensure the user is valid
+    force user = mhubbard
+    force group = HaasGroup
+    create mask = 0664
+    force create mode = 0664
+    directory mask = 0775
+    force directory mode = 0775
