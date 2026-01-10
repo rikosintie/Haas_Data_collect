@@ -20,8 +20,6 @@ Here is what it looks like on my server
 [global]
 
    client min protocol = SMB2
-   client max protocol = SMB3
-
 ```
 
 !!! Note:
