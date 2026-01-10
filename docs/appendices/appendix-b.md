@@ -1,13 +1,25 @@
 # Appendix B - Linux file permissions
 
-This appendix is optional reading! I included it in case you are coming from Windows and want to understand what the output of commands like `ls -la` mean. This was created 100% by Google Gemini. But I did read every line to make sure there were no hallucinations :smiley:
+**This appendix is optional reading!**
+
+I included it in case you are coming from Windows and want to understand what the output of commands like `ls -la` mean. This was created 100% by Google Gemini. But I did read every line to make sure there were no **hallucinations** :smiley:
+
+When I was at Cal Poly, the head of the department started a lecture with this:
+
+- I'm going to tell what I'm lecturing on today.
+- Then I'm going to lecture to you.
+- Then I'm going to summarize what I told you.
+
+I was annoyed at first, but it was effective! This is done in a similar format, so if it seems repetitive, it is.
+
+----------------------------------------------------------------
 
 **Samba authenticates Windows users, but Linux decides what they can access.**
 When a Windows user logs in, Samba maps them to a Linux user account that belongs to the `HaasGroup`. All folders under `Haas_Data_collect` are owned by `mhubbard` and assigned to `HaasGroup`, so every user in that group gets the same read/write access. This keeps permissions simple and predictable without using Windows-style ACLs or effective permissions.
 
 ----------------------------------------------------------------
 
-🎯 The key idea
+## 🎯 The key idea
 
 Linux permissions are simple and strict compared to Windows.
 Every file and folder has exactly one owner and one group, and Linux checks permissions in a fixed order.
@@ -21,7 +33,7 @@ Windows users are used to:
 
 Linux does **none** of that.
 
-## 🧱 The Linux Permission Model (Windows‑friendly version)
+## 🧱 The Linux Permission Model
 
 Every file or folder has:
 
@@ -74,11 +86,11 @@ This is the biggest conceptual shift for Windows users.
 
 ----------------------------------------------------------------
 
-🧑‍🤝‍🧑 Why Groups Matter on a Raspberry Pi Appliance
+## 🧑‍🤝‍🧑 Why Groups Matter on a Raspberry Pi Appliance
 
 If multiple users need access to the same shared folder (e.g., for Samba shares), Linux expects you to:
 
-1. Create a group (e.g., HaasGroup)
+1. Create a group (in our case, `HaasGroup`)
 1. Add users to that group
 1. Set the folder’s group to HaasGroup
 1. Give the group the needed permissions
@@ -118,43 +130,36 @@ This analogy lands well with Windows admins
 │    minimill/     │       │      st30    /       │        │      st30l/      │
 │ Owner: mhubbard  │       │ Owner: mhubbard      │        │ Owner: mhubbard  │
 │ Group: HaasGroup │       │ Group: HaasGroup     │        │ Group: HaasGroup │
-└───────┬──────────┘       └──────────────────────┘        └──────────────────┘
-        │
-        │
-┌──────────────────┐
-│    cnc_logs/     │
-│ Owner: mhubbard  │
-│ Group: HaasGroup │
-└──────────────────┘
+└──────────────────┘       └──────────────────────┘        └──────────────────┘
 ```
 
 (Additional sibling directories follow the same pattern:)
     st40/   vf2ss/   vf5ss/
 
-his diagram makes the permission model visually obvious:
+This diagram makes the permission model visually obvious:
 
-- One owner (mhubbard)
-- One shared group (HaasGroup)
-- All users in HaasGroup get the same access
+- One owner (`mhubbard`)
+- One shared group (`HaasGroup`)
+- All users in `HaasGroup` get the same access
 - No Windows‑style “effective permissions” — just owner → group → everyone else
 
-All directories under Haas are owned by the user `mhubbard` and assigned to the group `HaasGroup`, which contains all appliance users. This ensures consistent shared access without the complexity of Windows‑style effective permissions.
+All directories under `Haas_Data_collect` are owned by the user `mhubbard` and assigned to the group `HaasGroup`, which contains all appliance users. This ensures consistent shared access without the complexity of Windows‑style effective permissions.
 
 ----------------------------------------------------------------
 
-### 1. What this section is about
+## How Windows users access the Pi
 
 In this appliance, multiple Windows users will access shared folders on the Raspberry Pi.
 
 To keep things simple and predictable, we use:
 
-1. One owner of all files: mhubbard
-1. One shared group for all users: HaasGroup
-1. A consistent permission model across all folders under Haas
+1. One owner for all files: `mhubbard`
+1. One shared group for all users: `HaasGroup`
+1. A consistent permission model across all folders under `Haas_Data_collect`
 
 You don’t need to become a Linux admin to understand this — just a few key ideas.
 
-### 2. How Linux permissions work (in plain Windows terms)
+### 1. How Linux permissions work (in plain Windows terms)
 
 On Linux, every file or folder has:
 
@@ -174,7 +179,7 @@ You can think of it like:
 
 “Owner first, if not owner then group, if not group then everyone else.”
 
-### 3. Who owns what (user and group)
+### 2. Who owns what (user and group)
 
 To make permissions easy to reason about, everything under `Haas_Data_collect1 is set up like this:
 
@@ -184,7 +189,7 @@ To make permissions easy to reason about, everything under `Haas_Data_collect1 i
 
 Conceptually, it looks like this:
 
-```
+```text
                          Haas_Data_collect/
                 Owner: mhubbard
                 Group: HaasGroup
@@ -208,7 +213,7 @@ So for every important directory:
 - The group is always `HaasGroup`.
 - All real users connect as members of 'HaasGroup'.
 
-### 5. What permissions users actually get
+### 3. What permissions users actually get
 
 Let’s say the folders under 'Haas' are configured so that:
 
@@ -231,7 +236,7 @@ So:
 - if you’re a member of HaasGroup → you get the group permissions.
 - If you’re not in HaasGroup → you get the other permissions (which are set to read only).
 
-### 6. How this feels to a Windows user
+### 4. How this feels to a Windows user
 
 From a Windows perspective, you can think of it like this:
 
@@ -249,7 +254,7 @@ Instead:
 
 Each file chooses exactly one set of permissions to apply: the owner’s, the group’s, or everyone else’s — whichever matches the user first.
 
-### 7. How this ties into the appliance usage
+### 5. How this ties into the appliance usage
 
 When a Windows user connects to the appliance (for example via a network share:
 
@@ -263,7 +268,7 @@ You, as the appliance creator, keep control simply by:
 - Ensuring all real users are in `HaasGroup`.
 - Ensuring all critical directories under `Haas_Data_collect` are assigned to `HaasGroup`.
 
-## 🧩 How Samba Fits Into This (Windows‑Friendly Explanation)
+## 🧩 How Samba Fits Into This
 
 When Windows users connect to the Raspberry Pi 5 appliance, they are not directly using Linux accounts. Instead, Samba acts as the “translator” between Windows authentication and Linux permissions.
 
@@ -353,7 +358,7 @@ From their perspective:
 - They can read/write files normally
 - They never need to understand Linux permissions
 
-From your perspective:
+From the appliance administrator's  perspective:
 
 - You control access simply by adding/removing users from HaasGroup
 - Samba handles authentication
