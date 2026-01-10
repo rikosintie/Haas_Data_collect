@@ -11,6 +11,7 @@ nav:
       - Why build a Pi 5_Appliance: 'build_pi_5_appliance/why_pi_5_appliance.md'
       - Installing Ubuntu: 'build_pi_5_appliance/installing_ubuntu.md'
       - Creating the Appliance: 'build_pi_5_appliance/configuring_appliance.md'
+      - Create Group and File Perms: 'build_pi_5_appliance/create-groups.md'
       - Installing Samba: 'build_pi_5_appliance/Install_Samba.md'
       - Updating Appliance: 'build_pi_5_appliance/updating_appliance.md'
       - Securing the Appliance: 'build_pi_5_appliance/securing_appliance.md'
