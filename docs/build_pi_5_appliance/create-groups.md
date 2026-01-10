@@ -82,7 +82,7 @@ cd ~
 ls -l
 ```
 
-```bash title='Command Output'
+```unixconfig title='Command Output'
 ls -l
 total 44
 drwxrwsr-x 6 mhubbard HaasGroup 4096 Jan  6 20:05 Haas_Data_collect
@@ -111,7 +111,7 @@ Have eXecute so that you can run them.
 
 ----------------------------------------------------------------
 
-### Create the users
+## Create the users
 
 You will need to build a list of users that will need to access the shares. In this example I have:
 
@@ -139,6 +139,8 @@ sudo smbpasswd -a haassvc
 # Enable the Samba user
 sudo smbpasswd -e haassvc
 ```
+
+----------------------------------------------------------------
 
 The first command creates the user `haassvc`.
 
@@ -179,7 +181,7 @@ There is no output from this command.
 
 ----------------------------------------------------------------
 
-#### List all users in the HaasGroup
+### List all users in the HaasGroup
 
 ```bash hl_lines='1'
 cat /etc/group | grep Haas
@@ -405,6 +407,7 @@ testparm -s
 smbclient -L //192.168.10.223 -U mhubbard
 
 List only shares:
+
 ```bash
 sudo smbstatus -S
 ```
