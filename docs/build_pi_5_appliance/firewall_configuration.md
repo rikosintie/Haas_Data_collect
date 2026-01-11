@@ -1,13 +1,60 @@
 # Haas Appliance Firewall System
 
-The Haas Appliance uses a strict, predictable firewall configuration based on a CSV file that defines all authorized users and administrators.
+----------------------------------------------------------------
 
-The project includes a script you can drop into your appliance build and maintain over time. The design concept is:
+![screenshot](img/Tux_firewall1.resized.png)
 
-- Reads a CSV with header: username,desktop_ip_address,role
+----------------------------------------------------------------
+
+The appliance is running on Ubuntu 24.04 which has many security features that Canonical has learned from being a very popular Internet Web server OS. The the Raspberry Pi 5 appliance has limited functionality:
+
+- transfer files to/from the Haas CNC control
+- Accept files from the CNC programmers
+- Connect to the Haas CNC controls using a predefined port and IP address to collect data
+
+So we can lock it down using:
+
+- Local user accounts
+- Linux file permissions
+- Samba Server share permissions
+- The Ubuntu Uncomplicated Firewall (UFW).
+
+In addition to the Haas CNC ports we define, the Raspberry Pi 5 appliance needs to have SSH exposed to the customer user that is responsible for management of the appliance. Ubuntu 24.04 ships with OpenSSH 9.6 which has removed ssh-dss and made many other legacy protocols optional.You can verify the version using:
+
+```bash  hl_lines='1'
+ssh -V
+```
+
+```bash title='Command Output'
+OpenSSH_9.6p1 Ubuntu-3ubuntu13.14, OpenSSL 3.0.13 30 Jan 2024
+```
+
+----------------------------------------------------------------
+
+!!! Note Enabling the firewall is optional
+    If you are new to Linux and building the appliance has been challenging, you should wait to enable the firewall. The instructions will walk you through step by step but if you make a mistake you could lock yourself out.
+
+If you chose the desktop version of Ubuntu, it's not an issue because you are using a Keyboard, Monitor, and Mouse, but if you chose the server version you are dependant on `ssh` to access the appliance.
+
+The firewall provides a strict, predictable configuration based on a CSV file that defines all authorized users and administrators.
+
+The project includes a script, `configure_ufw_from_csv.sh` to build and maintain over the firewall configuration over time. Onc the firewall is enabled you should be able to pass a penetration test because:
+
+- The Samba shares are only exposed to the devices in the `csv` file
+- Ubuntu includes the latest version of `Openssh`
+- ssh access attempts are rate lilmited with  `ufw limit 22/tcp`
+- The `Cockpit` management application is only exposed to the devices in the `csv` file with the `management` role
+
+At the end of this section there is a PowerShell script that you can use to test the secirity of the appliance.
+
+----------------------------------------------------------------
+
+The design concept is:
+
+- Reads a CSV file with the header: username,desktop_ip_address,role
 - Supports roles:
      1. user → Samba (445) only
-     1. Administrator → Samba (445), SSH (22), Cockpit (9090)
+     2. Administrator → Samba (445), SSH (22), Cockpit (9090)
 - Adds UFW rules for IPv4 and IPv6 (UFW handles both automatically when IPv6 is enabled)
 - Adds extra firewall hardening that you may want in a manufacturing environment
 - Allows the Haas machines to be on a separate segmented subnet
@@ -20,7 +67,7 @@ The concept is explained below, then we'll get into how to build it.
 
 ## The CSV file format
 
-The project includes a `bash` script that reads a `csv` file and then creates the firewall rules.
+The project includes a `bash` script that reads a `csv` file and then creates the firewall rules. The `csv` file format is shown below:
 
 ```text
 username,desktop_ip_address,role
@@ -31,17 +78,19 @@ rgoodwin,192.168.10.120,Administrator
 mchavez,192.168.10.120,Administrator
 ```
 
+----------------------------------------------------------------
+
 ## Roles
 
 ### User
 
-- Access to Samba shares (port 445)
+- Access to Samba shares (port 445) only
 
 ### Administrator
 
-- Samba (445)
-- SSH (22)
-- Cockpit (9090)
+- Access to Samba shares (port 445)
+- SSH (22) access to manage the appliance
+- Cockpit (9090) access for web management
 
 ### Haas Machine Tools
 
@@ -60,15 +109,19 @@ In this example, the CNC machines are on `192.168.0.0/24`:
 
 ----------------------------------------------------------------
 
-## NetBIOS is blocked
+## Additional security features
 
-- Explicitly denies 137/udp, 138/udp, 139/tcp so nothing revives that old stack by accident.
+The script includes the following features in addition to the firewall `allow/deny` rules
 
-## SSH hardening
+### NetBIOS is blocked
+
+- Explicitly denies 137/udp, 138/udp, 139/tcp so **nothing revives that old stack by accident**.
+
+### SSH hardening
 
 - Uses `ufw limit 22/tcp` to rate‑limit repeated connection attempts.
 
-# Safe defaults
+### Safe defaults
 
 - deny incoming, allow outgoing
 - Loopback allowed
