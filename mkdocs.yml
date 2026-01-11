@@ -15,6 +15,7 @@ nav:
       - Installing Samba: 'build_pi_5_appliance/Install_Samba.md'
       - Updating Appliance: 'build_pi_5_appliance/updating_appliance.md'
       - Securing the Appliance: 'build_pi_5_appliance/securing_appliance.md'
+      - Firewall Configuration: 'build_pi_5_appliance/firewall_configuration.md'
   - Appendices:
     - Appendix A - smbv1: 'appendices/appendix-a.md'
     - Appendix B - File Permissions: 'appendices/appendix-b.md'
