@@ -1,4 +1,4 @@
-# Haas Appliance Firewall System
+# Haas Appliance Firewall
 
 ----------------------------------------------------------------
 
@@ -172,9 +172,9 @@ Log rotation is configured to keep logs manageable.
 
 ----------------------------------------------------------------
 
-## Let's build the firewall
+## Let's build the firewall system
 
-There are several files needed. Below is where they are placed in the appliance:
+Several files are needed to build the rules, run a timer to make sure the firewall is reapplied if disabled, and log the output. Below is where they are placed in the appliance:
 
 ```bash hl_lines='1 4 7 11'
 /home/mhubbard/Haas_Data_collect/
@@ -189,4 +189,129 @@ There are several files needed. Below is where they are placed in the appliance:
 
 /etc/logrotate.d/
   haas-firewall
+```
+
+----------------------------------------------------------------
+
+### The systemd file
+
+In the root of the repository are the files needed to configure `systemd`. Copy them to the correct location using:
+
+```bash linenums='1' hl_lines='1'
+sudo cp haas-firewall.service /etc/systemd/system/
+sudo cp haas-firewall.timer /etc/systemd/system/
+sudo cp configure_ufw_from_csv.sh /usr/local/sbin/
+sudo chmod +x /usr/local/sbin/configure_ufw_from_csv.sh
+```
+
+There is no output from these command.
+
+Once the `configure_ufw_from_csv.sh` file is copied to `/usr/local/sbin` we will delete it from the project directory. This is to prevent changes being made.
+
+```bash linenums='1' hl_lines='1'
+ls -l /usr/local/sbin/configure_ufw_from_csv.sh
+```
+
+If the file exits in `/usr/local/sbin`, then delete the copy in the `Haas_Data_collect` directory:
+
+```bash linenums='1' hl_lines='1'
+rm /home/mhubbard/Haas_Data_collect/configure_ufw_from_csv.sh
+```
+
+There is no output from this command.
+
+----------------------------------------------------------------
+
+Enable the timer with this command:
+
+```bash linenums='1' hl_lines='1'
+sudo systemctl enable --now haas-firewall.timer
+```
+
+There is no output from this command.
+
+----------------------------------------------------------------
+
+Verify the timer service:
+
+```bash linenums='1' hl_lines='1'
+systemctl list-timers | grep haas-firewall
+```
+
+```bash title='Command Output'
+Need output
+```
+
+----------------------------------------------------------------
+
+### The bash script that creates the rules
+
+In the root of `Haas_Data_Collect` is a script named `configure_ufw_from_csv.sh` and a `csv` file named users.csv. The script read the data in a `csv` file and creates the `Uncomplicated Firewall (UFW)` rules.
+
+Since he
+
+As in the `Creating the appliance` chapter we have to make script executable. Run the following:
+
+```bash
+cd /home/mhubbard/Haas_Data_collect/
+chmod +x configure_ufw_from_csv.sh
+ls -l configure*
+```
+
+```bash title='Command Output'
+.rwxrwxr-x 4.8k mhubbard 11 Jan 19:54  configure_ufw_from_csv.sh
+```
+
+### The script options
+
+- dry run mode: use `--dry-run`
+- reset mode: user `--reset`
+
+Dry run mode reads the users.csv file, processes it and then displays what would be configured for `UFW`.
+
+The default file name is users.csv. If you want to use a different name just include the filename after `sudo ./configure_ufw_from_csv.sh updated.csv` for example.
+
+Run this to see the dry run output
+
+```bash
+sudo ./configure_ufw_from_csv.sh --dry-run
+```
+
+Here is what the output looks like:
+
+```bash title='Command Output'
+[*] Setting UFW base policy...
+[DRY-RUN] Would set IPV6=yes in /etc/default/ufw
+[DRY-RUN] ufw default deny incoming
+[DRY-RUN] ufw default allow outgoing
+[DRY-RUN] ufw allow in on lo
+[DRY-RUN] ufw allow out on lo
+[DRY-RUN] ufw limit 22/tcp
+[DRY-RUN] ufw deny 137/udp
+[DRY-RUN] ufw deny 138/udp
+[DRY-RUN] ufw deny 139/tcp
+[*] Creating rules for Haas machines (haassvc)...
+[DRY-RUN] ufw allow from 192.168.50.0/24 to any port 445 proto tcp comment 'Haas machines IPv4 -> Samba'
+[*] Processing CSV: users.csv
+[*] Adding ADMIN 'mhubbard' from 192.168.10.143
+[DRY-RUN] ufw allow from 192.168.10.143 to any port 445 proto tcp comment 'Admin mhubbard -> Samba'
+[DRY-RUN] ufw allow from 192.168.10.143 to any port 22 proto tcp comment 'Admin mhubbard -> SSH'
+[DRY-RUN] ufw allow from 192.168.10.143 to any port 9090 proto tcp comment 'Admin mhubbard -> Cockpit'
+[*] Adding USER 'haassvc' from 192.168.10.104
+[DRY-RUN] ufw allow from 192.168.10.104 to any port 445 proto tcp comment 'User haassvc -> Samba'
+[*] Adding ADMIN 'haassvc2' from 192.168.10.120
+[DRY-RUN] ufw allow from 192.168.10.120 to any port 445 proto tcp comment 'Admin haassvc2 -> Samba'
+[DRY-RUN] ufw allow from 192.168.10.120 to any port 22 proto tcp comment 'Admin haassvc2 -> SSH'
+[DRY-RUN] ufw allow from 192.168.10.120 to any port 9090 proto tcp comment 'Admin haassvc2 -> Cockpit'
+[*] Adding ADMIN 'rgoodwin' from 192.168.10.120
+[DRY-RUN] ufw allow from 192.168.10.120 to any port 445 proto tcp comment 'Admin rgoodwin -> Samba'
+[DRY-RUN] ufw allow from 192.168.10.120 to any port 22 proto tcp comment 'Admin rgoodwin -> SSH'
+[DRY-RUN] ufw allow from 192.168.10.120 to any port 9090 proto tcp comment 'Admin rgoodwin -> Cockpit'
+[*] Adding ADMIN 'mchavez' from 192.168.10.223
+[DRY-RUN] ufw allow from 192.168.10.223 to any port 445 proto tcp comment 'Admin mchavez -> Samba'
+[DRY-RUN] ufw allow from 192.168.10.223 to any port 22 proto tcp comment 'Admin mchavez -> SSH'
+[DRY-RUN] ufw allow from 192.168.10.223 to any port 9090 proto tcp comment 'Admin mchavez -> Cockpit'
+[DRY-RUN] Would enable UFW
+[DRY-RUN] Would show UFW status
+[*] Done.
 ```
