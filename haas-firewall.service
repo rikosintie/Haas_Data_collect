@@ -1,0 +1,12 @@
+[Unit]
+Description=Apply Haas Appliance Firewall Rules
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/configure_ufw_from_csv.sh /home/mhubbard/Haas_Data_collect/users.csv
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
