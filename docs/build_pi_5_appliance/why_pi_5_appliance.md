@@ -9,7 +9,7 @@ Why would you want to build a Raspberry Pi 5 appliance when the Python scripts w
 - The scripts need to be running anytime the shop is working.
 - You will need to have shares available for the files to be copied
 
-The first reason means that a Windows computer would have to be up and running 24/7 with a user logged in. I don't think that many IT security teams would find that acceptable. A cyber attack is most likely when a PC is powered on and a user is logged in. If the scripts are on a user's Windows desktop and they shut down in the evening or over weekends/holidays, data won't be collected.
+The first reason means that a Windows computer would have to be up and running 24/7 with a user logged in. I don't think that many IT security teams would find that acceptable. A cyberattack is most likely when a PC is powered on and a user is logged in. If the scripts are on a user's Windows desktop and they shut down in the evening or over weekends/holidays, data won't be collected.
 
 The workaround to a user being logged in is to use a tool like `NSSM (Non-Sucking Service Manager)` to install the script as a service. I researched `NSSM` and it appears to be abandoned so no security updates will be produced. My Haas scripts use standard Python libraries that will get updated anytime you update Python. There are a few other ways to run Python as a service on Windows, but you would still have to have a machine running 24/7, so the Pi is a less expensive method. The attack surface of a hardened Linux appliance is smaller than a Windows 11 desktop.
 
@@ -19,6 +19,8 @@ The workaround to a user being logged in is to use a tool like `NSSM (Non-Suckin
 The second reason means creating file shares on the Windows computer that the scripts are running on. I have had a lot of wasted time in small shops making their MSP understand what is needed (a user account, the shares, security groups, etc.) and getting it done while I'm onsite. Plus, creating shares on a personal workstation may violate IT security policy.
 
 A Raspberry Pi 5 appliance solves both of these problems. It can run 24/7 in the shop or in the server closet. It uses less than 20W of power so no one will be upset at the cost. It's simple to create a service that starts during boot using the systemd init system that Ubuntu is built on. You will still need to discuss the appliance with the IT security team. In the Samba section I will cover enabling the firewall and proving that SMB V1 is disabled.
+
+----------------------------------------------------------------
 
 ## Ubuntu Pro coverage
 
@@ -50,7 +52,11 @@ If you have never seen Raspberry Pi 5s in the Industrial and Manufacturing space
     1. Marine
     1. Fleet Management
 
-It's worth a few minutes to look that homepages of those two companies.
+**It's worth a few minutes to look that homepages of those two companies.**
+
+----------------------------------------------------------------
+
+### The Raspberry Pi community
 
 There is also a vibrant ecosystem of add-on hardware boards, sometimes called `Hats`. For example, Waveshare makes a $30 PoE hat that will power the RPI 5 from the Ethernet cable. Very convenient on the manufacturing floor. Here is a link to it - [PoE hat](https://www.waveshare.com/poe-hat-h.htm). Waveshare also produces a board with four 2.5Gbs Ethernet ports - [Waveshare 4 port Ethernet](https://www.cnx-software.com/2025/12/30/add-four-gigabit-or-2-5gbps-ethernet-ports-to-the-raspberry-pi-5-with-this-expansion-board/)
 
@@ -96,6 +102,9 @@ Amazon sells an aluminum case named the [Argon NEO 5](https://www.amazon.com/dp/
 - a fan
 - a heat sink
 
+To build a high performance appliance for a manufacturing plant, I think the Argon NEO 5, at $41.00 is worth the cost. The heat sink and fan will keep temperatures down and an SD card used for heavy writing will have a shorter life than a Samsung EVO NVME drive.
+
 I purchased the Waveshare PoE hat instead of a power supply. Most environments have PoE switches now, but finding a power outlet, not so much! I had a Samsung Evo 970 500MB NVME drive that I had taken out of a laptop so I reused it.
 
-To build a high performance appliance for a manufacturing plant, I think the Argon NEO 5, at $41.00 is worth the cost. The heat sink and fan will keep temperatures down and an SD card used for heavy writing will have a shorter life than a Samsung EVO NVME drive.
+**NVME Drive**
+On 1/12/2025 Amazon had this NVME drive [OSamsung SSD PM9A1 M.2 NVMe 256GB](https://www.amazon.com/Samsung-SSD-PM9A1-NVMe-256GB/dp/B0BVKYN245) for $80. For this application 256GB should be more than enough storage.
