@@ -6,7 +6,7 @@
 
 ----------------------------------------------------------------
 
-The appliance is running on Ubuntu 24.04 which has many security features that Canonical has learned from being a very popular Internet Web server OS. The the Raspberry Pi 5 appliance has limited functionality:
+The appliance is running on Ubuntu 24.04, one of the most secure operating systems. The Raspberry Pi 5 appliance has limited functionality:
 
 - transfer files to/from the Haas CNC control
 - Accept files from the CNC programmers
@@ -42,14 +42,14 @@ The project includes a script, `configure_ufw_from_csv.sh` to build and maintain
 
 - The Samba shares are only exposed to the devices in the `csv` file
 - Ubuntu includes the latest version of `Openssh`
-- ssh access attempts are rate lilmited with  `ufw limit 22/tcp`
+- ssh access attempts are rate limited with  `ufw limit 22/tcp`
 - The `Cockpit` management application is only exposed to the devices in the `csv` file with the `management` role
 
-At the end of this section there is a PowerShell script that you can use to test the secirity of the appliance.
+At the end of this section there is a PowerShell script that you can use to test the security of the appliance.
 
 ----------------------------------------------------------------
 
-The design concept is:
+The design concept of the script is:
 
 - Reads a CSV file with the header: username,desktop_ip_address,role
 - Supports roles:
@@ -58,10 +58,6 @@ The design concept is:
 - Adds UFW rules for IPv4 and IPv6 (UFW handles both automatically when IPv6 is enabled)
 - Adds extra firewall hardening that you may want in a manufacturing environment
 - Allows the Haas machines to be on a separate segmented subnet
-
-You can tune comments/variables to fit your environment.
-
-The concept is explained below, then we'll get into how to build it.
 
 ----------------------------------------------------------------
 
@@ -77,6 +73,8 @@ haassvc2,192.168.10.120,Administrator
 rgoodwin,192.168.10.120,Administrator
 mchavez,192.168.10.120,Administrator
 ```
+
+The `csv` file lives in the root of the project directory. This directory is shared as `Haas`. Once you map a drive you can edit the file in Excel. Just remember to save it as a `csv` file.
 
 ----------------------------------------------------------------
 
