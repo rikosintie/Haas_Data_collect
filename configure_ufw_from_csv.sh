@@ -24,6 +24,9 @@ DRY_RUN=false
 RESET=false
 CSV_FILE=""
 
+# Default CSV location
+DEFAULT_CSV="/home/mhubbard/Haas_Data_collect/users.csv"
+
 for arg in "$@"; do
   case "$arg" in
     --dry-run)
