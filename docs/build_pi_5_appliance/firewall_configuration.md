@@ -6,20 +6,22 @@
 
 ----------------------------------------------------------------
 
-The appliance is running on Ubuntu 24.04, one of the most secure operating systems. The Raspberry Pi 5 appliance has limited functionality:
+The appliance is built on Ubuntu 24.04, one of the most secure operating systems available. The Raspberry Pi 5 appliance has limited functionality:
 
 - transfer files to/from the Haas CNC control
 - Accept files from the CNC programmers
 - Connect to the Haas CNC controls using a predefined port and IP address to collect data
+- Allow management over ssh
+- Allow management with [Cockpit](https://cockpit-project.org/)
 
 So we can lock it down using:
 
 - Local user accounts
 - Linux file permissions
 - Samba Server share permissions
-- The Ubuntu Uncomplicated Firewall (UFW).
+- The Ubuntu Uncomplicated Firewall (UFW)
 
-In addition to the Haas CNC ports we define, the Raspberry Pi 5 appliance needs to have SSH exposed to the customer user that is responsible for management of the appliance. Ubuntu 24.04 ships with OpenSSH 9.6 which has removed ssh-dss and made many other legacy protocols optional.You can verify the version using:
+Ubuntu 24.04 ships with OpenSSH 9.6 which has removed ssh-dss and made many other legacy protocols optional.You can verify the version using:
 
 ```bash  hl_lines='1'
 ssh -V
@@ -32,7 +34,7 @@ OpenSSH_9.6p1 Ubuntu-3ubuntu13.14, OpenSSL 3.0.13 30 Jan 2024
 ----------------------------------------------------------------
 
 !!! Note Enabling the firewall is optional
-    If you are new to Linux and building the appliance has been challenging, you should wait to enable the firewall. The instructions will walk you through step by step but if you make a mistake you could lock yourself out.
+    If you are new to Linux and building the appliance has been challenging, you should wait to enable the firewall. The instructions will walk you through step by step but if you make a mistake you could lock yourself out unless you bought the [Serial cable](why_pi_5_appliance.md/#usb-serial-cable-for-the-raspberry-pi-5)
 
 ----------------------------------------------------------------
 
@@ -423,7 +425,8 @@ sudo mkdir /usr/share/cockpit/haas-firewall/
 **Copy the icon over:**
 
 ```bash linenums='1' hl_lines='1'
-sudo cp /home/mhubbard/Haas_Data_collect/icon.png /usr/share/cockpit/haas-firewall/icon.png
+sudo cp /home/mhubbard/Haas_Data_collect/icon.png /usr/share/cockpit/haas-firewall/
+sudo cp /home/mhubbard/Haas_Data_collect/manifest.json /usr/share/cockpit/haas-firewall/
 ```
 
 Cockpit will pick it up automatically after the restart.
