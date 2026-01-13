@@ -1,8 +1,25 @@
+# Haas Appliance - Daily Firewall Refresh Timer
+#
+# This systemd timer unit triggers the haas-firewall.service
+# once per day to ensure the UFW configuration:
+#   - Stays in sync with the CSV.
+#   - Self-heals if someone changes rules manually.
+#
+# BEHAVIOR:
+#   - OnCalendar=daily  → runs at least once per day.
+#   - Persistent=true   → catches up missed runs after downtime.
+#
+# The associated service is:
+#   haas-firewall.service
+
 [Unit]
-Description=Daily Haas Firewall Sync
+Description=Daily Haas Firewall Refresh
 
 [Timer]
+# Run once per day. Systemd chooses the exact time if not specified.
 OnCalendar=daily
+
+# If the system was down at the scheduled time, run once at next boot.
 Persistent=true
 
 [Install]

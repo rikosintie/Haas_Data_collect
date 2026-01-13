@@ -1,3 +1,26 @@
+# Haas Appliance - Firewall Automation Service
+#
+# This systemd service is responsible for applying the UFW firewall
+# configuration based on the CSV at:
+#
+#   /home/mhubbard/Haas_Data_collect/users.csv
+#
+# It runs the oneshot script:
+#   /usr/local/sbin/configure_ufw_from_csv.sh
+#
+# BEHAVIOR:
+#   - Runs once at boot (when enabled).
+#   - Can be started manually by the operator.
+#   - Does NOT remain running (Type=oneshot).
+#
+# NOTES:
+#   - The script internally:
+#       * Validates the CSV (strict).
+#       * Backs up the CSV.
+#       * Applies Haas subnet and role-based rules.
+#       * Logs to /var/log/haas-firewall.log.
+#   - No arguments are passed; the script uses the default CSV path.
+
 [Unit]
 Description=Haas Appliance Firewall Auto-Configuration
 After=network-online.target
@@ -5,7 +28,11 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
+
+# Main firewall script (no arguments; uses default CSV).
 ExecStart=/usr/local/sbin/configure_ufw_from_csv.sh
+
+# Optional: set lower priority so this work is less disruptive.
 Nice=10
 IOSchedulingClass=best-effort
 IOSchedulingPriority=7
