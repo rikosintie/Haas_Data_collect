@@ -1,12 +1,14 @@
 [Unit]
-Description=Apply Haas Appliance Firewall Rules
+Description=Haas Appliance Firewall Auto-Configuration
 After=network-online.target
 Wants=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/sbin/configure_ufw_from_csv.sh /home/mhubbard/Haas_Data_collect/users.csv
-RemainAfterExit=yes
+ExecStart=/usr/local/sbin/configure_ufw_from_csv.sh
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
 
 [Install]
 WantedBy=multi-user.target
