@@ -429,27 +429,48 @@ sudo /usr/local/sbin/configure_ufw_from_csv.sh /path/to/test.csv
 
 ## Cockpit Integration
 
-Add an icon
+We’ll create a Cockpit plugin that shows a simple page with three actions:
 
-create the service directory:
+- Simulate Firewall Update (--dry-run)
+- Compare Current vs Planned Rules (--compare)
+- Rollback CSV from backup (prompts for backup filename)
 
-```bash linenums='1' hl_lines='1'
-sudo mkdir /usr/share/cockpit/haas-firewall/
+Cockpit directory structure
+
+/usr/share/cockpit/haas-firewall/
+├── manifest.json
+├── index.html
+└── haas-firewall.js
+└── icon.png
+
+Create the directory:
+
+```bash
+sudo mkdir -p /usr/share/cockpit/haas-firewall
 ```
 
-**Copy the icon over:**
+copy the files
 
 ```bash linenums='1' hl_lines='1'
-sudo cp /home/mhubbard/Haas_Data_collect/icon.png /usr/share/cockpit/haas-firewall/
-sudo cp /home/mhubbard/Haas_Data_collect/manifest.json /usr/share/cockpit/haas-firewall/
+sudo cp /home/mhubbard/Haas_Data_collect/cockpit/* /usr/share/cockpit/haas-firewall/
 ```
 
-Cockpit will pick it up automatically after the restart.
+sudo cp manifest.json /usr/share/cockpit/haas-firewall/
+sudo cp index.html /usr/share/cockpit/haas-firewall/
+sudo cp haas-firewall.js /usr/share/cockpit/haas-firewall/
 
-Restart Cockpit
+After placing these files, restart Cockpit:
 
-```bash linenums='1' hl_lines='1'
+```bash
 sudo systemctl restart cockpit
 ```
 
-Your new button will appear instantly.
+Cockpit will pick it up automatically.
+
+Restart Cockpit
+
+```bash
+sudo systemctl restart cockpit
+```
+
+Your new buttons will appear instantly.
