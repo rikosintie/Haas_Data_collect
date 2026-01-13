@@ -6,9 +6,9 @@
 
 ----------------------------------------------------------------
 
-The appliance is built on Ubuntu 24.04, one of the most secure operating systems available. The Raspberry Pi 5 appliance has limited functionality:
+The appliance is built on Ubuntu 24.04, one of the most secure operating systems available. Unlike a general-purpose server, the Raspberry Pi 5 appliance has limited functionality:
 
-- transfer files to/from the Haas CNC control
+- Transfer files to/from the Haas CNC control
 - Accept files from the CNC programmers
 - Connect to the Haas CNC controls using a predefined port and IP address to collect data
 - Allow management over ssh
@@ -21,7 +21,7 @@ So we can lock it down using:
 - Samba Server share permissions
 - The Ubuntu Uncomplicated Firewall (UFW)
 
-Ubuntu 24.04 ships with OpenSSH 9.6 which has removed ssh-dss and made many other legacy protocols optional.You can verify the version using:
+Ubuntu 24.04 ships with OpenSSH 9.6, which has removed ssh-dss and made many other legacy protocols optional. You can verify the version using:
 
 ```bash  hl_lines='1'
 ssh -V
@@ -34,29 +34,36 @@ OpenSSH_9.6p1 Ubuntu-3ubuntu13.14, OpenSSL 3.0.13 30 Jan 2024
 ----------------------------------------------------------------
 
 !!! Note Enabling the firewall is optional
-    If you are new to Linux and building the appliance has been challenging, you should wait to enable the firewall. The instructions will walk you through step by step but if you make a mistake you could lock yourself out unless you bought the [Serial cable](why_pi_5_appliance.md/#usb-serial-cable-for-the-raspberry-pi-5)
+    The instructions will walk you through step by step, but if you make a mistake, you could lock yourself out unless you have a keyboard and monitor connected or purchased the [Serial cable](why_pi_5_appliance.md/#usb-serial-cable-for-the-raspberry-pi-5)
 
 ----------------------------------------------------------------
 
-If you chose the desktop version of Ubuntu, it's not an issue because you are using a Keyboard, Monitor, and Mouse, but if you chose the server version you are dependant on `ssh` to access the appliance.
+## The project files
 
-The firewall provides a strict, predictable configuration based on a CSV file that defines all authorized users and administrators.
+- A systemd service to apply the firewall on boot
+- A systemd timer that will reapply the firewall rules daily
+- A script to verify the format of the `csv` file after editing
+- A custom `Cockpit` extension to manage the firewall
 
-The project includes a script, `configure_ufw_from_csv.sh` to build and maintain over the firewall configuration over time. Onc the firewall is enabled you should be able to pass a penetration test because:
+The combination of the `systemd` services, `csv` verification script, and `Cockpit` extension provides an easy to use, predictable configuration.
+
+There is an installation script that copies the files to the correct locations and starts the services. The project also includes a script, `configure_ufw_from_csv.sh` to build and maintain the firewall configuration over time. Once the firewall is enabled, you should be able to pass a penetration test because:
 
 - The Samba shares are only exposed to the devices in the `csv` file
 - Ubuntu includes the latest version of `Openssh`
-- ssh access attempts are rate limited with  `ufw limit 22/tcp`
+- SSH access attempts are rate limited with  `ufw limit 22/tcp`
 - The `Cockpit` management application is only exposed to the devices in the `csv` file with the `management` role
 
-At the end of this section there is a PowerShell script that you can use to test the security of the appliance.
+At the end of this section, there is a PowerShell script that you can use to test the security of the appliance.
 
 ----------------------------------------------------------------
 
-The design concept of the script is:
+## The design concept of the configuration script
 
-- Automated script reads a CSV file to build the firewall rules
-- Supports roles:
+The design goal for the firewall configuration script is to provide an automated, error free, firewall configuration that is easy to modify as you add machines or users. Below is a description of the components:
+
+- An automated script reads a CSV file to build the firewall rules
+- Support for two roles:
      1. user → Samba (445) only
      2. Administrator → Samba (445), SSH (22), Cockpit (9090)
 - Adds UFW rules for IPv4 and IPv6 (UFW handles both automatically when IPv6 is enabled)
@@ -68,10 +75,8 @@ The design concept of the script is:
 
 - Automatic appliance behavior via systemd
 - Developer‑friendly manual testing via CLI
-- No conflicts between the two methods - automatic/manual testing
+- No conflicts between the two methods: automatic/manual testing
 - No need to stop services to test
-
-This is exactly how professional appliances behave.
 
 ----------------------------------------------------------------
 
@@ -92,7 +97,7 @@ The `csv` file lives in the root of the `Haas_Data_collect` directory. This dire
 
 ----------------------------------------------------------------
 
-## Roles
+## The available roles
 
 ### User
 
@@ -106,18 +111,22 @@ The `csv` file lives in the root of the `Haas_Data_collect` directory. This dire
 
 ### Haas Machine Tools
 
-All Haas CNC machines authenticate using the `haassvc` account. The script can create rules to allow the CNC controls access to Samba from a dedicated  subnet if your security policy requires segmentation.
+All Haas CNC machines authenticate using the `haassvc` account. The script can create rules to allow the CNC controls access to Samba from a dedicated subnet if your security policy requires segmentation.
 
 Haas machines (haassvc)
 
 - Allowed from HAAS_MACHINES_SUBNET_V4 (and optionally v6) to 445/tcp
 - You can narrow or expand that subnet as your manufacturing network dictates.
 
-In this example, the CNC machines are on `192.168.50.0/24`:
+In this example, the CNC machines are on `192.168.10.0/24`:
 
 ```text
-192.168.1.50/24 → port 445
+192.168.10.0/24 → port 445
 ```
+
+#### Modifying the Haas IP address range
+
+If your machine tools are on a dedicated subnet
 
 ----------------------------------------------------------------
 
@@ -215,9 +224,15 @@ Several files are needed to build the rules, run a timer to make sure the firewa
 
 ### The systemd files
 
-In the root of the repository are the files needed to configure `systemd`. The is an installation script `install_haas_firewall.sh` that runs all of the commands below. If you want to fully understand how the firewall service works run the individual commands.
+In the root of the repository are the files needed to configure `systemd`. There is an installation script `install_haas_firewall.sh` that runs all of the commands below. If you want to fully understand how the firewall service works run the individual commands.
 
 #### Automated installation of the `Firewall Service`
+
+This script deletes `configure_ufw_from_csv.sh` after it copies it to `/usr/local/sbin/`. if you want to run it manually after the installation script use this command:
+
+```bash
+sudo /usr/local/sbin/configure_ufw_from_csv.sh
+```
 
 In the `Haas_Data_Collect` folder run the following:
 
@@ -327,7 +342,7 @@ Need output
 
 ### The bash script that creates the rules
 
-In the root of `Haas_Data_Collect` is a script named `configure_ufw_from_csv.sh` and a `csv` file named users.csv. The script read the data in a `csv` file and creates the `Uncomplicated Firewall (UFW)` rules.
+In the root of `Haas_Data_Collect` is a script named `configure_ufw_from_csv.sh` and a `csv` file named users.csv. The script reads the data in a `csv` file and creates the `Uncomplicated Firewall (UFW)` rules.
 
 **make script executable. Run the following:**
 
