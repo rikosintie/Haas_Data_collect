@@ -1,199 +1,225 @@
-#!/bin/bash
-#
-# configure_ufw_from_csv.sh
-#
-# Reads a CSV file with header:
-#   username,desktop_ip_address,role
-#
-# Roles:
-#   user          -> Samba (445/tcp)
-#   Administrator -> Samba (445/tcp), SSH (22/tcp), Cockpit (9090/tcp)
-#
-# Supports:
-#   --dry-run     -> Show rules but do NOT apply them
-#   --reset       -> Reset all UFW rules before applying new ones
-#
-
+#!/usr/bin/env bash
 set -euo pipefail
 
-########################################
-# ARGUMENT PARSING
-########################################
+#
+# Haas Appliance - UFW Configuration from CSV
+#
+# Features:
+#   - Validates CSV before applying rules
+#   - Creates timestamped backups
+#   - Supports --dry-run, --show-rules, --compare
+#   - Applies firewall rules based on CSV
+#   - Designed for systemd automation AND manual developer use
+#
 
-DRY_RUN=false
-RESET=false
-CSV_FILE=""
+LOG_FILE="/var/log/haas-firewall.log"
 
-# Default CSV location
+# Default CSV location (used by systemd)
 DEFAULT_CSV="/home/mhubbard/Haas_Data_collect/users.csv"
 
-for arg in "$@"; do
-  case "$arg" in
-    --dry-run)
-      DRY_RUN=true
-      ;;
-    --reset)
-      RESET=true
-      ;;
-    *.csv)
-      CSV_FILE="$arg"
-      ;;
-    *)
-      echo "Unknown argument: $arg"
-      echo "Usage: sudo $0 [--dry-run] [--reset] users.csv"
-      exit 1
-      ;;
-  esac
-done
+# Backup directory
+BACKUP_DIR="/home/mhubbard/Haas_Data_collect/backups"
 
-if [[ -z "$CSV_FILE" ]]; then
-  echo "Usage: sudo $0 [--dry-run] [--reset] users.csv"
-  exit 1
-fi
+# Validator script path
+VALIDATOR="/usr/local/sbin/validate_users_csv.sh"
 
-if [[ ! -f "$CSV_FILE" ]]; then
-  echo "Error: CSV file '$CSV_FILE' not found."
-  exit 1
-fi
+# Flags
+DRY_RUN=false
+SHOW_RULES=false
+COMPARE=false
 
-if [[ "$EUID" -ne 0 ]]; then
-  echo "This script must be run as root (use sudo)."
-  exit 1
-fi
-
-########################################
-# LOGGING
-########################################
-
-LOGFILE="/var/log/haas-firewall.log"
-exec > >(tee -a "$LOGFILE") 2>&1
-
-########################################
-# CONFIGURATION
-########################################
-
-HAAS_MACHINES_SUBNET_V4="192.168.50.0/24"
-HAAS_MACHINES_SUBNET_V6=""
-
-PORT_SAMBA=445
-PORT_SSH=22
-PORT_COCKPIT=9090
-
-CONFIGURE_UFW_DEFAULTS=true
-
-########################################
-# HELPER: APPLY OR PRINT RULE
-########################################
-
-apply_rule() {
-  local rule="$1"
-
-  if $DRY_RUN; then
-    echo "[DRY-RUN] ufw $rule"
-  else
-    ufw $rule
-  fi
+#######################################
+# Logging helpers
+#######################################
+log() {
+    echo "$(date +"%Y-%m-%d %H:%M:%S") [INFO] $1" | tee -a "$LOG_FILE"
 }
 
-########################################
-# RESET MODE
-########################################
+log_error() {
+    echo "$(date +"%Y-%m-%d %H:%M:%S") [ERROR] $1" | tee -a "$LOG_FILE" >&2
+}
 
-if $RESET; then
-  if $DRY_RUN; then
-    echo "[DRY-RUN] Would reset all UFW rules"
-  else
-    echo "[*] Resetting UFW rules..."
-    ufw --force reset
-  fi
-fi
+#######################################
+# Usage
+#######################################
+usage() {
+    cat <<EOF
+Usage: $0 [--dry-run] [--show-rules] [--compare] [CSV_FILE]
 
-########################################
-# INITIAL HARDENING
-########################################
+Options:
+  --dry-run       Simulate firewall changes without applying them
+  --show-rules    Display current UFW rules and exit
+  --compare       Show diff between current rules and planned rules
+  CSV_FILE        Optional path to users.csv (default: $DEFAULT_CSV)
 
-if $CONFIGURE_UFW_DEFAULTS; then
-  echo "[*] Setting UFW base policy..."
+Examples:
+  $0
+  $0 --dry-run
+  $0 --show-rules
+  $0 --compare
+  $0 /tmp/test.csv
+EOF
+    exit 1
+}
 
-  if $DRY_RUN; then
-    echo "[DRY-RUN] Would set IPV6=yes in /etc/default/ufw"
-    echo "[DRY-RUN] ufw default deny incoming"
-    echo "[DRY-RUN] ufw default allow outgoing"
-    echo "[DRY-RUN] ufw allow in on lo"
-    echo "[DRY-RUN] ufw allow out on lo"
-    echo "[DRY-RUN] ufw limit ${PORT_SSH}/tcp"
-    echo "[DRY-RUN] ufw deny 137/udp"
-    echo "[DRY-RUN] ufw deny 138/udp"
-    echo "[DRY-RUN] ufw deny 139/tcp"
-  else
-    sed -i 's/^IPV6=.*/IPV6=yes/' /etc/default/ufw || echo "IPV6=yes" >> /etc/default/ufw
-    ufw default deny incoming
-    ufw default allow outgoing
-    ufw allow in on lo
-    ufw allow out on lo
-    ufw limit ${PORT_SSH}/tcp
-    ufw deny 137/udp
-    ufw deny 138/udp
-    ufw deny 139/tcp
-  fi
-fi
-
-########################################
-# HAAS MACHINE RULES
-########################################
-
-echo "[*] Creating rules for Haas machines (haassvc)..."
-
-if [[ -n "$HAAS_MACHINES_SUBNET_V4" ]]; then
-  apply_rule "allow from ${HAAS_MACHINES_SUBNET_V4} to any port ${PORT_SAMBA} proto tcp comment 'Haas machines IPv4 -> Samba'"
-fi
-
-if [[ -n "$HAAS_MACHINES_SUBNET_V6" ]]; then
-  apply_rule "allow from ${HAAS_MACHINES_SUBNET_V6} to any port ${PORT_SAMBA} proto tcp comment 'Haas machines IPv6 -> Samba'"
-fi
-
-########################################
-# PROCESS CSV
-########################################
-
-echo "[*] Processing CSV: $CSV_FILE"
-
-tail -n +2 "$CSV_FILE" | while IFS=',' read -r username ip role; do
-  username="$(echo "$username" | xargs)"
-  ip="$(echo "$ip" | xargs)"
-  role="$(echo "$role" | xargs)"
-
-  [[ -z "$username" && -z "$ip" && -z "$role" ]] && continue
-
-  case "$role" in
-    user|User|USER)
-      echo "[*] Adding USER '$username' from $ip"
-      apply_rule "allow from $ip to any port ${PORT_SAMBA} proto tcp comment 'User $username -> Samba'"
-      ;;
-
-    Administrator|admin|Admin|ADMIN)
-      echo "[*] Adding ADMIN '$username' from $ip"
-      apply_rule "allow from $ip to any port ${PORT_SAMBA} proto tcp comment 'Admin $username -> Samba'"
-      apply_rule "allow from $ip to any port ${PORT_SSH} proto tcp comment 'Admin $username -> SSH'"
-      apply_rule "allow from $ip to any port ${PORT_COCKPIT} proto tcp comment 'Admin $username -> Cockpit'"
-      ;;
-
-    *)
-      echo "[!] Unknown role '$role' for user '$username'. Skipping."
-      ;;
-  esac
+#######################################
+# Parse arguments
+#######################################
+CSV_ARG=""
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        --show-rules)
+            SHOW_RULES=true
+            shift
+            ;;
+        --compare)
+            COMPARE=true
+            shift
+            ;;
+        -h|--help)
+            usage
+            ;;
+        *)
+            if [[ -n "$CSV_ARG" ]]; then
+                log_error "Multiple CSV paths provided."
+                usage
+            fi
+            CSV_ARG="$1"
+            shift
+            ;;
+    esac
 done
 
-########################################
-# ENABLE UFW
-########################################
+# Use provided CSV or fallback to default
+CSV_FILE="${CSV_ARG:-$DEFAULT_CSV}"
 
-if $DRY_RUN; then
-  echo "[DRY-RUN] Would enable UFW"
-  echo "[DRY-RUN] Would show UFW status"
-else
-  ufw --force enable
-  ufw status numbered
+#######################################
+# --show-rules mode
+#######################################
+if [[ "$SHOW_RULES" == true ]]; then
+    log "Displaying current UFW rules:"
+    ufw status numbered | tee -a "$LOG_FILE"
+    exit 0
 fi
 
-echo "[*] Done."
+#######################################
+# Start
+#######################################
+log "Starting UFW configuration from CSV."
+log "Using CSV file: $CSV_FILE"
+$DRY_RUN && log "Running in DRY-RUN mode. No changes will be applied."
+
+# Verify CSV exists
+if [[ ! -f "$CSV_FILE" ]]; then
+    log_error "CSV file not found: $CSV_FILE"
+    exit 1
+fi
+
+# Verify validator exists
+if [[ ! -x "$VALIDATOR" ]]; then
+    log_error "Validator script missing or not executable: $VALIDATOR"
+    exit 1
+fi
+
+#######################################
+# Validate CSV
+#######################################
+log "Validating CSV..."
+if ! "$VALIDATOR" "$CSV_FILE"; then
+    log_error "CSV validation failed. Aborting."
+    exit 1
+fi
+log "CSV validation passed."
+
+#######################################
+# Backup CSV
+#######################################
+mkdir -p "$BACKUP_DIR"
+
+TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+BACKUP_FILE="$BACKUP_DIR/users_$TIMESTAMP.csv"
+
+log "Creating backup: $BACKUP_FILE"
+cp "$CSV_FILE" "$BACKUP_FILE"
+log "Backup created."
+
+#######################################
+# Build planned rules (for compare/dry-run)
+#######################################
+build_planned_rules() {
+    local csv="$1"
+    local outfile="$2"
+
+    tail -n +2 "$csv" | while IFS=',' read -r username ip role; do
+        [[ -z "$username" && -z "$ip" && -z "$role" ]] && continue
+        role_lower=$(echo "$role" | tr 'A-Z' 'a-z')
+        echo "ALLOW from $ip to port 22 # $username-$role_lower" >> "$outfile"
+    done
+}
+
+#######################################
+# --compare mode
+#######################################
+if [[ "$COMPARE" == true ]]; then
+    log "Comparing current UFW rules with planned rules..."
+
+    TMP_CURRENT=$(mktemp)
+    TMP_PLANNED=$(mktemp)
+
+    ufw status numbered > "$TMP_CURRENT"
+    build_planned_rules "$CSV_FILE" "$TMP_PLANNED"
+
+    diff -u "$TMP_CURRENT" "$TMP_PLANNED" || true
+
+    rm "$TMP_CURRENT" "$TMP_PLANNED"
+    exit 0
+fi
+
+#######################################
+# Apply UFW rules
+#######################################
+apply_ufw_rules() {
+    local csv="$1"
+
+    log "Applying UFW rules..."
+
+    # Ensure UFW is enabled
+    if ! ufw status | grep -q "Status: active"; then
+        log "UFW not active. Enabling..."
+        ufw --force enable
+    fi
+
+    # Apply rules
+    tail -n +2 "$csv" | while IFS=',' read -r username ip role; do
+        [[ -z "$username" && -z "$ip" && -z "$role" ]] && continue
+
+        role_lower=$(echo "$role" | tr 'A-Z' 'a-z')
+        rule_desc="Allow SSH from $username@$ip (role: $role_lower)"
+
+        log "Planned rule: $rule_desc"
+
+        if [[ "$DRY_RUN" == false ]]; then
+            ufw allow from "$ip" to any port 22 comment "$username-$role_lower"
+        fi
+    done
+
+    log "UFW rule application complete."
+}
+
+#######################################
+# Execute rule application
+#######################################
+if [[ "$DRY_RUN" == true ]]; then
+    log "Dry-run mode: simulating firewall changes."
+    apply_ufw_rules "$CSV_FILE"
+    log "Dry-run complete. No changes applied."
+else
+    apply_ufw_rules "$CSV_FILE"
+    log "Firewall updated successfully."
+fi
+
+exit 0
