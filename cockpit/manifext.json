@@ -1,0 +1,11 @@
+{
+    "version": 1,
+    "label": "Haas Firewall",
+    "icon": "icon.png",
+    "menu": {
+        "index.html": {
+            "label": "Firewall Control",
+            "order": 10
+        }
+    }
+}
