@@ -34,6 +34,8 @@ OpenSSH_9.6p1 Ubuntu-3ubuntu13.14, OpenSSL 3.0.13 30 Jan 2024
 !!! Note Enabling the firewall is optional
     If you are new to Linux and building the appliance has been challenging, you should wait to enable the firewall. The instructions will walk you through step by step but if you make a mistake you could lock yourself out.
 
+----------------------------------------------------------------
+
 If you chose the desktop version of Ubuntu, it's not an issue because you are using a Keyboard, Monitor, and Mouse, but if you chose the server version you are dependant on `ssh` to access the appliance.
 
 The firewall provides a strict, predictable configuration based on a CSV file that defines all authorized users and administrators.
@@ -51,19 +53,29 @@ At the end of this section there is a PowerShell script that you can use to test
 
 The design concept of the script is:
 
-- Reads a CSV file with the header: username,desktop_ip_address,role
+- Automated script reads a CSV file to build the firewall rules
 - Supports roles:
      1. user → Samba (445) only
      2. Administrator → Samba (445), SSH (22), Cockpit (9090)
 - Adds UFW rules for IPv4 and IPv6 (UFW handles both automatically when IPv6 is enabled)
 - Adds extra firewall hardening that you may want in a manufacturing environment
 - Allows the Haas machines to be on a separate segmented subnet
+- Creates a log of the UFW changes
+
+🟦 Why this design is good
+
+- Automatic appliance behavior via systemd
+- Developer‑friendly manual testing via CLI
+- No conflicts between the two methods - automatic/manual testing
+- No need to stop services to test
+
+This is exactly how professional appliances behave.
 
 ----------------------------------------------------------------
 
 ## The CSV file format
 
-The project includes a `bash` script that reads a `csv` file and then creates the firewall rules. The `csv` file format is shown below:
+The project includes a script, `configure_ufw_firewall.sh` that reads a `csv` file and creates the firewall rules. The `csv` file format is shown below:
 
 ```text
 username,desktop_ip_address,role
@@ -71,10 +83,10 @@ mhubbard,192.168.10.143,Administrator
 haassvc,192.168.10.104,user
 haassvc2,192.168.10.120,Administrator
 rgoodwin,192.168.10.120,Administrator
-mchavez,192.168.10.120,Administrator
+mchavez,192.168.10.133,Administrator
 ```
 
-The `csv` file lives in the root of the project directory. This directory is shared as `Haas`. Once you map a drive you can edit the file in Excel. Just remember to save it as a `csv` file.
+The `csv` file lives in the root of the `Haas_Data_collect` directory. This directory was shared as `Haas`. Once you map a drive, you can edit the file in Excel. Just remember to save it as a `csv` file, not an `Excel` file.
 
 ----------------------------------------------------------------
 
@@ -99,10 +111,10 @@ Haas machines (haassvc)
 - Allowed from HAAS_MACHINES_SUBNET_V4 (and optionally v6) to 445/tcp
 - You can narrow or expand that subnet as your manufacturing network dictates.
 
-In this example, the CNC machines are on `192.168.0.0/24`:
+In this example, the CNC machines are on `192.168.50.0/24`:
 
 ```text
-192.168.1.0/24 → port 445
+192.168.1.50/24 → port 445
 ```
 
 ----------------------------------------------------------------
@@ -156,6 +168,11 @@ A daily sync is handled by:
 haas-firewall.timer
 ```
 
+!!! Note
+    If you make a change to to the `csv` file and don't want to reboot or wait until the timer goes off you can run:
+
+    `sudo systemctl start haas-firewall.service`
+
 ----------------------------------------------------------------
 
 ## Logs
@@ -175,7 +192,7 @@ Log rotation is configured to keep logs manageable.
 Several files are needed to build the rules, run a timer to make sure the firewall is reapplied if disabled, and log the output. Below is where they are placed in the appliance:
 
 ```bash hl_lines='1 4 7 11'
-/home/mhubbard/Haas_Data_collect/
+/usr/local/sbin/
   configure_ufw_from_csv.sh
 
 /home/mhubbard/Haas_Data_collect/
@@ -189,11 +206,51 @@ Several files are needed to build the rules, run a timer to make sure the firewa
   haas-firewall
 ```
 
+!!! Note
+    The script is stored in `/usr/local/sbin` which is a system level directory. The script should not need to be edited and to edit a file in `/usr/local/sbin` you need `root` privileges. You can use `sudo nano /usr/local/sbin/configure_uft_from_csv.sh` if you need to edit it.
+
 ----------------------------------------------------------------
 
-### The systemd file
+### The systemd files
 
-In the root of the repository are the files needed to configure `systemd`. Copy them to the correct location using:
+In the root of the repository are the files needed to configure `systemd`. The is an installation script `install_haas_firewall.sh` that runs all of the commands below. If you want to fully understand how the firewall service works run the individual commands.
+
+#### Automated installation of the `Firewall Service`
+
+In the `Haas_Data_Collect` folder run the following:
+
+```bash
+sudo ./haas_firewall_install.sh
+```
+
+⭐ What this installer guarantees
+
+- No partial installs — it aborts safely if anything is missing
+- Script and validator are protected in /usr/local/sbin/
+- Systemd is configured correctly
+- Firewall rules apply at boot
+- Daily timer provides self‑healing
+- Customer directory stays clean (only users.csv remains)
+
+#### If you want to uninstall the `Firewall Service`
+
+🟦 Uninstaller Script (uninstall_haas_firewall.sh)
+This script safely removes:
+
+- The systemd service
+- The systemd timer
+- The installed scripts in /usr/local/sbin/
+- Reloads systemd
+
+Leaves the CSV untouched
+
+It also checks for file existence before removing anything.
+
+----------------------------------------------------------------
+
+#### Manual Installation
+
+Copy the files to the correct location using
 
 ```bash linenums='1' hl_lines='1'
 sudo cp haas-firewall.service /etc/systemd/system/
@@ -204,7 +261,11 @@ sudo chmod +x /usr/local/sbin/configure_ufw_from_csv.sh
 
 There is no output from these command.
 
-Once the `configure_ufw_from_csv.sh` file is copied to `/usr/local/sbin` we will delete it from the project directory. This is to prevent changes being made.
+----------------------------------------------------------------
+
+#### Delete the script after copying
+
+Once the `configure_ufw_from_csv.sh` file is copied to `/usr/local/sbin` we will delete it from the project directory. This is to prevent accidental changes being made.
 
 ```bash linenums='1' hl_lines='1'
 ls -l /usr/local/sbin/configure_ufw_from_csv.sh
@@ -220,7 +281,27 @@ There is no output from this command.
 
 ----------------------------------------------------------------
 
-Enable the timer with this command:
+#### Reload the daemons to incorporate the changes
+
+```bash
+sudo systemctl daemon-reload
+```
+
+There is no output from this command.
+
+----------------------------------------------------------------
+
+#### Enable and start the `firewall Service`
+
+```bash
+sudo systemctl enable haas-firewall.service
+sudo systemctl start haas-firewall.service
+systemctl status haas-firewall.service
+```
+
+----------------------------------------------------------------
+
+### Enable the timer
 
 ```bash linenums='1' hl_lines='1'
 sudo systemctl enable --now haas-firewall.timer
@@ -246,9 +327,7 @@ Need output
 
 In the root of `Haas_Data_Collect` is a script named `configure_ufw_from_csv.sh` and a `csv` file named users.csv. The script read the data in a `csv` file and creates the `Uncomplicated Firewall (UFW)` rules.
 
-Since he
-
-As in the `Creating the appliance` chapter we have to make script executable. Run the following:
+**make script executable. Run the following:**
 
 ```bash
 cd /home/mhubbard/Haas_Data_collect/
@@ -260,22 +339,27 @@ ls -l configure*
 .rwxrwxr-x 4.8k mhubbard 11 Jan 19:54  configure_ufw_from_csv.sh
 ```
 
-### The script options
+### The Dry-Run script option
 
-- dry run mode: use `--dry-run`
-- reset mode: user `--reset`
+The script lives in `/usr/local/sbin/` so it requires root access to run it manually. During deployment is it possible to run it manually with the dry-run option using the following:
+
+```bash linenums='1' hl_lines='1'
+sudo /usr/local/sbin/configure_ufw_from_csv.sh --dry-run
+```
 
 Dry run mode reads the users.csv file, processes it and then displays what would be configured for `UFW`.
 
-The default file name is users.csv. If you want to use a different name just include the filename after `sudo ./configure_ufw_from_csv.sh updated.csv` for example.
+🟧 Why is there a `dry-run` mode?
+This is extremely helpful when:
 
-Run this to see the dry run output
+- testing new CSV formats
+- debugging customer issues
+- validating rule logic
+- verifying backups and validation
 
-```bash
-sudo ./configure_ufw_from_csv.sh --dry-run
-```
+----------------------------------------------------------------
 
-Here is what the output looks like:
+Here is what the output of the `dry-run` option looks like:
 
 ```bash title='Command Output'
 [*] Setting UFW base policy...
@@ -313,3 +397,41 @@ Here is what the output looks like:
 [DRY-RUN] Would show UFW status
 [*] Done.
 ```
+
+----------------------------------------------------------------
+
+### Custom `csv` file option
+
+The default file name is users.csv. For testing, you can run  a different `csv` file using the following:
+
+```bash
+sudo /usr/local/sbin/configure_ufw_from_csv.sh /path/to/test.csv
+```
+
+----------------------------------------------------------------
+
+## Cockpit Integration
+
+Add an icon
+
+create the service directory:
+
+```bash linenums='1' hl_lines='1'
+sudo mkdir /usr/share/cockpit/haas-firewall/
+```
+
+**Copy the icon over:**
+
+```bash linenums='1' hl_lines='1'
+sudo cp /home/mhubbard/Haas_Data_collect/icon.png /usr/share/cockpit/haas-firewall/icon.png
+```
+
+Cockpit will pick it up automatically after the restart.
+
+Restart Cockpit
+
+```bash linenums='1' hl_lines='1'
+sudo systemctl restart cockpit
+```
+
+Your new button will appear instantly.
