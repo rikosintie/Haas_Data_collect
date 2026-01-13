@@ -1,283 +1,406 @@
 #!/usr/bin/env bash
 #
-# Haas Appliance - Firewall Automation Installer
+# Haas Appliance - UFW Configuration from CSV
 #
-# This script installs and configures the Haas firewall automation:
-#   - Installs systemd service and timer
-#   - Installs the main firewall script
-#   - Installs the CSV validator
-#   - Ensures backup directory exists (inside the repo)
-#   - Verifies that UFW and the CSV file are present
-#   - Installs the Cockpit UI extension
-#   - Enables and starts the service and timer
+# This script configures UFW firewall rules based on a CSV file containing
+# username, IP address, and role information.
 #
-# IMPORTANT:
-#   - This script assumes it is run from the root of the repo:
-#       Haas_Data_collect/
-#   - All repo files are resolved relative to the current working directory.
-#   - Nothing in the repo is deleted by this script.
+# DESIGN GOALS:
+#  - Safe by default:
+#      * Strict CSV validation (header, IPs, roles, duplicates, structure)
+#      * Automatic CSV backups on every run
+#  - Portable:
+#      * No hard-coded usernames or home directories
+#      * Defaults derived from script location, with override options
+#  - Appliance-friendly:
+#      * No arguments required when run by systemd
+#      * Sensible default CSV location
+#  - Operator- and developer-friendly:
+#      * --dry-run     : simulate changes without applying them
+#      * --compare     : show diff between current and planned rules
+#      * --show-rules  : show current UFW rules
+#
+# FIREWALL POLICY:
+#  - Global Haas subnet rule:
+#      * Allow SMB (port 445) FROM 192.168.10.0/24 (Haas CNC machines)
+#  - Per-user rules (from CSV):
+#      * Role "administrator":
+#           - Allow 22/tcp (SSH) FROM <ip>
+#           - Allow 445/tcp (SMB) FROM <ip>
+#           - Allow 9090/tcp (Cockpit) FROM <ip>
+#        (Admin IPs may be on ANY subnet)
+#      * Role "user":
+#           - Allow 445/tcp (SMB) FROM <ip>
+#
+# CSV FORMAT (STRICT):
+#   Header (must match exactly):
+#       username,ip_address,role
+#
+# NOTES ON PATHS:
+#   This script determines paths in this order:
+#     1) If HAAS_CSV_PATH env var is set, use that for CSV.
+#        If HAAS_BACKUP_DIR env var is set, use that for backups.
+#     2) Else, if /etc/haas-firewall.conf exists, source it and use:
+#           CSV_PATH=...
+#           BACKUP_DIR=...
+#     3) Else, fall back to:
+#           CSV_PATH  = <script_dir>/users.csv
+#           BACKUP_DIR= <script_dir>/backups
+#
+#   This makes the script work:
+#     - From inside the repo (relative paths)
+#     - From systemd (via config file or env override)
 #
 
 set -euo pipefail
 
-echo "[*] Starting Haas Firewall installation..."
-
 ########################################
-# REPO CONTEXT AND FILE PATHS
+# BASIC PATH CONTEXT
 ########################################
 
-# Treat the current working directory as the repo root.
-REPO_DIR="$(pwd)"
-
-# Repo-local files
-SERVICE_FILE="haas-firewall.service"
-TIMER_FILE="haas-firewall.timer"
-SCRIPT_FILE="configure_ufw_from_csv.sh"
-VALIDATOR_FILE="validate_users_csv.sh"
-COCKPIT_DIR="cockpit"
-CSV_BASENAME="users.csv"
-
-# System installation locations
-TARGET_SCRIPT="/usr/local/sbin/configure_ufw_from_csv.sh"
-TARGET_VALIDATOR="/usr/local/sbin/validate_users_csv.sh"
-TARGET_SERVICE="/etc/systemd/system/haas-firewall.service"
-TARGET_TIMER="/etc/systemd/system/haas-firewall.timer"
-COCKPIT_DST="/usr/share/cockpit/haas-firewall"
-
-# Repo-local CSV and backup directory (inside the repo)
-CSV_PATH="$REPO_DIR/$CSV_BASENAME"
-BACKUP_DIR="$REPO_DIR/backups"
-
-echo "[*] Using repo directory: $REPO_DIR"
+# Directory where this script resides (not the CWD).
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 ########################################
-# VERIFY INSTALLER FILES EXIST IN REPO
-########################################
-# We refuse to proceed if any required file is missing from
-# the repo directory. This prevents partial installs.
+# DEFAULT CONFIG (CAN BE OVERRIDDEN)
 ########################################
 
-echo "[*] Verifying presence of installer files in repo..."
+# Log file for firewall operations.
+LOG_FILE="/var/log/haas-firewall.log"
 
-for f in "$SERVICE_FILE" "$TIMER_FILE" "$SCRIPT_FILE" "$VALIDATOR_FILE"; do
-    if [[ ! -f "$REPO_DIR/$f" ]]; then
-        echo "[ERROR] Missing required file in repo: $REPO_DIR/$f"
-        exit 1
+# Haas subnet for global SMB access to CNC machines.
+HAAS_MACHINES_SUBNET_V4="192.168.10.0/24"
+
+# Optional IPv6 subnet (left empty if not used).
+HAAS_MACHINES_SUBNET_V6=""
+
+# Default CSV and backup paths (relative to script dir).
+DEFAULT_CSV="${SCRIPT_DIR}/users.csv"
+DEFAULT_BACKUP_DIR="${SCRIPT_DIR}/backups"
+
+# CSV validator script path.
+# By default we expect it to be installed to /usr/local/sbin.
+VALIDATOR="/usr/local/sbin/validate_users_csv.sh"
+
+# Config file that can override CSV_PATH and BACKUP_DIR.
+CONFIG_FILE="/etc/haas-firewall.conf"
+
+# Initialize variables that may be overridden.
+CSV_PATH="${DEFAULT_CSV}"
+BACKUP_DIR="${DEFAULT_BACKUP_DIR}"
+
+########################################
+# LOAD CONFIG / ENV OVERRIDES
+########################################
+# Priority:
+#   1) Environment variables: HAAS_CSV_PATH, HAAS_BACKUP_DIR
+#   2) Config file: /etc/haas-firewall.conf
+#   3) Script-relative defaults (already set above)
+########################################
+
+# 1) Environment overrides
+if [[ -n "${HAAS_CSV_PATH:-}" ]]; then
+    CSV_PATH="$HAAS_CSV_PATH"
+fi
+
+if [[ -n "${HAAS_BACKUP_DIR:-}" ]]; then
+    BACKUP_DIR="$HAAS_BACKUP_DIR"
+fi
+
+# 2) Config file overrides (only if env didn't explicitly set)
+if [[ -f "$CONFIG_FILE" ]]; then
+    # shellcheck disable=SC1090
+    source "$CONFIG_FILE"
+
+    # If config defines CSV_PATH/BACKUP_DIR, prefer them.
+    if [[ -n "${CSV_PATH:-}" ]]; then
+        CSV_PATH="$CSV_PATH"
     fi
+    if [[ -n "${BACKUP_DIR:-}" ]]; then
+        BACKUP_DIR="$BACKUP_DIR"
+    fi
+fi
+
+########################################
+# RUNTIME FLAGS
+########################################
+
+DRY_RUN=false       # If true, log planned changes without applying them.
+SHOW_RULES=false    # If true, show current UFW rules and exit.
+COMPARE=false       # If true, compare current vs planned rules and exit.
+
+########################################
+# LOGGING HELPERS
+########################################
+
+log() {
+    echo "$(date +"%Y-%m-%d %H:%M:%S") [INFO] $1" | tee -a "$LOG_FILE"
+}
+
+log_error() {
+    echo "$(date +"%Y-%m-%d %H:%M:%S") [ERROR] $1" | tee -a "$LOG_FILE" >&2
+}
+
+########################################
+# USAGE MESSAGE
+########################################
+
+usage() {
+    cat <<EOF
+Usage: $0 [--dry-run] [--show-rules] [--compare] [CSV_FILE]
+
+Options:
+  --dry-run       Simulate firewall changes without applying them.
+  --show-rules    Display current UFW rules and exit.
+  --compare       Show a textual diff between current and planned rules.
+  CSV_FILE        Optional path to users CSV. If omitted, the script uses:
+                    1) \$HAAS_CSV_PATH (if set), else
+                    2) CSV_PATH from /etc/haas-firewall.conf (if present), else
+                    3) ${DEFAULT_CSV}
+
+Current resolved defaults:
+  CSV_PATH   = ${CSV_PATH}
+  BACKUP_DIR = ${BACKUP_DIR}
+
+Examples:
+  $0
+  $0 --dry-run
+  $0 --compare
+  $0 --show-rules
+  $0 /tmp/test_users.csv
+EOF
+    exit 1
+}
+
+########################################
+# ARGUMENT PARSING
+########################################
+
+CSV_ARG=""
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        --show-rules)
+            SHOW_RULES=true
+            shift
+            ;;
+        --compare)
+            COMPARE=true
+            shift
+            ;;
+        -h|--help)
+            usage
+            ;;
+        *)
+            if [[ -n "$CSV_ARG" ]]; then
+                log_error "Multiple CSV file paths provided. Only one is allowed."
+                usage
+            fi
+            CSV_ARG="$1"
+            shift
+            ;;
+    esac
 done
 
-# Verify Cockpit directory and files
-if [[ ! -d "$REPO_DIR/$COCKPIT_DIR" ]]; then
-    echo "[ERROR] Cockpit directory not found in repo: $REPO_DIR/$COCKPIT_DIR"
+# Final CSV file to use: explicit CLI argument, else resolved default.
+CSV_FILE="${CSV_ARG:-$CSV_PATH}"
+
+########################################
+# SHOW-RULES MODE (NO CHANGES)
+########################################
+
+if [[ "$SHOW_RULES" == true ]]; then
+    log "Displaying current UFW rules (no changes will be made):"
+    ufw status numbered | tee -a "$LOG_FILE"
+    exit 0
+fi
+
+########################################
+# INITIAL VALIDATION AND SETUP
+########################################
+
+log "Starting UFW configuration from CSV."
+log "Using CSV file: $CSV_FILE"
+$DRY_RUN && log "Dry-run mode ENABLED: no firewall changes will be applied."
+
+# Ensure the CSV exists.
+if [[ ! -f "$CSV_FILE" ]]; then
+    log_error "CSV file not found at: $CSV_FILE"
     exit 1
 fi
 
-for f in manifest.json index.html haas-firewall.js icon.png; do
-    if [[ ! -f "$REPO_DIR/$COCKPIT_DIR/$f" ]]; then
-        echo "[ERROR] Missing Cockpit file in repo: $REPO_DIR/$COCKPIT_DIR/$f"
-        exit 1
-    fi
-done
-
-echo "[OK] All required installer and Cockpit files are present."
-
-########################################
-# VERIFY CSV EXISTS IN REPO
-########################################
-# The design expects users.csv to live in the shared Haas directory,
-# which in this repo is the root (Haas_Data_collect/users.csv).
-########################################
-
-if [[ ! -f "$CSV_PATH" ]]; then
-    echo "[ERROR] CSV file not found at expected repo location:"
-    echo "        $CSV_PATH"
-    echo "        Create the CSV with header: username,ip_address,role"
-    echo "        and re-run the installer."
+# Ensure the validator script exists and is executable.
+if [[ ! -x "$VALIDATOR" ]]; then
+    log_error "CSV validator script missing or not executable: $VALIDATOR"
     exit 1
 fi
 
-echo "[OK] Initial CSV file found at: $CSV_PATH"
-
 ########################################
-# VERIFY UFW IS INSTALLED
-########################################
-# Firewall automation depends on UFW being installed and available.
+# CSV VALIDATION (STRICT)
 ########################################
 
-if ! command -v ufw >/dev/null 2>&1; then
-    echo "[ERROR] UFW is not installed on this system."
-    echo "        Install it with:"
-    echo "        sudo apt install ufw"
+log "Validating CSV file format and contents..."
+if ! "$VALIDATOR" "$CSV_FILE"; then
+    log_error "CSV validation FAILED. Aborting firewall configuration."
     exit 1
 fi
-
-echo "[OK] UFW is installed."
-
-########################################
-# INSTALL SYSTEMD SERVICE AND TIMER
-########################################
-
-echo "[*] Installing systemd service and timer..."
-
-sudo cp "$REPO_DIR/$SERVICE_FILE" "$TARGET_SERVICE"
-sudo cp "$REPO_DIR/$TIMER_FILE" "$TARGET_TIMER"
-
-# Post-copy verification.
-if [[ ! -f "$TARGET_SERVICE" ]]; then
-    echo "[ERROR] Service file failed to install to: $TARGET_SERVICE"
-    exit 1
-fi
-
-if [[ ! -f "$TARGET_TIMER" ]]; then
-    echo "[ERROR] Timer file failed to install to: $TARGET_TIMER"
-    exit 1
-fi
-
-echo "[OK] Systemd service and timer installed."
+log "CSV validation PASSED."
 
 ########################################
-# INSTALL FIREWALL SCRIPT AND VALIDATOR
+# CSV BACKUP
 ########################################
 
-echo "[*] Installing firewall script and CSV validator..."
-
-sudo cp "$REPO_DIR/$SCRIPT_FILE" "$TARGET_SCRIPT"
-sudo cp "$REPO_DIR/$VALIDATOR_FILE" "$TARGET_VALIDATOR"
-
-sudo chmod +x "$TARGET_SCRIPT"
-sudo chmod +x "$TARGET_VALIDATOR"
-
-# Verify executability.
-if [[ ! -x "$TARGET_SCRIPT" ]]; then
-    echo "[ERROR] Firewall script is not executable at: $TARGET_SCRIPT"
-    exit 1
-fi
-
-if [[ ! -x "$TARGET_VALIDATOR" ]]; then
-    echo "[ERROR] CSV validator is not executable at: $TARGET_VALIDATOR"
-    exit 1
-fi
-
-echo "[OK] Firewall script and validator installed and executable."
-
-########################################
-# ENSURE BACKUP DIRECTORY EXISTS (IN REPO)
-########################################
-# The firewall script will write CSV backups here on each run.
-########################################
-
-echo "[*] Ensuring backup directory exists in repo: $BACKUP_DIR"
 mkdir -p "$BACKUP_DIR"
 
-if [[ ! -d "$BACKUP_DIR" ]]; then
-    echo "[ERROR] Failed to create backup directory in repo: $BACKUP_DIR"
-    exit 1
+TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+BACKUP_FILE="$BACKUP_DIR/users_$TIMESTAMP.csv"
+
+log "Creating CSV backup at: $BACKUP_FILE"
+cp "$CSV_FILE" "$BACKUP_FILE"
+log "CSV backup created successfully."
+
+########################################
+# PLANNED RULES BUILDER (FOR COMPARE MODE)
+########################################
+
+build_planned_rules() {
+    local csv="$1"
+    local outfile="$2"
+
+    echo "ALLOW SMB (445/tcp) FROM $HAAS_MACHINES_SUBNET_V4" >> "$outfile"
+
+    tail -n +2 "$csv" | while IFS=',' read -r username ip role; do
+        [[ -z "$username" && -z "$ip" && -z "$role" ]] && continue
+
+        role_lower=$(echo "$role" | tr 'A-Z' 'a-z')
+
+        case "$role_lower" in
+            administrator)
+                echo "ADMIN  FROM $ip : ALLOW 22/tcp (SSH)" >> "$outfile"
+                echo "ADMIN  FROM $ip : ALLOW 445/tcp (SMB)" >> "$outfile"
+                echo "ADMIN  FROM $ip : ALLOW 9090/tcp (Cockpit)" >> "$outfile"
+                ;;
+            user)
+                echo "USER   FROM $ip : ALLOW 445/tcp (SMB)" >> "$outfile"
+                ;;
+            *)
+                echo "SKIP UNKNOWN ROLE '$role' FOR $username@$ip" >> "$outfile"
+                ;;
+        esac
+    done
+}
+
+########################################
+# COMPARE MODE (NO CHANGES)
+########################################
+
+if [[ "$COMPARE" == true ]]; then
+    log "COMPARE mode: showing differences between current and planned rules."
+
+    TMP_CURRENT=$(mktemp)
+    TMP_PLANNED=$(mktemp)
+
+    ufw status numbered > "$TMP_CURRENT"
+    build_planned_rules "$CSV_FILE" "$TMP_PLANNED"
+
+    diff -u "$TMP_CURRENT" "$TMP_PLANNED" || true
+
+    rm -f "$TMP_CURRENT" "$TMP_PLANNED"
+
+    log "COMPARE mode complete. No firewall changes were applied."
+    exit 0
 fi
 
-echo "[OK] Backup directory in repo is ready."
-
 ########################################
-# INSTALL COCKPIT EXTENSION
-########################################
-# Cockpit extensions must be installed into:
-#   /usr/share/cockpit/<extension-name>/
-#
-# We copy:
-#   $REPO_DIR/cockpit/manifest.json   → /usr/share/cockpit/haas-firewall/
-#   $REPO_DIR/cockpit/index.html      → /usr/share/cockpit/haas-firewall/
-#   $REPO_DIR/cockpit/haas-firewall.js→ /usr/share/cockpit/haas-firewall/
-#   $REPO_DIR/cockpit/icon.png        → /usr/share/cockpit/haas-firewall/
+# APPLY UFW RULES
 ########################################
 
-echo "[*] Installing Cockpit extension..."
+apply_ufw_rules() {
+    local csv="$1"
 
-sudo mkdir -p "$COCKPIT_DST"
-sudo cp "$REPO_DIR/$COCKPIT_DIR"/* "$COCKPIT_DST"/
+    log "Applying UFW rules based on CSV."
 
-# Verify installation
-for f in manifest.json index.html haas-firewall.js icon.png; do
-    if [[ ! -f "$COCKPIT_DST/$f" ]]; then
-        echo "[ERROR] Failed to install Cockpit file: $COCKPIT_DST/$f"
-        exit 1
+    if ! ufw status | grep -q "Status: active"; then
+        log "UFW is not active. Enabling UFW..."
+        ufw --force enable
     fi
-done
 
-echo "[OK] Cockpit extension installed at: $COCKPIT_DST"
+    ########################################
+    # GLOBAL HAAS SUBNET SMB RULE
+    ########################################
+    log "Applying global Haas subnet rule: ALLOW 445/tcp FROM $HAAS_MACHINES_SUBNET_V4"
+    if [[ "$DRY_RUN" == false ]]; then
+        ufw allow from "$HAAS_MACHINES_SUBNET_V4" to any port 445 comment "haassvc-smb"
+    else
+        log "DRY-RUN: Would run: ufw allow from $HAAS_MACHINES_SUBNET_V4 to any port 445 comment 'haassvc-smb'"
+    fi
 
-echo "[*] Restarting Cockpit to load extension..."
-sudo systemctl restart cockpit
-echo "[OK] Cockpit restarted."
+    if [[ -n "$HAAS_MACHINES_SUBNET_V6" ]]; then
+        log "Applying Haas IPv6 subnet rule: ALLOW 445/tcp FROM $HAAS_MACHINES_SUBNET_V6"
+        if [[ "$DRY_RUN" == false ]]; then
+            ufw allow from "$HAAS_MACHINES_SUBNET_V6" to any port 445 comment "haassvc-smb-v6"
+        else
+            log "DRY-RUN: Would run: ufw allow from $HAAS_MACHINES_SUBNET_V6" \
+                "to any port 445 comment 'haassvc-smb-v6'"
+        fi
+    fi
+
+    ########################################
+    # PER-USER ROLE-BASED RULES
+    ########################################
+
+    while IFS=',' read -r username ip role; do
+        [[ -z "$username" && -z "$ip" && -z "$role" ]] && continue
+
+        role_lower=$(echo "$role" | tr 'A-Z' 'a-z')
+
+        case "$role_lower" in
+            administrator)
+                log "ADMIN: Allowing ports 22, 445, 9090 FROM $username@$ip"
+
+                if [[ "$DRY_RUN" == false ]]; then
+                    ufw allow from "$ip" to any port 22 comment "${username}-admin-ssh"
+                    ufw allow from "$ip" to any port 445 comment "${username}-admin-smb"
+                    ufw allow from "$ip" to any port 9090 comment "${username}-admin-cockpit"
+                else
+                    log "DRY-RUN: Would allow 22/tcp FROM $ip comment '${username}-admin-ssh'"
+                    log "DRY-RUN: Would allow 445/tcp FROM $ip comment '${username}-admin-smb'"
+                    log "DRY-RUN: Would allow 9090/tcp FROM $ip comment '${username}-admin-cockpit'"
+                fi
+                ;;
+            user)
+                log "USER: Allowing port 445 FROM $username@$ip"
+
+                if [[ "$DRY_RUN" == false ]]; then
+                    ufw allow from "$ip" to any port 445 comment "${username}-user-smb"
+                else
+                    log "DRY-RUN: Would allow 445/tcp FROM $ip comment '${username}-user-smb'"
+                fi
+                ;;
+            *)
+                log_error "Encountered unknown role '$role' for user '$username' at IP '$ip'. Skipping entry."
+                ;;
+        esac
+
+    done < <(tail -n +2 "$csv")
+
+    log "UFW rule application complete."
+}
 
 ########################################
-# RELOAD SYSTEMD CONFIGURATION
+# MAIN EXECUTION FLOW
 ########################################
 
-echo "[*] Reloading systemd manager configuration..."
-sudo systemctl daemon-reload
-
-########################################
-# ENABLE AND START FIREWALL SERVICE
-########################################
-# The service is a oneshot unit that applies the firewall configuration
-# once on boot (and on demand when manually started).
-########################################
-
-echo "[*] Enabling firewall service (haas-firewall.service)..."
-sudo systemctl enable haas-firewall.service
-
-echo "[*] Starting firewall service..."
-sudo systemctl start haas-firewall.service
-
-# Give systemd a brief moment, then check status.
-sleep 1
-
-if ! sudo systemctl is-active --quiet haas-firewall.service; then
-    echo "[ERROR] Firewall service failed to start."
-    echo "        Use the following command to inspect details:"
-    echo "        sudo systemctl status haas-firewall.service --no-pager"
-    exit 1
+if [[ "$DRY_RUN" == true ]]; then
+    log "DRY-RUN mode: No firewall changes will be applied."
+    apply_ufw_rules "$CSV_FILE"
+    log "DRY-RUN execution finished."
+else
+    apply_ufw_rules "$CSV_FILE"
+    log "Firewall configuration completed successfully."
 fi
 
-echo "[OK] Firewall service started successfully."
-
-########################################
-# ENABLE AND START DAILY TIMER
-########################################
-# The timer ensures the firewall configuration is refreshed daily.
-########################################
-
-echo "[*] Enabling and starting daily timer (haas-firewall.timer)..."
-sudo systemctl enable --now haas-firewall.timer
-
-if ! sudo systemctl is-active --quiet haas-firewall.timer; then
-    echo "[ERROR] Timer failed to activate."
-    echo "        Check with: sudo systemctl status haas-firewall.timer --no-pager"
-    exit 1
-fi
-
-echo "[OK] Daily timer is active."
-
-########################################
-# COMPLETION MESSAGE
-########################################
-
-echo ""
-echo "=============================================="
-echo "[SUCCESS] Haas Firewall installation complete."
-echo "=============================================="
-echo ""
-echo "Repo location:        $REPO_DIR"
-echo "CSV in repo:          $CSV_PATH"
-echo "Backups directory:    $BACKUP_DIR"
-echo "Firewall script:      $TARGET_SCRIPT"
-echo "CSV validator:        $TARGET_VALIDATOR"
-echo "Systemd service:      $TARGET_SERVICE"
-echo "Systemd timer:        $TARGET_TIMER"
-echo "Cockpit extension:    $COCKPIT_DST"
-echo ""
-echo "You can manually test the configuration with:"
-echo "  sudo $TARGET_SCRIPT --dry-run"
-echo "  sudo $TARGET_SCRIPT --compare"
-echo "  sudo $TARGET_SCRIPT --show-rules"
-echo ""
 exit 0
