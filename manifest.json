@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "tools": {
+    "simulate-firewall-update": {
+      "label": "Simulate Firewall Update",
+      "tooltip": "Run a dry-run of the firewall update using users.csv",
+      "action": {
+        "type": "shell",
+        "command": "/usr/local/sbin/configure_ufw_from_csv.sh --dry-run"
+      }
+    },
+    "compare-firewall-rules": {
+      "label": "Compare Current vs Planned Rules",
+      "tooltip": "Show differences between current UFW rules and rules derived from users.csv",
+      "action": {
+        "type": "shell",
+        "command": "/usr/local/sbin/configure_ufw_from_csv.sh --compare"
+      }
+    },
+    "rollback-csv": {
+      "label": "Rollback CSV",
+      "tooltip": "Restore a previous CSV backup",
+      "action": {
+        "type": "shell-interactive",
+        "command": "/usr/local/sbin/rollback_csv.sh"
+      }
+    }
+  }
+}
