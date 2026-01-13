@@ -429,6 +429,14 @@ sudo /usr/local/sbin/configure_ufw_from_csv.sh /path/to/test.csv
 
 ## Cockpit Integration
 
+[Cockpit](https://cockpit-project.org/) is a web-based graphical interface for servers, intended for everyone, especially those who are:
+
+- new to Linux (including Windows admins)
+- familiar with Linux and want an easy, graphical way to administer servers
+- expert admins who mainly use other tools but want an overview on individual systems
+
+----------------------------------------------------------------
+
 We’ll create a Cockpit plugin that shows a simple page with three actions:
 
 - Simulate Firewall Update (--dry-run)
