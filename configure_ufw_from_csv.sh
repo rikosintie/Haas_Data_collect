@@ -2,8 +2,26 @@
 #
 # Haas Appliance - UFW Configuration from CSV (Config-File Architecture)
 #
+# Uses:
+#   - /etc/haas-firewall.conf for:
+#       CSV_PATH   - path to users.csv
+#       BACKUP_DIR - directory for CSV backups
+#
+# Defaults (if config missing):
+#   CSV_PATH   = <script_dir>/users.csv
+#   BACKUP_DIR = <script_dir>/backups
+#
+# Supports:
+#   --dry-run     (simulate changes)
+#   --compare     (compare current vs planned rules)
+#   --show-rules  (show current UFW rules)
+#
 
 set -euo pipefail
+
+########################################
+# PATHS AND CONFIG
+########################################
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_FILE="/etc/haas-firewall.conf"
@@ -11,18 +29,31 @@ CONFIG_FILE="/etc/haas-firewall.conf"
 LOG_FILE="/var/log/haas-firewall.log"
 VALIDATOR="/usr/local/sbin/validate_users_csv.sh"
 
-HAAS_MACHINES_SUBNET_V4="192.168.10.0/24"
-
+# Default values (used if config is missing)
 CSV_PATH="$SCRIPT_DIR/users.csv"
 BACKUP_DIR="$SCRIPT_DIR/backups"
 
+# Haas subnet for CNC machines
+HAAS_MACHINES_SUBNET_V4="192.168.10.0/24"
+HAAS_MACHINES_SUBNET_V6=""
+
+# Load config if present (overrides defaults)
 if [[ -f "$CONFIG_FILE" ]]; then
+  # shellcheck disable=SC1090
   source "$CONFIG_FILE"
 fi
+
+########################################
+# FLAGS
+########################################
 
 DRY_RUN=false
 SHOW_RULES=false
 COMPARE=false
+
+########################################
+# LOGGING
+########################################
 
 log() {
   echo "$(date +"%Y-%m-%d %H:%M:%S") [INFO] $1" | tee -a "$LOG_FILE"
@@ -39,10 +70,22 @@ log_error() {
 CSV_ARG=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --dry-run) DRY_RUN=true ;;
-    --show-rules) SHOW_RULES=true ;;
-    --compare) COMPARE=true ;;
-    *) CSV_ARG="$1" ;;
+    --dry-run)
+      DRY_RUN=true
+      ;;
+    --show-rules)
+      SHOW_RULES=true
+      ;;
+    --compare)
+      COMPARE=true
+      ;;
+    -h|--help)
+      echo "Usage: $0 [--dry-run] [--show-rules] [--compare] [CSV_FILE]"
+      exit 0
+      ;;
+    *)
+      CSV_ARG="$1"
+      ;;
   esac
   shift
 done
@@ -50,27 +93,38 @@ done
 CSV_FILE="${CSV_ARG:-$CSV_PATH}"
 
 ########################################
-# SHOW RULES
+# SHOW RULES MODE
 ########################################
 
 if $SHOW_RULES; then
-  ufw status numbered
+  log "Showing current UFW rules..."
+  ufw status numbered | tee -a "$LOG_FILE"
   exit 0
 fi
 
 ########################################
-# VALIDATE CSV
+# BASIC VALIDATION
 ########################################
+
+log "Starting UFW configuration from CSV."
+log "Using CSV file: $CSV_FILE"
 
 if [[ ! -f "$CSV_FILE" ]]; then
   log_error "CSV file not found: $CSV_FILE"
   exit 1
 fi
 
+if [[ ! -x "$VALIDATOR" ]]; then
+  log_error "CSV validator script missing or not executable: $VALIDATOR"
+  exit 1
+fi
+
+log "Validating CSV..."
 if ! "$VALIDATOR" "$CSV_FILE"; then
   log_error "CSV validation failed."
   exit 1
 fi
+log "CSV validation passed."
 
 ########################################
 # BACKUP CSV
@@ -78,35 +132,58 @@ fi
 
 mkdir -p "$BACKUP_DIR"
 TS=$(date +"%Y-%m-%d_%H-%M-%S")
-cp "$CSV_FILE" "$BACKUP_DIR/users_$TS.csv"
+BACKUP_FILE="$BACKUP_DIR/users_$TS.csv"
+
+cp "$CSV_FILE" "$BACKUP_FILE"
+log "CSV backup created at: $BACKUP_FILE"
+
+########################################
+# PLANNED RULES BUILDER (FOR COMPARE)
+########################################
+
+build_planned_rules() {
+  local csv="$1"
+  local outfile="$2"
+
+  echo "ALLOW 445/tcp FROM $HAAS_MACHINES_SUBNET_V4" >> "$outfile"
+
+  tail -n +2 "$csv" | while IFS=',' read -r user ip role; do
+    [[ -z "$user" && -z "$ip" && -z "$role" ]] && continue
+    role_lower=$(echo "$role" | tr 'A-Z' 'a-z')
+    case "$role_lower" in
+      administrator)
+        echo "ADMIN  FROM $ip : 22/tcp" >> "$outfile"
+        echo "ADMIN  FROM $ip : 445/tcp" >> "$outfile"
+        echo "ADMIN  FROM $ip : 9090/tcp" >> "$outfile"
+        ;;
+      user)
+        echo "USER   FROM $ip : 445/tcp" >> "$outfile"
+        ;;
+      *)
+        echo "UNKNOWN ROLE '$role' FOR $user@$ip" >> "$outfile"
+        ;;
+    esac
+  done
+}
 
 ########################################
 # COMPARE MODE
 ########################################
 
 if $COMPARE; then
-  TMP1=$(mktemp)
-  TMP2=$(mktemp)
+  log "COMPARE mode: current vs planned rules."
 
-  ufw status numbered > "$TMP1"
+  TMP_CURRENT=$(mktemp)
+  TMP_PLANNED=$(mktemp)
 
-  echo "ALLOW 445 FROM $HAAS_MACHINES_SUBNET_V4" > "$TMP2"
+  ufw status numbered > "$TMP_CURRENT"
+  build_planned_rules "$CSV_FILE" "$TMP_PLANNED"
 
-  tail -n +2 "$CSV_FILE" | while IFS=',' read -r user ip role; do
-    role=$(echo "$role" | tr 'A-Z' 'a-z')
-    case "$role" in
-      administrator)
-        echo "ADMIN $ip 22" >> "$TMP2"
-        echo "ADMIN $ip 445" >> "$TMP2"
-        echo "ADMIN $ip 9090" >> "$TMP2"
-        ;;
-      user)
-        echo "USER $ip 445" >> "$TMP2"
-        ;;
-    esac
-  done
+  diff -u "$TMP_CURRENT" "$TMP_PLANNED" || true
 
-  diff -u "$TMP1" "$TMP2" || true
+  rm -f "$TMP_CURRENT" "$TMP_PLANNED"
+
+  log "COMPARE mode complete. No firewall changes applied."
   exit 0
 fi
 
@@ -114,22 +191,68 @@ fi
 # APPLY RULES
 ########################################
 
-log "Applying firewall rules..."
+apply_ufw_rules() {
+  local csv="$1"
 
-ufw allow from "$HAAS_MACHINES_SUBNET_V4" to any port 445 comment "haas-smb"
+  if ! ufw status | grep -q "Status: active"; then
+    log "UFW is not active. Enabling..."
+    ufw --force enable
+  fi
 
-tail -n +2 "$CSV_FILE" | while IFS=',' read -r user ip role; do
-  role=$(echo "$role" | tr 'A-Z' 'a-z')
-  case "$role" in
-    administrator)
-      ufw allow from "$ip" to any port 22 comment "$user-admin-ssh"
-      ufw allow from "$ip" to any port 445 comment "$user-admin-smb"
-      ufw allow from "$ip" to any port 9090 comment "$user-admin-cockpit"
-      ;;
-    user)
-      ufw allow from "$ip" to any port 445 comment "$user-user-smb"
-      ;;
-  esac
-done
+  log "Applying Haas subnet rule: ALLOW 445/tcp FROM $HAAS_MACHINES_SUBNET_V4"
+  if ! $DRY_RUN; then
+    ufw allow from "$HAAS_MACHINES_SUBNET_V4" to any port 445 comment "haas-smb"
+  else
+    log "DRY-RUN: Would allow 445/tcp from $HAAS_MACHINES_SUBNET_V4"
+  fi
 
-log "Firewall configuration complete."
+  if [[ -n "$HAAS_MACHINES_SUBNET_V6" ]]; then
+    log "Applying Haas IPv6 subnet rule: ALLOW 445/tcp FROM $HAAS_MACHINES_SUBNET_V6"
+    if ! $DRY_RUN; then
+      ufw allow from "$HAAS_MACHINES_SUBNET_V6" to any port 445 comment "haas-smb-v6"
+    else
+      log "DRY-RUN: Would allow 445/tcp from $HAAS_MACHINES_SUBNET_V6"
+    fi
+  fi
+
+  tail -n +2 "$csv" | while IFS=',' read -r user ip role; do
+    [[ -z "$user" && -z "$ip" && -z "$role" ]] && continue
+    role_lower=$(echo "$role" | tr 'A-Z' 'a-z')
+
+    case "$role_lower" in
+      administrator)
+        log "ADMIN: $user@$ip → 22, 445, 9090"
+        if ! $DRY_RUN; then
+          ufw allow from "$ip" to any port 22 comment "${user}-admin-ssh"
+          ufw allow from "$ip" to any port 445 comment "${user}-admin-smb"
+          ufw allow from "$ip" to any port 9090 comment "${user}-admin-cockpit"
+        else
+          log "DRY-RUN: Would allow 22,445,9090 from $ip (admin $user)"
+        fi
+        ;;
+      user)
+        log "USER: $user@$ip → 445"
+        if ! $DRY_RUN; then
+          ufw allow from "$ip" to any port 445 comment "${user}-user-smb"
+        else
+          log "DRY-RUN: Would allow 445 from $ip (user $user)"
+        fi
+        ;;
+      *)
+        log_error "Unknown role '$role' for $user@$ip. Skipping."
+        ;;
+    esac
+  done
+
+  log "Firewall rule application complete."
+}
+
+if $DRY_RUN; then
+  log "DRY-RUN mode: No firewall changes will be applied."
+  apply_ufw_rules "$CSV_FILE"
+  log "DRY-RUN finished."
+else
+  apply_ufw_rules "$CSV_FILE"
+fi
+
+exit 0
