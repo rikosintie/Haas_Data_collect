@@ -104,12 +104,15 @@ Amazon sells an aluminum case named the [Argon NEO 5](https://www.amazon.com/dp/
 
 To build a high performance appliance for a manufacturing plant, I think the Argon NEO 5, at $41.00 is worth the cost. The heat sink and fan will keep temperatures down and an SD card used for heavy writing will have a shorter life than a Samsung EVO NVME drive.
 
-I purchased the Waveshare PoE hat instead of a power supply. Most environments have PoE switches now, but finding a power outlet, not so much! I had a Samsung Evo 970 500MB NVME drive that I had taken out of a laptop so I reused it.
-
 **NVME Drive**
 On 1/12/2025 Amazon had this NVME drive [OSamsung SSD PM9A1 M.2 NVMe 256GB](https://www.amazon.com/Samsung-SSD-PM9A1-NVMe-256GB/dp/B0BVKYN245) for $80. For this application 256GB should be more than enough storage.
 
-!!! Note
-    I recommend purchasing the [waveshare Industrial USB to TTL (D) Serial Cable, Compatible with Raspberry Pi 5](https://www.amazon.com/Waveshare-Industrial-Compatible-Raspberry-Protection/dp/B0CX5C5KR4?crid=UOYE4ZQGD85P&dib=eyJ2IjoiMSJ9.BPFSkDQQOB_j9pTthVxIH4j29kCE7yNqMgc9hB24bXyZhFqiigw3R8GFKkNfReHcXnOziFKmQqQT18804nToT-uEjdtmRbNvjT7EAReShBp_-x8drPgFSEOiVlVJefzxlg92li3IySROS7fhPIbUUCjNmzzSXwEktDIOugk-NjlgFu55M4KYy8D7fpKQ_cFomwpIjZmp9w28W1e2MFkhYuAF2tf9ULMQeNLm8Mz8SIs.7Cn4aq4suv6rP_fKHjW11v9K2c4YlYELTGYOSVdyyDw&dib_tag=se&keywords=raspberry+pi+5+serial+cable&qid=1768278124&sprefix=raspberry+pi+5+serial%2Caps%2C193&sr=8-1) Serial to USB cable for $13.99. The cable allows you to connect to the if lock yourself out over ssh. And that can happen when configuring the firewall :smiley:
+I purchased the Waveshare PoE hat instead of a power supply. Most environments have PoE switches now, but finding a power outlet, not so much! I had a Samsung Evo 970 500MB NVME drive that I had taken out of a laptop so I reused it.
+
+----------------------------------------------------------------
+
+### USB Serial cable for the Raspberry Pi 5
+
+I recommend purchasing the [waveshare Industrial USB to TTL (D) Serial Cable, Compatible with Raspberry Pi 5](https://www.amazon.com/Waveshare-Industrial-Compatible-Raspberry-Protection/dp/B0CX5C5KR4?crid=UOYE4ZQGD85P&dib=eyJ2IjoiMSJ9.BPFSkDQQOB_j9pTthVxIH4j29kCE7yNqMgc9hB24bXyZhFqiigw3R8GFKkNfReHcXnOziFKmQqQT18804nToT-uEjdtmRbNvjT7EAReShBp_-x8drPgFSEOiVlVJefzxlg92li3IySROS7fhPIbUUCjNmzzSXwEktDIOugk-NjlgFu55M4KYy8D7fpKQ_cFomwpIjZmp9w28W1e2MFkhYuAF2tf9ULMQeNLm8Mz8SIs.7Cn4aq4suv6rP_fKHjW11v9K2c4YlYELTGYOSVdyyDw&dib_tag=se&keywords=raspberry+pi+5+serial+cable&qid=1768278124&sprefix=raspberry+pi+5+serial%2Caps%2C193&sr=8-1) Serial to USB cable for $13.99. The cable allows you to connect to the if lock yourself out over ssh. And that can happen when configuring the firewall :smiley:
 
 ![screenshot](img/waveshare-serial.png)
