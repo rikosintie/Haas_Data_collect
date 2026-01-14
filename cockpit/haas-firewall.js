@@ -11,12 +11,17 @@
  *   - Rollback CSV to a selected backup
  */
 
-(function() {
-  "use strict";
+(function () {
+    "use strict";
 
-  // Cockpit is injected into the page by Cockpit itself.
-    cockpit.transport.wait(() => {
-        const cockpit = window.cockpit;
+    window.addEventListener("load", () => {
+        if (!window.cockpit) {
+            console.error("Cockpit API not loaded");
+            return;
+        }
+
+        cockpit.transport.wait(() => {
+            const cockpit = window.cockpit;
 
   // Simple helper to append text to the output area.
   function appendOutput(text) {
@@ -113,5 +118,6 @@
     onReady();
   }
 
-  })
-})();
+  }); // closes cockpit.transport.wait
+ }); // closes window.load
+})(); // closes IIFE
