@@ -4,12 +4,16 @@
 #
 # Uses:
 #   - /etc/haas-firewall.conf for:
-#       CSV_PATH   - path to users.csv
-#       BACKUP_DIR - directory for CSV backups
+#       CSV_PATH
+#       BACKUP_DIR
+#       HAAS_MACHINES_SUBNET_V4
+#       HAAS_MACHINES_SUBNET_V6
 #
 # Defaults (if config missing):
-#   CSV_PATH   = <script_dir>/users.csv
-#   BACKUP_DIR = <script_dir>/backups
+#   CSV_PATH               = <script_dir>/users.csv
+#   BACKUP_DIR             = <script_dir>/backups
+#   HAAS_MACHINES_SUBNET_V4 = ""
+#   HAAS_MACHINES_SUBNET_V6 = ""
 #
 # Supports:
 #   --dry-run     (simulate changes)
@@ -33,8 +37,8 @@ VALIDATOR="/usr/local/sbin/validate_users_csv.sh"
 CSV_PATH="$SCRIPT_DIR/users.csv"
 BACKUP_DIR="$SCRIPT_DIR/backups"
 
-# Haas subnet for CNC machines
-HAAS_MACHINES_SUBNET_V4="192.168.10.0/24"
+# Default: no Haas subnet rules unless set in config
+HAAS_MACHINES_SUBNET_V4=""
 HAAS_MACHINES_SUBNET_V6=""
 
 # Load config if present (overrides defaults)
@@ -81,6 +85,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     -h|--help)
       echo "Usage: $0 [--dry-run] [--show-rules] [--compare] [CSV_FILE]"
+      echo "If CSV_FILE is omitted, uses CSV_PATH from $CONFIG_FILE or default."
       exit 0
       ;;
     *)
@@ -145,7 +150,13 @@ build_planned_rules() {
   local csv="$1"
   local outfile="$2"
 
-  echo "ALLOW 445/tcp FROM $HAAS_MACHINES_SUBNET_V4" >> "$outfile"
+  if [[ -n "$HAAS_MACHINES_SUBNET_V4" ]]; then
+    echo "ALLOW 445/tcp FROM $HAAS_MACHINES_SUBNET_V4" >> "$outfile"
+  fi
+
+  if [[ -n "$HAAS_MACHINES_SUBNET_V6" ]]; then
+    echo "ALLOW 445/tcp FROM $HAAS_MACHINES_SUBNET_V6 (v6)" >> "$outfile"
+  fi
 
   tail -n +2 "$csv" | while IFS=',' read -r user ip role; do
     [[ -z "$user" && -z "$ip" && -z "$role" ]] && continue
@@ -199,11 +210,13 @@ apply_ufw_rules() {
     ufw --force enable
   fi
 
-  log "Applying Haas subnet rule: ALLOW 445/tcp FROM $HAAS_MACHINES_SUBNET_V4"
-  if ! $DRY_RUN; then
-    ufw allow from "$HAAS_MACHINES_SUBNET_V4" to any port 445 comment "haas-smb"
-  else
-    log "DRY-RUN: Would allow 445/tcp from $HAAS_MACHINES_SUBNET_V4"
+  if [[ -n "$HAAS_MACHINES_SUBNET_V4" ]]; then
+    log "Applying Haas subnet rule: ALLOW 445/tcp FROM $HAAS_MACHINES_SUBNET_V4"
+    if ! $DRY_RUN; then
+      ufw allow from "$HAAS_MACHINES_SUBNET_V4" to any port 445 comment "haas-smb"
+    else
+      log "DRY-RUN: Would allow 445/tcp from $HAAS_MACHINES_SUBNET_V4"
+    fi
   fi
 
   if [[ -n "$HAAS_MACHINES_SUBNET_V6" ]]; then
