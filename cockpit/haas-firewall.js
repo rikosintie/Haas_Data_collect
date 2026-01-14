@@ -15,7 +15,8 @@
   "use strict";
 
   // Cockpit is injected into the page by Cockpit itself.
-  const cockpit = window.cockpit;
+    cockpit.transport.wait(() => {
+        const cockpit = window.cockpit;
 
   // Simple helper to append text to the output area.
   function appendOutput(text) {
