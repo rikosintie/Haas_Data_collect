@@ -1,4 +1,3 @@
-
 (function () {
     "use strict";
 
@@ -151,7 +150,7 @@
         });
 
         /* -----------------------------
-         *  Edit CSV Button
+         *  Edit CSV Button (host-aware)
          * ----------------------------- */
         document.getElementById("btn-edit-csv")?.addEventListener("click", () => {
             if (!csvPath) {
@@ -159,9 +158,16 @@
                 return;
             }
 
-            cockpit.jump("/terminal", {
-                command: `nano ${csvPath}`
-            });
+            const host = cockpit.transport.host;
+            if (!host) {
+                appendOutput("[ERROR] Could not determine Cockpit host.");
+                return;
+            }
+
+            cockpit.jump(
+                `/@${host}/terminal`,
+                { command: `nano ${csvPath}` }
+            );
         });
 
         /* -----------------------------
