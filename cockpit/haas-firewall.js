@@ -1,3 +1,5 @@
+window.haas_firewall_loaded = true;
+console.log("haas-firewall.js LOADED");
 (function () {
     "use strict";
 
