@@ -15,7 +15,8 @@
     "menu": {
         "index": {
             "label": "Firewall Control",
-            "order": 10
+            "order": 10,
+            "category": "system"
         }
     }
 }
