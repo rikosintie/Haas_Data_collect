@@ -2,35 +2,19 @@
 <html>
 
 <head>
-    <!--
-    Haas Appliance - Cockpit Firewall Control Page
-
-    Provides UI for:
-      - Simulating firewall changes (dry-run)
-      - Comparing current vs planned rules
-      - Rolling back CSV backups
-
-    Loads haas-firewall.js for logic and uses Cockpit's JS APIs.
-    -->
     <meta charset="utf-8">
     <title>Haas Firewall Control</title>
 
     <!-- Cockpit core JS API -->
-    <script src="resource://cockpit/cockpit.js"></script>
-
-    <!-- Cockpit Web Components polyfills -->
-    <script src="resource://cockpit/wc/polyfills.js"></script>
+    <script src="../base1/cockpit.js"></script>
 
     <!-- Cockpit base styles -->
     <link rel="stylesheet"
-        href="resource://cockpit/wc/styles.css">
+        href="../base1/cockpit.css">
 
     <!-- Extension stylesheet -->
     <link rel="stylesheet"
         href="haas-firewall.css">
-
-    <!-- Extension logic -->
-    <script src="haas-firewall.js"></script>
 </head>
 
 <body>
@@ -73,8 +57,14 @@
 
     <div class="section">
         <h2>Output</h2>
-        <div id="output">Output will appear here...</div>
+        <pre id="output"
+            class="output-box">
+Output will appear here...
+        </pre>
     </div>
+
+    <!-- Extension logic (load last so DOM exists) -->
+    <script src="haas-firewall.js"></script>
 </body>
 
 </html>
