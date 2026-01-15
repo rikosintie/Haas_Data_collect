@@ -1,0 +1,60 @@
+/* Layout & Typography */
+body {
+    margin: 16px;
+    font-family: sans-serif;
+}
+
+h1 {
+    margin-bottom: 0.5rem;
+}
+
+/* Sections */
+.section {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Buttons */
+.btn {
+    padding: 0.4rem 0.9rem;
+    cursor: pointer;
+}
+
+/* Button layout */
+.button-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+}
+
+/* Utility spacing */
+.mt-1 {
+    margin-top: 0.5rem;
+}
+
+/* Output box */
+#output {
+    white-space: pre-wrap;
+    background: #111;
+    color: #eee;
+    padding: 0.75rem;
+    border-radius: 4px;
+    font-family: monospace;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Form elements */
+label {
+    font-weight: bold;
+}
+
+input[type="text"] {
+    width: 100%;
+    max-width: 400px;
+    padding: 0.3rem;
+    margin-top: 0.25rem;
+}
