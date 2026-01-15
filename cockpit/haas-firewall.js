@@ -6,14 +6,14 @@ cockpitReady((cockpit) => {
     bindUI(cockpit);
 });
 
+
 (function () {
     "use strict";
 
-    // Global debug marker
     window.haas_firewall_loaded = true;
     console.log("haas-firewall.js LOADED");
+    console.log("JS loaded, entering cockpitReady()");
 
-    // Wait for Cockpit to be ready
     function cockpitReady(callback) {
         console.log("cockpitReady() waiting…");
 
@@ -28,6 +28,17 @@ cockpitReady((cockpit) => {
             }
         }, 50);
     }
+
+    function bindUI(cockpit) {
+        console.log("bindUI() running");
+        // … rest of your code …
+    }
+
+    cockpitReady((cockpit) => {
+        bindUI(cockpit);
+    });
+
+})();
 
     // Main UI binding function
     function bindUI(cockpit) {
