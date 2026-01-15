@@ -1,12 +1,3 @@
-window.haas_firewall_loaded = true;
-console.log("haas-firewall.js LOADED");
-console.log("JS loaded, entering cockpitReady()");
-cockpitReady((cockpit) => {
-    console.log("cockpitReady() callback fired");
-    bindUI(cockpit);
-});
-
-
 (function () {
     "use strict";
 
@@ -29,18 +20,6 @@ cockpitReady((cockpit) => {
         }, 50);
     }
 
-    function bindUI(cockpit) {
-        console.log("bindUI() running");
-        // … rest of your code …
-    }
-
-    cockpitReady((cockpit) => {
-        bindUI(cockpit);
-    });
-
-})();
-
-    // Main UI binding function
     function bindUI(cockpit) {
         console.log("bindUI() running");
 
@@ -72,7 +51,6 @@ cockpitReady((cockpit) => {
             proc.fail(ex => appendOutput(`\n[ERROR] Command failed: ${ex}`));
         }
 
-        // Button bindings
         document.getElementById("btn-dry-run")?.addEventListener("click", () => {
             runCommand("Dry-run firewall update", "/usr/local/sbin/configure_ufw_from_csv.sh", ["--dry-run"]);
         });
@@ -95,7 +73,6 @@ cockpitReady((cockpit) => {
         });
     }
 
-    // Start everything once DOM is ready
     document.addEventListener("DOMContentLoaded", () => {
         console.log("DOMContentLoaded fired");
         cockpitReady(bindUI);
