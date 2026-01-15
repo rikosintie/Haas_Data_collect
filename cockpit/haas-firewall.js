@@ -6,17 +6,8 @@
     console.log("JS loaded, entering haasReady()");
 
     function haasReady(callback) {
-        console.log("haasReady() waiting…");
-
-        const check = setInterval(() => {
-            if (window.cockpit && window.cockpit.transport) {
-                clearInterval(check);
-                console.log("haasReady() callback fired");
-
-                // Avoid Cockpit hang — call immediately
-                callback(window.cockpit);
-            }
-        }, 50);
+        console.log("haasReady() firing immediately");
+        callback(window.cockpit);
     }
 
     function bindUI(cockpit) {
