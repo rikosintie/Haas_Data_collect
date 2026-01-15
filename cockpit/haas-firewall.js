@@ -3,15 +3,15 @@
 
     window.haas_firewall_loaded = true;
     console.log("haas-firewall.js LOADED");
-    console.log("JS loaded, entering cockpitReady()");
+    console.log("JS loaded, entering haasReady()");
 
     function haasReady(callback) {
-        console.log("cockpitReady() waiting…");
+        console.log("haasReady() waiting…");
 
         const check = setInterval(() => {
             if (window.cockpit && window.cockpit.transport) {
                 clearInterval(check);
-                console.log("cockpitReady() callback fired");
+                console.log("haasReady() callback fired");
 
                 // Avoid Cockpit hang — call immediately
                 callback(window.cockpit);
