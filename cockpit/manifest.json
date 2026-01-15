@@ -1,9 +1,13 @@
 {
     "version": 1,
+    "name": "haas-firewall",
     "label": "Haas Firewall",
     "icon": "icon.png",
+    "requires": {
+        "cockpit": ">= 215"
+    },
     "menu": {
-        "index.html": {
+        "index": {
             "label": "Firewall Control",
             "order": 10
         }
