@@ -6,6 +6,7 @@
     "requires": {
         "cockpit": "*"
     },
+    "translation": false,
     "files": [
         "index.html",
         "haas-firewall.js",
