@@ -1,6 +1,6 @@
 {
     "version": 2,
-    "name": "haas-firewall",
+    "name": "haas_firewall",
     "label": "Haas Firewall",
     "icon": "icon.png",
     "requires": {
