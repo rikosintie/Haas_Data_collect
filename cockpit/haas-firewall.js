@@ -1,4 +1,4 @@
-(function () {
+    (function () {
     "use strict";
 
     window.haas_firewall_loaded = true;
@@ -158,11 +158,8 @@
                 return;
             }
 
-            const host = cockpit.transport.host;
-            if (!host) {
-                appendOutput("[ERROR] Could not determine Cockpit host.");
-                return;
-            }
+            // Try to use Cockpit's host; fall back to localhost if not available
+            const host = cockpit.transport.host || "localhost";
 
             cockpit.jump(
                 `/@${host}/terminal`,
