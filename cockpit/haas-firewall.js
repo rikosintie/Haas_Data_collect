@@ -5,123 +5,89 @@ cockpitReady((cockpit) => {
     console.log("cockpitReady() callback fired");
     bindUI(cockpit);
 });
+
 (function () {
     "use strict";
 
-    document.addEventListener("DOMContentLoaded", () => {
+    // Global debug marker
+    window.haas_firewall_loaded = true;
+    console.log("haas-firewall.js LOADED");
 
-        //
-        // Cockpit loads cockpit.js asynchronously, so we must wait
-        // until BOTH cockpit AND cockpit.transport exist.
-        //
-        const waitForCockpit = setInterval(() => {
+    // Wait for Cockpit to be ready
+    function cockpitReady(callback) {
+        console.log("cockpitReady() waiting…");
 
+        const check = setInterval(() => {
             if (window.cockpit && window.cockpit.transport) {
-                clearInterval(waitForCockpit);
+                clearInterval(check);
+                console.log("cockpitReady() callback fired");
 
                 window.cockpit.transport.wait(() => {
-                    const cockpit = window.cockpit;
-
-                    if (!cockpit) {
-                        console.error("Cockpit API not available after wait()");
-                        return;
-                    }
-
-                    // -------------------------------
-                    // UI Output Helpers
-                    // -------------------------------
-                    function appendOutput(text) {
-                        const out = document.getElementById("output");
-                        if (!out) return;
-                        const now = new Date().toISOString();
-                        out.textContent += `\n[${now}] ${text}`;
-                        out.scrollTop = out.scrollHeight;
-                    }
-
-                    function setOutput(text) {
-                        const out = document.getElementById("output");
-                        if (!out) return;
-                        out.textContent = text;
-                    }
-
-                    // -------------------------------
-                    // Command Runner
-                    // -------------------------------
-                    function runCommand(description, cmd, args) {
-                        setOutput(`Running: ${description}\nCommand: ${cmd} ${args.join(" ")}\n\n`);
-
-                        const proc = cockpit.spawn([cmd].concat(args), {
-                            superuser: "require",
-                            err: "out"
-                        });
-
-                        proc.stream(data => appendOutput(data));
-                        proc.done(() => appendOutput("\n[INFO] Command completed successfully."));
-                        proc.fail(ex => appendOutput(`\n[ERROR] Command failed: ${ex}`));
-                    }
-
-                    // -------------------------------
-                    // Button Bindings
-                    // -------------------------------
-                    function onReady() {
-                        const btnDryRun = document.getElementById("btn-dry-run");
-                        const btnCompare = document.getElementById("btn-compare");
-                        const btnShowRules = document.getElementById("btn-show-rules");
-                        const btnRollback = document.getElementById("btn-rollback");
-                        const backupInput = document.getElementById("backup-name");
-
-                        if (btnDryRun) {
-                            btnDryRun.addEventListener("click", () => {
-                                runCommand(
-                                    "Simulate firewall update (dry-run)",
-                                    "/usr/local/sbin/configure_ufw_from_csv.sh",
-                                    ["--dry-run"]
-                                );
-                            });
-                        }
-
-                        if (btnCompare) {
-                            btnCompare.addEventListener("click", () => {
-                                runCommand(
-                                    "Compare current vs planned firewall rules",
-                                    "/usr/local/sbin/configure_ufw_from_csv.sh",
-                                    ["--compare"]
-                                );
-                            });
-                        }
-
-                        if (btnShowRules) {
-                            btnShowRules.addEventListener("click", () => {
-                                runCommand(
-                                    "Show current UFW rules",
-                                    "/usr/local/sbin/configure_ufw_from_csv.sh",
-                                    ["--show-rules"]
-                                );
-                            });
-                        }
-
-                        if (btnRollback && backupInput) {
-                            btnRollback.addEventListener("click", () => {
-                                const backupName = backupInput.value.trim();
-                                if (!backupName) {
-                                    setOutput("Please enter a backup filename before running rollback.");
-                                    return;
-                                }
-
-                                runCommand(
-                                    `Rollback CSV from backup ${backupName}`,
-                                    "/usr/local/sbin/rollback_csv.sh",
-                                    [backupName]
-                                );
-                            });
-                        }
-                    }
-
-                    onReady();
+                    callback(window.cockpit);
                 });
             }
+        }, 50);
+    }
 
-        }, 50); // check every 50ms until cockpit is ready
+    // Main UI binding function
+    function bindUI(cockpit) {
+        console.log("bindUI() running");
 
+        const out = document.getElementById("output");
+        const backupInput = document.getElementById("backup-name");
+
+        function appendOutput(text) {
+            if (!out) return;
+            const now = new Date().toISOString();
+            out.textContent += `\n[${now}] ${text}`;
+            out.scrollTop = out.scrollHeight;
+        }
+
+        function setOutput(text) {
+            if (!out) return;
+            out.textContent = text;
+        }
+
+        function runCommand(label, cmd, args) {
+            setOutput(`Running: ${label}\nCommand: ${cmd} ${args.join(" ")}\n\n`);
+
+            const proc = cockpit.spawn([cmd].concat(args), {
+                superuser: "require",
+                err: "out"
+            });
+
+            proc.stream(data => appendOutput(data));
+            proc.done(() => appendOutput("\n[INFO] Command completed successfully."));
+            proc.fail(ex => appendOutput(`\n[ERROR] Command failed: ${ex}`));
+        }
+
+        // Button bindings
+        document.getElementById("btn-dry-run")?.addEventListener("click", () => {
+            runCommand("Dry-run firewall update", "/usr/local/sbin/configure_ufw_from_csv.sh", ["--dry-run"]);
+        });
+
+        document.getElementById("btn-compare")?.addEventListener("click", () => {
+            runCommand("Compare firewall rules", "/usr/local/sbin/configure_ufw_from_csv.sh", ["--compare"]);
+        });
+
+        document.getElementById("btn-show-rules")?.addEventListener("click", () => {
+            runCommand("Show current UFW rules", "/usr/local/sbin/configure_ufw_from_csv.sh", ["--show-rules"]);
+        });
+
+        document.getElementById("btn-rollback")?.addEventListener("click", () => {
+            const backupName = backupInput?.value.trim();
+            if (!backupName) {
+                setOutput("Please enter a backup filename before running rollback.");
+                return;
+            }
+            runCommand(`Rollback from ${backupName}`, "/usr/local/sbin/rollback_csv.sh", [backupName]);
+        });
+    }
+
+    // Start everything once DOM is ready
+    document.addEventListener("DOMContentLoaded", () => {
+        console.log("DOMContentLoaded fired");
+        cockpitReady(bindUI);
     });
+
 })();
