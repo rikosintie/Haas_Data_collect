@@ -5,7 +5,7 @@
     console.log("haas-firewall.js LOADED");
     console.log("JS loaded, entering cockpitReady()");
 
-    function cockpitReady(callback) {
+    function haasReady(callback) {
         console.log("cockpitReady() waiting…");
 
         const check = setInterval(() => {
@@ -74,7 +74,7 @@
 
     document.addEventListener("DOMContentLoaded", () => {
         console.log("DOMContentLoaded fired");
-        cockpitReady(bindUI);
+        haasReady(bindUI);
     });
 
 })();
