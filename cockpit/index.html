@@ -20,7 +20,7 @@
 <body>
     <h1>Haas Firewall Control</h1>
     <p>
-        Use this page to simulate firewall changes, compare rules, and rollback CSV backups.
+        Use this page to simulate firewall changes, compare rules, edit the CSV, and rollback CSV backups.
     </p>
 
     <div class="section">
@@ -34,6 +34,8 @@
                 class="btn">Compare Current vs Planned Rules</button>
             <button id="btn-show-rules"
                 class="btn">Show Current UFW Rules</button>
+            <button id="btn-edit-csv"
+                class="btn">Edit users.csv</button>
         </div>
     </div>
 
@@ -41,7 +43,7 @@
         <h2>Rollback CSV Backup</h2>
         <p>
             Restore a previous CSV backup from:
-            <code>/home/mhubbard/Haas_Data_collect/backups</code>
+            <code>BACKUP_DIR</code> as defined in <code>/etc/haas-firewall.conf</code>.
         </p>
 
         <label for="backup-name">Backup filename (e.g. users_2025-01-13_12-00-00.csv)</label>
@@ -61,6 +63,8 @@
         <div class="output-controls">
             <button id="btn-clear"
                 class="btn small">Clear Output</button>
+            <div id="spinner"
+                class="spinner hidden"></div>
         </div>
 
         <pre id="output"

@@ -27,6 +27,8 @@ set -euo pipefail
 # PATHS AND CONFIG
 ########################################
 
+set -euo pipefail
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_FILE="/etc/haas-firewall.conf"
 
@@ -34,18 +36,39 @@ LOG_FILE="/var/log/haas-firewall.log"
 VALIDATOR="/usr/local/sbin/validate_users_csv.sh"
 
 # Default values (used if config is missing)
-CSV_PATH="$SCRIPT_DIR/users.csv"
-BACKUP_DIR="$SCRIPT_DIR/backups"
-
-# Default: no Haas subnet rules unless set in config
-HAAS_MACHINES_SUBNET_V4=""
-HAAS_MACHINES_SUBNET_V6=""
+CSV_PATH_DEFAULT="${SCRIPT_DIR}/users.csv"
+BACKUP_DIR_DEFAULT="${SCRIPT_DIR}/backups"
+HAAS_MACHINES_SUBNET_V4_DEFAULT=""
+HAAS_MACHINES_SUBNET_V6_DEFAULT=""
 
 # Load config if present (overrides defaults)
 if [[ -f "$CONFIG_FILE" ]]; then
-  # shellcheck disable=SC1090
-  source "$CONFIG_FILE"
+    # shellcheck disable=SC1090
+    source "$CONFIG_FILE"
+else
+    echo "[WARN] Config file missing: $CONFIG_FILE"
+    echo "[WARN] Falling back to script-local defaults."
 fi
+
+# Apply defaults if config did not define them
+CSV_PATH="${CSV_PATH:-$CSV_PATH_DEFAULT}"
+BACKUP_DIR="${BACKUP_DIR:-$BACKUP_DIR_DEFAULT}"
+HAAS_MACHINES_SUBNET_V4="${HAAS_MACHINES_SUBNET_V4:-$HAAS_MACHINES_SUBNET_V4_DEFAULT}"
+HAAS_MACHINES_SUBNET_V6="${HAAS_MACHINES_SUBNET_V6:-$HAAS_MACHINES_SUBNET_V6_DEFAULT}"
+
+# Sanity checks
+if [[ ! -f "$CSV_PATH" ]]; then
+    echo "[ERROR] CSV file not found: $CSV_PATH"
+    exit 1
+fi
+
+if [[ ! -d "$BACKUP_DIR" ]]; then
+    echo "[INFO] Creating backup directory: $BACKUP_DIR"
+    mkdir -p "$BACKUP_DIR"
+fi
+
+echo "[INFO] Using CSV file: $CSV_PATH"
+echo "[INFO] Using backup directory: $BACKUP_DIR"
 
 ########################################
 # FLAGS

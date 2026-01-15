@@ -47,6 +47,7 @@ REQUIRED_FILES=(
   "validate_users_csv.sh"
   "haas-firewall.service"
   "haas-firewall.timer"
+  "rollback_csv.sh"
 )
 
 echo "[*] Verifying required files in repo..."
@@ -121,6 +122,7 @@ echo "[*] Installing firewall scripts into /usr/local/sbin..."
 
 sudo cp "$REPO_DIR/configure_ufw_from_csv.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/validate_users_csv.sh" /usr/local/sbin/
+sudo cp "$REPO_DIR/rollback_csv.sh" /usr/local/sbin/
 
 sudo chmod +x /usr/local/sbin/configure_ufw_from_csv.sh
 sudo chmod +x /usr/local/sbin/validate_users_csv.sh
