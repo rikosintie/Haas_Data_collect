@@ -1,4 +1,4 @@
-    (function () {
+(function () {
     "use strict";
 
     window.haas_firewall_loaded = true;
@@ -6,11 +6,6 @@
 
     let csvPath = null;
     let backupDir = null;
-
-    function haasReady(callback) {
-        console.log("haasReady() firing immediately");
-        callback(window.cockpit);
-    }
 
     function bindUI(cockpit) {
         console.log("bindUI() running");
@@ -23,7 +18,10 @@
          *  Output Helpers
          * ----------------------------- */
         function appendOutput(text) {
-            if (!out) return;
+            if (!out) {
+                console.error("Output element not found");
+                return;
+            }
 
             let cls = "info";
             if (text.includes("[ERROR]")) cls = "error";
@@ -36,7 +34,10 @@
         }
 
         function setOutput(text) {
-            if (!out) return;
+            if (!out) {
+                console.error("Output element not found");
+                return;
+            }
             out.innerHTML = text ? `<span class="info">${text}</span><br>` : "";
         }
 
@@ -44,11 +45,11 @@
          *  Spinner Helpers
          * ----------------------------- */
         function showSpinner() {
-            spinner?.classList.remove("hidden");
+            if (spinner) spinner.classList.remove("hidden");
         }
 
         function hideSpinner() {
-            spinner?.classList.add("hidden");
+            if (spinner) spinner.classList.add("hidden");
         }
 
         /* -----------------------------
@@ -112,75 +113,107 @@
         /* -----------------------------
          *  Button Bindings
          * ----------------------------- */
-        document.getElementById("btn-dry-run")?.addEventListener("click", () => {
-            runCommand("Dry-run firewall update",
-                "/usr/local/sbin/configure_ufw_from_csv.sh",
-                ["--dry-run"]);
-        });
+        const btnDryRun = document.getElementById("btn-dry-run");
+        const btnCompare = document.getElementById("btn-compare");
+        const btnShowRules = document.getElementById("btn-show-rules");
+        const btnRollback = document.getElementById("btn-rollback");
+        const btnEditCsv = document.getElementById("btn-edit-csv");
+        const btnClear = document.getElementById("btn-clear");
 
-        document.getElementById("btn-compare")?.addEventListener("click", () => {
-            runCommand("Compare firewall rules",
-                "/usr/local/sbin/configure_ufw_from_csv.sh",
-                ["--compare"]);
-        });
+        if (!btnDryRun || !btnCompare || !btnShowRules || !btnRollback || !btnEditCsv || !btnClear) {
+            console.warn("One or more buttons not found in DOM");
+        }
 
-        document.getElementById("btn-show-rules")?.addEventListener("click", () => {
-            runCommand("Show current UFW rules",
-                "/usr/local/sbin/configure_ufw_from_csv.sh",
-                ["--show-rules"]);
-        });
+        if (btnDryRun) {
+            btnDryRun.addEventListener("click", () => {
+                runCommand(
+                    "Dry-run firewall update",
+                    "/usr/local/sbin/configure_ufw_from_csv.sh",
+                    ["--dry-run"]
+                );
+            });
+        }
 
-        document.getElementById("btn-rollback")?.addEventListener("click", () => {
-            const backupName = backupInput?.value.trim();
-            if (!backupName) {
-                setOutput("Please enter a backup filename before running rollback.");
-                return;
-            }
+        if (btnCompare) {
+            btnCompare.addEventListener("click", () => {
+                runCommand(
+                    "Compare firewall rules",
+                    "/usr/local/sbin/configure_ufw_from_csv.sh",
+                    ["--compare"]
+                );
+            });
+        }
 
-            if (!backupDir) {
-                appendOutput("[ERROR] BACKUP_DIR not loaded from config.");
-                return;
-            }
+        if (btnShowRules) {
+            btnShowRules.addEventListener("click", () => {
+                runCommand(
+                    "Show current UFW rules",
+                    "/usr/local/sbin/configure_ufw_from_csv.sh",
+                    ["--show-rules"]
+                );
+            });
+        }
 
-            runCommand(
-                `Rollback from ${backupName}`,
-                "/usr/local/sbin/rollback_csv.sh",
-                [`${backupDir}/${backupName}`]
-            );
-        });
+        if (btnRollback) {
+            btnRollback.addEventListener("click", () => {
+                const backupName = backupInput ? backupInput.value.trim() : "";
+                if (!backupName) {
+                    setOutput("Please enter a backup filename before running rollback.");
+                    return;
+                }
 
-        /* -----------------------------
-         *  Edit CSV Button (host-aware)
-         * ----------------------------- */
-        document.getElementById("btn-edit-csv")?.addEventListener("click", () => {
-            if (!csvPath) {
-                appendOutput("[ERROR] CSV_PATH not loaded from config.");
-                return;
-            }
+                if (!backupDir) {
+                    appendOutput("[ERROR] BACKUP_DIR not loaded from config.");
+                    return;
+                }
 
-            // Try to use Cockpit's host; fall back to localhost if not available
-            const host = cockpit.transport.host || "localhost";
+                runCommand(
+                    `Rollback from ${backupName}`,
+                    "/usr/local/sbin/rollback_csv.sh",
+                    [`${backupDir}/${backupName}`]
+                );
+            });
+        }
 
-            cockpit.jump(
-                `/@${host}/terminal`,
-                { command: `nano ${csvPath}` }
-            );
-        });
+        if (btnEditCsv) {
+            btnEditCsv.addEventListener("click", () => {
+                if (!csvPath) {
+                    appendOutput("[ERROR] CSV_PATH not loaded from config.");
+                    return;
+                }
 
-        /* -----------------------------
-         *  Clear Output
-         * ----------------------------- */
-        document.getElementById("btn-clear")?.addEventListener("click", () => {
-            setOutput("Output cleared.");
-        });
+                const host = (cockpit.transport && cockpit.transport.host) || "localhost";
+
+                cockpit.jump(
+                    `/@${host}/terminal`,
+                    { command: `nano ${csvPath}` }
+                );
+            });
+        }
+
+        if (btnClear) {
+            btnClear.addEventListener("click", () => {
+                setOutput("Output cleared.");
+            });
+        }
     }
 
     /* -----------------------------
-     *  DOM Ready
+     *  DOM + Cockpit Ready
      * ----------------------------- */
     document.addEventListener("DOMContentLoaded", () => {
         console.log("DOMContentLoaded fired");
-        haasReady(bindUI);
+
+        if (!window.cockpit) {
+            console.error("cockpit object not available");
+            return;
+        }
+
+        // Wait for Cockpit transport & iframe context to be fully ready
+        window.cockpit.transport.wait(() => {
+            console.log("cockpit.transport.wait fired, binding UI");
+            bindUI(window.cockpit);
+        });
     });
 
 })();
