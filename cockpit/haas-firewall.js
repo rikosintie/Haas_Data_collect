@@ -13,9 +13,8 @@
                 clearInterval(check);
                 console.log("cockpitReady() callback fired");
 
-                window.cockpit.transport.wait(() => {
-                    callback(window.cockpit);
-                });
+                // Call immediately — avoids Cockpit hang
+                callback(window.cockpit);
             }
         }, 50);
     }
