@@ -118,6 +118,6 @@
     onReady();
   }
 
-  }); // closes cockpit.transport.wait
- }); // closes window.load
-})(); // closes IIFE
+        }); // closes cockpit.transport.wait
+    });   // closes window.load
+})();   // closes IIFE
