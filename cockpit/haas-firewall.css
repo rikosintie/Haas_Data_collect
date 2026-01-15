@@ -20,6 +20,18 @@ h1 {
 .btn {
     padding: 0.4rem 0.9rem;
     cursor: pointer;
+    background: #e0e0e0;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+}
+
+.btn:hover {
+    background: #d5d5d5;
+}
+
+.btn.small {
+    padding: 0.25rem 0.6rem;
+    font-size: 0.85rem;
 }
 
 /* Button layout */
@@ -36,7 +48,7 @@ h1 {
 }
 
 /* Output box */
-#output {
+.output-box {
     white-space: pre-wrap;
     background: #111;
     color: #eee;
@@ -45,16 +57,24 @@ h1 {
     font-family: monospace;
     max-height: 400px;
     overflow-y: auto;
+    border: 1px solid #444;
 }
 
-/* Form elements */
-label {
+/* Output controls */
+.output-controls {
+    margin-bottom: 0.5rem;
+}
+
+/* Output color coding */
+.output-box span.info {
+    color: #4da3ff;
+}
+
+.output-box span.error {
+    color: #ff4d4d;
     font-weight: bold;
 }
 
-input[type="text"] {
-    width: 100%;
-    max-width: 400px;
-    padding: 0.3rem;
-    margin-top: 0.25rem;
+.output-box span.success {
+    color: #4dff88;
 }
