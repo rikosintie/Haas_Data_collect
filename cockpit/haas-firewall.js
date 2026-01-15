@@ -13,7 +13,7 @@
                 clearInterval(check);
                 console.log("cockpitReady() callback fired");
 
-                // Call immediately — avoids Cockpit hang
+                // Avoid Cockpit hang — call immediately
                 callback(window.cockpit);
             }
         }, 50);
