@@ -18,8 +18,15 @@
 
         function appendOutput(text) {
             if (!out) return;
+
+            let cls = "info";
+            if (text.includes("[ERROR]")) cls = "error";
+            if (text.includes("[INFO] Command completed")) cls = "success";
+
             const now = new Date().toISOString();
-            out.textContent += `\n[${now}] ${text}`;
+            const line = `<span class="${cls}">[${now}] ${text}</span>\n`;
+
+            out.innerHTML += line;
             out.scrollTop = out.scrollHeight;
         }
 
