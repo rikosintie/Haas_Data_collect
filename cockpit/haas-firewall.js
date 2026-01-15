@@ -3,96 +3,118 @@
 
     document.addEventListener("DOMContentLoaded", () => {
 
-        cockpit.transport.wait(() => {
-            const cockpit = window.cockpit;
+        //
+        // Cockpit loads cockpit.js asynchronously, so we must wait
+        // until BOTH cockpit AND cockpit.transport exist.
+        //
+        const waitForCockpit = setInterval(() => {
 
-            if (!cockpit) {
-                console.error("Cockpit API not loaded");
-                return;
-            }
+            if (window.cockpit && window.cockpit.transport) {
+                clearInterval(waitForCockpit);
 
-            function appendOutput(text) {
-                const out = document.getElementById("output");
-                if (!out) return;
-                const now = new Date().toISOString();
-                out.textContent += `\n[${now}] ${text}`;
-                out.scrollTop = out.scrollHeight;
-            }
+                window.cockpit.transport.wait(() => {
+                    const cockpit = window.cockpit;
 
-            function setOutput(text) {
-                const out = document.getElementById("output");
-                if (!out) return;
-                out.textContent = text;
-            }
+                    if (!cockpit) {
+                        console.error("Cockpit API not available after wait()");
+                        return;
+                    }
 
-            function runCommand(description, cmd, args) {
-                setOutput(`Running: ${description}\nCommand: ${cmd} ${args.join(" ")}\n\n`);
+                    // -------------------------------
+                    // UI Output Helpers
+                    // -------------------------------
+                    function appendOutput(text) {
+                        const out = document.getElementById("output");
+                        if (!out) return;
+                        const now = new Date().toISOString();
+                        out.textContent += `\n[${now}] ${text}`;
+                        out.scrollTop = out.scrollHeight;
+                    }
 
-                const proc = cockpit.spawn([cmd].concat(args), {
-                    superuser: "require",
-                    err: "out"
-                });
+                    function setOutput(text) {
+                        const out = document.getElementById("output");
+                        if (!out) return;
+                        out.textContent = text;
+                    }
 
-                proc.stream(data => appendOutput(data));
-                proc.done(() => appendOutput("\n[INFO] Command completed successfully."));
-                proc.fail(ex => appendOutput(`\n[ERROR] Command failed: ${ex}`));
-            }
+                    // -------------------------------
+                    // Command Runner
+                    // -------------------------------
+                    function runCommand(description, cmd, args) {
+                        setOutput(`Running: ${description}\nCommand: ${cmd} ${args.join(" ")}\n\n`);
 
-            function onReady() {
-                const btnDryRun = document.getElementById("btn-dry-run");
-                const btnCompare = document.getElementById("btn-compare");
-                const btnShowRules = document.getElementById("btn-show-rules");
-                const btnRollback = document.getElementById("btn-rollback");
-                const backupInput = document.getElementById("backup-name");
+                        const proc = cockpit.spawn([cmd].concat(args), {
+                            superuser: "require",
+                            err: "out"
+                        });
 
-                if (btnDryRun) {
-                    btnDryRun.addEventListener("click", () => {
-                        runCommand(
-                            "Simulate firewall update (dry-run)",
-                            "/usr/local/sbin/configure_ufw_from_csv.sh",
-                            ["--dry-run"]
-                        );
-                    });
-                }
+                        proc.stream(data => appendOutput(data));
+                        proc.done(() => appendOutput("\n[INFO] Command completed successfully."));
+                        proc.fail(ex => appendOutput(`\n[ERROR] Command failed: ${ex}`));
+                    }
 
-                if (btnCompare) {
-                    btnCompare.addEventListener("click", () => {
-                        runCommand(
-                            "Compare current vs planned firewall rules",
-                            "/usr/local/sbin/configure_ufw_from_csv.sh",
-                            ["--compare"]
-                        );
-                    });
-                }
+                    // -------------------------------
+                    // Button Bindings
+                    // -------------------------------
+                    function onReady() {
+                        const btnDryRun = document.getElementById("btn-dry-run");
+                        const btnCompare = document.getElementById("btn-compare");
+                        const btnShowRules = document.getElementById("btn-show-rules");
+                        const btnRollback = document.getElementById("btn-rollback");
+                        const backupInput = document.getElementById("backup-name");
 
-                if (btnShowRules) {
-                    btnShowRules.addEventListener("click", () => {
-                        runCommand(
-                            "Show current UFW rules",
-                            "/usr/local/sbin/configure_ufw_from_csv.sh",
-                            ["--show-rules"]
-                        );
-                    });
-                }
-
-                if (btnRollback && backupInput) {
-                    btnRollback.addEventListener("click", () => {
-                        const backupName = backupInput.value.trim();
-                        if (!backupName) {
-                            setOutput("Please enter a backup filename before running rollback.");
-                            return;
+                        if (btnDryRun) {
+                            btnDryRun.addEventListener("click", () => {
+                                runCommand(
+                                    "Simulate firewall update (dry-run)",
+                                    "/usr/local/sbin/configure_ufw_from_csv.sh",
+                                    ["--dry-run"]
+                                );
+                            });
                         }
 
-                        runCommand(
-                            `Rollback CSV from backup ${backupName}`,
-                            "/usr/local/sbin/rollback_csv.sh",
-                            [backupName]
-                        );
-                    });
-                }
+                        if (btnCompare) {
+                            btnCompare.addEventListener("click", () => {
+                                runCommand(
+                                    "Compare current vs planned firewall rules",
+                                    "/usr/local/sbin/configure_ufw_from_csv.sh",
+                                    ["--compare"]
+                                );
+                            });
+                        }
+
+                        if (btnShowRules) {
+                            btnShowRules.addEventListener("click", () => {
+                                runCommand(
+                                    "Show current UFW rules",
+                                    "/usr/local/sbin/configure_ufw_from_csv.sh",
+                                    ["--show-rules"]
+                                );
+                            });
+                        }
+
+                        if (btnRollback && backupInput) {
+                            btnRollback.addEventListener("click", () => {
+                                const backupName = backupInput.value.trim();
+                                if (!backupName) {
+                                    setOutput("Please enter a backup filename before running rollback.");
+                                    return;
+                                }
+
+                                runCommand(
+                                    `Rollback CSV from backup ${backupName}`,
+                                    "/usr/local/sbin/rollback_csv.sh",
+                                    [backupName]
+                                );
+                            });
+                        }
+                    }
+
+                    onReady();
+                });
             }
 
-            onReady();
-        });
+        }, 50); // check every 50ms until cockpit is ready
+
     });
-})()
+})();
