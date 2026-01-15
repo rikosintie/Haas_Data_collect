@@ -1,5 +1,10 @@
 window.haas_firewall_loaded = true;
 console.log("haas-firewall.js LOADED");
+console.log("JS loaded, entering cockpitReady()");
+cockpitReady((cockpit) => {
+    console.log("cockpitReady() callback fired");
+    bindUI(cockpit);
+});
 (function () {
     "use strict";
 
