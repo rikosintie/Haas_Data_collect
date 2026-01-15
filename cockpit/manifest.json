@@ -6,6 +6,11 @@
     "requires": {
         "cockpit": "*"
     },
+    "files": [
+        "index.html",
+        "haas-firewall.js",
+        "icon.png"
+    ],
     "menu": {
         "index": {
             "label": "Firewall Control",
