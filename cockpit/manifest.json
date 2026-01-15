@@ -8,6 +8,7 @@
     },
     "translation": false,
     "files": [
+        "index",
         "index.html",
         "haas-firewall.js",
         "icon.png"
