@@ -1,219 +1,113 @@
 (function () {
-    "use strict";
+    const cockpit = window.cockpit;
 
-    window.haas_firewall_loaded = true;
-    console.log("haas-firewall.js LOADED");
+    document.addEventListener("DOMContentLoaded", function () {
+        console.log("Page loaded, initializing...");
 
-    let csvPath = null;
-    let backupDir = null;
-
-    function bindUI(cockpit) {
-        console.log("bindUI() running");
-
-        const out = document.getElementById("output");
+        const output = document.getElementById("output");
         const backupInput = document.getElementById("backup-name");
-        const spinner = document.getElementById("spinner");
 
-        /* -----------------------------
-         *  Output Helpers
-         * ----------------------------- */
-        function appendOutput(text) {
-            if (!out) {
-                console.error("Output element not found");
-                return;
-            }
-
-            let cls = "info";
-            if (text.includes("[ERROR]")) cls = "error";
-            if (text.includes("Command completed")) cls = "success";
-
-            const now = new Date().toISOString();
-            const line = `<span class="${cls}">[${now}] ${text}</span><br>`;
-            out.innerHTML += line;
-            out.scrollTop = out.scrollHeight;
-        }
-
-        function setOutput(text) {
-            if (!out) {
-                console.error("Output element not found");
-                return;
-            }
-            out.innerHTML = text ? `<span class="info">${text}</span><br>` : "";
-        }
-
-        /* -----------------------------
-         *  Spinner Helpers
-         * ----------------------------- */
-        function showSpinner() {
-            if (spinner) spinner.classList.remove("hidden");
-        }
-
-        function hideSpinner() {
-            if (spinner) spinner.classList.add("hidden");
-        }
-
-        /* -----------------------------
-         *  Load Config File
-         * ----------------------------- */
-        cockpit.file("/etc/haas-firewall.conf").read()
-            .then(text => {
-                const csvMatch = text.match(/CSV_PATH="?(.*)"?/);
-                const backupMatch = text.match(/BACKUP_DIR="?(.*)"?/);
-
-                if (csvMatch) {
-                    csvPath = csvMatch[1].trim();
-                    console.log("Loaded CSV_PATH:", csvPath);
-                }
-
-                if (backupMatch) {
-                    backupDir = backupMatch[1].trim();
-                    console.log("Loaded BACKUP_DIR:", backupDir);
-                }
-            })
-            .catch(err => {
-                console.error("Failed to read config:", err);
-                appendOutput("[ERROR] Could not read /etc/haas-firewall.conf");
-            });
-
-        /* -----------------------------
-         *  Limited Mode Banner
-         * ----------------------------- */
-        if (!cockpit.user["is-superuser"]) {
-            const banner = document.createElement("div");
-            banner.className = "warning-banner";
-            banner.textContent = "Limited access mode: Commands requiring root may fail.";
-            document.body.prepend(banner);
-        }
-
-        /* -----------------------------
-         *  Command Runner
-         * ----------------------------- */
-        function runCommand(label, cmd, args) {
-            showSpinner();
-            setOutput(`Running: ${label}\nCommand: ${cmd} ${args.join(" ")}\n\n`);
-
-            const proc = cockpit.spawn([cmd].concat(args), {
-                superuser: "require",
-                err: "out"
-            });
-
-            proc.stream(data => appendOutput(data));
-
-            proc.done(() => {
-                appendOutput("[INFO] Command completed successfully.");
-                hideSpinner();
-            });
-
-            proc.fail(ex => {
-                appendOutput(`[ERROR] Command failed: ${ex}`);
-                hideSpinner();
-            });
-        }
-
-        /* -----------------------------
-         *  Button Bindings
-         * ----------------------------- */
-        const btnDryRun = document.getElementById("btn-dry-run");
-        const btnCompare = document.getElementById("btn-compare");
-        const btnShowRules = document.getElementById("btn-show-rules");
-        const btnRollback = document.getElementById("btn-rollback");
-        const btnEditCsv = document.getElementById("btn-edit-csv");
-        const btnClear = document.getElementById("btn-clear");
-
-        if (!btnDryRun || !btnCompare || !btnShowRules || !btnRollback || !btnEditCsv || !btnClear) {
-            console.warn("One or more buttons not found in DOM");
-        }
-
-        if (btnDryRun) {
-            btnDryRun.addEventListener("click", () => {
-                runCommand(
-                    "Dry-run firewall update",
-                    "/usr/local/sbin/configure_ufw_from_csv.sh",
-                    ["--dry-run"]
-                );
-            });
-        }
-
-        if (btnCompare) {
-            btnCompare.addEventListener("click", () => {
-                runCommand(
-                    "Compare firewall rules",
-                    "/usr/local/sbin/configure_ufw_from_csv.sh",
-                    ["--compare"]
-                );
-            });
-        }
-
-        if (btnShowRules) {
-            btnShowRules.addEventListener("click", () => {
-                runCommand(
-                    "Show current UFW rules",
-                    "/usr/local/sbin/configure_ufw_from_csv.sh",
-                    ["--show-rules"]
-                );
-            });
-        }
-
-        if (btnRollback) {
-            btnRollback.addEventListener("click", () => {
-                const backupName = backupInput ? backupInput.value.trim() : "";
-                if (!backupName) {
-                    setOutput("Please enter a backup filename before running rollback.");
-                    return;
-                }
-
-                if (!backupDir) {
-                    appendOutput("[ERROR] BACKUP_DIR not loaded from config.");
-                    return;
-                }
-
-                runCommand(
-                    `Rollback from ${backupName}`,
-                    "/usr/local/sbin/rollback_csv.sh",
-                    [`${backupDir}/${backupName}`]
-                );
-            });
-        }
-
-        if (btnEditCsv) {
-            btnEditCsv.addEventListener("click", () => {
-                if (!csvPath) {
-                    appendOutput("[ERROR] CSV_PATH not loaded from config.");
-                    return;
-                }
-
-                const host = (cockpit.transport && cockpit.transport.host) || "localhost";
-
-                cockpit.jump(
-                    `/@${host}/terminal`,
-                    { command: `nano ${csvPath}` }
-                );
-            });
-        }
-
-        if (btnClear) {
-            btnClear.addEventListener("click", () => {
-                setOutput("Output cleared.");
-            });
-        }
-    }
-
-    /* -----------------------------
-     *  DOM + Cockpit Ready
-     * ----------------------------- */
-    document.addEventListener("DOMContentLoaded", () => {
-        console.log("DOMContentLoaded fired");
-
-        if (!window.cockpit) {
-            console.error("cockpit object not available");
-            return;
-        }
-
-        // Wait for Cockpit transport & iframe context to be fully ready
-        window.cockpit.transport.wait(() => {
-            console.log("cockpit.transport.wait fired, binding UI");
-            bindUI(window.cockpit);
+        // Clear output
+        document.getElementById("btn-clear").addEventListener("click", function () {
+            output.textContent = "Output will appear here...\n";
         });
-    });
 
+        // Helper to run commands
+        function runCommand(args, label) {
+            output.textContent = "Running: " + label + "\nCommand: " + args.join(" ") + "\n\n";
+
+            cockpit.spawn(args, { superuser: "require", err: "out" })
+                .stream(function (data) {
+                    output.textContent += data;
+                    output.scrollTop = output.scrollHeight;
+                })
+                .then(function () {
+                    output.textContent += "\n[SUCCESS] Command completed.\n";
+                    output.scrollTop = output.scrollHeight;
+                })
+                .catch(function (error) {
+                    output.textContent += "\n[ERROR] " + error + "\n";
+                    output.scrollTop = output.scrollHeight;
+                });
+        }
+
+        // Button 1: Dry-run
+        document.getElementById("btn-dry-run").addEventListener("click", function () {
+            runCommand(["/usr/local/sbin/configure_ufw_from_csv.sh", "--dry-run"], "Dry-run firewall update");
+        });
+
+        // Button 2: Compare
+        document.getElementById("btn-compare").addEventListener("click", function () {
+            runCommand(["/usr/local/sbin/configure_ufw_from_csv.sh", "--compare"], "Compare firewall rules");
+        });
+
+        // Button 3: Show rules
+        document.getElementById("btn-show-rules").addEventListener("click", function () {
+            runCommand(["/usr/local/sbin/configure_ufw_from_csv.sh", "--show-rules"], "Show current UFW rules");
+        });
+
+        // Button 4: Edit CSV (simple file editor)
+        document.getElementById("btn-edit-csv").addEventListener("click", function () {
+            const csvPath = "/home/mhubbard/test/Haas_Data_collect/users.csv";
+            output.textContent = "Loading " + csvPath + "...\n";
+
+            cockpit.file(csvPath, { superuser: "require" })
+                .read()
+                .then(function (content) {
+                    const textarea = document.createElement("textarea");
+                    textarea.id = "csv-editor";
+                    textarea.style.width = "100%";
+                    textarea.style.height = "400px";
+                    textarea.style.fontFamily = "monospace";
+                    textarea.value = content;
+
+                    const saveBtn = document.createElement("button");
+                    saveBtn.textContent = "Save Changes";
+                    saveBtn.className = "btn";
+                    saveBtn.style.marginTop = "10px";
+
+                    const cancelBtn = document.createElement("button");
+                    cancelBtn.textContent = "Cancel";
+                    cancelBtn.className = "btn";
+                    cancelBtn.style.marginLeft = "10px";
+
+                    output.innerHTML = "";
+                    output.appendChild(textarea);
+                    output.appendChild(document.createElement("br"));
+                    output.appendChild(saveBtn);
+                    output.appendChild(cancelBtn);
+
+                    saveBtn.addEventListener("click", function () {
+                        const newContent = textarea.value;
+                        cockpit.file(csvPath, { superuser: "require" })
+                            .replace(newContent)
+                            .then(function () {
+                                output.textContent = "File saved successfully!\n";
+                            })
+                            .catch(function (error) {
+                                output.textContent = "Error saving file: " + error + "\n";
+                            });
+                    });
+
+                    cancelBtn.addEventListener("click", function () {
+                        output.textContent = "Edit cancelled.\n";
+                    });
+                })
+                .catch(function (error) {
+                    output.textContent = "Error reading file: " + error + "\n";
+                });
+        });
+
+        // Button 5: Rollback
+        document.getElementById("btn-rollback").addEventListener("click", function () {
+            const backupName = backupInput.value.trim();
+            if (!backupName) {
+                output.textContent = "Please enter a backup filename.\n";
+                return;
+            }
+            runCommand(["/usr/local/sbin/rollback_csv.sh", backupName], "Rollback from " + backupName);
+        });
+
+        console.log("All buttons initialized successfully");
+    });
 })();
