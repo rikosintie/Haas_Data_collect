@@ -1,19 +1,13 @@
 {
     "version": 2,
-    "name": "haas_firewall",
+    "name": "haas-firewall",
     "label": "Haas Firewall",
     "icon": "icon.png",
     "requires": {
         "cockpit": "*"
     },
     "translation": false,
-    "files": [
-        "index",
-        "index.html",
-        "index.js",
-        "haas-firewall.js",
-        "icon.png"
-    ],
+    "entry": "index",
     "menu": {
         "index": {
             "label": "Firewall Control",
