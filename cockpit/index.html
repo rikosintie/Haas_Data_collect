@@ -1,4 +1,3 @@
-html
 <!DOCTYPE html>
 <html>
 
@@ -6,12 +5,8 @@ html
     <meta charset="utf-8">
     <title>Haas Firewall Control</title>
 
-    <!-- Cockpit core JS API (auto‑resolved by Cockpit router) -->
-    <script src="cockpit.js"></script>
-
-    <!-- Cockpit base styles (auto‑resolved by Cockpit router) -->
-    <link rel="stylesheet"
-        href="cockpit.css">
+    <!-- Cockpit Logic -->
+    <script src="../base1/cockpit.js"></script>
 
     <!-- Extension stylesheet -->
     <link rel="stylesheet"
@@ -74,8 +69,11 @@ Output will appear here...
         </pre>
     </div>
 
+
+
     <!-- Extension logic (load last so DOM exists) -->
     <script src="haas-firewall.js"></script>
+
 </body>
 
 </html>
