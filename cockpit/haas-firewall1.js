@@ -1,78 +1,270 @@
+
 (function () {
-    "use strict";
+    const cockpit = window.cockpit;
 
-    window.haas_firewall_loaded = true;
-    console.log("haas-firewall.js LOADED");
-    console.log("JS loaded, entering haasReady()");
+    document.addEventListener("DOMContentLoaded", function () {
+        console.log("Page loaded, initializing...");
 
-    function haasReady(callback) {
-        console.log("haasReady() firing immediately");
-        callback(window.cockpit);
-    }
-
-    function bindUI(cockpit) {
-        console.log("bindUI() running");
-
-        const out = document.getElementById("output");
+        const output = document.getElementById("output");
         const backupInput = document.getElementById("backup-name");
+        const statusIndicator = document.getElementById("status-indicator");
+        const statusText = document.getElementById("status-text");
+        const statusDetail = document.getElementById("status-detail");
+        const activeRules = document.getElementById("active-rules");
 
-        function appendOutput(text) {
-            if (!out) return;
+        // Function to update firewall status
+        function updateFirewallStatus() {
+            // Check if UFW is active
+            cockpit.spawn(["ufw", "status"], { superuser: "require", err: "out" })
+                .then(function (output) {
+                    const isActive = output.toLowerCase().includes("status: active");
 
-            let cls = "info";
-            if (text.includes("[ERROR]")) cls = "error";
-            if (text.includes("[INFO] Command completed")) cls = "success";
+                    if (isActive) {
+                        statusIndicator.style.backgroundColor = "#5cb85c"; // Green
+                        statusText.textContent = "Firewall: ENABLED";
+                        statusDetail.textContent = "Protection active";
+                    } else {
+                        statusIndicator.style.backgroundColor = "#d9534f"; // Red
+                        statusText.textContent = "Firewall: DISABLED";
+                        statusDetail.textContent = "Warning: No protection";
+                    }
 
-            const now = new Date().toISOString();
-            const line = `<span class="${cls}">[${now}] ${text}</span>\n`;
+                    // Get numbered rules
+                    cockpit.spawn(["ufw", "status", "numbered"], { superuser: "require", err: "out" })
+                        .then(function (rulesOutput) {
+                            // Extract only the numbered rules (lines with [ ])
+                            const lines = rulesOutput.split('\n');
+                            const ruleLines = lines.filter(line => line.includes('['));
 
-            out.innerHTML += line;
-            out.scrollTop = out.scrollHeight;
+                            if (ruleLines.length > 0) {
+                                // Format the output with proper spacing
+                                let formattedRules = "To                         Action      From\n";
+                                formattedRules += "--                         ------      ----\n";
+                                formattedRules += ruleLines.join('\n');
+                                activeRules.textContent = formattedRules;
+                            } else {
+                                activeRules.textContent = "No rules configured.";
+                            }
+                        })
+                        .catch(function (error) {
+                            activeRules.textContent = "Error loading rules: " + error;
+                        });
+                })
+                .catch(function (error) {
+                    statusIndicator.style.backgroundColor = "#999"; // Gray
+                    statusText.textContent = "Status: UNKNOWN";
+                    statusDetail.textContent = "Error checking status: " + error;
+                    activeRules.textContent = "Unable to retrieve rules.";
+                });
         }
 
-        function setOutput(text) {
-            if (!out) return;
-            out.textContent = text;
+        // Update status immediately and then every 2 seconds
+        updateFirewallStatus();
+        setInterval(updateFirewallStatus, 2000);
+
+        // Clear output
+        document.getElementById("btn-clear").addEventListener("click", function () {
+            output.textContent = "Output will appear here...\n";
+        });
+
+        // Helper to run commands
+        function runCommand(args, label) {
+            output.textContent = "Running: " + label + "\nCommand: " + args.join(" ") + "\n\n";
+
+            cockpit.spawn(args, { superuser: "require", err: "out" })
+                .stream(function (data) {
+                    output.textContent += data;
+                    output.scrollTop = output.scrollHeight;
+                })
+                .then(function () {
+                    output.textContent += "\n[SUCCESS] Command completed.\n";
+                    output.scrollTop = output.scrollHeight;
+                })
+                .catch(function (error) {
+                    output.textContent += "\n[ERROR] " + error + "\n";
+                    output.scrollTop = output.scrollHeight;
+                });
         }
 
-        function runCommand(label, cmd, args) {
-            setOutput(`Running: ${label}\nCommand: ${cmd} ${args.join(" ")}\n\n`);
-
-            const proc = cockpit.spawn([cmd].concat(args), {
-                superuser: "require",
-                err: "out"
-            });
-
-            proc.stream(data => appendOutput(data));
-            proc.done(() => appendOutput("\n[INFO] Command completed successfully."));
-            proc.fail(ex => appendOutput(`\n[ERROR] Command failed: ${ex}`));
-        }
-
-        document.getElementById("btn-dry-run")?.addEventListener("click", () => {
-            runCommand("Dry-run firewall update", "/usr/local/sbin/configure_ufw_from_csv.sh", ["--dry-run"]);
+        // Button 1: Dry-run
+        document.getElementById("btn-dry-run").addEventListener("click", function () {
+            runCommand(["/usr/local/sbin/configure_ufw_from_csv.sh", "--dry-run"], "Dry-run firewall update");
         });
 
-        document.getElementById("btn-compare")?.addEventListener("click", () => {
-            runCommand("Compare firewall rules", "/usr/local/sbin/configure_ufw_from_csv.sh", ["--compare"]);
+        // Button 2: Compare
+        document.getElementById("btn-compare").addEventListener("click", function () {
+            runCommand(["/usr/local/sbin/configure_ufw_from_csv.sh", "--compare"], "Compare firewall rules");
         });
 
-        document.getElementById("btn-show-rules")?.addEventListener("click", () => {
-            runCommand("Show current UFW rules", "/usr/local/sbin/configure_ufw_from_csv.sh", ["--show-rules"]);
+        // Button 3: Show rules
+        document.getElementById("btn-show-rules").addEventListener("click", function () {
+            runCommand(["/usr/local/sbin/configure_ufw_from_csv.sh", "--show-rules"], "Show current UFW rules");
         });
 
-        document.getElementById("btn-rollback")?.addEventListener("click", () => {
-            const backupName = backupInput?.value.trim();
-            if (!backupName) {
-                setOutput("Please enter a backup filename before running rollback.");
+        // Button 4: Reset firewall
+        document.getElementById("btn-reset").addEventListener("click", function () {
+            if (!confirm("This will reset ALL firewall rules! Are you sure?")) {
                 return;
             }
-            runCommand(`Rollback from ${backupName}`, "/usr/local/sbin/rollback_csv.sh", [backupName]);
+            output.textContent = "Resetting firewall...\n";
+
+            cockpit.spawn(["/bin/bash", "-c", "echo 'y' | ufw reset"], { superuser: "require", err: "out" })
+                .stream(function (data) {
+                    output.textContent += data;
+                    output.scrollTop = output.scrollHeight;
+                })
+                .then(function () {
+                    output.textContent += "\n[SUCCESS] Firewall reset completed.\n";
+                    output.scrollTop = output.scrollHeight;
+                })
+                .catch(function (error) {
+                    output.textContent += "\n[ERROR] " + error + "\n";
+                    output.scrollTop = output.scrollHeight;
+                });
         });
-    }
 
-    document.addEventListener("DOMContentLoaded", () => {
-        console.log("DOMContentLoaded fired");
-        haasReady(bindUI);
+        // Button 5: Apply firewall changes
+        document.getElementById("btn-apply").addEventListener("click", function () {
+            const autoReset = document.getElementById("auto-reset").checked;
+            const useCustom = document.getElementById("use-custom-csv").checked;
+            const customPath = document.getElementById("custom-csv-path").value.trim();
+
+            if (useCustom && !customPath) {
+                output.textContent = "Please enter a custom CSV file path or uncheck the option.\n";
+                return;
+            }
+
+            if (!confirm("This will apply firewall changes. Continue?")) {
+                return;
+            }
+
+            // Determine which file to check and which command to run
+            let configCommand;
+            let fileToCheck;
+
+            if (useCustom) {
+                configCommand = ["/usr/local/sbin/configure_ufw_from_csv.sh", customPath];
+                fileToCheck = customPath;
+            } else {
+                configCommand = ["/usr/local/sbin/configure_ufw_from_csv.sh"];
+                fileToCheck = "/home/mhubbard/test/Haas_Data_collect/users.csv";
+            }
+
+            // CRITICAL: Check if CSV file exists BEFORE resetting firewall
+            output.textContent = "Validating CSV file path...\n";
+
+            cockpit.spawn(["test", "-f", fileToCheck], { err: "out" })
+                .then(function () {
+                    // File exists - safe to proceed
+                    output.textContent += "[OK] CSV file found: " + fileToCheck + "\n\n";
+
+                    if (autoReset) {
+                        // Step 1: Reset firewall
+                        output.textContent += "Step 1: Resetting firewall...\n";
+                        cockpit.spawn(["/bin/bash", "-c", "echo 'y' | ufw reset"], { superuser: "require", err: "out" })
+                            .stream(function (data) {
+                                output.textContent += data;
+                                output.scrollTop = output.scrollHeight;
+                            })
+                            .then(function () {
+                                output.textContent += "\n[SUCCESS] Firewall reset completed.\n";
+                                output.textContent += "\nStep 2: Applying new rules from " + fileToCheck + "...\n";
+                                output.scrollTop = output.scrollHeight;
+
+                                // Step 2: Apply new rules
+                                cockpit.spawn(configCommand, { superuser: "require", err: "out" })
+                                    .stream(function (data) {
+                                        output.textContent += data;
+                                        output.scrollTop = output.scrollHeight;
+                                    })
+                                    .then(function () {
+                                        output.textContent += "\n[SUCCESS] Firewall configuration completed.\n";
+                                        output.scrollTop = output.scrollHeight;
+                                    })
+                                    .catch(function (error) {
+                                        output.textContent += "\n[ERROR] Failed to apply rules: " + error + "\n";
+                                        output.scrollTop = output.scrollHeight;
+                                    });
+                            })
+                            .catch(function (error) {
+                                output.textContent += "\n[ERROR] Reset failed: " + error + "\n";
+                                output.scrollTop = output.scrollHeight;
+                            });
+                    } else {
+                        // Just apply without reset
+                        runCommand(configCommand, "Apply firewall changes from " + fileToCheck);
+                    }
+                })
+                .catch(function () {
+                    // File does NOT exist - abort before touching firewall
+                    output.textContent += "\n[ERROR] CSV file not found: " + fileToCheck + "\n";
+                    output.textContent += "\nPlease verify the file path and try again.\n";
+                    output.textContent += "Firewall was NOT modified.\n";
+                    output.scrollTop = output.scrollHeight;
+                });
+        });
+
+        // Button 6: Edit CSV
+        document.getElementById("btn-edit-csv").addEventListener("click", function () {
+            const csvPath = "/home/mhubbard/test/Haas_Data_collect/users.csv";
+            output.textContent = "Loading " + csvPath + "...\n";
+
+            cockpit.file(csvPath, { superuser: "require" })
+                .read()
+                .then(function (content) {
+                    const textarea = document.createElement("textarea");
+                    textarea.id = "csv-editor";
+                    textarea.className = "csv-editor";
+                    textarea.value = content;
+
+                    const saveBtn = document.createElement("button");
+                    saveBtn.textContent = "Save Changes";
+                    saveBtn.className = "btn";
+
+                    const cancelBtn = document.createElement("button");
+                    cancelBtn.textContent = "Cancel";
+                    cancelBtn.className = "btn";
+
+                    const btnContainer = document.createElement("div");
+                    btnContainer.className = "button-row";
+                    btnContainer.appendChild(saveBtn);
+                    btnContainer.appendChild(cancelBtn);
+
+                    output.innerHTML = "";
+                    output.appendChild(textarea);
+                    output.appendChild(btnContainer);
+
+                    saveBtn.addEventListener("click", function () {
+                        const newContent = textarea.value;
+                        cockpit.file(csvPath, { superuser: "require" })
+                            .replace(newContent)
+                            .then(function () {
+                                output.textContent = "File saved successfully!\n";
+                            })
+                            .catch(function (error) {
+                                output.textContent = "Error saving file: " + error + "\n";
+                            });
+                    });
+
+                    cancelBtn.addEventListener("click", function () {
+                        output.textContent = "Edit cancelled.\n";
+                    });
+                })
+                .catch(function (error) {
+                    output.textContent = "Error reading file: " + error + "\n";
+                });
+        });
+
+        // Button 7: Rollback
+        document.getElementById("btn-rollback").addEventListener("click", function () {
+            const backupName = backupInput.value.trim();
+            if (!backupName) {
+                output.textContent = "Please enter a backup filename.\n";
+                return;
+            }
+            runCommand(["/usr/local/sbin/rollback_csv.sh", backupName], "Rollback from " + backupName);
+        });
+
+        console.log("All buttons initialized successfully");
     });
-
 })();
