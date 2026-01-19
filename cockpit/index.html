@@ -17,6 +17,27 @@
     <p>
         Use this page to simulate firewall changes, compare rules, edit the CSV, and rollback CSV backups.
     </p>
+
+    <!-- Firewall Status Dashboard -->
+    <div class="section status-dashboard">
+        <h2>Firewall Status</h2>
+        <div class="status-row">
+            <div id="status-indicator"
+                class="status-indicator"></div>
+            <div>
+                <strong id="status-text"
+                    class="status-text">Checking status...</strong>
+                <div id="status-detail"
+                    class="status-detail"></div>
+            </div>
+        </div>
+        <div>
+            <h3 class="rules-heading">Active Firewall Rules</h3>
+            <pre id="active-rules"
+                class="active-rules">Loading rules...</pre>
+        </div>
+    </div>
+
     <div class="section">
         <h2>Simulate / Compare</h2>
         <p>These operations do not make persistent changes to the firewall.</p>
@@ -44,7 +65,7 @@
             </label>
         </div>
 
-        <div style="margin-bottom: 10px;">
+        <div>
             <label>
                 <input type="checkbox"
                     id="use-custom-csv">
@@ -52,21 +73,19 @@
             </label>
         </div>
 
-        <div style="margin-bottom: 10px;">
+        <div>
             <label for="custom-csv-path">Custom CSV path (use full path, e.g. /home/username/file.csv):</label>
             <input type="text"
                 id="custom-csv-path"
-                placeholder="/home/username/path/to/custom.csv"
-                style="width: 100%; max-width: 500px;">
+                class="wide"
+                placeholder="/home/username/path/to/custom.csv">
         </div>
 
         <div class="button-row">
             <button id="btn-reset"
-                class="btn"
-                style="background-color: #f0ad4e; color: white;">Reset Firewall Only</button>
+                class="btn btn-warning">Reset Firewall Only</button>
             <button id="btn-apply"
-                class="btn"
-                style="background-color: #d9534f; color: white;">Apply Firewall Changes</button>
+                class="btn btn-danger">Apply Firewall Changes</button>
         </div>
     </div>
 
