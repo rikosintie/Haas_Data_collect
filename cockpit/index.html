@@ -4,7 +4,6 @@
 <head>
     <meta charset="utf-8">
     <title>Haas Firewall Control</title>
-
     <!-- Cockpit Logic -->
     <script src="../base1/cockpit.js"></script>
 
@@ -18,11 +17,9 @@
     <p>
         Use this page to simulate firewall changes, compare rules, edit the CSV, and rollback CSV backups.
     </p>
-
     <div class="section">
         <h2>Simulate / Compare</h2>
         <p>These operations do not make persistent changes to the firewall.</p>
-
         <div class="button-row">
             <button id="btn-dry-run"
                 class="btn">Simulate Firewall Update (Dry-Run)</button>
@@ -36,17 +33,53 @@
     </div>
 
     <div class="section">
+        <h2>Apply Firewall Changes</h2>
+        <p><strong>Warning:</strong> This will make persistent changes to your firewall!</p>
+
+        <div style="margin-bottom: 10px;">
+            <label>
+                <input type="checkbox"
+                    id="auto-reset">
+                Automatically reset firewall before applying (recommended)
+            </label>
+        </div>
+
+        <div style="margin-bottom: 10px;">
+            <label>
+                <input type="checkbox"
+                    id="use-custom-csv">
+                Use custom CSV file
+            </label>
+        </div>
+
+        <div style="margin-bottom: 10px;">
+            <label for="custom-csv-path">Custom CSV path (use full path, e.g. /home/username/file.csv):</label>
+            <input type="text"
+                id="custom-csv-path"
+                placeholder="/home/username/path/to/custom.csv"
+                style="width: 100%; max-width: 500px;">
+        </div>
+
+        <div class="button-row">
+            <button id="btn-reset"
+                class="btn"
+                style="background-color: #f0ad4e; color: white;">Reset Firewall Only</button>
+            <button id="btn-apply"
+                class="btn"
+                style="background-color: #d9534f; color: white;">Apply Firewall Changes</button>
+        </div>
+    </div>
+
+    <div class="section">
         <h2>Rollback CSV Backup</h2>
         <p>
             Restore a previous CSV backup from:
             <code>BACKUP_DIR</code> as defined in <code>/etc/haas-firewall.conf</code>.
         </p>
-
         <label for="backup-name">Backup filename (e.g. users_2025-01-13_12-00-00.csv)</label>
         <input type="text"
             id="backup-name"
             placeholder="Enter backup filename">
-
         <div class="button-row mt-1">
             <button id="btn-rollback"
                 class="btn">Rollback CSV</button>
@@ -55,25 +88,18 @@
 
     <div class="section">
         <h2>Output</h2>
-
         <div class="output-controls">
             <button id="btn-clear"
                 class="btn small">Clear Output</button>
             <div id="spinner"
                 class="spinner hidden"></div>
         </div>
-
         <pre id="output"
-            class="output-box">
-Output will appear here...
+            class="output-box">Output will appear here...
         </pre>
     </div>
-
-
-
     <!-- Extension logic (load last so DOM exists) -->
     <script src="haas-firewall.js"></script>
-
 </body>
 
 </html>
