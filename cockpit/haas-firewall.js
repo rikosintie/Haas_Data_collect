@@ -46,7 +46,110 @@
             runCommand(["/usr/local/sbin/configure_ufw_from_csv.sh", "--show-rules"], "Show current UFW rules");
         });
 
-        // Button 4: Edit CSV (simple file editor)
+        // Button 4: Reset firewall
+        document.getElementById("btn-reset").addEventListener("click", function () {
+            if (!confirm("This will reset ALL firewall rules! Are you sure?")) {
+                return;
+            }
+            output.textContent = "Resetting firewall...\n";
+
+            cockpit.spawn(["/bin/bash", "-c", "echo 'y' | ufw reset"], { superuser: "require", err: "out" })
+                .stream(function (data) {
+                    output.textContent += data;
+                    output.scrollTop = output.scrollHeight;
+                })
+                .then(function () {
+                    output.textContent += "\n[SUCCESS] Firewall reset completed.\n";
+                    output.scrollTop = output.scrollHeight;
+                })
+                .catch(function (error) {
+                    output.textContent += "\n[ERROR] " + error + "\n";
+                    output.scrollTop = output.scrollHeight;
+                });
+        });
+
+        // Button 5: Apply firewall changes
+        document.getElementById("btn-apply").addEventListener("click", function () {
+            const autoReset = document.getElementById("auto-reset").checked;
+            const useCustom = document.getElementById("use-custom-csv").checked;
+            const customPath = document.getElementById("custom-csv-path").value.trim();
+
+            if (useCustom && !customPath) {
+                output.textContent = "Please enter a custom CSV file path or uncheck the option.\n";
+                return;
+            }
+
+            if (!confirm("This will apply firewall changes. Continue?")) {
+                return;
+            }
+
+            // Determine which file to check and which command to run
+            let configCommand;
+            let fileToCheck;
+
+            if (useCustom) {
+                configCommand = ["/usr/local/sbin/configure_ufw_from_csv.sh", customPath];
+                fileToCheck = customPath;
+            } else {
+                configCommand = ["/usr/local/sbin/configure_ufw_from_csv.sh"];
+                fileToCheck = "/home/mhubbard/test/Haas_Data_collect/users.csv";
+            }
+
+            // CRITICAL: Check if CSV file exists BEFORE resetting firewall
+            output.textContent = "Validating CSV file path...\n";
+
+            cockpit.spawn(["test", "-f", fileToCheck], { err: "out" })
+                .then(function () {
+                    // File exists - safe to proceed
+                    output.textContent += "[OK] CSV file found: " + fileToCheck + "\n\n";
+
+                    if (autoReset) {
+                        // Step 1: Reset firewall
+                        output.textContent += "Step 1: Resetting firewall...\n";
+                        cockpit.spawn(["/bin/bash", "-c", "echo 'y' | ufw reset"], { superuser: "require", err: "out" })
+                            .stream(function (data) {
+                                output.textContent += data;
+                                output.scrollTop = output.scrollHeight;
+                            })
+                            .then(function () {
+                                output.textContent += "\n[SUCCESS] Firewall reset completed.\n";
+                                output.textContent += "\nStep 2: Applying new rules from " + fileToCheck + "...\n";
+                                output.scrollTop = output.scrollHeight;
+
+                                // Step 2: Apply new rules
+                                cockpit.spawn(configCommand, { superuser: "require", err: "out" })
+                                    .stream(function (data) {
+                                        output.textContent += data;
+                                        output.scrollTop = output.scrollHeight;
+                                    })
+                                    .then(function () {
+                                        output.textContent += "\n[SUCCESS] Firewall configuration completed.\n";
+                                        output.scrollTop = output.scrollHeight;
+                                    })
+                                    .catch(function (error) {
+                                        output.textContent += "\n[ERROR] Failed to apply rules: " + error + "\n";
+                                        output.scrollTop = output.scrollHeight;
+                                    });
+                            })
+                            .catch(function (error) {
+                                output.textContent += "\n[ERROR] Reset failed: " + error + "\n";
+                                output.scrollTop = output.scrollHeight;
+                            });
+                    } else {
+                        // Just apply without reset
+                        runCommand(configCommand, "Apply firewall changes from " + fileToCheck);
+                    }
+                })
+                .catch(function () {
+                    // File does NOT exist - abort before touching firewall
+                    output.textContent += "\n[ERROR] CSV file not found: " + fileToCheck + "\n";
+                    output.textContent += "\nPlease verify the file path and try again.\n";
+                    output.textContent += "Firewall was NOT modified.\n";
+                    output.scrollTop = output.scrollHeight;
+                });
+        });
+
+        // Button 6: Edit CSV
         document.getElementById("btn-edit-csv").addEventListener("click", function () {
             const csvPath = "/home/mhubbard/test/Haas_Data_collect/users.csv";
             output.textContent = "Loading " + csvPath + "...\n";
@@ -98,7 +201,7 @@
                 });
         });
 
-        // Button 5: Rollback
+        // Button 7: Rollback
         document.getElementById("btn-rollback").addEventListener("click", function () {
             const backupName = backupInput.value.trim();
             if (!backupName) {
