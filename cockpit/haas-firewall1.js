@@ -11,6 +11,21 @@
         const statusText = document.getElementById("status-text");
         const statusDetail = document.getElementById("status-detail");
         const activeRules = document.getElementById("active-rules");
+        const userName = document.getElementById("user-name");
+        const userId = document.getElementById("user-id");
+        const userGid = document.getElementById("user-gid");
+        const userGroups = document.getElementById("user-groups");
+
+        // Get user information
+        cockpit.user().then(function (user) {
+            userName.textContent = user.name || "Unknown";
+            userId.textContent = user.id || "-";
+            userGid.textContent = user.gid || "-";
+            userGroups.textContent = user.groups ? user.groups.join(", ") : "-";
+        }).catch(function (error) {
+            console.error("Error getting user info:", error);
+            userName.textContent = "Error loading user info";
+        });
 
         // Function to update firewall status
         function updateFirewallStatus() {
