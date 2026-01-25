@@ -17,6 +17,12 @@
         const userShell = document.getElementById("user-shell");
         const fwToggle = document.getElementById("fw-toggle");
         
+        if (!fwToggle) {
+            console.error("fw-toggle button not found!");
+        } else {
+            console.log("fw-toggle button found:", fwToggle);
+        }
+        
         // Get user information
         cockpit.user().then(function(user) {
             userName.textContent = user.name || "Unknown";
@@ -49,15 +55,19 @@
                 // Green is around rgb(92, 185, 92) - allow small variance
                 if (r > 80 && r < 100 && g > 175 && g < 195 && b > 80 && b < 100) {
                     // Firewall is enabled
-                    fwToggle.textContent = "Disable Firewall";
-                    fwToggle.className = "btn btn-toggle btn-warning";
-                    console.log("Button set to: Disable Firewall");
+                    fwToggle.textContent = "Disable Firewall (for testing)";
+                    fwToggle.className = "btn btn-toggle";
+                    fwToggle.style.backgroundColor = "#5cb85c";
+                    fwToggle.style.color = "white";
+                    console.log("Button set to: Disable Firewall (for testing)");
                 }
                 // Red is around rgb(217, 83, 79) 
                 else if (r > 200 && r < 230 && g > 70 && g < 100 && b > 70 && b < 100) {
                     // Firewall is disabled
                     fwToggle.textContent = "Enable Firewall";
-                    fwToggle.className = "btn btn-toggle btn-danger";
+                    fwToggle.className = "btn btn-toggle";
+                    fwToggle.style.backgroundColor = "#d9534f";
+                    fwToggle.style.color = "white";
                     console.log("Button set to: Enable Firewall");
                 }
                 // Gray is around rgb(153, 153, 153)
@@ -85,7 +95,7 @@
             
             // Green - firewall is enabled
             if (r > 80 && r < 100 && g > 175 && g < 195 && b > 80 && b < 100) {
-                if (!confirm("WARNING: Disabling the firewall will remove ALL rules including Cockpit access!\n\nYou will be disconnected!\n\nAre you absolutely sure?")) {
+                if (!confirm("WARNING: Disabling the firewall will remove ALL rules!\n\nThe appliance will be vulnerable to attack!\n\nAre you absolutely sure?")) {
                     return;
                 }
                 cockpit.spawn(["ufw", "--force", "disable"], { superuser: "require", err: "out" })
@@ -99,7 +109,7 @@
             }
             // Red - firewall is disabled
             else if (r > 200 && r < 230 && g > 70 && g < 100 && b > 70 && b < 100) {
-                if (!confirm("Enable the firewall?")) {
+                if (!confirm("Enable the firewall?\n\nYou will be disconnected if your current IP address isn't in the rules")) {
                     return;
                 }
                 cockpit.spawn(["ufw", "--force", "enable"], { superuser: "require", err: "out" })
@@ -121,18 +131,18 @@
                 .then(function(output) {
                     const isActive = output.toLowerCase().includes("status: active");
                     
-                if (isActive) {
-                    statusIndicator.style.backgroundColor = "#5cb85c";
-                    statusText.textContent = "Firewall: ENABLED";
-                    statusDetail.textContent = "Protection active";
-                } else {
-                    statusIndicator.style.backgroundColor = "#d9534f";
-                    statusText.textContent = "Firewall: DISABLED";
-                    statusDetail.textContent = "Warning: No protection";
-                }
-                
-                // Update toggle button text
-                setTimeout(updateToggleButton, 100);
+                    if (isActive) {
+                        statusIndicator.style.backgroundColor = "#5cb85c";
+                        statusText.textContent = "Firewall: ENABLED";
+                        statusDetail.textContent = "Protection active";
+                    } else {
+                        statusIndicator.style.backgroundColor = "#d9534f";
+                        statusText.textContent = "Firewall: DISABLED";
+                        statusDetail.textContent = "Warning: No protection";
+                    }
+                    
+                    // Update toggle button text
+                    setTimeout(updateToggleButton, 100);
                     
                     // Get numbered rules
                     return cockpit.spawn(["ufw", "status", "numbered"], { superuser: "require", err: "out" });
