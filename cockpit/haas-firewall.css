@@ -225,7 +225,7 @@ input[type="checkbox"] {
 /* CSV Editor */
 .csv-editor {
     width: 100%;
-    height: 400px;
+    height: 300px;
     font-family: monospace;
     padding: 10px;
     border: 1px solid #ccc;
