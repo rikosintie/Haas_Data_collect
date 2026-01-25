@@ -1,100 +1,89 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="utf-8">
     <title>Haas Firewall Control</title>
     <!-- Cockpit Logic -->
     <script src="../base1/cockpit.js"></script>
-
-    <!-- Extension stylesheet -->
-    <link rel="stylesheet"
-        href="haas-firewall.css">
+ 
+   <!-- Extension stylesheet -->
+    <link rel="stylesheet" href="haas-firewall.css">
 </head>
-
 <body>
     <h1>Haas Firewall Control</h1>
     <p>
         Use this page to simulate firewall changes, compare rules, edit the CSV, and rollback CSV backups.
     </p>
-
+    
     <!-- Firewall Status Dashboard -->
     <div class="section status-dashboard">
         <h2>Firewall Status</h2>
         <div class="status-row">
-            <div id="status-indicator"
-                class="status-indicator"></div>
+            <div id="status-indicator" class="status-indicator"></div>
             <div>
-                <strong id="status-text"
-                    class="status-text">Checking status...</strong>
-                <div id="status-detail"
-                    class="status-detail"></div>
+                <strong id="status-text" class="status-text">Checking status...</strong>
+                <div id="status-detail" class="status-detail"></div>
             </div>
-            <div class="user-info">
-                <div><strong>Username:</strong> <span id="user-name">Loading...</span></div>
-                <div><strong>User ID:</strong> <span id="user-id">-</span></div>
-                <div><strong>Group ID:</strong> <span id="user-gid">-</span></div>
-                <div><strong>Groups:</strong> <span id="user-groups">-</span></div>
+            <div class="user-info-container">
+                <button id="fw-toggle" class="btn btn-toggle">Checking...</button>
+                <div class="user-info">
+                    <div><strong>Username:</strong> <span id="user-name">Loading...</span></div>
+                    <div><strong>User ID:</strong> <span id="user-id">-</span></div>
+                    <div><strong>Group ID:</strong> <span id="user-gid">-</span></div>
+                    <div><strong>Groups:</strong> <span id="user-groups">-</span></div>
+                    <div><strong>Shell:</strong> <span id="user-shell">-</span></div>
+                </div>
             </div>
         </div>
         <div>
             <h3 class="rules-heading">Active Firewall Rules</h3>
-            <pre id="active-rules"
-                class="active-rules">Loading rules...</pre>
+            <pre id="active-rules" class="active-rules">Loading rules...</pre>
         </div>
     </div>
-
+    
     <div class="section">
         <h2>Simulate / Compare</h2>
         <p>These operations do not make persistent changes to the firewall.</p>
         <div class="button-row">
-            <button id="btn-dry-run"
-                class="btn">Simulate Firewall Update (Dry-Run)</button>
-            <button id="btn-compare"
-                class="btn">Compare Current vs Planned Rules</button>
-            <button id="btn-show-rules"
-                class="btn">Show Current UFW Rules</button>
-            <button id="btn-edit-csv"
-                class="btn">Edit users.csv</button>
+            <button id="btn-dry-run" class="btn">Simulate Firewall Update (Dry-Run)</button>
+            <button id="btn-compare" class="btn">Compare Current vs Planned Rules</button>
+            <button id="btn-show-rules" class="btn">Show Current UFW Rules</button>
+            <button id="btn-edit-csv" class="btn">Edit users.csv</button>
         </div>
     </div>
-
+    
     <div class="section">
         <h2>Apply Firewall Changes</h2>
         <p><strong>Warning:</strong> This will make persistent changes to your firewall!</p>
-
-        <div style="margin-bottom: 10px;">
+        
+        <div>
             <label>
-                <input type="checkbox"
-                    id="auto-reset">
+                <input type="checkbox" id="auto-reset">
                 Automatically reset firewall before applying (recommended)
             </label>
         </div>
-
+        
         <div>
             <label>
-                <input type="checkbox"
-                    id="use-custom-csv">
+                <input type="checkbox" id="use-custom-csv">
                 Use custom CSV file
             </label>
         </div>
-
+        
         <div>
             <label for="custom-csv-path">Custom CSV path (use full path, e.g. /home/username/file.csv):</label>
-            <input type="text"
-                id="custom-csv-path"
-                class="wide"
-                placeholder="/home/username/path/to/custom.csv">
+            <input type="text" 
+                   id="custom-csv-path" 
+                   class="wide"
+                   placeholder="/home/username/path/to/custom.csv">
         </div>
-
+        
         <div class="button-row">
-            <button id="btn-reset"
-                class="btn btn-warning">Reset Firewall Only</button>
-            <button id="btn-apply"
-                class="btn btn-danger">Apply Firewall Changes</button>
+            <button id="btn-reset" class="btn btn-warning">Reset Firewall Only</button>
+            <button id="btn-apply" class="btn btn-danger">Apply Firewall Changes</button>
         </div>
     </div>
-
+    
     <div class="section">
         <h2>Rollback CSV Backup</h2>
         <p>
@@ -102,29 +91,22 @@
             <code>BACKUP_DIR</code> as defined in <code>/etc/haas-firewall.conf</code>.
         </p>
         <label for="backup-name">Backup filename (e.g. users_2025-01-13_12-00-00.csv)</label>
-        <input type="text"
-            id="backup-name"
-            placeholder="Enter backup filename">
+        <input type="text" id="backup-name" placeholder="Enter backup filename">
         <div class="button-row mt-1">
-            <button id="btn-rollback"
-                class="btn">Rollback CSV</button>
+            <button id="btn-rollback" class="btn">Rollback CSV</button>
         </div>
     </div>
-
+    
     <div class="section">
         <h2>Output</h2>
         <div class="output-controls">
-            <button id="btn-clear"
-                class="btn small">Clear Output</button>
-            <div id="spinner"
-                class="spinner hidden"></div>
+            <button id="btn-clear" class="btn small">Clear Output</button>
+            <div id="spinner" class="spinner hidden"></div>
         </div>
-        <pre id="output"
-            class="output-box">Output will appear here...
+        <pre id="output" class="output-box">Output will appear here...
         </pre>
     </div>
     <!-- Extension logic (load last so DOM exists) -->
     <script src="haas-firewall.js"></script>
 </body>
-
 </html>
