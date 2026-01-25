@@ -14,6 +14,9 @@
     <p>
         Use this page to enable/disable the firewall, simulate firewall changes, compare rules, edit the CSV file, and rollback CSV backups.
     </p>
+    <p style="background-color: #fff3cd; border: 1px solid #ffc107; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
+        <strong>⚠️ Note:</strong> Click <strong>"Administrative access"</strong> at the top of the page to enable all controls.
+    </p>
     
     <!-- Firewall Status Dashboard -->
     <div class="section status-dashboard">
@@ -50,6 +53,16 @@
             <button id="btn-show-rules" class="btn">Show Current UFW Rules</button>
             <button id="btn-edit-csv" class="btn">Edit users.csv</button>
         </div>
+    </div>
+    
+    <div class="section">
+        <h2>Output</h2>
+        <div class="output-controls">
+            <button id="btn-clear" class="btn small">Clear Output</button>
+            <div id="spinner" class="spinner hidden"></div>
+        </div>
+        <pre id="output" class="output-box">Output will appear here...
+        </pre>
     </div>
     
     <div class="section">
@@ -97,15 +110,6 @@
         </div>
     </div>
     
-    <div class="section">
-        <h2>Output</h2>
-        <div class="output-controls">
-            <button id="btn-clear" class="btn small">Clear Output</button>
-            <div id="spinner" class="spinner hidden"></div>
-        </div>
-        <pre id="output" class="output-box">Output will appear here...
-        </pre>
-    </div>
     <!-- Extension logic (load last so DOM exists) -->
     <script src="haas-firewall.js"></script>
 </body>
