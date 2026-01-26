@@ -12,7 +12,6 @@
         const activeRules = document.getElementById("active-rules");
         const userName = document.getElementById("user-name");
         const userId = document.getElementById("user-id");
-        const userGid = document.getElementById("user-gid");
         const userGroups = document.getElementById("user-groups");
         const userShell = document.getElementById("user-shell");
         const fwToggle = document.getElementById("fw-toggle");
@@ -25,9 +24,9 @@
         
         // Get user information
         cockpit.user().then(function(user) {
+            console.log("User object:", user);  // Add this line to see what's in the object
             userName.textContent = user.name || "Unknown";
             userId.textContent = user.id || "-";
-            userGid.textContent = user.gid || "-";
             userGroups.textContent = user.groups ? user.groups.join(", ") : "-";
             userShell.textContent = user.shell || "-";
         }).catch(function(error) {
@@ -339,6 +338,55 @@
                     
                     saveBtn.addEventListener("click", function() {
                         cockpit.file(csvPath, { superuser: "require" })
+                            .replace(textarea.value)
+                            .then(function() {
+                                output.textContent = "File saved successfully!\n";
+                            })
+                            .catch(function(error) {
+                                output.textContent = "Error saving file: " + error + "\n";
+                            });
+                    });
+                    
+                    cancelBtn.addEventListener("click", function() {
+                        output.textContent = "Edit cancelled.\n";
+                    });
+                })
+                .catch(function(error) {
+                    output.textContent = "Error reading file: " + error + "\n";
+                });
+        });
+        
+        // Button 6b: Edit conf file
+        document.getElementById("btn-edit-conf").addEventListener("click", function() {
+            const confPath = "/etc/haas-firewall.conf";
+            output.textContent = "Loading " + confPath + "...\n";
+            
+            cockpit.file(confPath, { superuser: "require" })
+                .read()
+                .then(function(content) {
+                    const textarea = document.createElement("textarea");
+                    textarea.className = "csv-editor";
+                    textarea.value = content;
+                    
+                    const saveBtn = document.createElement("button");
+                    saveBtn.textContent = "Save Changes";
+                    saveBtn.className = "btn";
+                    
+                    const cancelBtn = document.createElement("button");
+                    cancelBtn.textContent = "Cancel";
+                    cancelBtn.className = "btn";
+                    
+                    const btnContainer = document.createElement("div");
+                    btnContainer.className = "button-row";
+                    btnContainer.appendChild(saveBtn);
+                    btnContainer.appendChild(cancelBtn);
+                    
+                    output.innerHTML = "";
+                    output.appendChild(textarea);
+                    output.appendChild(btnContainer);
+                    
+                    saveBtn.addEventListener("click", function() {
+                        cockpit.file(confPath, { superuser: "require" })
                             .replace(textarea.value)
                             .then(function() {
                                 output.textContent = "File saved successfully!\n";

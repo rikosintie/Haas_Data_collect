@@ -15,7 +15,7 @@
         Use this page to enable/disable the firewall, simulate firewall changes, compare rules, edit the CSV file, and rollback CSV backups.
     </p>
     <p style="background-color: #fff3cd; border: 1px solid #ffc107; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
-        <strong>⚠️ Note:</strong> Click <strong>"Administrative access"</strong> at the top of the page to enable all controls.
+        <strong>⚠️ Note:</strong> Click <strong>"🔒 Limited access"</strong> at the top of the page (gear icon on mobile) to enable all controls.
     </p>
     
     <!-- Firewall Status Dashboard -->
@@ -32,7 +32,6 @@
                 <div class="user-info">
                     <div><strong>Username:</strong> <span id="user-name">Loading...</span></div>
                     <div><strong>User ID:</strong> <span id="user-id">-</span></div>
-                    <div><strong>Group ID:</strong> <span id="user-gid">-</span></div>
                     <div><strong>Groups:</strong> <span id="user-groups">-</span></div>
                     <div><strong>Shell:</strong> <span id="user-shell">-</span></div>
                 </div>
@@ -52,6 +51,7 @@
             <button id="btn-compare" class="btn">Compare Current vs Planned Rules</button>
             <button id="btn-show-rules" class="btn">Show Current UFW Rules</button>
             <button id="btn-edit-csv" class="btn">Edit users.csv</button>
+            <button id="btn-edit-conf" class="btn">Edit conf file</button>
         </div>
     </div>
     
