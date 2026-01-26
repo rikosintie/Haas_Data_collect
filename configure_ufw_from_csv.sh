@@ -40,6 +40,7 @@ CSV_PATH_DEFAULT="${SCRIPT_DIR}/users.csv"
 BACKUP_DIR_DEFAULT="${SCRIPT_DIR}/backups"
 HAAS_MACHINES_SUBNET_V4_DEFAULT=""
 HAAS_MACHINES_SUBNET_V6_DEFAULT=""
+SSH_PORT="22"
 
 # Load config if present (overrides defaults)
 if [[ -f "$CONFIG_FILE" ]]; then
@@ -186,7 +187,7 @@ build_planned_rules() {
     role_lower=$(echo "$role" | tr 'A-Z' 'a-z')
     case "$role_lower" in
       administrator)
-        echo "ADMIN  FROM $ip : 22/tcp" >> "$outfile"
+        echo "ADMIN  FROM $ip : $SSH_PORT/tcp" >> "$outfile"
         echo "ADMIN  FROM $ip : 445/tcp" >> "$outfile"
         echo "ADMIN  FROM $ip : 9090/tcp" >> "$outfile"
         ;;
@@ -257,13 +258,13 @@ apply_ufw_rules() {
 
     case "$role_lower" in
       administrator)
-        log "ADMIN: $user@$ip → 22, 445, 9090"
+        log "ADMIN: $user@$ip → $SSH_PORT, 445, 9090"
         if ! $DRY_RUN; then
-          ufw allow from "$ip" to any port 22 comment "${user}-admin-ssh"
+          ufw allow from "$ip" to any port $SSH_PORT comment "${user}-admin-ssh"
           ufw allow from "$ip" to any port 445 comment "${user}-admin-smb"
           ufw allow from "$ip" to any port 9090 comment "${user}-admin-cockpit"
         else
-          log "DRY-RUN: Would allow 22,445,9090 from $ip (admin $user)"
+          log "DRY-RUN: Would allow $SSH_PORT,445,9090 from $ip (admin $user)"
         fi
         ;;
       user)
