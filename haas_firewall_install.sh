@@ -34,9 +34,9 @@ fi
 
 echo "[*] Repo directory detected as: $REPO_DIR"
 
-CSV_PATH="$REPO_DIR/users.csv"
 BACKUP_DIR="$REPO_DIR/backups"
 COCKPIT_SRC="$REPO_DIR/cockpit"
+CSV_PATH="$REPO_DIR/users.csv"
 
 ########################################
 # VERIFY REQUIRED FILES
@@ -48,6 +48,8 @@ REQUIRED_FILES=(
   "haas-firewall.service"
   "haas-firewall.timer"
   "rollback_csv.sh"
+  build-nmap.sh
+  issues.net
 )
 
 echo "[*] Verifying required files in repo..."
@@ -70,7 +72,7 @@ if [[ ! -d "$COCKPIT_SRC" ]]; then
   exit 1
 fi
 
-for f in manifest.json index.html haas-firewall.js icon.png; do
+for f in manifest.json index.html haas-firewall.js haas-firewall.css icon.png; do
   if [[ ! -f "$COCKPIT_SRC/$f" ]]; then
     echo "[ERROR] Missing Cockpit file: $COCKPIT_SRC/$f"
     exit 1
@@ -124,9 +126,13 @@ echo "[*] Installing firewall scripts into /usr/local/sbin..."
 sudo cp "$REPO_DIR/configure_ufw_from_csv.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/validate_users_csv.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/rollback_csv.sh" /usr/local/sbin/
+sudo cp "$REPO_DIR/build-nmap.sh" /usr/local/sbin/
+sudo cp "$REPO_DIR/issue.net" /etc/issue.net
 
 sudo chmod +x /usr/local/sbin/configure_ufw_from_csv.sh
 sudo chmod +x /usr/local/sbin/validate_users_csv.sh
+sudo chmod +x /usr/local/sbin/build-nmap.sh
+
 
 if [[ ! -x /usr/local/sbin/configure_ufw_from_csv.sh ]]; then
   echo "[ERROR] Failed to install configure_ufw_from_csv.sh"
