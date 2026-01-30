@@ -127,12 +127,13 @@ sudo cp "$REPO_DIR/configure_ufw_from_csv.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/validate_users_csv.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/rollback_csv.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/build-nmap.sh" /usr/local/sbin/
+sudo cp "$REPO_DIR/csvlens" /usr/local/sbin/
 sudo cp "$REPO_DIR/issue.net" /etc/issue.net
 
 sudo chmod +x /usr/local/sbin/configure_ufw_from_csv.sh
 sudo chmod +x /usr/local/sbin/validate_users_csv.sh
 sudo chmod +x /usr/local/sbin/build-nmap.sh
-
+sudo chmod +x /usr/local/sbin/csvlens
 
 if [[ ! -x /usr/local/sbin/configure_ufw_from_csv.sh ]]; then
   echo "[ERROR] Failed to install configure_ufw_from_csv.sh"
