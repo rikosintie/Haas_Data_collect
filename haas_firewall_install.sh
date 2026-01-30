@@ -6,10 +6,17 @@
 #   - Assumes it is run from the repo root: Haas_Data_collect/
 #   - Detects the repo directory dynamically (can be anywhere)
 #   - Writes /etc/haas-firewall.conf with:
-#       CSV_PATH, BACKUP_DIR, HAAS_MACHINES_SUBNET_V4, HAAS_MACHINES_SUBNET_V6
+#       CSV_PATH, BACKUP_DIR, HAAS_MACHINES_SUBNET_V4, HAAS_MACHINES_SUBNET_V6, SSH_PORT
+#   - Copies issues.net to /etc/ (Pre-logon banner)
 #   - Installs firewall scripts into /usr/local/sbin
+#   - Copies build-nmap to /usr/local/sbin
 #   - Installs systemd service + timer
+#   - Installs Samba server and updates /etc/samba.conf
+#       sets security and creates the "[Haas]" share
 #   - Installs Cockpit extension
+#   - Installs the latest csvlens binary to /usr/local/sbin
+#   - Installs the latest nmap
+#   - Instals the "micro" cli text editor
 #   - Creates the backup directory in the repo
 #   - Triggers an initial firewall configuration via systemd
 #
@@ -162,6 +169,206 @@ sudo systemctl enable haas-firewall.service
 sudo systemctl enable --now haas-firewall.timer
 
 echo "[OK] Systemd service and timer installed and enabled."
+
+########################################
+# Install Nala
+########################################
+
+sudo apt install nala -y
+NALA_VERSION=_VERSION=$(nala --version)
+echo "[OK] Nala $NALA_VERSION installed."
+
+########################################
+# Install nmap
+########################################
+
+sudo /usr/local/sbin/build-nmap.sh
+VERSION="$(nmap --version | head -n1 | awk '{print $3}')"
+echo "nmap version $VERSION was successfully installed."
+echo ""
+
+########################################
+# Install Samba Server
+########################################
+
+# Update package lists
+sudo apt update
+
+# Install Samba
+if sudo apt install samba -y; then
+    echo "Samba installed successfully"
+
+    # Enable and start Samba services
+    sudo systemctl enable --now smbd
+
+    # Create the HaasGroup
+    sudo groupadd HaasGroup 2>/dev/null || echo "HaasGroup already exists"
+
+    # Create the haas user and add to HaasGroup
+    sudo useradd -m -G HaasGroup haas 2>/dev/null || echo "User haas already exists"
+
+    # Read users from initial_users.csv and create them
+    CSV_FILE="$REPO_DIR/initial_users.csv"
+
+    if [ -f "$CSV_FILE" ]; then
+        echo "Reading users from $CSV_FILE"
+
+        # Skip header line and read username and password columns
+        tail -n +2 "$CSV_FILE" | while IFS=',' read -r username password; do
+            # Trim whitespace
+            username=$(echo "$username" | xargs)
+            password=$(echo "$password" | xargs)
+
+            if [ -n "$username" ] && [ -n "$password" ]; then
+                echo "Creating user: $username"
+
+                # Create system user and add to HaasGroup
+                sudo useradd -m -G HaasGroup "$username" 2>/dev/null || echo "User $username already exists"
+
+                # Add user to HaasGroup (in case they existed but weren't in the group)
+                sudo usermod -aG HaasGroup "$username"
+
+                # Set Samba password non-interactively
+                echo -e "$password\n$password" | sudo smbpasswd -a "$username" -s
+
+                echo "User $username created with Samba access"
+            fi
+        done
+
+        echo ""
+        echo "========================================="
+        echo "All users from initial_users.csv have been processed"
+        echo "IMPORTANT: Delete $CSV_FILE now for security!"
+        echo "========================================="
+        echo ""
+    else
+        echo "Warning: initial_users.csv not found at $CSV_FILE"
+        echo "Skipping initial user creation"
+    fi
+
+    # Create the share directory
+    sudo mkdir -p /home/haas/Haas
+    sudo chown haas:HaasGroup /home/haas/Haas
+    sudo chmod 2775 /home/haas/Haas
+
+    # Backup original smb.conf
+    sudo cp /etc/samba/smb.conf /etc/samba/smb.conf.backup
+
+    # Create new smb.conf with security hardening
+    sudo tee /etc/samba/smb.conf > /dev/null <<EOF
+[global]
+	workgroup = WORKGROUP
+	server string = %h server (Samba, Ubuntu)
+	log file = /var/log/samba/log.%m
+	max log size = 10000
+	logging = file
+	panic action = /usr/share/samba/panic-action %d
+
+	# Authentication
+	server role = standalone server
+	obey pam restrictions = Yes
+	unix password sync = Yes
+	passwd program = /usr/bin/passwd %u
+	passwd chat = *Enter\snew\s*\spassword:* %n\n *Retype\snew\s*\spassword:* %n\n *password\supdated\ssuccessfully* .
+	pam password change = Yes
+	map to guest = Bad User
+
+	# Protocol Security - Force SMB2/SMB3 only
+	client min protocol = SMB2
+	client max protocol = SMB3
+	server min protocol = SMB2
+	server max protocol = SMB3
+
+	# Disable legacy protocols and services
+	disable netbios = Yes
+	disable spoolss = Yes
+
+	# Disable printing
+	load printers = No
+	printing = bsd
+	printcap name = /dev/null
+
+    [printers]
+	available = No
+	browseable = No
+	printable = Yes
+
+[print$]
+	available = No
+
+	# Performance
+	socket options = TCP_NODELAY IPTOS_LOWDELAY
+
+[Haas]
+    comment = Haas Directory Share
+    create mask = 0664
+    directory mask = 0775
+    force create mode = 0664
+    force directory mode = 0775
+    force user = haas
+    force group = HaasGroup
+    path = /home/haas/Haas_Data_collect
+    read only = No
+    valid users = @HaasGroup haas
+    browseable = yes
+EOF
+
+    # Test the configuration
+    if sudo testparm -s /etc/samba/smb.conf > /dev/null 2>&1; then
+        echo "Samba configuration is valid"
+    else
+        echo "Warning: Samba configuration may have issues"
+        echo "Running testparm for details:"
+        sudo testparm -s /etc/samba/smb.conf
+    fi
+
+    # Restart Samba to apply changes
+    sudo systemctl restart smbd
+
+    echo ""
+    echo "========================================="
+    echo "Samba configured with security hardening:"
+    echo "  - SMB2/SMB3 only (no SMB1)"
+    echo "  - NetBIOS disabled"
+    echo "  - Printing disabled"
+    echo "========================================="
+    echo ""
+    echo "Samba share 'Haas' configured successfully"
+    IP_ADDR=$(hostname -I | awk '{print $1}')
+    printf "Share available at: \\\\%s\\Haas\n" "$IP_ADDR"
+else
+    echo "Failed to install Samba"
+    exit 1
+fi
+echo ""
+########################################
+# Install micro text editor
+########################################
+
+sudo apt install micro -y
+echo ""
+MICRO_VERSION=$(micro --version)
+echo "[OK] micro text editor $MICRO_VERSION installed."
+echo ""
+
+########################################
+# Install Redhat Cockpit for management
+########################################
+
+# Update package lists
+sudo apt update
+
+# Install Cockpit from backports
+if sudo apt install -t noble-backports cockpit -y; then
+    echo "Cockpit installed successfully"
+
+    # Enable and start Cockpit
+    sudo systemctl enable --now cockpit.socket
+    echo "Cockpit is running on https://$(hostname -I | awk '{print $1}'):9090"
+else
+    echo "Failed to install Cockpit"
+    exit 1
+fi
 
 ########################################
 # INSTALL COCKPIT EXTENSION
