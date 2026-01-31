@@ -11,7 +11,7 @@
 #   - Installs firewall scripts into /usr/local/sbin
 #   - Copies build-nmap to /usr/local/sbin
 #   - Installs systemd service + timer
-#   - Installs Samba server and updates /etc/samba.conf
+#   - Installs Samba server and updates /etc/samba/smb.conf
 #       sets security and creates the "[Haas]" share
 #   - Installs Cockpit extension
 #   - Installs the latest csvlens binary to /usr/local/sbin
@@ -173,17 +173,18 @@ echo "[OK] Systemd service and timer installed and enabled."
 ########################################
 # Install Nala
 ########################################
-
+echo "Installing
 sudo apt install nala -y
 NALA_VERSION=_VERSION=$(nala --version)
 echo "[OK] Nala $NALA_VERSION installed."
+echo ""
 
 ########################################
 # Install nmap
 ########################################
 
 sudo /usr/local/sbin/build-nmap.sh
-VERSION="$(nmap --version | head -n1 | awk '{print $3}')"
+VERSION=$(nmap --version | head -n1 | awk '{print $3}')
 echo "nmap version $VERSION was successfully installed."
 echo ""
 
@@ -208,13 +209,13 @@ if sudo apt install samba -y; then
     sudo useradd -m -G HaasGroup haas 2>/dev/null || echo "User haas already exists"
 
     # Read users from initial_users.csv and create them
-    CSV_FILE="$REPO_DIR/initial_users.csv"
+    USER_FILE="$REPO_DIR/initial_users.csv"
 
-    if [ -f "$CSV_FILE" ]; then
-        echo "Reading users from $CSV_FILE"
+    if [ -f "$USER_FILE" ]; then
+        echo "Reading users from $USER_FILE"
 
         # Skip header line and read username and password columns
-        tail -n +2 "$CSV_FILE" | while IFS=',' read -r username password; do
+        tail -n +2 "$USER_FILE" | while IFS=',' read -r username password; do
             # Trim whitespace
             username=$(echo "$username" | xargs)
             password=$(echo "$password" | xargs)
@@ -238,11 +239,11 @@ if sudo apt install samba -y; then
         echo ""
         echo "========================================="
         echo "All users from initial_users.csv have been processed"
-        echo "IMPORTANT: Delete $CSV_FILE now for security!"
+        echo "IMPORTANT: Delete $USER_FILE now for security!"
         echo "========================================="
         echo ""
     else
-        echo "Warning: initial_users.csv not found at $CSV_FILE"
+        echo "Warning: initial_users.csv not found at $USER_FILE"
         echo "Skipping initial user creation"
     fi
 
@@ -341,6 +342,7 @@ else
     exit 1
 fi
 echo ""
+
 ########################################
 # Install micro text editor
 ########################################
