@@ -38,7 +38,6 @@ network:
       optional: true
       dhcp6: true
 
-
 Use the following to find the IPv6 address:
 
 ```bash hl_lines="1"
@@ -89,7 +88,7 @@ Idx     Met         MTU          State                Name
 Now use:
 
 ```text
-ssh user@[fe80::1234:abcd:5678:9abc%5]
+ssh user@[fe80::8aa2:9eff:fe43:4dde%5]
 ```
 
 As always, Windows uses a non-standard method for an industry standard🙁.
