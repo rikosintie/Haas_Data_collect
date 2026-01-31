@@ -322,6 +322,13 @@ To quit Python, type:
 
 `quit()`
 
+**Updating Python on Windows**
+Python doesn't get updated when you run Windows Update.
+
+- Run these commands
+  1. python -m pip list --outdated
+  1. python -m pip install --upgrade [package-name]
+
 ### Install Git on Windows
 
 If you are on Windows and don't have git installed, use
@@ -485,7 +492,7 @@ On the machine with the script running:
 
 ----------------------------------------------------------------
 
-## Appendix A - Allowed/Disallowed Characters
+## Appendix A - DPRNT Allowed/Disallowed Characters
 
 ### Allowed Characters
 
