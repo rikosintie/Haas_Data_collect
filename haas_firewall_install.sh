@@ -169,14 +169,25 @@ sudo systemctl enable haas-firewall.service
 sudo systemctl enable --now haas-firewall.timer
 
 echo "[OK] Systemd service and timer installed and enabled."
+sleep 5
 
 ########################################
 # Install Nala
 ########################################
-echo "Installing
+echo "Installing nala"
 sudo apt install nala -y
 NALA_VERSION=_VERSION=$(nala --version)
 echo "[OK] Nala $NALA_VERSION installed."
+echo ""
+sleep 5
+
+########################################
+# Install inetutils-traceroute
+########################################
+echo "installing inetutils-traceroute"
+sudo nala install inetutils-traceroute -y
+echo "[OK] inetutils-traceroute installed."
+sleep3
 echo ""
 
 ########################################
@@ -187,6 +198,7 @@ sudo /usr/local/sbin/build-nmap.sh
 VERSION=$(nmap --version | head -n1 | awk '{print $3}')
 echo "nmap version $VERSION was successfully installed."
 echo ""
+sleep 5
 
 ########################################
 # Install Samba Server
@@ -237,10 +249,10 @@ if sudo apt install samba -y; then
         done
 
         echo ""
-        echo "========================================="
+        echo =========================================
         echo "All users from initial_users.csv have been processed"
         echo "IMPORTANT: Delete $USER_FILE now for security!"
-        echo "========================================="
+        echo =========================================
         echo ""
     else
         echo "Warning: initial_users.csv not found at $USER_FILE"
@@ -248,9 +260,9 @@ if sudo apt install samba -y; then
     fi
 
     # Create the share directory
-    sudo mkdir -p /home/haas/Haas
-    sudo chown haas:HaasGroup /home/haas/Haas
-    sudo chmod 2775 /home/haas/Haas
+    sudo mkdir -p /home/haas/Haas_Data_collect
+    sudo chown haas:HaasGroup /home/haas/Haas_Data_collect
+    sudo chmod 2775 /home/haas/Haas_Data_collect
 
     # Backup original smb.conf
     sudo cp /etc/samba/smb.conf /etc/samba/smb.conf.backup
@@ -258,47 +270,47 @@ if sudo apt install samba -y; then
     # Create new smb.conf with security hardening
     sudo tee /etc/samba/smb.conf > /dev/null <<EOF
 [global]
-	workgroup = WORKGROUP
-	server string = %h server (Samba, Ubuntu)
-	log file = /var/log/samba/log.%m
-	max log size = 10000
-	logging = file
-	panic action = /usr/share/samba/panic-action %d
+    workgroup = WORKGROUP
+    server string = %h server (Samba, Ubuntu)
+    log file = /var/log/samba/log.%m
+    max log size = 10000
+    logging = file
+    panic action = /usr/share/samba/panic-action %d
 
-	# Authentication
-	server role = standalone server
-	obey pam restrictions = Yes
-	unix password sync = Yes
-	passwd program = /usr/bin/passwd %u
-	passwd chat = *Enter\snew\s*\spassword:* %n\n *Retype\snew\s*\spassword:* %n\n *password\supdated\ssuccessfully* .
-	pam password change = Yes
-	map to guest = Bad User
+    # Authentication
+    server role = standalone server
+    obey pam restrictions = Yes
+    unix password sync = Yes
+    passwd program = /usr/bin/passwd %u
+    passwd chat = *Enter\snew\s*\spassword:* %n\n *Retype\snew\s*\spassword:* %n\n *password\supdated\ssuccessfully* .
+    pam password change = Yes
+    map to guest = Bad User
 
-	# Protocol Security - Force SMB2/SMB3 only
-	client min protocol = SMB2
-	client max protocol = SMB3
-	server min protocol = SMB2
-	server max protocol = SMB3
+    # Protocol Security - Force SMB2/SMB3 only
+    client min protocol = SMB2
+    client max protocol = SMB3
+    server min protocol = SMB2
+    server max protocol = SMB3
 
-	# Disable legacy protocols and services
-	disable netbios = Yes
-	disable spoolss = Yes
+    # Disable legacy protocols and services
+    disable netbios = Yes
+    disable spoolss = Yes
 
-	# Disable printing
-	load printers = No
-	printing = bsd
-	printcap name = /dev/null
+    # Disable printing
+    load printers = No
+    printing = bsd
+    printcap name = /dev/null
 
     [printers]
-	available = No
-	browseable = No
-	printable = Yes
+    available = No
+    browseable = No
+    printable = Yes
 
 [print$]
-	available = No
+    available = No
 
-	# Performance
-	socket options = TCP_NODELAY IPTOS_LOWDELAY
+    # Performance
+    socket options = TCP_NODELAY IPTOS_LOWDELAY
 
 [Haas]
     comment = Haas Directory Share
@@ -327,12 +339,12 @@ EOF
     sudo systemctl restart smbd
 
     echo ""
-    echo "========================================="
+    echo =========================================
     echo "Samba configured with security hardening:"
-    echo "  - SMB2/SMB3 only (no SMB1)"
+    echo "  - SMBv2/SMBv3 only, no SMBv1"
     echo "  - NetBIOS disabled"
     echo "  - Printing disabled"
-    echo "========================================="
+    echo =========================================
     echo ""
     echo "Samba share 'Haas' configured successfully"
     IP_ADDR=$(hostname -I | awk '{print $1}')
@@ -342,6 +354,7 @@ else
     exit 1
 fi
 echo ""
+sleep 5
 
 ########################################
 # Install micro text editor
@@ -352,6 +365,7 @@ echo ""
 MICRO_VERSION=$(micro --version)
 echo "[OK] micro text editor $MICRO_VERSION installed."
 echo ""
+sleep 5
 
 ########################################
 # Install Redhat Cockpit for management
@@ -371,6 +385,7 @@ else
     echo "Failed to install Cockpit"
     exit 1
 fi
+sleep 5
 
 ########################################
 # INSTALL COCKPIT EXTENSION
@@ -386,6 +401,7 @@ sudo cp "$COCKPIT_SRC"/* "$COCKPIT_DST"/
 echo "[*] Restarting Cockpit..."
 sudo systemctl restart cockpit
 echo "[OK] Cockpit extension installed and Cockpit restarted."
+sleep 5
 
 ########################################
 # ENSURE BACKUP DIRECTORY EXISTS
@@ -395,6 +411,7 @@ echo "[*] Ensuring backup directory exists in repo: $BACKUP_DIR"
 mkdir -p "$BACKUP_DIR"
 
 echo "[OK] Backup directory ready."
+sleep 5
 
 ########################################
 # RUN INITIAL FIREWALL CONFIG VIA SYSTEMD
