@@ -41,7 +41,7 @@ If you are building the appliance for personal use, Ubuntu has a service that is
 
 ## Why use a Raspberry Pi instead of a cheap SFF Intel machine
 
-Raspberry Pis have become popular for industrial applications. They are inexpensive, reliable and have a massive community of blogs, YouTube videos, and magazine articles supporting them.
+Raspberry Pis have become popular for industrial applications. They are inexpensive, reliable, and have a massive community of blogs, YouTube videos, and magazine articles supporting them. Here is a link to [Raspberry Pi for Industry](https://www.raspberrypi.com/for-industry/) on the official Raspberry Pi site.
 
 If you have never seen Raspberry Pi 5s in the industrial and manufacturing spaces, here are couple of example companies:
 
@@ -67,18 +67,18 @@ There is also a vibrant ecosystem of add-on hardware boards, sometimes called `H
 Finally, Waveshare makes great [e-paper displays](https://www.waveshare.com/product/displays/e-paper/3.97inch-e-paper-hat-plus.htm) for the Pi. I built a serial console server using a Pi Zero W and a Waveshare display. On startup:
 
 - Shows me the IP addresses it got
-- Shows the MFG-S/N of the USB serial adapters that are connected.
-- If it gets internet access, it emails my `gmail` account it the address.
+- Displays the MFG-S/N of the USB serial adapters that are connected.
+- If it gets internet access, it emails the address to my `Gmail` account.
 
 The email is handy if the console is in a rack up high and you can't see the display. Waveshare provides a Python library to talk to the display, and there are tons of YouTube videos and blogs on coding it..
 
-Here is a photo of my Pi Zero 2 W serial console. It has a PoE hat so that I can just plug it into a switch, and it's ready to go. It has one FTDI serial cable connected. The `P 2003` means that I telnet to port 2003 to console to the device it's connected to.
+Here is a photo of my Pi Zero 2 W serial console. It has a PoE hat; I can plug it into a PoE switch, and it's ready to go. In the photo, one FTDI serial cable is connected. The P 2003 means that I telnet to port 2003 to connect to the device it's connected to.
 
 ----------------------------------------------------------------
 
 ![screenshot](img/pi.resized.jpg)
 
-In the future I might add one and display what machines are online. Here is the link to the Waveshare site: [3.97inch E-Paper Display](https://www.waveshare.com/product/displays/e-paper/epaper-2/3.97inch-e-paper-hat-plus.htm)
+In the future I might add one to the Haas Data Collection appliance and display what machines are online. Here is the link to the Waveshare site: [3.97inch E-Paper Display](https://www.waveshare.com/product/displays/e-paper/epaper-2/3.97inch-e-paper-hat-plus.htm)
 
 ----------------------------------------------------------------
 
@@ -91,27 +91,24 @@ The difference is the amount of RAM. To build a dedicated RPi 5 for this project
 - Raspberry Pi 5 8GB: $93.99
 - Raspberry Pi 5 4GB: $76.95
 
-You will need:
+To build a high-performance appliance for a manufacturing plant, I used:
 
-- Raspberry 5 8GB
-- A certified power adapter
-- An SD card of at least 32GB
-- A case
+- [Raspberry Pi 5 8GB](https://www.amazon.com/dp/B0CK2FCG1K?ref=fed_asin_title)
+- [Waveshare case](https://www.amazon.com/dp/B0D97VK1VW?ref=fed_asin_title)
+- [Waveshare PoE Hat](https://www.amazon.com/dp/B0CR1JGP1Z?ref=fed_asin_title)
+- [RTC battery case](https://www.amazon.com/dp/B0CRKQ2MG1?ref=fed_asin_title)
+- [Samsung 256GB NVME](https://www.amazon.com/Samsung-SSD-PM9A1-NVMe-256GB/dp/B0BVKYN245)
 
-!!! Note
-    After I ordered my Raspberry Pi 5, I found out that the Pi 5 supports a `Real Time Clock` (RTC) battery. I recommend purchasing one to keep the clock synced when powered off. Amazon sells an [RTC rechargeable battery](https://www.amazon.com/XYGStudy-Raspberry-Recharging-Connector-RTC-Battery-B/dp/B0CR76SM52) with a 64mAh rating for $8.69.
+Waveshare builds an industrial quality [case](https://www.amazon.com/dp/B0D97VK1VW?ref=fed_asin_title) that accepts an NVME drive and includes the following:
 
-Amazon sells an aluminum case named the [Argon NEO 5](https://www.amazon.com/dp/B0CRH8V95R?ref=fed_asin_title) that accepts an NVME drive and includes the following:
+✅Supports PCIe Extending To M.2 Interface
+✅Larger internal space, supports connecting to various HATs such as PoE HAT, Etc. Also, with space left for cable management
+✅Adapting Type-C, dual full-size HDMI female ports, and a screw terminal for easier connection with peripherals, supports two power supply connection methods from the front side or the back side
+✅Tabs on both sides for mounting to a backboard.
+❤️[Official Wiki Resources](https://www.amazon.com/stores/page/46D67D8E-DEF3-4032-A289-5C72C3DC78BE)
 
-- a fan
-- a heat sink
-
-To build a high-performance appliance for a manufacturing plant, I think the Argon NEO 5, at $41.00, is worth the cost. The heat sink and fan will keep temperatures down, and an SD card used for heavy writing will have a shorter life than a Samsung EVO NVME drive.
-
-**NVME Drive**
-On 1/12/2025 Amazon had this NVME drive, [Samsung SSD PM9A1 M.2 NVMe 256GB](https://www.amazon.com/Samsung-SSD-PM9A1-NVMe-256GB/dp/B0BVKYN245) for $80. For this application 256GB should be more than enough storage.
-
-I purchased the Waveshare PoE hat instead of a power supply. Most environments have PoE switches now, but finding a power outlet, not so much! I had a Samsung Evo 970 500MB NVME drive that I had taken out of a laptop, so I reused it.
+**PoE HaT**
+I purchased the Waveshare PoE hat instead of a power supply. Most environments have PoE switches now, but finding a power outlet, not so much! For $30 I thinks it's a good investment.
 
 ----------------------------------------------------------------
 
