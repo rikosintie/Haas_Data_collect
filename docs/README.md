@@ -38,11 +38,23 @@ Haas provides a cloud-based monitoring system for all new Next Gen controls. Her
 
 ## Python scripts and Haas DPRNT code to output data from NG controls
 
-The Haas CNC control supports a command named DPRNT. It allows data such as date/time, cycle count, cycle time, inspecion data, etc to be sent to a file on a USB Flash drive or a computer. Here is a Haas YouTube video on setting up your machine, writing a program and collecting the data on a Flash drive or PC.
+The Haas CNC control supports a command named DPRNT. It allows data such as date/time, cycle count, cycle time, inspection data, etc to be sent to a file on a USB Flash drive or a computer.
 
-[DRNT for Haas CNC Controls](https://youtube.com/watch?v=g7hl2Lw4KdM&si=txrjMdDefbxXeBxp)
+Haas has a YouTube channel and this [video](https://youtube.com/watch?v=g7hl2Lw4KdM&si=txrjMdDefbxXeBxp) clearly explains how to configure the control to send `DPRNT` statements to a USB flash drive or a telnet sever.
 
-### Configuring the control to output drpnt
+This page on the [Haas site](https://www.haascnc.com/video/Video-Bonus-Content.html) has links to all the Haas videos on YouTube.
+
+----------------------------------------------------------------
+
+This repository contains a Python script that will listen for the `dprnt` output from the Haas CNC control and write it to a file.
+
+----------------------------------------------------------------
+
+I wrote a manual for Fanuc Custom Macro way back in 1993! I was using `dprnt` to output Renishaw probe inspection data to a panel mounted serial printer. There is a section in the book on using `dprnt`, fully compatible with Haas, that you might find useful. Here is a link to the book - [Fanuc Custom Macro](./macromanual.pdf)
+
+----------------------------------------------------------------
+
+### Configure the CNC to output dprnt to a PC
 
 On the `settings` page, search for dprnt
 
@@ -61,10 +73,7 @@ The port number has to be unique per machine. For example, my shop has six machi
 
 Here is a screenshot for machine1
 
-<p align="left" width="100%">
-    <img width="50%" src="https://github.com/rikosintie/Haas_Data_collect/blob/main/Haas-dprnt.png">
-</p>
-
+![screenshot](img/Haas-dprnt.png)
 
 ----------------------------------------------------------------
 
@@ -76,7 +85,7 @@ The port to receive on is a parameter, so multiple copies can be started on the 
 
 ## Usage examples
 
-```python
+```python hl_lines="2 5 8 11 14 17"
 # Machine 1
 python haas_logger2.py -t 192.168.1.11  --port 5052 --name "Lathe1"
 
@@ -104,11 +113,11 @@ For example - `Machine1_“265-4183”_20251202_151020.csv`
 
 ### Append mode
 
-If you want all data from a machine collected in one file instead of one file per cycle use the `-a` append flag.
+If you want all data from a part number collected in one file instead of one file per cycle use the `-a` append flag.
 
 If you run the script with just `-h` as a flag the following help will be printed to the screen.
 
-```bash
+```text
 python haas_logger2.py -h
 usage: haas_logger2.py [-h] [-H HOST] [-p PORT] [-n MACHINE_NAME] [-a] [-t TARGET_IP]
 
@@ -143,26 +152,25 @@ Notes:
     - In client mode, the script will auto-reconnect if the connection is lost
 ```
 
+----------------------------------------------------------------
+
 One file is created using the naming format: `machine-name_part-number.csv`.
 
 For example - `Machine1_strut.csv`
 
-**NOTE:** Server mode isn't for use with Haas Data Collection. It's a mode for testing the script.
-The haas_simulator.py script is used to send data to the script running in server mode.
+!!! Warning
+    Server mode isn't for use with Haas Data Collection. It's a mode for testing the script.
+    The haas_simulator.py script is used to send data to the script running in server mode.
 
 ----------------------------------------------------------------
 
 ## CNC Program Format
 
-Haas has a YouTube channel and this [video](https://youtube.com/watch?v=g7hl2Lw4KdM&si=txrjMdDefbxXeBxp) clearly explains how to configure the control to send `DPRNT` statements to a USB flash drive or a telnet sever.
-
-[This page on the Haas site](https://www.haascnc.com/video/Video-Bonus-Content.html) has links to all the Haas videos on YouTube.
-
-The sample code for DPRNT can be found [here](https://www.haascnc.com/content/dam/haascnc/videos/bonus-content/ep63-dprnt/dprntexample_1.nc):
+The sample code for DPRNT can be found [here on the Haas.com site](https://www.haascnc.com/content/dam/haascnc/videos/bonus-content/ep63-dprnt/dprntexample_1.nc):
 
 ### Here is a simple example
 
-```unixconfig
+```unixconfig hl_lines="6 8 10 12 13 15 17 19 21-23 25"
 %
 O03020 (DPRNT PART DATA)
 G04 P1. (1 SECOND DWELL, SO WE HAVE A CYCLE TIME)
@@ -194,9 +202,9 @@ M30
 
 ----------------------------------------------------------------
 
-**Screen output from haas_logger2.py when using the Append flag**
+#### Screen output from haas_logger2.py when using the Append flag
 
-```unixconfig hl_lines="1"
+```unixconfig hl_lines="1 4 6-11"
 python haas_logger2.py --port 5052 -a --name "Machine1"
 [Machine1] Haas CNC Data Logger started on 0.0.0.0:5052 (APPEND mode)
 [Machine1] Waiting for connections...
@@ -214,9 +222,9 @@ python haas_logger2.py --port 5052 -a --name "Machine1"
 [Machine1] Connection closed from ('192.168.10.143', 46606)
 ```
 
-**Screen output from haas_logger2.py without the Append flag**
+#### Screen output from haas_logger2.py without the Append flag
 
-```unixconfig hl_lines="1"
+```unixconfig hl_lines="1 5-14"
 python haas_logger2.py --port 5052 --name "Machine1"
 [Machine1] Haas CNC Data Logger started on 0.0.0.0:5052
 [Machine1] Waiting for connections...
@@ -246,45 +254,60 @@ python haas_logger2.py --port 5052 --name "Machine1"
 
 ## Installing the script
 
-**Windows 10 and Windows 11**
+The scripts will run on Mac/Linux/Windows. Each of those operating systems requires different steps to install Python, pip, and the script. All three operating systems are covered below.
+
+### Windows 10 and Windows 11
 
 If you haven't done any Python development on your Windows machine, it won't have Python or Git installed. Python is the language the scripts are written in and Git is the industry standard version control system for NetDevOps. Follow the instructions below to install both packages.
 
 Installing Python on Windows is simple.
 
-**NOTE: Select "Install for all users" during the installation. If you don't select the all users option, only the user account that did the installation will have access.**
+!!! Note
+    Select "Install for all users" during the installation. If you don't select the all users option, only the user account that did the installation will have access.
+
+----------------------------------------------------------------
 
 - Open the Edge browser
-- Go to the [Python download URL](https://www.python.org/downloads/)
+- Go to the [Python download Page](https://www.python.org/downloads/)
 - Click on the button for Python 3.14.2 (or the latest version)
 - Select `Open File` so that the install starts when the download finishes.
 
 ### Custom settings
 
-You must select `for all users (requires admin privileges)`. If you don't select the `all users option`, only the user account that did the installation will have access to run the scripts.
+Check the boxes for documentation, pip, `py launcher` and `for all users (requires admin privileges)`. If you don't select the `all users option`, only the user account that did the installation will have access to run the scripts. If you plan to write Python scripts, check the `Tcl/Tk, turtle, IDLE` box and the `Python test suite` boxes.
 
-<p align="left" width="100%">
-    <img width="50%" src="https://github.com/rikosintie/Haas_Data_collect/blob/main/Python.png">
-</p>
+----------------------------------------------------------------
+
+![screenshot](img/Python.png)
+
+----------------------------------------------------------------
 
 Click next, on this dialog check the check "Add Python to environment variables"
 
 For the path I recommend changing it to `c:\python3.14`. I like to start the script using a batch file and having a space in the path is a pain to deal with.
 
-<p align="left" width="100%">
-    <img width="50%" src="https://github.com/rikosintie/Haas_Data_collect/blob/main/Python1.png">
-</p>
+----------------------------------------------------------------
+
+![screenshot](img/Python1.png)
+
+----------------------------------------------------------------
 
 Click `Install` to finish the installation.
 
-One advantage of installing Python on Windows is that the installer installs Python, pip, and the Python Virtual Environment venv. You can use where python from cmd.exe to verify that Python is installed.
+You can use `where python` from a `cmd` terminal to verify that Python is installed.
 
 `where python`
 C:\python3.14\python.exe
 
-You can use the GUI tool Add or Remove Programs to verify Python is installed.
+You can also use the GUI tool Add or Remove Programs to verify Python is installed.
 
-### Test the installation on Windows
+To verify that `pip` is installed use:
+
+```bash linenums='1' hl_lines='1'
+pip --version
+```
+
+### Test the Python installation on Windows
 
 type `python`
 
@@ -299,7 +322,7 @@ To quit Python, type:
 
 `quit()`
 
-## Install Git
+### Install Git on Windows
 
 If you are on Windows and don't have git installed, use
 
@@ -309,18 +332,21 @@ from cmd or PowerShell to install Git.
 
 WinGet, also known as the Windows Package Manager, is pre-installed on Windows 11 versions 21H2 and later. If you don't have Winget installed, you can install it using these steps:
 
-    Type Microsoft Store in the Windows search bar, and press Enter
-    Search for App Installer
-    Click on Get
+```text
+Type Microsoft Store in the Windows search bar, and press Enter
+Search for App Installer
+Click on Get
+```
 
 Or you can install the git package from The Official Git Page. It seems better to use the Microsoft Store, but I'm not a Windows expert.
 
-**macOS**
+### Install on macOS
 
 Apple provides a package called xcode-select full of developer tools like Python, git, and gcc (Gnu C Compiler), etc. To install xcode-select
 
-    Open a terminal
-    Type xcode-select --install, press enter
+- Open a terminal ( :material-apple-keyboard-command: + spacebar)
+- Type xcode-select --install
+- Press [enter]
 
 You can list the tools using
 
@@ -328,7 +354,7 @@ You can list the tools using
 
 You now have Python, git, venv, and many other dev tools.
 
-**Ubuntu 24.04 or higher**
+### Ubuntu 24.04 or higher
 
 Ubuntu comes with Python installed. We only need to install `git` to clone the repository.
 
@@ -338,9 +364,11 @@ Ubuntu comes with Python installed. We only need to install `git` to clone the r
 
 ## Clone the Repository
 
-The installation steps are done in the Mac/Linux terminal or cmd.exe/PowerShell on Windows. In my recent testing on Windows 11 24H2, I learned a lot about PowerShell using on Windows 11. I created a page on what my setup looks like. I highly recommend installing the Windows Terminal and setting up PowerShell if you are a Windows user. Here is a link to the page - [Using PowerShell with the Network Discovery scripts](https://rikosintie.github.io/Discovery/Using_PowerShell/). PowerShell is also available on Mac/Linux. The configurations on the "Using PowerShell" page work on all three OSes.
+The installation steps are done in the Mac/Linux terminal or cmd.exe/PowerShell on Windows. In my recent testing on Windows 11 24H2, I learned a lot about using PowerShell on Windows 11. I created a page on what my setup looks like. I highly recommend installing the Windows Terminal and setting up PowerShell if you are a Windows user. Here is a link to the page - [Using PowerShell with the Network Discovery scripts](https://rikosintie.github.io/Discovery/Using_PowerShell/). PowerShell is also available on Mac/Linux. The configurations on the "Using PowerShell" page work on all three OSes.
 
-Open the Mac/Linux terminal or cmd/PowerShell and cd to a location you want to install the scripts into. Then paste the following:
+Open the Mac/Linux terminal or cmd/PowerShell terminal and cd to a location you want to install the scripts into. I have a directory named `Tools` that I use to organize tools I download from the Internet.
+
+Then paste the following:
 
 ```bash
 git clone https://github.com/rikosintie/Haas_Data_collect.git
@@ -423,7 +451,7 @@ I prefer the terminal script if you have the Windows terminal installed.
 
 ## If you don't have access to a Haas control
 
-You can use the Linux `netcat` application to simulate a Haas control on a Linux laptop.
+If you want to work on the Python scripts when you are at home, you can use the Linux `netcat` application to simulate a Haas control on a Linux laptop or Windows Subsystem for Linux (WSL).
 
 - Open a terminal
 - paste in `sudo nc -lvkp 5052` and press Enter
