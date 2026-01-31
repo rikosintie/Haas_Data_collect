@@ -44,7 +44,6 @@ Use the following to find the IPv6 address:
 ip a show dev eth0
 ```
 
-
 2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
     link/ether 88:a2:9e:43:4d:de brd ff:ff:ff:ff:ff:ff
     inet 192.168.10.137/24 metric 100 brd 192.168.10.255 scope global dynamic eth0
@@ -88,7 +87,7 @@ Idx     Met         MTU          State                Name
 Now use:
 
 ```text
-ssh user@[fe80::8aa2:9eff:fe43:4dde%5]
+ssh haas@[fe80::8aa2:9eff:fe43:4dde%5]
 ```
 
 As always, Windows uses a non-standard method for an industry standard🙁.
