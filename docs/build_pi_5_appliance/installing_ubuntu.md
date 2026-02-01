@@ -6,23 +6,152 @@ Ubuntu comes in three versions for the Raspberry Pi 5:
 - Desktop - Includes the Gnome desktop
 - Core - A dedicated version for IoT devices. I haven't used it yet, but it's on my list of projects!
 
-**Server version (Headless)**
+## Server version (Headless)
 
-I am experienced with Ubuntu, and this is a personal device, so the headless server version is my choice. I use SSH to manage the appliance, and the scripts don't require the Gnome desktop. The server uses less RAM and resources since it doesn't run a desktop. You can still connect a monitor and keyboard, but you have to use terminal-only tools. I recommend purchasing the serial console cable. It allows you to configure the Pi from your laptop if the Pi didn't get an IP address.
+I am experienced with Ubuntu, and this is a personal device; the headless server version is my choice. I use SSH to manage the appliance and the scripts don't require the Gnome desktop. The server uses fewer resources since it doesn't run a desktop.
 
-**Desktop Version**
-If you are new to Linux and building appliances, use the desktop version. During the installation, select "minimal install" since you don't need a word processor, spreadsheet, etc. The desktop version of Ubuntu uses the GNOME desktop, which is similar to a Windows desktop. You can use a Keyboard, Mouse, and Monitor (KVM) to configure the Pi using GUI tools like Gnome Text Editor. This allows you to use a GUI text editor and other GUI tools.
+You can connect a monitor and keyboard, but you still use terminal-only tools since the desktop isn't installed. To copy files off the server to another PC, you can use SCP. On WIndows, the popular `putty` application has an SCP client. I recommend purchasing the serial console cable. It allows you to configure the Pi from your laptop if the Pi doesn't have an IP Address.
 
-The other advantage is that you can register with Canonical for Ubuntu Pro at $25/year vs $300/year for the server version.
+----------------------------------------------------------------
+
+## Desktop Version
+
+If you are new to Linux and building appliances, use the desktop version. The desktop version of Ubuntu uses the GNOME desktop, which is similar to a Windows desktop. It includes LibreOffice Calc (spreadsheet), allowing you to manage the firewall configuration file from the appliance.
+
+With the desktop version, you can use a keyboard, mouse, and monitor (KVM) to configure the Pi using GUI tools like Gnome Text Editor, File Manager, Local Send, etc. [Local Send](https://localsend.org/) is a free, open-source Flatpak app that allows you to move files between two systems. It supports Windows, Mac, Linux, Android, and iOS.
+
+The other advantage is that you can register with Canonical for Ubuntu Pro at $25/year vs. $300/year for the server version.
 
 ----------------------------------------------------------------
 
 ## Installation
 
-Once you pick a version, follow these instructions to install:
+During the installation, use `haas` as the username, all lowercase, and use a simple password that you can type with both hands on the keyboard. You will be typing the password a lot during the creation of the appliance. The code in the rest of the setup expects the username to be haas, which creates a home directory at `/home/haas`, used in all the examples in the guide. When the appliance is ready for production, change the password to a long and complex password. Save it in a password manager so that you don't forget it.
+
+Once you have decided on a version, follow these instructions to complete the installation. He does a great job, and I didn't see that I could do any better!
 
 - [Raspberry Pi 5 with NVMe](https://wolfpaulus.com/rp5/)
 - [Install Ubuntu Server on Raspberry Pi 5 with NVMe SSD (Headless Setup)](https://wolfpaulus.com/rp5-ubuntu-cli/)
+
+When the installation is complete and you have rebooted, follow these [instructions](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal) to configure the terminal for ease of use. I wrote that procedure on Ubuntu 18.04 and have updated it as versions have changed. It will make your terminal use much easier.
+
+### Static IP address
+
+If you need to use a static IP address instead of DHCP, replace `/etc/netplan/91-nw-init.yaml` with this yaml file:
+
+```bash linenums='1' hl_lines='1'
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    eth0:
+      dhcp4: no
+      dhcp6: true
+      addresses:
+        - 192.168.1.100/24
+      routes:
+        - to: default
+          via: 192.168.1.1
+      nameservers:
+        addresses:
+          - 8.8.8.8
+          - 8.8.4.4
+      parameters:
+        stp: false
+        forward-delay: 0
+```
+
+----------------------------------------------------------------
+
+Use the following code to create a backup and then edit the yaml file:
+
+```bash linenums='1' hl_lines='1'
+cd /etc/netplan/
+ls -l # look for a yaml file
+sudo cp /etc/netplan/91-nw-init.yaml /etc/netplan/91-nw-init.bak
+ls -l # look for the backup file
+sudo nano /etc/netplan/91-nw-init.yaml
+```
+
+----------------------------------------------------------------
+
+- Replace eth0 with the actual interface name (use ip link to find it, often eth0 or enp1s0 on Pi 5)
+- Replace 192.168.1.100/24 with the desired static IP and subnet
+- Replace 192.168.1.1 with the actual gateway IP
+- Replace DNS servers (8.8.8.8, 8.8.4.4) with appropriate ones for the shop network
+- The stp: false and forward-delay: 0 parameters disable Spanning Tree Protocol and reduce network startup delay
+
+In general, do not use a public DNS server address. Your company security policy ***SHOULD*** require you to use their DNS Server or Proxy. Bypassing either could allow the appliance to contact a `control and command C2` server on the Internet without detection!
+
+----------------------------------------------------------------
+
+!!! Note
+    The yaml file might not be named "91-nw-init.yaml" depending on the version you install. If that is the case, substitute the actual filename. The last time I installed the server version the file was named `50-cloud-init.yaml`.
+
+Yaml is very particular about indentation. Ubuntu provides `netplan try` that will show any errors in the yaml file.
+
+### Apply the configuration
+
+```bash hl_lines='1'
+# This is all you really need:
+sudo netplan generate
+sudo netplan try
+sudo netplan apply
+```
+
+### Verify the configuration
+
+```bash hl_lines='1-2'
+ip addr show eth0
+ip route show
+```
+
+### Validation script
+
+If you are doing a lot of changes to the yaml file you can use this script to automate the testing:
+
+Change directory to `/etc/netplan` and open `nano`
+
+```bash
+cd /etc/netplan
+sudo nano netplan-try.sh
+```
+
+Paste this into `nano`, save `ctrl+s`, exit `ctrl+x`
+
+```bash
+# Validate the configuration
+echo "Validating network configuration..."
+if sudo netplan generate; then
+    echo "Configuration is valid!"
+    echo ""
+    echo "Testing network configuration with auto-revert..."
+    echo "If the network configuration works, you'll be prompted to confirm."
+    echo "If you don't confirm within 120 seconds, it will auto-revert."
+    echo ""
+
+    # Use netplan try for safe testing with auto-revert
+    sudo netplan try
+
+    echo "Network configuration completed!"
+else
+    echo "ERROR: Invalid netplan configuration!"
+    echo "Restoring backup..."
+    sudo cp "$BACKUP_FILE" "$NETPLAN_FILE"
+    exit 1
+fi
+```
+
+----------------------------------------------------------------
+
+make the script executable
+`sudo chmod +x netplan-try.sh`
+
+run the script
+
+`./netplan-try.sh`
+
+----------------------------------------------------------------
 
 ### Use IPv6
 
@@ -53,24 +182,29 @@ ip a show dev eth0
 
 The `fe80::8aa2:9eff:fe43:4dde` is an IPv6 `link local` address. It's similar to an IPv4 APIPA, but it's the same every time the device starts up. It is created using the EUI-64 format, which is based on the 48-bit MAC address.
 
+----------------------------------------------------------------
+
 !!! Note
     The EUI-64 (Extended Unique Identifier) format is a 64-bit interface identifier used in IPv6 to automatically generate host addresses from a 48-bit MAC address. This process involves splitting the MAC address, inserting FFFE in the middle, and flipping the 7th bit (universal/local bit) of the first byte.
 
-### To ssh to this address
+----------------------------------------------------------------
 
-macOS wireless interface en0
+### How to ssh to this IPv6 address
+
+**macOS wireless interface en0**
 
 ```bash
 ssh haas@fe80::8aa2:9eff:fe43:4dde%en0
 ```
 
-Linux with wireless interface wlp61so
+**Linux with wireless interface wlp61s0**
 
 ```bash
 ssh haas@fe80::8aa2:9eff:fe43:4dde%wlp61s0
 ```
 
-Windows
+**Windows**
+
 Use
 
 ```text
@@ -90,6 +224,45 @@ Now use:
 ssh haas@[fe80::8aa2:9eff:fe43:4dde%5]
 ```
 
+!!! Warning
+    Windows Wi-Fi interface don't support `IPv6 Neighbor Discovery` reliably. If you want to use this method, connect your laptop to ethernet.
+
+You can use the following command to see if the Raspberry Pi 5 is visble from a Windows machine:
+
+```bash
+netsh interface ipv6 show neighbors | Select-String "4dde"
+```
+
 As always, Windows uses a non-standard method for an industry standard🙁.
+
+----------------------------------------------------------------
+
+### IPv6 Link Local addresses
+
+IPv6 link‑local + EUI‑64 is the industry standard for zero‑touch provisioning.
+Switches, routers, firewalls, PDUs, storage arrays, OT gear — they all do it.
+
+And Linux handles it flawlessly.
+
+Windows is the outlier.
+
+🧩 Why IPv6 link‑local + EUI‑64 is brilliant
+
+- Every NIC has a MAC
+- EUI‑64 turns that MAC into a deterministic IPv6 address
+- You can derive the link‑local address instantly
+- No DHCP
+- No RA (IPv6 Router Advertisement)
+- No SLAAC (Stateless Address Autoconfiguration)
+- No guessing
+- No APIPA garbage
+- No vendor‑specific discovery tools
+- No proprietary protocols
+- No broadcast storms
+- No “magic IP” like 192.168.1.1
+- It’s elegant.
+- It’s predictable.
+- It’s universal.
+- It’s how IPv6 was meant to be used.
 
 ----------------------------------------------------------------
