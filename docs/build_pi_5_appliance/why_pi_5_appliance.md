@@ -79,8 +79,9 @@ Sell a large array of add ons, cases, etc. for the Raspberry Pi 5.
 Some examples:
 
 - [Waveshare PoE Hat](https://www.waveshare.com/poe-hat-h.htm) makes a $30 PoE hat that will power the RPI 5 from the Ethernet cable. Very convenient on the manufacturing floor.
-- [Waveshare 4 port 2.5Gbps Ethernet](https://www.cnx-software.com/2025/12/30/add-four-gigabit-or-2-5gbps-ethernet-ports-to-the-raspberry-pi-5-with-this-expansion-board/) also produces a board with four 2.5 Gbps Ethernet ports.
+- [Waveshare 4 port 2.5Gbps Ethernet](https://www.cnx-software.com/2025/12/30/add-four-gigabit-or-2-5gbps-ethernet-ports-to-the-raspberry-pi-5-with-this-expansion-board/) - Support APs with 2.5 Gbps Ethernet.
 - [Raspberry Pi AI Hat](https://www.adafruit.com/product/5979) - No article is complete until AI is used! The AI HAT+ is available in 13 and 26 tera-operations per second (TOPS) variants, built around the Hailo-8L and Hailo-8 neural network inference accelerators.
+- [Hi Resolution Camera](https://ameridroid.com/products/8mp-noir-raspberry-pi-camera-module) - The Raspberry Pi Camera V2 is IR sensitive for low-light situations and features an upgraded 8MP Sony image sensor capable of taking 3280 x 2464 pixel images and capturing video at 1080p30, 720p60 and 640x480p90 resolutions. Like all Raspberry Pi camera modules, it works flawlessly with Raspberry Pi models using the latest Raspbian operating system.
 
 #### e-paper displays
 
