@@ -22,7 +22,7 @@ A Raspberry Pi 5 appliance solves both of these problems:
 - Creating a service that starts during boot is easy to do with Ubuntu.
 - Ubuntu has a long track record of security in the enterprise.
 
-You will still need to discuss the appliance with the IT security team but it resolves most security issues. The appliance uses the Ubuntu UFW firewall and has SMB V1 is disabled. [Red Hat Cockpit](https://www.redhat.com/en/blog/intro-cockpit) is used to manage the appliance, so applying security updates and verifying firewall status is accomplished in a GUI.
+You will still need to discuss the appliance with the IT security team, but it resolves most security issues. The appliance uses the Ubuntu UFW firewall and has SMB V1 disabled. [Red Hat Cockpit](https://www.redhat.com/en/blog/intro-cockpit) is used to manage the appliance, so applying security updates and verifying firewall status is accomplished in a GUI.
 
 ----------------------------------------------------------------
 
@@ -39,9 +39,13 @@ If you are building the appliance for personal use, Ubuntu has a service that is
 
 ----------------------------------------------------------------
 
-## Why use a Raspberry Pi instead of a cheap SFF Intel machine
+## Why use an RPi instead of a SFF Intel machine
 
 Raspberry Pis have become popular for industrial applications. They are inexpensive, reliable, and have a massive community of blogs, YouTube videos, and magazine articles supporting them. Here is a link to [Raspberry Pi for Industry](https://www.raspberrypi.com/for-industry/) on the official Raspberry Pi site.
+
+A Small Form Factor (SFF) Intel PC will still cost more than the Raspberry Pi 5 and won't run on PoE power!
+
+----------------------------------------------------------------
 
 If you have never seen Raspberry Pi 5s in the industrial and manufacturing spaces, here are couple of example companies:
 
@@ -56,15 +60,31 @@ If you have never seen Raspberry Pi 5s in the industrial and manufacturing space
     1. Marine
     1. Fleet Management
 
-**It's worth a few minutes to look that homepages of those two companies.**
+**It's worth a few minutes to look at the homepages of those two companies.**
 
 ----------------------------------------------------------------
 
 ### The Raspberry Pi community
 
-There is also a vibrant ecosystem of add-on hardware boards, sometimes called `Hats`. For example, Waveshare makes a $30 PoE hat that will power the RPI 5 from the Ethernet cable. Very convenient on the manufacturing floor. Here is a link to it: [PoE hat](https://www.waveshare.com/poe-hat-h.htm). Waveshare also produces a board with four 2.5Gbs Ethernet ports Here is a link to it:[Waveshare 4 port Ethernet](https://www.cnx-software.com/2025/12/30/add-four-gigabit-or-2-5gbps-ethernet-ports-to-the-raspberry-pi-5-with-this-expansion-board/)
+There is also a vibrant ecosystem of add-on "Hardware Attached on Top" boards, usually called `Hats`.
 
-Finally, Waveshare makes great [e-paper displays](https://www.waveshare.com/product/displays/e-paper/3.97inch-e-paper-hat-plus.htm) for the Pi. I built a serial console server using a Pi Zero W and a Waveshare display. On startup:
+Sites like:
+
+- [Adafruit](https://www.adafruit.com/)
+- [Waveshre](https://www.waveshare.com/)
+- [Ameridroid](https://ameridroid.com/)
+
+Sell a large array of add ons, cases, etc. for the Raspberry Pi 5.
+
+Some examples:
+
+- [Waveshare PoE Hat](https://www.waveshare.com/poe-hat-h.htm) makes a $30 PoE hat that will power the RPI 5 from the Ethernet cable. Very convenient on the manufacturing floor.
+- [Waveshare 4 port 2.5Gbps Ethernet](https://www.cnx-software.com/2025/12/30/add-four-gigabit-or-2-5gbps-ethernet-ports-to-the-raspberry-pi-5-with-this-expansion-board/) also produces a board with four 2.5 Gbps Ethernet ports.
+- [Raspberry Pi AI Hat](https://www.adafruit.com/product/5979) - No article is complete until AI is used! The AI HAT+ is available in 13 and 26 tera-operations per second (TOPS) variants, built around the Hailo-8L and Hailo-8 neural network inference accelerators.
+
+#### e-paper displays
+
+ Waveshare makes great [e-paper displays](https://www.waveshare.com/product/displays/e-paper/3.97inch-e-paper-hat-plus.htm) for the Pi. I built a serial console server using a Pi Zero W and a Waveshare display. On startup:
 
 - Shows me the IP addresses it got
 - Displays the MFG-S/N of the USB serial adapters that are connected.
@@ -78,11 +98,13 @@ Here is a photo of my Pi Zero 2 W serial console. It has a PoE hat; I can plug i
 
 ![screenshot](img/pi.resized.jpg)
 
+----------------------------------------------------------------
+
 In the future I might add one to the Haas Data Collection appliance and display what machines are online. Here is the link to the Waveshare site: [3.97inch E-Paper Display](https://www.waveshare.com/product/displays/e-paper/epaper-2/3.97inch-e-paper-hat-plus.htm)
 
 ----------------------------------------------------------------
 
-## The Raspberry Pi 5 is available in several models
+## The RPi 5 is available 4 models
 
 The difference is the amount of RAM. To build a dedicated RPi 5 for this project, I recommend the 8GB RAM model. That is overkill for just the scripts, but the difference in cost is negligible compared to the 4GB model, and I find that it's always better to have more RAM for future-proofing.
 
@@ -90,6 +112,8 @@ The difference is the amount of RAM. To build a dedicated RPi 5 for this project
 
 - Raspberry Pi 5 8GB: $93.99
 - Raspberry Pi 5 4GB: $76.95
+
+----------------------------------------------------------------
 
 To build a high-performance appliance for a manufacturing plant, I used:
 
@@ -99,22 +123,25 @@ To build a high-performance appliance for a manufacturing plant, I used:
 - [RTC battery case](https://www.amazon.com/dp/B0CRKQ2MG1?ref=fed_asin_title)
 - [Samsung 256GB NVME](https://www.amazon.com/Samsung-SSD-PM9A1-NVMe-256GB/dp/B0BVKYN245)
 
-Waveshare builds an industrial quality [case](https://www.amazon.com/dp/B0D97VK1VW?ref=fed_asin_title) that accepts an NVME drive and includes the following:
+----------------------------------------------------------------
 
-✅Supports PCIe Extending To M.2 Interface
-✅Larger internal space, supports connecting to various HATs such as PoE HAT, Etc. Also, with space left for cable management
-✅Adapting Type-C, dual full-size HDMI female ports, and a screw terminal for easier connection with peripherals, supports two power supply connection methods from the front side or the back side
-✅Tabs on both sides for mounting to a backboard.
-❤️[Official Wiki Resources](https://www.amazon.com/stores/page/46D67D8E-DEF3-4032-A289-5C72C3DC78BE)
+The Waveshare [case](https://www.amazon.com/dp/B0D97VK1VW?ref=fed_asin_title) is industrial quality with ears to mount it to a back board. It includes the following:
 
-**PoE HaT**
-I purchased the Waveshare PoE hat instead of a power supply. Most environments have PoE switches now, but finding a power outlet, not so much! For $30 I thinks it's a good investment.
+- ✅ Supports PCIe Extending To M.2 Interface
+- ✅ Larger internal space, supports connecting to various HATs such as PoE HAT, Etc. Also, with space left for cable management
+- ✅ Adapting Type-C, dual full-size HDMI female ports, and a screw terminal for easier connection with peripherals, supports two power supply connection methods from the front side or the back side
+- ✅ Tabs on both sides for mounting to a backboard.
+- ❤️ [Official Wiki Resources](https://www.amazon.com/stores/page/46D67D8E-DEF3-4032-A289-5C72C3DC78BE)
+
+The installation instructions are on the Amazon link but they are hard to find. You can click the [link here](https://github.com/rikosintie/Haas_Data_collect/blob/main/docs/img/Waveshare-case-instruction.png) to view them.
 
 ----------------------------------------------------------------
 
 ### USB Serial cable for the Raspberry Pi 5
 
-I recommend purchasing the [Waveshare Industrial USB to TTL (D) Serial Cable, Compatible with the Raspberry Pi 5](https://www.amazon.com/Waveshare-Industrial-Compatible-Raspberry-Protection/dp/B0CX5C5KR4?crid=UOYE4ZQGD85P&dib=eyJ2IjoiMSJ9.BPFSkDQQOB_j9pTthVxIH4j29kCE7yNqMgc9hB24bXyZhFqiigw3R8GFKkNfReHcXnOziFKmQqQT18804nToT-uEjdtmRbNvjT7EAReShBp_-x8drPgFSEOiVlVJefzxlg92li3IySROS7fhPIbUUCjNmzzSXwEktDIOugk-NjlgFu55M4KYy8D7fpKQ_cFomwpIjZmp9w28W1e2MFkhYuAF2tf9ULMQeNLm8Mz8SIs.7Cn4aq4suv6rP_fKHjW11v9K2c4YlYELTGYOSVdyyDw&dib_tag=se&keywords=raspberry+pi+5+serial+cable&qid=1768278124&sprefix=raspberry+pi+5+serial%2Caps%2C193&sr=8-1) Serial to USB cable, for $13.99. The cable allows you to connect to the if lock yourself out over SSH. And that can happen when configuring the firewall. :smiley:
+I recommend purchasing the [Waveshare Industrial USB to TTL (D) Serial Cable, compatible with the Raspberry Pi 5](https://www.amazon.com/Waveshare-Industrial-Compatible-Raspberry-Protection/dp/B0CX5C5KR4?crid=UOYE4ZQGD85P&dib=eyJ2IjoiMSJ9.BPFSkDQQOB_j9pTthVxIH4j29kCE7yNqMgc9hB24bXyZhFqiigw3R8GFKkNfReHcXnOziFKmQqQT18804nToT-uEjdtmRbNvjT7EAReShBp_-x8drPgFSEOiVlVJefzxlg92li3IySROS7fhPIbUUCjNmzzSXwEktDIOugk-NjlgFu55M4KYy8D7fpKQ_cFomwpIjZmp9w28W1e2MFkhYuAF2tf9ULMQeNLm8Mz8SIs.7Cn4aq4suv6rP_fKHjW11v9K2c4YlYELTGYOSVdyyDw&dib_tag=se&keywords=raspberry+pi+5+serial+cable&qid=1768278124&sprefix=raspberry+pi+5+serial%2Caps%2C193&sr=8-1) Serial to USB cable, for $13.99. The cable allows you to connect to the Raspberry Pi 5 if you lock yourself out over SSH. And that can happen when configuring the firewall. :smiley:
+
+This cable is nice because in addition to the individual 4 connects it includes the `3 pin UART` connector that the Raspberry Pi 5 has. I have used that cable to console into Aruba 315 APs that have 4 pins instead of the typical RJ45 console connector.
 
 ----------------------------------------------------------------
 
