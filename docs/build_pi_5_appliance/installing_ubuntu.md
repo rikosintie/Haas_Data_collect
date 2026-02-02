@@ -20,7 +20,7 @@ If you are new to Linux and building appliances, use the desktop version. The de
 
 With the desktop version, you can use a keyboard, mouse, and monitor (KVM) to configure the Pi using GUI tools like Gnome Text Editor, File Manager, Local Send, etc. [Local Send](https://localsend.org/) is a free, open-source Flatpak app that allows you to move files between two systems. It supports Windows, Mac, Linux, Android, and iOS.
 
-The other advantage is that you can register with Canonical for Ubuntu Pro at $25/year vs. $300/year for the server version.
+The other advantage is that you can register with Canonical for Ubuntu Pro at $25/year vs. $300/year for the server version. The Ubuntu Pro is a great deal. You get automatic updates and most do not require a reboot. The appliance will stay patched for at least one quarter with no user intervention.
 
 ----------------------------------------------------------------
 
@@ -28,7 +28,9 @@ The other advantage is that you can register with Canonical for Ubuntu Pro at $2
 
 During the installation, use `haas` as the username, all lowercase, and use a simple password that you can type with both hands on the keyboard. You will be typing the password a lot during the creation of the appliance. The code in the rest of the setup expects the username to be haas, which creates a home directory at `/home/haas`, used in all the examples in the guide. When the appliance is ready for production, change the password to a long and complex password. Save it in a password manager so that you don't forget it.
 
-Once you have decided on a version, follow these instructions to complete the installation. He does a great job, and I didn't see that I could do any better!
+Once you have decided on a version, follow these instructions to complete the installation. The instructions are from the Wolf Paulus blog, he does a great job, and I didn't see that I could do any better!
+
+Regardless of which version you want for production, install the desktop version of Raspberry Pi OS for the first step.
 
 - [Raspberry Pi 5 with NVMe](https://wolfpaulus.com/rp5/)
 - [Install Ubuntu Server on Raspberry Pi 5 with NVMe SSD (Headless Setup)](https://wolfpaulus.com/rp5-ubuntu-cli/)
@@ -38,13 +40,11 @@ Once you have decided on a version, follow these instructions to complete the in
 
 ----------------------------------------------------------------
 
-Change to the home directory using `cd ~` before you run `wget https://cdimage.ubuntu.com/releases/24.04.3/release/ubuntu-24.04.3-preinstalled-server-arm64+raspi.img.xz`.
-
 ### Copy files to a PC
 
-You can copy the cmdline.txt, network-config, user-data files to a flash drive or use scp. To use scp:
+You can copy the cmdline.txt, network-config, user-data files to a flash drive or use scp.
 
-To copy from the pi to may laptop at 192.168.10.138
+To copy from the RPi to my laptop at 192.168.10.138
 
 - scp /boot/firmware/user-data mhubbard@192.168.19.138:/home/mhubbard/Downloads
 - scp /boot/firmware/network-config mhubbard@192.168.19.138:/home/mhubbard/Downloads
@@ -58,11 +58,27 @@ To copy from the pi to may laptop at 192.168.10.138
 
 ----------------------------------------------------------------
 
+### Ubuntu is version 24.04.3 now
+
+Below are updated links to `wget` 24.04.3.
+
+Change to the home directory using `cd ~` before you run:
+
+**Server installer**
+`wget https://cdimage.ubuntu.com/releases/24.04.3/release/ubuntu-24.04.3-preinstalled-server-arm64+raspi.img.xz`.
+
+**Desktop installer**
+`wget https://cdimage.ubuntu.com/releases/24.04.3/release/ubuntu-24.04.3-preinstalled-desktop-arm64+raspi.img.xz`
+
+----------------------------------------------------------------
+
 !!! Note
     Ubuntu Server is up to 24.04.3 now. Use this link instead of the one in the article:
     `wget https://cdimage.ubuntu.com/releases/24.04.3/release/ubuntu-24.04.3-preinstalled-server-arm64+raspi.img.xz`
 
 When the installation is complete and you have rebooted, follow these [instructions](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal) to configure the terminal for ease of use. I wrote that procedure on Ubuntu 18.04 and have updated it as versions have changed. It will make your terminal use much easier.
+
+----------------------------------------------------------------
 
 ### Static IP address
 
