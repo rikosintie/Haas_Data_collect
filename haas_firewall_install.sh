@@ -182,6 +182,27 @@ echo ""
 sleep 5
 
 ########################################
+# Install Fresh Editor
+########################################
+echo "Installing the Fresh Editor"
+sudo https://raw.githubusercontent.com/sinelaw/fresh/refs/heads/master/scripts/install.sh | sh
+FRESH_VERSION=$(fresh --version)
+echo "[OK] Fresh Editor $FRESH_VERSION installed."
+echo ""
+sleep 5
+
+########################################
+# Install micro text editor
+########################################
+
+sudo apt install micro -y
+echo ""
+MICRO_VERSION=$(micro --version)
+echo "[OK] micro text editor $MICRO_VERSION installed."
+echo ""
+sleep 5
+
+########################################
 # Install inetutils-traceroute
 ########################################
 echo "installing inetutils-traceroute"
@@ -353,17 +374,6 @@ else
     echo "Failed to install Samba"
     exit 1
 fi
-echo ""
-sleep 5
-
-########################################
-# Install micro text editor
-########################################
-
-sudo apt install micro -y
-echo ""
-MICRO_VERSION=$(micro --version)
-echo "[OK] micro text editor $MICRO_VERSION installed."
 echo ""
 sleep 5
 
