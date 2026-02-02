@@ -30,8 +30,14 @@ During the installation, use `haas` as the username, all lowercase, and use a si
 
 Once you have decided on a version, follow these instructions to complete the installation. He does a great job, and I didn't see that I could do any better!
 
+Change to the home directory using `cd ~` before you run `wget https://cdimage.ubuntu.com/releases/24.04.3/release/ubuntu-24.04.3-preinstalled-server-arm64+raspi.img.xz`.
+
 - [Raspberry Pi 5 with NVMe](https://wolfpaulus.com/rp5/)
 - [Install Ubuntu Server on Raspberry Pi 5 with NVMe SSD (Headless Setup)](https://wolfpaulus.com/rp5-ubuntu-cli/)
+
+!!! Note
+    Ubuntu Server is up to 24.04.3 now. Use this link instead of the one in the article:
+    `wget https://cdimage.ubuntu.com/releases/24.04.3/release/ubuntu-24.04.3-preinstalled-server-arm64+raspi.img.xz`
 
 When the installation is complete and you have rebooted, follow these [instructions](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal) to configure the terminal for ease of use. I wrote that procedure on Ubuntu 18.04 and have updated it as versions have changed. It will make your terminal use much easier.
 
