@@ -3,9 +3,9 @@ Description=Logger for ST40
 After=network.target
 
 [Service]
-User=mhubbard
-WorkingDirectory=/home/mhubbard/Haas/Haas_Data_collect
-ExecStart=/usr/bin/python3 /home/mhubbard/Haas/Haas_Data_collect/haas_logger2.py -a -t 192.168.0.140  --port 5052 --name st40
+User=haas
+WorkingDirectory=/home/haas/Haas_Data_collect
+ExecStart=/usr/bin/python3 /home/haas/Haas_Data_collect/haas_logger2.py -a -t 192.168.0.140  --port 5052 --name st40
 Type=idle
 
 [Install]
