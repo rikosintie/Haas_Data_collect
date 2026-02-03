@@ -39,7 +39,7 @@ If you are using ssh to connect, you are at the terminal already. If you are usi
 - Verify using `pwd` which is `print working directory` in Linux. You should see:
 
 ```bash
-╭─haas@ubuntu-server ~
+╭─haas@haas ~
 ╰─$ pwd
 /home/haas
 ```
@@ -166,7 +166,7 @@ sudo systemctl status st40.service
 ```
 
 ```unixconfig hl_lines="2" title="Status of the st40.service"
-╭─haas@ubuntu-server ~
+╭─haas@haas ~
 ╰─$ sudo systemctl status st40.service
 ● st40.service - Haas Python logger for ST40
      Loaded: loaded (/etc/systemd/system/st40.service; enabled; preset: enabled)
@@ -226,9 +226,9 @@ Here is a example:
 
 | description   -  | username | ip_address    |  name |
 |------------------|----------|---------------|-------|
-| Logger for ST40  | haas | 192.168.0.140 | st40  |
-| Logger for ST30  | haas | 192.168.0.141 | st30  |
-| Logger for ST30L | haas | 192.168.0.142 | st30l |
+| Logger for ST40  | haas     | 192.168.0.140 | st40  |
+| Logger for ST30  | haas     | 192.168.0.141 | st30  |
+| Logger for ST30L | haas     | 192.168.0.142 | st30l |
 
 ----------------------------------------------------------------
 
@@ -279,6 +279,15 @@ mkdir /home/haas/st40
     path = /home/haas/st40
     read only = no
     browsable = yes
+    writable = yes
+    public = no
+    valid users = @HaasGroup, haas # Ensure the user is valid
+    force user = haas
+    force group = HaasGroup
+    create mask = 0664
+    force create mode = 0664
+    directory mask = 0775
+    force directory mode = 0775
 ```
 
 It's much easier to peer review a spreadsheet than a bunch of files! If the spreadsheet is accurate, you will instantly get the service files and the commands to install them.
