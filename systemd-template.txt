@@ -6,19 +6,19 @@ sudo systemctl status {{name}}.service
 
 # Create the directory for the share
 
-mkdir /home/mhubbard/Haas/{{name}}
+mkdir /home/haas/{{name}}
 
 # Create the share configuration
 
 [{{name}}]
     comment = {{description}}
-    path = /home/mhubbard/Haas/{{name}}
+    path = /home/haas/{{name}}
     read only = no
     browsable = yes
     writable = yes
     public = no
-    valid users = @HaasGroup, mhubbard # Ensure the user is valid
-    force user = mhubbard
+    valid users = @HaasGroup, haas # Ensure the user is valid
+    force user = haas
     force group = HaasGroup
     create mask = 0664
     force create mode = 0664
