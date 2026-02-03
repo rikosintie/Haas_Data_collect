@@ -57,7 +57,7 @@ REQUIRED_FILES=(
   "haas-firewall.timer"
   "rollback_csv.sh"
   build-nmap.sh
-  issues.net
+  issue.net
 )
 
 echo "[*] Verifying required files in repo..."
@@ -137,6 +137,9 @@ sudo cp "$REPO_DIR/rollback_csv.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/build-nmap.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/csvlens" /usr/local/sbin/
 sudo cp "$REPO_DIR/issue.net" /etc/issue.net
+
+# Update the banner setting in sshd_config
+sudo sed -i 's/^#Banner none/Banner \/etc\/issue.net/' /etc/ssh/sshd_config
 
 sudo chmod +x /usr/local/sbin/configure_ufw_from_csv.sh
 sudo chmod +x /usr/local/sbin/validate_users_csv.sh
