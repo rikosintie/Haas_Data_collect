@@ -30,30 +30,30 @@ ls -l
 ```
 
 ```bash title='Command Output'
-/home/mhubbard
-drw-rw-r-- 9 mhubbard mhubbard  4096 Jan  4 20:26 Haas_Data_collect
+/home/haas
+drw-rw-r-- 9 haas haas  4096 Jan  4 20:26 Haas_Data_collect
 ```
 
-We can see the `Haas_Data_collect` folder, so we are in the correct location. Note that the `Haas_Data_collect` directory has `mhubbard mhubbard` listed. We need to change that to `mhubbard HaasGroup`
+We can see the `Haas_Data_collect` folder, so we are in the correct location. Note that the `Haas_Data_collect` directory has `haas haas` listed. We need to change that to `haas HaasGroup`
 
 Now run:
 
 ```bash hl_lines='2 5 8'
-# Allow traversal into /home/mhubbard (needed to reach Haas subdirectory)
-sudo chmod 774 /home/mhubbard
+# Allow traversal into /home/haas (needed to reach Haas subdirectory)
+sudo chmod 774 /home/haas
 
 # Set ownership for everything under Haas
-sudo chown -R mhubbard:HaasGroup /home/mhubbard/Haas
+sudo chown -R haas:HaasGroup /home/haas/Haas_Data_Collect
 
 # View the changes
 ls -l
 ```
 
 ```bash title='Command Output'
-drwxrwxr-x 9 mhubbard HaasGroup  4096 Jan  4 20:26 Haas_Data_collect
+drwxrwxr-x 9 haas HaasGroup  4096 Jan  4 20:26 Haas_Data_collect
 ```
 
-Note the `Haas_Data_collect` directory had changed from `mhubbard mhubbard` to `mhubbard HaasGroup`. That means mhubbard is the owner and HaasGroup is the group that will be applied.
+Note the `Haas_Data_collect` directory had changed from `haas haas` to `haas HaasGroup`. That means haas is the owner and HaasGroup is the group that will be applied.
 
 ----------------------------------------------------------------
 
@@ -63,11 +63,11 @@ Run the following:
 
 ```bash
 # Set permissions: directories get execute, files don't
-sudo find /home/mhubbard/Haas -type d -exec chmod 2775 {} +
-sudo find /home/mhubbard/Haas -type f -exec chmod 664 {} +
-chmod +x /home/$USER/Haas/Haas_Data_collect/lshare.sh
-chmod +x /home/$USER/Haas/Haas_Data_collect/smb_verify.sh
-chmod +x /home/$USER/Haas/Haas_Data_collect/setup_user.sh
+sudo find /home/haas/Haas_Data_Collect -type d -exec chmod 2775 {} +
+sudo find /home/haas/Haas_Data_Collect -type f -exec chmod 664 {} +
+chmod +x /home/$USER/Haas_Data_collect/lshare.sh
+chmod +x /home/$USER/Haas_Data_collect/smb_verify.sh
+chmod +x /home/$USER/Haas_Data_collect/setup_user.sh
 ```
 
 There is no output from these commands.
@@ -85,26 +85,25 @@ ls -l
 ```unixconfig title='Command Output'
 ls -l
 total 44
-drwxrwsr-x 6 mhubbard HaasGroup 4096 Jan  6 20:05 Haas_Data_collect
-drwxrwsr-x 2 mhubbard HaasGroup 4096 Jan  9 22:43 minimill
-drwxrwsr-x 2 mhubbard HaasGroup 4096 Jan  6 12:39 st30
-drwxrwsr-x 2 mhubbard HaasGroup 4096 Jan  9 22:11 st30l
-drwxrwsr-x 2 mhubbard HaasGroup 4096 Jan  9 20:32 st40
-drwxrwsr-x 2 mhubbard HaasGroup 4096 Dec 26 21:37 vf2ss
-drwxrwsr-x 2 mhubbard HaasGroup 4096 Dec 26 21:37 vf5ss
+drwxrwsr-x 6 haas HaasGroup 4096 Jan  6 20:05 Haas_Data_collect
+drwxrwsr-x 2 haas HaasGroup 4096 Jan  9 22:43 minimill
+drwxrwsr-x 2 haas HaasGroup 4096 Jan  6 12:39 st30
+drwxrwsr-x 2 haas HaasGroup 4096 Jan  9 22:11 st30l
+drwxrwsr-x 2 haas HaasGroup 4096 Jan  9 20:32 st40
+drwxrwsr-x 2 haas HaasGroup 4096 Dec 26 21:37 vf2ss
+drwxrwsr-x 2 haas HaasGroup 4096 Dec 26 21:37 vf5ss
 ```
 
-Now the account `mhubbard` has `rwx` (read/write/execute) and and the group `HaasGroup` has `rws` (read\write\setgid) to directories. The `other` group has `r--` (read only). Files will have rw-, read/write.
+Now the account `haas` has `rwx` (read/write/execute) and and the group `HaasGroup` has `rws` (read\write\setgid) to directories. The `other` group has `r--` (read only). Files will have rw-, read/write.
 
 The three bash scripts in Haas_Data_collect:
 
 ```bash
-~/Haas/Haas_Data_collect ‹main●›
+~/Haas_Data_collect ‹main●›
 ╰─$ ls -l *.sh
--rwxrwsr-x 1 mhubbard HaasGroup  646 Jan  4 20:26 lshare.sh
--rwxrwsr-x 1 mhubbard mhubbard  2441 Jan  6 12:38 setup_user.sh
--rwxrwsr-x 1 mhubbard HaasGroup 2620 Dec 26 23:01 smb_verify.sh
-
+-rwxrwsr-x 1 haas HaasGroup  646 Jan  4 20:26 lshare.sh
+-rwxrwsr-x 1 haas haas  2441 Jan  6 12:38 setup_user.sh
+-rwxrwsr-x 1 haas HaasGroup 2620 Dec 26 23:01 smb_verify.sh
 ```
 
 Have eXecute so that you can run them.
@@ -188,7 +187,7 @@ cat /etc/group | grep Haas
 ```
 
 ```bash title='Command Output'
-HaasGroup:x:1002:haassvc,mhubbard
+HaasGroup:x:1002:haassvc,haas
 ```
 
 ----------------------------------------------------------------
@@ -210,7 +209,7 @@ uid=1001(haassvc) gid=1001(haassvc) groups=1001(haassvc),1002(HaasGroup)
 It's fairly simple to create a user but it's a lot of individual commands which leaves room for errors. There is bash script to do the heavy lifting included in the repository. It gets installed when you clone the repository. To use it, first run the following command:
 
 ```bash linenums='1' hl_lines='1'
-cd /home/mhubbard/Haas/Haas_Data_collect
+cd /home/haas/Haas_Data_Collect
 chmod +x setup_user.sh
 ```
 
@@ -234,7 +233,7 @@ Here is the output of the script for the rgoodwin user:
 ----------------------------------------------------------------
 
 ```bash linenums='1' hl_lines='1'
-[sudo] password for mhubbard:
+[sudo] password for haas:
 Attempting to create and configure user: rgoodwin
 System user rgoodwin created.
 New password:
@@ -365,7 +364,7 @@ If you don't want to add the function to your .bashrc file you can use the `lsha
 chmod +x lshare.sh
 ```
 
-Then run the script from the `/home/mhubbard/Haas/Haas_Data_collect` direcory using:
+Then run the script from the `/home/Haas_Data_collect` directory using:
 
 ```bash linenums='1' hl_lines='1'
 ./lshare.sh
@@ -377,20 +376,20 @@ Here is the output of the function:
 
 ```bash
 smb-shares
-Haas         /home/mhubbard/Haas
-ST40         /home/mhubbard/Haas/st40
-minimill     /home/mhubbard/Haas/minimill
-VF2SS        /home/mhubbard/Haas/vf2ss
-VF5SS        /home/mhubbard/Haas/vf5ss
-ST30         /home/mhubbard/Haas/st30
-ST30L        /home/mhubbard/Haas/st30l
+Haas         /home/haas/Haas
+ST40         /home/haas/Haas/st40
+minimill     /home/haas/Haas/minimill
+VF2SS        /home/haas/Haas/vf2ss
+VF5SS        /home/haas/Haas/vf5ss
+ST30         /home/haas/Haas/st30
+ST30L        /home/haas/Haas/st30l
 ```
 
 ----------------------------------------------------------------
 
 ## Troubleshooting
 
-```bash title='Review the Jounal for user haassvc' hl_lines='1'
+```bash title='Review the Journal for user haassvc' hl_lines='1'
 id haassvc
 sudo journalctl -u smbd.service -n 50 --no-pager
 ```
@@ -404,7 +403,7 @@ Jan 05 11:05:55 ubuntu-server smbd[96113]: pam_unix(samba:session): session open
 -
 
 testparm -s
-smbclient -L //192.168.10.223 -U mhubbard
+smbclient -L //192.168.10.223 -U haas
 
 List only shares:
 
