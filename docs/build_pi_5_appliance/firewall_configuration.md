@@ -86,7 +86,7 @@ The project includes a script, `configure_ufw_firewall.sh` that reads a `csv` fi
 
 ```text
 username,desktop_ip_address,role
-mhubbard,192.168.10.143,Administrator
+haas,192.168.10.143,Administrator
 haassvc,192.168.10.104,user
 haassvc2,192.168.10.120,Administrator
 rgoodwin,192.168.10.120,Administrator
@@ -206,7 +206,7 @@ Several files are needed to build the rules, run a timer to make sure the firewa
 /usr/local/sbin/
   configure_ufw_from_csv.sh
 
-/home/mhubbard/Haas_Data_collect/
+/home/haas/Haas_Data_collect/
   users.csv
 
 /etc/systemd/system/
@@ -291,7 +291,7 @@ ls -l /usr/local/sbin/configure_ufw_from_csv.sh
 If the file exits in `/usr/local/sbin`, then delete the copy in the `Haas_Data_collect` directory:
 
 ```bash linenums='1' hl_lines='1'
-rm /home/mhubbard/Haas_Data_collect/configure_ufw_from_csv.sh
+rm /home/haas/Haas_Data_collect/configure_ufw_from_csv.sh
 ```
 
 There is no output from this command.
@@ -347,13 +347,13 @@ In the root of `Haas_Data_Collect` is a script named `configure_ufw_from_csv.sh`
 **make script executable. Run the following:**
 
 ```bash
-cd /home/mhubbard/Haas_Data_collect/
+cd /home/haas/Haas_Data_collect/
 chmod +x configure_ufw_from_csv.sh
 ls -l configure*
 ```
 
 ```bash title='Command Output'
-.rwxrwxr-x 4.8k mhubbard 11 Jan 19:54  configure_ufw_from_csv.sh
+.rwxrwxr-x 4.8k haas 11 Jan 19:54  configure_ufw_from_csv.sh
 ```
 
 ### The Dry-Run script option
@@ -392,10 +392,10 @@ Here is what the output of the `dry-run` option looks like:
 [*] Creating rules for Haas machines (haassvc)...
 [DRY-RUN] ufw allow from 192.168.50.0/24 to any port 445 proto tcp comment 'Haas machines IPv4 -> Samba'
 [*] Processing CSV: users.csv
-[*] Adding ADMIN 'mhubbard' from 192.168.10.143
-[DRY-RUN] ufw allow from 192.168.10.143 to any port 445 proto tcp comment 'Admin mhubbard -> Samba'
-[DRY-RUN] ufw allow from 192.168.10.143 to any port 22 proto tcp comment 'Admin mhubbard -> SSH'
-[DRY-RUN] ufw allow from 192.168.10.143 to any port 9090 proto tcp comment 'Admin mhubbard -> Cockpit'
+[*] Adding ADMIN 'haas' from 192.168.10.143
+[DRY-RUN] ufw allow from 192.168.10.143 to any port 445 proto tcp comment 'Admin haas -> Samba'
+[DRY-RUN] ufw allow from 192.168.10.143 to any port 22 proto tcp comment 'Admin haas -> SSH'
+[DRY-RUN] ufw allow from 192.168.10.143 to any port 9090 proto tcp comment 'Admin haas -> Cockpit'
 [*] Adding USER 'haassvc' from 192.168.10.104
 [DRY-RUN] ufw allow from 192.168.10.104 to any port 445 proto tcp comment 'User haassvc -> Samba'
 [*] Adding ADMIN 'haassvc2' from 192.168.10.120
@@ -460,7 +460,7 @@ sudo mkdir -p /usr/share/cockpit/haas-firewall
 copy the files
 
 ```bash linenums='1' hl_lines='1'
-sudo cp /home/mhubbard/Haas_Data_collect/cockpit/* /usr/share/cockpit/haas-firewall/
+sudo cp /home/haas/Haas_Data_collect/cockpit/* /usr/share/cockpit/haas-firewall/
 ```
 
 sudo cp manifest.json /usr/share/cockpit/haas-firewall/
