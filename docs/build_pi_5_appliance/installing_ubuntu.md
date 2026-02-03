@@ -42,7 +42,7 @@ Regardless of which version you want for production, install the desktop version
 
 ### Copy files to a PC
 
-You can copy the cmdline.txt, network-config, user-data files to a flash drive or use scp.
+You can copy the cmdline.txt, network-config, user-data files to a flash drive or use scp to a laptop.
 
 To copy from the RPi to my laptop at 192.168.10.138
 
