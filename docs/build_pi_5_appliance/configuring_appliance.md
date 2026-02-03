@@ -39,13 +39,13 @@ If you are using ssh to connect, you are at the terminal already. If you are usi
 - Verify using `pwd` which is `print working directory` in Linux. You should see:
 
 ```bash
-╭─mhubbard@ubuntu-server ~
+╭─haas@ubuntu-server ~
 ╰─$ pwd
-/home/mhubbard
+/home/haas
 ```
 
 !!! Note
-    The examples in this document will have `/home/mhubbard` and `/home/mhubbard/Haas_Data_collect`. When you install Ubuntu on your Raspberry Pi 5 you will use your own name. Please replace `mhubbard` with your name in all the code you enter!
+    The examples in this document will have `/home/haas` and `/home/haas/Haas_Data_collect`. When you install Ubuntu on your Raspberry Pi 5 use `haas`, all lowercase, as the username.
 
 - Clone the repository using `git clone https://github.com/rikosintie/Haas_Data_collect.git`
 - Change to the `Haas_Data_collect` folder using `cd Haas_Data_collect`
@@ -78,9 +78,9 @@ Description=Haas Python logger for ST40
 After=network.target
 
 [Service]
-User=mhubbard
-WorkingDirectory=/home/mhubbard/Haas_Data_collect
-ExecStart=/usr/bin/python3 /home/mhubbard/Haas_Data_collect/haas_logger2.py -a -t 192.168.10.140  --port 5052 --name ST40
+User=haas
+WorkingDirectory=/home/haas/Haas_Data_collect
+ExecStart=/usr/bin/python3 /home/haas/Haas_Data_collect/haas_logger2.py -a -t 192.168.10.140  --port 5052 --name ST40
 Type=idle
 
 [Install]
@@ -120,14 +120,14 @@ https://raw.githubusercontent.com/sinelaw/fresh/refs/heads/master/scripts/instal
 !!! Note
     In the Linux/Unix world it is considered bad security practice to pipe a command to the shell that you found on the Internet. Feel free to go to the Fresh webpage and copy the command from there.
 
-If you installed the desktop version of Ubuntu, you can use the GUI Gnome Text Editor GUI to edit the files by running:
+**If you installed the desktop version of Ubuntu**, you can use the GUI Gnome Text Editor GUI to edit the files by running:
 
 `sudo gnome-text-editor /etc/systemd/system/st40.service`
 
 #### What you need to modify
 
 - **Description** - The description is shown when you check the status of the service. Change to something that makes sense in your environment
-- **User** - Your username probably isn't mhubbard. Change to your username
+- **User** - Your username probably isn't haas. Change to your username
 - **WorkingDirectory** - I recommend you keep this format and just change the username in the path.
 - **ExecStart** - This is where the table of names, ports, IP addresses comes in handy.
 
@@ -166,7 +166,7 @@ sudo systemctl status st40.service
 ```
 
 ```unixconfig hl_lines="2" title="Status of the st40.service"
-╭─mhubbard@ubuntu-server ~
+╭─haas@ubuntu-server ~
 ╰─$ sudo systemctl status st40.service
 ● st40.service - Haas Python logger for ST40
      Loaded: loaded (/etc/systemd/system/st40.service; enabled; preset: enabled)
@@ -176,7 +176,7 @@ sudo systemctl status st40.service
      Memory: 6.9M (peak: 7.1M)
         CPU: 37ms
      CGroup: /system.slice/st40.service
-             └─115518 /usr/bin/python3 /home/mhubbard/Haas_Data_collect/haas_logger2.py -a -t 192.168.10.122 --port 5052 --name ST40
+             └─115518 /usr/bin/python3 /home/haas/Haas_Data_collect/haas_logger2.py -a -t 192.168.10.122 --port 5052 --name ST40
 
 Dec 29 16:09:45 ubuntu-server systemd[1]: Started st40.service - Haas Python logger for ST40.
 ```
@@ -191,10 +191,10 @@ ps -ef | grep -E "115518|PID"
 
 ```bash title='Command Output'
 UID          PID    PPID  C STIME TTY          TIME CMD
-mhubbard  115518       1  0 06:28 ?        00:00:04 /usr/bin/python3 /home/mhubbard/Haas/Haas_Data_collect/haas_logger2.py -a -t 192.168.10.122 --port 5052 --name ST40
+haas  115518       1  0 06:28 ?        00:00:04 /usr/bin/python3 /home/haas/Haas_Data_collect/haas_logger2.py -a -t 192.168.10.122 --port 5052 --name ST40
 ```
 
-The `mhubbard` is the User ID (UID) that owns the process, 115518 is the Process ID (PID).
+The `haas` is the User ID (UID) that owns the process, 115518 is the Process ID (PID).
 
 ----------------------------------------------------------------
 
@@ -226,9 +226,9 @@ Here is a example:
 
 | description   -  | username | ip_address    |  name |
 |------------------|----------|---------------|-------|
-| Logger for ST40  | mhubbard | 192.168.0.140 | st40  |
-| Logger for ST30  | mhubbard | 192.168.0.141 | st30  |
-| Logger for ST30L | mhubbard | 192.168.0.142 | st30l |
+| Logger for ST40  | haas | 192.168.0.140 | st40  |
+| Logger for ST30  | haas | 192.168.0.141 | st30  |
+| Logger for ST30L | haas | 192.168.0.142 | st30l |
 
 ----------------------------------------------------------------
 
@@ -270,13 +270,13 @@ sudo systemctl status st40.service
 
 # Create the directory for the share
 
-mkdir /home/mhubbard/Haas/st40
+mkdir /home/haas/st40
 
 # Create the share configuration
 
 [st40]
     comment = Logger for ST40
-    path = /home/mhubbard/Haas/st40
+    path = /home/haas/st40
     read only = no
     browsable = yes
 ```
@@ -329,3 +329,83 @@ Now you can type the following:
 - `dmr` to reload the daemons
 
 ----------------------------------------------------------------
+
+## The installation script
+
+
+Samba
+
+Key changes:
+
+- Overwrites /etc/samba/smb.conf entirely with tee (without -a)
+- Backs up the original to smb.conf.backup first
+ - Includes all the security settings in the [global] section
+ - Disable the printer share
+- Adds testparm to validate the configuration before restarting
+
+```text linenums='1' hl_lines='1'
+[global]
+    workgroup = WORKGROUP
+    server string = %h server (Samba, Ubuntu)
+    log file = /var/log/samba/log.%m
+    max log size = 10000
+    logging = file
+    panic action = /usr/share/samba/panic-action %d
+
+    # Authentication
+    server role = standalone server
+    obey pam restrictions = Yes
+    unix password sync = Yes
+    passwd program = /usr/bin/passwd %u
+    passwd chat = *Enter\snew\s*\spassword:* %n\n *Retype\snew\s*\spassword:* %n\n *password\supdated\ssuccessfully* .
+    pam password change = Yes
+    map to guest = Bad User
+
+    # Protocol Security - Force SMB2/SMB3 only
+    client min protocol = SMB2
+    client max protocol = SMB3
+    server min protocol = SMB2
+    server max protocol = SMB3
+
+    # Disable legacy protocols and services
+    disable netbios = Yes
+    disable spoolss = Yes
+
+    # Disable printing
+    load printers = No
+    printing = bsd
+    printcap name = /dev/null
+
+    [printers]
+    available = No
+    browseable = No
+    printable = Yes
+
+[print$]
+    available = No
+
+    # Performance
+    socket options = TCP_NODELAY IPTOS_LOWDELAY
+
+[Haas]
+    comment = Haas Directory Share
+    create mask = 0664
+    directory mask = 0775
+    force create mode = 0664
+    force directory mode = 0775
+    force user = haas
+    force group = HaasGroup
+    path = /home/haas/Haas_Data_collect
+    read only = No
+    valid users = @HaasGroup haas
+    browseable = yes
+```
+
+Security improvements in this config:
+
+Forces SMB2 minimum (blocks SMB1 which has security vulnerabilities)
+Disables NetBIOS completely
+Disables printing services
+Only allows authenticated users (@HaasGroup)
+
+This approach is cleaner and ensures no duplicate entries!
