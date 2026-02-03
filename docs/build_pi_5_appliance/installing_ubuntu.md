@@ -26,7 +26,12 @@ The other advantage is that you can register with Canonical for Ubuntu Pro at $2
 
 ## Installation
 
-During the installation, use `haas` as the username, all lowercase, and use a simple password that you can type with both hands on the keyboard. You will be typing the password a lot during the creation of the appliance. The code in the rest of the setup expects the username to be haas, which creates a home directory at `/home/haas`, used in all the examples in the guide. When the appliance is ready for production, change the password to a long and complex password. Save it in a password manager so that you don't forget it.
+During the installation:
+
+- Use `haas` as the username, all lowercase, and use a simple password that you can type with both hands on the keyboard. You will be typing the password a lot during the creation of the appliance.
+- Use `haas` as the hostname, all lowercase. You can use anything, but the examples use `haas`.
+
+The code in the rest of the setup expects the username to be haas, which creates a home directory at /home/haas, used in all the examples in the guide. When the appliance is ready for production, change the password to a long and complex password. Save it in a password manager so that you don't forget it.
 
 Once you have decided on a version, follow these instructions to complete the installation. The instructions are from the Wolf Paulus blog, he does a great job, and I didn't see that I could do any better!
 
@@ -72,9 +77,7 @@ Change to the home directory using `cd ~` before you run:
 
 ----------------------------------------------------------------
 
-!!! Note
-    Ubuntu Server is up to 24.04.3 now. Use this link instead of the one in the article:
-    `wget https://cdimage.ubuntu.com/releases/24.04.3/release/ubuntu-24.04.3-preinstalled-server-arm64+raspi.img.xz`
+### Change the shell to zsh
 
 When the installation is complete and you have rebooted, follow these [instructions](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal) to configure the terminal for ease of use. I wrote that procedure on Ubuntu 18.04 and have updated it as versions have changed. It will make your terminal use much easier.
 
@@ -197,13 +200,43 @@ run the script
 `./netplan-try.sh`
 
 ----------------------------------------------------------------
+## Show the processor
+
+The Raspberry Pi uses `Advanced RISC Machine (ARM)` architecture vs the Intel x86 in your laptop. You can use the standard Linux commamnd `List CPU - lscpu' to verify:
+
+```bash linenums='1' hl_lines='1'
+lscpu
+```
+
+```unixconfig title='Command Output'
+Architecture:             aarch64
+  CPU op-mode(s):         32-bit, 64-bit
+  Byte Order:             Little Endian
+CPU(s):                   4
+  On-line CPU(s) list:    0-3
+Vendor ID:                ARM
+  Model name:             Cortex-A76
+    Model:                1
+    Thread(s) per core:   1
+    Core(s) per cluster:  4
+    Socket(s):            -
+    Cluster(s):           1
+    Stepping:             r4p1
+    CPU(s) scaling MHz:   62%
+    CPU max MHz:          2400.0000
+    CPU min MHz:          1500.0000
+    BogoMIPS:             108.00
+```
+
+----------------------------------------------------------------
 
 ### Use IPv6
 
 If you don't mind learning a little IPv6, you can SSH to the Pi over IPv6 even if it doesn't have an IPv4 address.
 
-If you followed the instructions above, add this to the netplan yaml file
+If you followed the Paulus blog, add `dhcp6: true` to the netplan yaml file
 
+```bash
 network:
   version: 2
   ethernets:
@@ -211,6 +244,7 @@ network:
       dhcp4: true
       optional: true
       dhcp6: true
+```
 
 Use the following to find the IPv6 address:
 
@@ -218,12 +252,14 @@ Use the following to find the IPv6 address:
 ip a show dev eth0
 ```
 
+```unixconfig hl_lines="5" title='Command Output'
 2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
     link/ether 88:a2:9e:43:4d:de brd ff:ff:ff:ff:ff:ff
     inet 192.168.10.137/24 metric 100 brd 192.168.10.255 scope global dynamic eth0
        valid_lft 28463sec preferred_lft 28463sec
     inet6 fe80::8aa2:9eff:fe43:4dde/64 scope link
        valid_lft forever preferred_lft forever
+```
 
 The `fe80::8aa2:9eff:fe43:4dde` is an IPv6 `link local` address. It's similar to an IPv4 APIPA, but it's the same every time the device starts up. It is created using the EUI-64 format, which is based on the 48-bit MAC address.
 
@@ -231,6 +267,15 @@ The `fe80::8aa2:9eff:fe43:4dde` is an IPv6 `link local` address. It's similar to
 
 !!! Note
     The EUI-64 (Extended Unique Identifier) format is a 64-bit interface identifier used in IPv6 to automatically generate host addresses from a 48-bit MAC address. This process involves splitting the MAC address, inserting FFFE in the middle, and flipping the 7th bit (universal/local bit) of the first byte.
+
+What flipping the 7th bit looks like:
+
+```bash linenums='1' hl_lines='1'
+10001000 → 10001010
+                 ^
+                flipped b7
+88 → 8A
+```
 
 ----------------------------------------------------------------
 
