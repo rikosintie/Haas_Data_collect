@@ -17,6 +17,7 @@
 #   - Installs the latest csvlens binary to /usr/local/sbin
 #   - Installs the latest nmap
 #   - Instals the "micro" cli text editor
+#   - Instals the "fresh" cli text editor
 #   - Creates the backup directory in the repo
 #   - Triggers an initial firewall configuration via systemd
 #
@@ -335,16 +336,18 @@ if sudo apt install samba -y; then
 
 [Haas]
     comment = Haas Directory Share
-    create mask = 0664
-    directory mask = 0775
-    force create mode = 0664
-    force directory mode = 0775
+    path = /home/haas/Haas_Data_collect
+    read only = no
+    browsable = yes
+    writable = yes
+    public = no
+    valid users = @HaasGroup, haas
     force user = haas
     force group = HaasGroup
-    path = /home/haas/Haas_Data_collect
-    read only = No
-    valid users = @HaasGroup haas
-    browseable = yes
+    create mask = 0664
+    force create mode = 0664
+    directory mask = 0775
+    force directory mode = 0775
 EOF
 
     # Test the configuration
