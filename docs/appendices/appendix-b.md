@@ -15,7 +15,7 @@ I was annoyed at first, but it was effective! This is done in a similar format, 
 ----------------------------------------------------------------
 
 **Samba authenticates Windows users, but Linux decides what they can access.**
-When a Windows user logs in, Samba maps them to a Linux user account that belongs to the `HaasGroup`. All folders under `Haas_Data_collect` are owned by `mhubbard` and assigned to `HaasGroup`, so every user in that group gets the same read/write access. This keeps permissions simple and predictable without using Windows-style ACLs or effective permissions.
+When a Windows user logs in, Samba maps them to a Linux user account that belongs to the `HaasGroup`. All folders under `Haas_Data_collect` are owned by `haas` and assigned to `HaasGroup`, so every user in that group gets the same read/write access. This keeps permissions simple and predictable without using Windows-style ACLs or effective permissions.
 
 ----------------------------------------------------------------
 
@@ -120,7 +120,7 @@ This analogy lands well with Windows admins
 ```text
                          ┌──────────────────────────────┐
                          │  Haas_Data_collect           │
-                         │  Owner: mhubbard             │
+                         │  Owner: haas             │
                          │  Group: HaasGroup            │
                          └──────────────┬───────────────┘
                                         │
@@ -128,7 +128,7 @@ This analogy lands well with Windows admins
         │                               │                                │
 ┌──────────────────┐       ┌──────────────────────┐        ┌──────────────────┐
 │    minimill/     │       │      st30    /       │        │      st30l/      │
-│ Owner: mhubbard  │       │ Owner: mhubbard      │        │ Owner: mhubbard  │
+│ Owner: haas      │       │ Owner: haas          │        │ Owner: haas      │
 │ Group: HaasGroup │       │ Group: HaasGroup     │        │ Group: HaasGroup │
 └──────────────────┘       └──────────────────────┘        └──────────────────┘
 ```
@@ -138,12 +138,12 @@ This analogy lands well with Windows admins
 
 This diagram makes the permission model visually obvious:
 
-- One owner (`mhubbard`)
+- One owner (`haas`)
 - One shared group (`HaasGroup`)
 - All users in `HaasGroup` get the same access
 - No Windows‑style “effective permissions” — just owner → group → everyone else
 
-All directories under `Haas_Data_collect` are owned by the user `mhubbard` and assigned to the group `HaasGroup`, which contains all appliance users. This ensures consistent shared access without the complexity of Windows‑style effective permissions.
+All directories under `Haas_Data_collect` are owned by the user `haas` and assigned to the group `HaasGroup`, which contains all appliance users. This ensures consistent shared access without the complexity of Windows‑style effective permissions.
 
 ----------------------------------------------------------------
 
@@ -153,7 +153,7 @@ In this appliance, multiple Windows users will access shared folders on the Rasp
 
 To keep things simple and predictable, we use:
 
-1. One owner for all files: `mhubbard`
+1. One owner for all files: `haas`
 1. One shared group for all users: `HaasGroup`
 1. A consistent permission model across all folders under `Haas_Data_collect`
 
@@ -183,7 +183,7 @@ You can think of it like:
 
 To make permissions easy to reason about, everything under `Haas_Data_collect1 is set up like this:
 
-- Owner (user): mhubbard
+- Owner (user): haas
 - Group: HaasGroup
 - Members of HaasGroup: all users who should have access to these folders
 
@@ -191,17 +191,17 @@ Conceptually, it looks like this:
 
 ```text
                          Haas_Data_collect/
-                Owner: mhubbard
+                Owner: haas
                 Group: HaasGroup
                          │
         ┌────────────────┼─────────────────────────────┐
         │                │                             │
     minimill/          st30/                         st30l/
-Owner: mhubbard      Owner: mhubbard                Owner: mhubbard
+Owner: haas          Owner: haas                    Owner: haas
 Group: HaasGroup     Group: HaasGroup               Group: HaasGroup
         │
         └── cnc_logs/
-            Owner: mhubbard
+            Owner: haas
             Group: HaasGroup
 ```
 
@@ -209,7 +209,7 @@ Group: HaasGroup     Group: HaasGroup               Group: HaasGroup
 
 So for every important directory:
 
-- The  owner is always `mhubbard`.
+- The  owner is always `haas`.
 - The group is always `HaasGroup`.
 - All real users connect as members of 'HaasGroup'.
 
@@ -217,7 +217,7 @@ So for every important directory:
 
 Let’s say the folders under 'Haas' are configured so that:
 
-- The **owner** (mhubbard) has full access.
+- The **owner** (haas) has full access.
 - The **group** (HaasGroup) has full access.
 - **Others** (everyone not in HaasGroup) have read only
 
@@ -240,7 +240,7 @@ So:
 
 From a Windows perspective, you can think of it like this:
 
-- `mhubbard` ≈ a built‑in “service account” that technically owns everything.
+- `haas` ≈ a built‑in “service account” that technically owns everything.
 - `HaasGroup` ≈ a Windows security group that has Full Control on all the relevant folders.
 - Other users on the system ≈ like “Everyone” being read only.
 
@@ -264,7 +264,7 @@ When a Windows user connects to the appliance (for example via a network share:
 
 You, as the appliance creator, keep control simply by:
 
-- Keeping `mhubbard` as the owner.
+- Keeping `haas` as the owner.
 - Ensuring all real users are in `HaasGroup`.
 - Ensuring all critical directories under `Haas_Data_collect` are assigned to `HaasGroup`.
 
@@ -335,13 +335,13 @@ Because all your shared folders belong to `HaasGroup`, the user gets the group p
 
 Every directory under `Haas_Data_collect` is set up like this:
 
-- **Owner:** `mhubbard`
+- **Owner:** `haas`
 - **Group:** `HaasGroup`
 - **Permissions:** owner = full, group = full, others = read only
 
 So when a Windows user connects:
 
-- They are not the owner (mhubbard)
+- They are not the owner (haas)
 - But they are in the group (HaasGroup)
 - So they get the **group permissions**
 
