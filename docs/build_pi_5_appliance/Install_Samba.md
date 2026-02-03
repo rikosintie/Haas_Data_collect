@@ -123,7 +123,7 @@ sudo systemctl status smbd
              ├─10740 "smbd: cleanupd "
              └─75813 "smbd: client [192.168.10.143]"
 
-Dec 27 19:07:06 ubuntu-server smbd[20940]: pam_unix(samba:session): session opened for user mhubbard(uid=1000) by (uid=0)
+Dec 27 19:07:06 ubuntu-server smbd[20940]: pam_unix(samba:session): session opened for user haas(uid=1000) by (uid=0)
 ```
 
 ----------------------------------------------------------------
@@ -139,7 +139,7 @@ The Haas data collection scripts create the spreadsheets in the `cnc_logs` direc
 The final structure will look like this:
 
 ```bash
-├── mhubbard
+├── haas
     ├── Haas_Data_collect
        ├── cnc_logs
        ├── minimill
@@ -172,7 +172,7 @@ First we need to create the directories. We can refer to our table for the names
 If you are only doing a handful of machines use:
 
 ```bash
-mkdir /home/mhubbard/Haas_Data_collect/st40
+mkdir /home/haas/Haas_Data_collect/st40
 ```
 
 And repeat for each machine. If you used the Python script under [Scaling up](configuring_appliance.md/#scaling-up) with the `systemd-template.txt` it creates the 'mkdir' command along with the aliases.
@@ -190,14 +190,14 @@ Go to the bottom of the file and paste this code in:
 
 [Haas]
     comment = Haas
-    path = /home/mhubbard/Haas_Data_collect
+    path = /home/haas/Haas_Data_collect
     read only = no
     browsable = yes
     writable = yes
     browsable = yes
     public = no
-    valid users = @HaasGroup, mhubbard # Ensure the user is valid
-    force user = mhubbard
+    valid users = @HaasGroup, haas # Ensure the user is valid
+    force user = haas
     force group = HaasGroup
     create mask = 0664
     force create mode = 0664
@@ -205,19 +205,19 @@ Go to the bottom of the file and paste this code in:
     force directory mode = 0775
 ```
 
-This is the root directory. All other paths will be appended to the end of `/home/mhubbard/Haas_Data_collect`. For example:
+This is the root directory. All other paths will be appended to the end of `/home/haas/Haas_Data_collect`. For example:
 
 ```bash linenums='1' hl_lines='1'
 [ST40]
     comment = st40
-    path = /home/mhubbard/Haas_Data_collect/st40
+    path = /home/haas/Haas_Data_collect/st40
     read only = no
     browsable = yes
     writable = yes
     browsable = yes
     public = no
-    valid users = @HaasGroup, mhubbard # Ensure the user is valid
-    force user = mhubbard
+    valid users = @HaasGroup, haas # Ensure the user is valid
+    force user = haas
     force group = HaasGroup
     create mask = 0664
     force create mode = 0664
@@ -238,20 +238,20 @@ sudo systemctl status st1.service
 
 # Create the directory for the share
 
-mkdir /home/mhubbard/Haas_Data_collect/st1
+mkdir /home/haas/Haas_Data_collect/st1
 
 Create the share configuration
 
 [st1]
     comment =
-    path = /home/mhubbard/Haas_Data_collect/st1
+    path = /home/haas/Haas_Data_collect/st1
     read only = no
     browsable = yes
     writable = yes
     browsable = yes
     public = no
-    valid users = @HaasGroup, mhubbard # Ensure the user is valid
-    force user = mhubbard
+    valid users = @HaasGroup, haas # Ensure the user is valid
+    force user = haas
     force group = HaasGroup
     create mask = 0664
     force create mode = 0664
@@ -263,13 +263,13 @@ Create the share configuration
 
 The following options are needed so that files created from Windows, Mac, Linux with mapped drives get the correct permissions:
 
-1. **force user = mhubbard:** Ensures that all operations on this share are performed as the user mhubbard, making them the owner of all new files.
+1. **force user = haas:** Ensures that all operations on this share are performed as the user haas, making them the owner of all new files.
 1. **force group = HaasGroup:** Ensures that all new files and directories are assigned to the group HaasGroup.
 1. **create mask = 0664 and force create mode = 0664:** These lines work together to ensure that the resulting file permissions are exactly rw-rw-r-- (664 octal).
 1. **directory mask = 0775 and force directory mode = 0775:** These lines ensure that new directories are created with rwxrwxr-x permissions (775 octal), which includes the necessary execute bit for directory traversal.
 
 Ensure the underlying Linux directory permissions are correct:
-On the server's filesystem, make sure the shared directory (/home/mhubbard/Haas_Data_collect) in this example is owned by `mhubbard:HaasGroup`.
+On the server's filesystem, make sure the shared directory (/home/haas/Haas_Data_collect) in this example is owned by `haas:HaasGroup`.
 
 After you add all the share configurations, save `/etc/samba/smb.conf` and exit nano.
 
@@ -282,12 +282,12 @@ Based on the [table](Install_Samba.md/#create-the-shares) above this is what the
 
 [Haas]
     comment = Haas Directory Share
-    path = /home/mhubbard/Haas
+    path = /home/haas/Haas
     browseable = yes
     writable = yes
     guest ok = no
-    valid users = @HaasGroup, mhubbard # Ensure the user is valid
-    force user = mhubbard
+    valid users = @HaasGroup, haas # Ensure the user is valid
+    force user = haas
     force group = HaasGroup
     create mask = 0664
     force create mode = 0664
@@ -295,12 +295,12 @@ Based on the [table](Install_Samba.md/#create-the-shares) above this is what the
     force directory mode = 0775
 [ST40]
     comment = ST40
-    path = /home/mhubbard/Haas_Data_collect/st40
+    path = /home/haas/Haas_Data_collect/st40
     read only = no
     browsable = yes
     public = no
-    valid users = @HaasGroup, mhubbard # Ensure the user is valid
-    force user = mhubbard
+    valid users = @HaasGroup, haas # Ensure the user is valid
+    force user = haas
     force group = HaasGroup
     create mask = 0664
     force create mode = 0664
@@ -308,12 +308,12 @@ Based on the [table](Install_Samba.md/#create-the-shares) above this is what the
     force directory mode = 0775
 [minimill]
     comment = minimill
-    path = /home/mhubbard/Haas_Data_collect/minimill
+    path = /home/haas/Haas_Data_collect/minimill
     read only = no
     browsable = yes
     public = no
-    valid users = @HaasGroup, mhubbard # Ensure the user is valid
-    force user = mhubbard
+    valid users = @HaasGroup, haas # Ensure the user is valid
+    force user = haas
     force group = HaasGroup
     create mask = 0664
     force create mode = 0664
@@ -321,12 +321,12 @@ Based on the [table](Install_Samba.md/#create-the-shares) above this is what the
     force directory mode = 0775
 [VF2SS]
     comment = vf2ss
-    path = /home/mhubbard/Haas_Data_collect/vf2ss
+    path = /home/haas/Haas_Data_collect/vf2ss
     valid users = @HaasGroup
     read only = no
     public = no
-    valid users = @HaasGroup, mhubbard # Ensure the user is valid
-    force user = mhubbard
+    valid users = @HaasGroup, haas # Ensure the user is valid
+    force user = haas
     force group = HaasGroup
     create mask = 0664
     force create mode = 0664
@@ -334,12 +334,12 @@ Based on the [table](Install_Samba.md/#create-the-shares) above this is what the
     force directory mode = 0775
   [VF5SS]
     comment = vf5ss
-    path = /home/mhubbard/Haas_Data_collect/vf5ss
+    path = /home/haas/Haas_Data_collect/vf5ss
     read only = no
     browsable = yes
     public = no
-    valid users = @HaasGroup, mhubbard # Ensure the user is valid
-    force user = mhubbard
+    valid users = @HaasGroup, haas # Ensure the user is valid
+    force user = haas
     force group = HaasGroup
     create mask = 0664
     force create mode = 0664
@@ -347,12 +347,12 @@ Based on the [table](Install_Samba.md/#create-the-shares) above this is what the
     force directory mode = 0775
 [ST30]
     comment = st30
-    path = /home/mhubbard/Haas_Data_collect/st30
+    path = /home/haas/Haas_Data_collect/st30
     read only = no
     browsable = yes
     public = no
-    valid users = @HaasGroup, mhubbard # Ensure the user is valid
-    force user = mhubbard
+    valid users = @HaasGroup, haas # Ensure the user is valid
+    force user = haas
     force group = HaasGroup
     create mask = 0664
     force create mode = 0664
@@ -360,12 +360,12 @@ Based on the [table](Install_Samba.md/#create-the-shares) above this is what the
     force directory mode = 0775
 [ST30L]
     comment = st30l
-    path = /home/mhubbard/Haas_Data_collect/st30l
+    path = /home/haas/Haas_Data_collect/st30l
     read only = no
     browsable = yes
     public = no
-    valid users = @HaasGroup, mhubbard # Ensure the user is valid
-    force user = mhubbard
+    valid users = @HaasGroup, haas # Ensure the user is valid
+    force user = haas
     force group = HaasGroup
     create mask = 0664
     force create mode = 0664
@@ -402,10 +402,10 @@ sudo smbstatus shares
 Samba version 4.19.5-Ubuntu
 PID     Username     Group        Machine                                   Protocol Version  Encryption           Signing
 ----------------------------------------------------------------------------------------------------------------------------------------
-127044  mhubbard     mhubbard     192.168.10.143 (ipv4:192.168.10.143:51376) SMB3_11           -                    partial(AES-128-GMAC)
+127044  haas     haas     192.168.10.143 (ipv4:192.168.10.143:51376) SMB3_11           -                    partial(AES-128-GMAC)
 117495  mchavez      mchavez      192.168.10.120 (ipv4:192.168.10.120:55586) SMB3_11           -                    partial(AES-128-GMAC)
 127455  rgoodwin     rgoodwin     192.168.10.104 (ipv4:192.168.10.104:52578) SMB3_11           -                    partial(AES-128-GMAC)
-127051  mhubbard     mhubbard     192.168.10.143 (ipv4:192.168.10.143:48096) SMB3_11           -                    partial(AES-128-GMAC)
+127051  haas     haas     192.168.10.143 (ipv4:192.168.10.143:48096) SMB3_11           -                    partial(AES-128-GMAC)
 
 Service      pid     Machine       Connected at                     Encryption   Signing
 ---------------------------------------------------------------------------------------------
@@ -418,12 +418,12 @@ ST30         117495  192.168.10.120 Thu Jan  8 11:45:23 AM 2026 PST  -          
 Locked files:
 Pid          User(ID)   DenyMode   Access      R/W        Oplock           SharePath   Name   Time
 --------------------------------------------------------------------------------------------------
-127455       1002       DENY_NONE  0x100081    RDONLY     NONE             /home/mhubbard/Haas_Data_collect/minimill   .   Fri Jan  9 19:49:03 2026
-127455       1002       DENY_NONE  0x100081    RDONLY     NONE             /home/mhubbard/Haas_Data_collect/minimill   .   Fri Jan  9 19:49:03 2026
-127455       1002       DENY_NONE  0x100081    RDONLY     NONE             /home/mhubbard/Haas_Data_collect/minimill   .   Fri Jan  9 19:49:03 2026
-127455       1002       DENY_NONE  0x120089    RDONLY     LEASE(RWH)       /home/mhubbard/Haas_Data_collect/minimill   O1000.txt   Fri Jan  9 19:57:32 2026
-117495       1003       DENY_NONE  0x100081    RDONLY     NONE             /home/mhubbard/Haas_Data_collect/st30   .   Thu Jan  8 11:45:51 2026
-117495       1003       DENY_NONE  0x100081    RDONLY     NONE             /home/mhubbard/Haas_Data_collect/st30   .   Thu Jan  8 11:45:51 2026
+127455       1002       DENY_NONE  0x100081    RDONLY     NONE             /home/haas/Haas_Data_collect/minimill   .   Fri Jan  9 19:49:03 2026
+127455       1002       DENY_NONE  0x100081    RDONLY     NONE             /home/haas/Haas_Data_collect/minimill   .   Fri Jan  9 19:49:03 2026
+127455       1002       DENY_NONE  0x100081    RDONLY     NONE             /home/haas/Haas_Data_collect/minimill   .   Fri Jan  9 19:49:03 2026
+127455       1002       DENY_NONE  0x120089    RDONLY     LEASE(RWH)       /home/haas/Haas_Data_collect/minimill   O1000.txt   Fri Jan  9 19:57:32 2026
+117495       1003       DENY_NONE  0x100081    RDONLY     NONE             /home/haas/Haas_Data_collect/st30   .   Thu Jan  8 11:45:51 2026
+117495       1003       DENY_NONE  0x100081    RDONLY     NONE             /home/haas/Haas_Data_collect/st30   .   Thu Jan  8 11:45:51 2026
 
 ```
 
@@ -474,23 +474,23 @@ ini
   writable = yes
   browsable = yes
   public = no
-  valid users = @HaasGroup, mhubbard # Ensure the user is valid
-  force user = mhubbard
+  valid users = @HaasGroup, haas # Ensure the user is valid
+  force user = haas
   force group = HaasGroup
   create mask = 0664
   force create mode = 0664
   directory mask = 0775
   force directory mode = 0775
 
-1. force user = mhubbard: Ensures that all operations on this share are performed as the user mhubbard, making them the owner of all new files.
+1. force user = haas: Ensures that all operations on this share are performed as the user haas, making them the owner of all new files.
 1. force group = HaasGroup: Ensures that all new files and directories are assigned to the group HaasGroup.
 1. create mask = 0664 and force create mode = 0664: These lines work together to ensure that the resulting file permissions are exactly rw-rw-r-- (664 octal).
 1. directory mask = 0775 and force directory mode = 0775: These lines ensure that new directories are created with rwxrwxr-x permissions (775 octal), which includes the necessary execute bit for directory traversal.
 
 Ensure the underlying Linux directory permissions are correct:
-On the server's filesystem, make sure the shared directory (/home/mhubbard/Haas_Data_collect) in this example) is owned by mhubbard:HaasGroup.
+On the server's filesystem, make sure the shared directory (/home/haas/Haas_Data_collect) in this example) is owned by haas:HaasGroup.
 
-sudo chown -R mhubbard:HaasGroup /home/mhubbard/Haas_Data_collect
-sudo chmod -R 2775 /home/mhubbard/Haas_Data_collect
+sudo chown -R haas:HaasGroup /home/haas/Haas_Data_collect
+sudo chmod -R 2775 /home/haas/Haas_Data_collect
 
 The 2 in 2775 sets the setgid bit, which ensures that all locally created files also inherit the HaasGroup.
