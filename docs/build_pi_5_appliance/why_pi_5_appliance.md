@@ -15,7 +15,7 @@ The workaround to a user being logged in is to use a tool like `NSSM (Non-Suckin
 
 The second reason means creating file shares on the Windows computer that the scripts are running on. I have had a lot of wasted time in small shops making their MSP understand what is needed (a user account, the shares, security groups, etc.) and getting it done while I'm onsite. Plus, creating shares on a personal workstation may violate IT security policy.
 
-A Raspberry Pi 5 appliance solves both of these problems:
+**A Raspberry Pi 5 appliance solves both of these problems:**
 
 - It can run 24/7 in the shop or in the server closet with no one logged in.
 - It uses less than 27 watts of power; electricity cost isn't an issue.
@@ -118,15 +118,15 @@ The difference is the amount of RAM. To build a dedicated RPi 5 for this project
 
 To build a high-performance appliance for a manufacturing plant, I used:
 
-- [Raspberry Pi 5 8GB](https://www.amazon.com/dp/B0CK2FCG1K?ref=fed_asin_title)
-- [Waveshare case](https://www.amazon.com/dp/B0D97VK1VW?ref=fed_asin_title)
-- [Waveshare PoE Hat](https://www.amazon.com/dp/B0CR1JGP1Z?ref=fed_asin_title)
-- [RTC battery case](https://www.amazon.com/dp/B0CRKQ2MG1?ref=fed_asin_title)
-- [Samsung 256GB NVME](https://www.amazon.com/Samsung-SSD-PM9A1-NVMe-256GB/dp/B0BVKYN245)
+- [Raspberry Pi 5 8GB - $104.48](https://www.amazon.com/dp/B0CK2FCG1K?ref=fed_asin_title)
+- [Waveshare case - $33.99](https://www.amazon.com/dp/B0D97VK1VW?ref=fed_asin_title)
+- [Waveshare PoE Hat - $28.49](https://www.amazon.com/dp/B0CR1JGP1Z?ref=fed_asin_title)
+- [RTC battery case - $5.49](https://www.amazon.com/dp/B0CRKQ2MG1?ref=fed_asin_title)
+- [Samsung 256GB NVME - $78.00](https://www.amazon.com/Samsung-SSD-PM9A1-NVMe-256GB/dp/B0BVKYN245)
 
 ----------------------------------------------------------------
 
-The Waveshare [case](https://www.amazon.com/dp/B0D97VK1VW?ref=fed_asin_title) is industrial quality with ears to mount it to a back board. It includes the following:
+The Waveshare [case](https://www.amazon.com/dp/B0D97VK1VW?ref=fed_asin_title) is industrial quality with ears to mount it to a back board. It has the following capabilities:
 
 - ✅ Supports PCIe Extending To M.2 Interface
 - ✅ Larger internal space, supports connecting to various HATs such as PoE HAT, Etc. Also, with space left for cable management
@@ -138,7 +138,7 @@ The installation instructions are on the Amazon link but they are hard to find. 
 
 ----------------------------------------------------------------
 
-### USB Serial cable for the Raspberry Pi 5
+## USB Serial cable for the Raspberry Pi 5
 
 I recommend purchasing the [Waveshare Industrial USB to TTL (D) Serial Cable, compatible with the Raspberry Pi 5](https://www.amazon.com/Waveshare-Industrial-Compatible-Raspberry-Protection/dp/B0CX5C5KR4?crid=UOYE4ZQGD85P&dib=eyJ2IjoiMSJ9.BPFSkDQQOB_j9pTthVxIH4j29kCE7yNqMgc9hB24bXyZhFqiigw3R8GFKkNfReHcXnOziFKmQqQT18804nToT-uEjdtmRbNvjT7EAReShBp_-x8drPgFSEOiVlVJefzxlg92li3IySROS7fhPIbUUCjNmzzSXwEktDIOugk-NjlgFu55M4KYy8D7fpKQ_cFomwpIjZmp9w28W1e2MFkhYuAF2tf9ULMQeNLm8Mz8SIs.7Cn4aq4suv6rP_fKHjW11v9K2c4YlYELTGYOSVdyyDw&dib_tag=se&keywords=raspberry+pi+5+serial+cable&qid=1768278124&sprefix=raspberry+pi+5+serial%2Caps%2C193&sr=8-1) Serial to USB cable, for $13.99. The cable allows you to connect to the Raspberry Pi 5 if you lock yourself out over SSH. And that can happen when configuring the firewall. :smiley:
 
