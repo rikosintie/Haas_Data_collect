@@ -139,7 +139,16 @@ sudo cp "$REPO_DIR/csvlens" /usr/local/sbin/
 sudo cp "$REPO_DIR/issue.net" /etc/issue.net
 
 # Update the banner setting in sshd_config
-sudo sed -i 's/^#Banner none/Banner \/etc\/issue.net/' /etc/ssh/sshd_config
+if [ -f /etc/issue.net ] && grep -q "^Banner" /etc/ssh/sshd_config && sudo sshd -t; then
+    echo "✅ Success: /etc/issue.net exists and SSH config is valid."
+else
+    echo "❌ Error: Missing file or invalid SSH config!"
+    [ ! -f /etc/issue.net ] && echo "   -> /etc/issue.net is missing."
+    ! grep -q "^Banner" /etc/ssh/sshd_config && echo "   -> Banner line not found in config."
+    ! sudo sshd -t && echo "   -> sshd syntax error detected."
+    exit 1
+fi
+sleep 5
 
 sudo chmod +x /usr/local/sbin/configure_ufw_from_csv.sh
 sudo chmod +x /usr/local/sbin/validate_users_csv.sh
