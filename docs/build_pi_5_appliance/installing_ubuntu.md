@@ -200,6 +200,7 @@ run the script
 `./netplan-try.sh`
 
 ----------------------------------------------------------------
+
 ## Show the processor
 
 The Raspberry Pi uses `Advanced RISC Machine (ARM)` architecture vs the Intel x86 in your laptop. You can use the standard Linux commamnd `List CPU - lscpu' to verify:
@@ -230,7 +231,7 @@ Vendor ID:                ARM
 
 ----------------------------------------------------------------
 
-### Use IPv6
+## Use IPv6
 
 If you don't mind learning a little IPv6, you can SSH to the Pi over IPv6 even if it doesn't have an IPv4 address.
 
