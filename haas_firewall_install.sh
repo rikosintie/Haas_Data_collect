@@ -269,8 +269,9 @@ if sudo apt install samba -y; then
             if [ -n "$username" ] && [ -n "$password" ]; then
                 echo "Creating user: $username"
 
-                # Create system user and add to HaasGroup
-                sudo useradd -m -G HaasGroup "$username" 2>/dev/null || echo "User $username already exists"
+                # Create system user and add to HaasGroup. -M don't create home directory.
+                # -s /usr/sbin/nologin" No login shell, user is just for Samaba access.
+                sudo useradd -M -G HaasGroup -s /usr/sbin/nologin "$username" 2>/dev/null || echo "User $username already exists"
 
                 # Add user to HaasGroup (in case they existed but weren't in the group)
                 sudo usermod -aG HaasGroup "$username"
