@@ -45,7 +45,7 @@ If you are using ssh to connect, you are at the terminal already. If you are usi
 ```
 
 !!! Note
-    The examples in this document will have `/home/haas` and `/home/haas/Haas_Data_collect`. When you install Ubuntu on your Raspberry Pi 5 use `haas`, all lowercase, as the username.
+    The examples in this document will have `/home/haas` and `/home/haas/Haas_Data_collect`. When you install Ubuntu on your Raspberry Pi 5 use `haas`, all lowercase, as the username. If you use a different name, remember to update the path after you paste a command into the terminal.
 
 - Clone the repository using `git clone https://github.com/rikosintie/Haas_Data_collect.git`
 - Change to the `Haas_Data_collect` folder using `cd Haas_Data_collect`
@@ -53,11 +53,56 @@ If you are using ssh to connect, you are at the terminal already. If you are usi
 
 ----------------------------------------------------------------
 
+## Update text files
+
+There are a few files in the Haas_Data_collect directory that need to be updated to fit your environment:
+
+- users.csv - This file contains usernames, ip addresses and roles.
+- issue.net - This is the login banner. It get copied to `/etc/issue.net` by the `haas-firewall-install.sh` script. This is a generic file. Update it per your companies security policy.
+- initial_users.csv - Users who need access the Samba shares. The CNC controls will use the `haassvc` user account. Add CNC programmers, operations personnel that need to copy files from the appliance.
+
+These file are used as input to the `haas-firewall-install.sh` script that is presented next.
+
+----------------------------------------------------------------
+
+## The installation script
+
+The `haas_firewall_install.sh` script does a lot of the heavy lifting to get the appliance up and running. It does the following:
+
+- Writes the `/etc/haas-firewall.conf` file allows you to add a custom subnet for the Haas CNCs if your network uses segmentation. Allow you to set a custom SSH port for the firewall rules if your security policy requires it.
+- Installs systemd firewall service + timer
+- Installs Samba server and updates /etc/samba/smb.conf
+- Sets up Samba security and creates the "[Haas]" share
+- Creates Samba users from the `initial_users.csv` file
+- Installs Cockpit extension for managing/monitoring the firewall
+- Installs the "micro" cli text editor
+- Installs the "fresh" cli text editor
+- Copies `issue.net` to `/etc/issue.net` (This is the Pre-logon banner)
+- Copies csvlens binary to /usr/local/sbin - csvlens is a cli tool for viewing csv files. Example `csvlens users.csv`
+- Creates the backup directory in the repo
+- Triggers an initial firewall configuration via systemd
+
+It does NOT modify or delete anything inside the repo.
+
+----------------------------------------------------------------
+
 ## The systemd service files
 
 Ubuntu uses an initialization (init) service named `systemd`. Systemd manages what services are initialized when Ubuntu starts up. We will use `systemd` to manage the Python scripts.
 
-The service files are where you define how to call the Python script when the Pi starts up. In the repository there are six files representing six different machine tools. The ports and IP addresses used are:
+----------------------------------------------------------------
+
+The installation script ***Does Not*** copy any service files so the Python scripts to collect data  are not running immediately after the installation script finishes.
+
+----------------------------------------------------------------
+
+The service files are where you define how to call the Python script when the Pi starts up. In the repository there are six files representing six different machine tools. A service file requires:
+
+- Machine name
+- The port to be used on the machine
+- The IP address of the CNC controller
+
+These are the machine names, ports and IP addresses in the sample files.
 
 | Machine  | Port# |   IP Address   |
 |----------|-------|:--------------:|
@@ -92,13 +137,15 @@ WantedBy=multi-user.target
 
 ----------------------------------------------------------------
 
-### Editing the files
+### Creating systemd Service files
 
 The systemd service files are located in `/etc/systemd/system/` so you must use sudo to edit them. Think of `sudo` as `UAC` in Windows. The advantage is that you can proactively use `sudo` and not have to deal with pop up dialogs asking for permission!
 
-As an example, let's use the included st40.service file. You should be in the `Haas_Data_collect` directory. Use the following to copy `st40.service` to the `/etc/systemd/system/` directory:
+As an example, let's use the included st40.service file. You should be in the `Haas_Data_collect` directory. You can rename it using `mv st40.service new_name.service`. Use the following to copy `st40.service` to the `/etc/systemd/system/` directory:
 
 `sudo cp st40.service /etc/systemd/system/st40.service`
+or
+`sudo cp new_name.service /etc/systemd/system/new_name.service`
 
 Use the following to edit the st40.service file after you copy it:
 
@@ -120,18 +167,20 @@ https://raw.githubusercontent.com/sinelaw/fresh/refs/heads/master/scripts/instal
 !!! Note
     In the Linux/Unix world it is considered bad security practice to pipe a command to the shell that you found on the Internet. Feel free to go to the Fresh webpage and copy the command from there.
 
+----------------------------------------------------------------
+
 **If you installed the desktop version of Ubuntu**, you can use the GUI Gnome Text Editor GUI to edit the files by running:
 
 `sudo gnome-text-editor /etc/systemd/system/st40.service`
 
+----------------------------------------------------------------
+
 #### What you need to modify
 
 - **Description** - The description is shown when you check the status of the service. Change to something that makes sense in your environment
-- **User** - Your username probably isn't haas. Change to your username
-- **WorkingDirectory** - I recommend you keep this format and just change the username in the path.
 - **ExecStart** - This is where the table of names, ports, IP addresses comes in handy.
 
-Nothing else needs to be changed in the service file.
+**Nothing else needs to be changed in the service file.**
 
 ----------------------------------------------------------------
 
