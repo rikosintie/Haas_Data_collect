@@ -7,17 +7,22 @@
 #   - Detects the repo directory dynamically (can be anywhere)
 #   - Writes /etc/haas-firewall.conf with:
 #       CSV_PATH, BACKUP_DIR, HAAS_MACHINES_SUBNET_V4, HAAS_MACHINES_SUBNET_V6, SSH_PORT
-#   - Copies issues.net to /etc/ (Pre-logon banner)
+#   - Copies issue.net to /etc/issue.net (Pre-logon banner)
 #   - Installs firewall scripts into /usr/local/sbin
-#   - Copies build-nmap to /usr/local/sbin
-#   - Installs systemd service + timer
+#        configure_ufw_from_csv.sh
+#        validate_users_csv.sh
+#        rollback_csv.sh
+#        build-nmap.sh
+#     Install csvlens binary to /usr/local/sbin
+#        csvlens
+#   - Copies build-nmap.sh to /usr/local/sbin
+#   - Installs the latest nmap
+#   - Installs systemd firewall service + timer
 #   - Installs Samba server and updates /etc/samba/smb.conf
 #       sets security and creates the "[Haas]" share
 #   - Installs Cockpit extension
-#   - Installs the latest csvlens binary to /usr/local/sbin
-#   - Installs the latest nmap
-#   - Instals the "micro" cli text editor
-#   - Instals the "fresh" cli text editor
+#   - Installs the "micro" cli text editor
+#   - Installs the "fresh" cli text editor
 #   - Creates the backup directory in the repo
 #   - Triggers an initial firewall configuration via systemd
 #
