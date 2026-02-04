@@ -203,7 +203,7 @@ run the script
 
 ## Show the processor
 
-The Raspberry Pi uses `Advanced RISC Machine (ARM)` architecture vs the Intel x86 in your laptop. You can use the standard Linux commamnd `List CPU - lscpu' to verify:
+The Raspberry Pi uses `Advanced RISC Machine (ARM)` architecture vs the Intel x86 in your laptop. You can use the standard Linux command `List CPU - lscpu' to verify:
 
 ```bash linenums='1' hl_lines='1'
 lscpu
@@ -283,20 +283,21 @@ What flipping the 7th bit looks like:
 ### How to ssh to this IPv6 address
 
 **macOS wireless interface en0**
+Use the following command to ssh from a MacBook:
 
 ```bash
 ssh haas@fe80::8aa2:9eff:fe43:4dde%en0
 ```
 
 **Linux with wireless interface wlp61s0**
+Use the following command to ssh from a Linux laptop:
 
 ```bash
 ssh haas@fe80::8aa2:9eff:fe43:4dde%wlp61s0
 ```
 
 **Windows**
-
-Use
+Use these commands to ssh from a Windows laptop:
 
 ```text
 netsh interface ipv6 show interfaces
