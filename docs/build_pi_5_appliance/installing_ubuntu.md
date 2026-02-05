@@ -154,7 +154,7 @@ ip addr show eth0
 ip route show
 ```
 
-### Validation script
+### YAML Validation script
 
 If you are doing a lot of changes to the yaml file you can use this script to automate the testing:
 
@@ -227,6 +227,32 @@ Vendor ID:                ARM
     CPU max MHz:          2400.0000
     CPU min MHz:          1500.0000
     BogoMIPS:             108.00
+```
+
+----------------------------------------------------------------
+
+### Linux List commands
+
+You can get a list of all `ls` commands by typying `ls` and pressing `tab`. You can google or use `man lscommand` to see help on any ls command. Some useful `ls` commands:
+
+- ls - list files in current directory
+- lsattr - list file attributes on a Linux extended file system
+- lsblk - list block storage devices line SD cards, USB Flash Drives, NVMEs.
+- lsb_release - the `-a` option displays all information about a release.
+- lshw - list hardware - A detailed list of installed hardware.
+- lslocks - list local system locks
+- lsof - list open files. example sudo lsof -i -n | grep localsend to see the PID and IPv4 info.
+- lsusb - list all USB devices
+
+----------------------------------------------------------------
+
+procs - not an ls command but very userful - example `procs localsend` will show the `localsend` app's PID, CPU/Mem data, filepath
+
+```bash linenums='1' hl_lines='1'
+procs localsend
+ PID:▲  User     │ TTY CPU MEM CPU Time │ Command
+                 │     [%] [%]          │
+ 515639 mhubbard │     0.0 0.2 08:02:59 │ /snap/localsend/32/usr/share/localsend_app/localsend_app
 ```
 
 ----------------------------------------------------------------
