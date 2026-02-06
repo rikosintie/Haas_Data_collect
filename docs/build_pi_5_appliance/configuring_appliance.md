@@ -125,8 +125,8 @@ minimill,192.168.10.115,user
 - username - The username of a person or machine that will access the appliance.
 - ip _address - This is the IP address of devices that need to access the appliance.
 - roles:
-  1. Administrator - Users that can manage the appliance. They can access ssh, smb shares, Cockpit.
-  1. User - This role is configured on the Haas CNC and any users that only nee to map drives. Only file share access through the firewall
+    1. Administrator - Users that can manage the appliance. They can access ssh, smb shares, Cockpit.
+    1. User - This role is configured on the Haas CNC and any users that only needs to map drives. Only file share access through the firewall
 
 The `users.csv` file will remain in the `Haas_Data_collection` folder after the appliance is in production. Anytime the firewall need to be modified you will update the `users.csv` file.
 
