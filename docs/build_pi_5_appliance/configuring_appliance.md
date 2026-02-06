@@ -88,24 +88,38 @@ The script does not create the [The systemd service files](configuring_appliance
 
 ## Update text files
 
-There are a three files in the `Haas_Data_collect` directory that need to be updated to fit your environment before you run the install script:
+There are a three files in the `Haas_Data_collect` directory that need to be updated to fit your environment **before you run the install script**:
 
-- users.csv - This file contains usernames, ip addresses and roles.
-- issue.net - This is the login banner. It gets copied to `/etc/issue.net` by the `haas-firewall-install.sh` script. This is a generic file. Update it per your companies security policy.
+- users.csv - This file contains usernames, ip addresses and roles for configuring the firewall.
 - initial_users.csv - Users who need access to the Windows shares on the appliance. The CNC controls will use the `haassvc` user account. Add CNC programmers, and operations personnel that need to copy files to/from the appliance.
+- issue.net - This is the login banner. It gets copied to `/etc/issue.net` by the `haas-firewall-install.sh` script. This is a generic file. Update it per your company's security policy.
 
 These files are used as input to the `haas-firewall-install.sh` script that is presented next.
+
+There two user components to the appliance setup, it may be confusing at first! The appliance is protected by the Ubuntu firewall. The firewall is configured automatically by the data in the file `users.csv`.
+
+There are also `users` created from data in the file `initial_users.csv`. These are users that need to have both Linux and Samba accounts to access the file shares. The installation scripts creates the user accounts.
 
 ----------------------------------------------------------------
 
 ### users.csv
 
-This is a comma separated value, `csv` format file that contains the users, ip addresses and roles of any users that need to access the Raspberry Pi 5 appliance. The format is:
+This is a comma-separated value (csv) file that contains the users, ip addresses and roles of any users that need to access the Raspberry Pi 5 appliance. Every Haas CNC machine will need to be in this file, otherwise the firewall will block access. If your machines are on a dedicated IP subnet, a best practice, you can edit the `/etc/haas-firewall.conf` file and enter the subnet. There is a script that will read the `haas-firewall.conf` file and update the firewall. That is explained in the `Cockpit management` section.
+
+The format for `users.csv` is:
 
 ```bash hl_lines='1'
 username,ip_address,role
-mhubbard,192.168.10.143,Administrator
+haas,192.168.10.143,Administrator
 haassvc,192.168.10.104,user
+mchavez,192.168.10.133,user
+thubbard,192.168.10.100,user
+st30,192.168.10.110,user
+st30l,192.168.10.111,user
+st40,192.168.10.112,user
+vf2ss,192.168.10.113,user
+vf5ss,192.168.10.114,user
+minimill,192.168.10.115,user
 ```
 
 - username - The username of a person or machine that will access the appliance.
@@ -120,12 +134,12 @@ Use the following to edit the file if you are connected over ssh:
 
 ```bash hl_lines='1'
 cd ~/haas/Haas_Data_collect
-sudo users.csv
+nano users.csv
 ```
 
 When you are finished use the following to `save` and `close` the file:
 
-```bash hl_lines='1'
+```bash
 ctrl+s
 ctrl+x
 ```
@@ -134,13 +148,52 @@ If you are in the Desktop version of Ubuntu you can open the `Files` application
 
 ----------------------------------------------------------------
 
-### Login banner - issue.net
+### The initial_users.csv file
+
+This is a comma-separated value (csv) file that contains usernames and passwords. These are users authorized to map drives to the appliance. Every user who needs to work with the appliance should be listed in this file. The installation script will create a Linux user account and Samba account for each user in `initial_users.csv`. This would include:
+
+- Haas CNC controls - Use `haassvc` on all machine tools when enabling file sharing. Their role is `user`.
+- CNC Programmers - You can map a drive using a Windows user name or use haassvc since the programmers only need to access the shares. Their role would be `user`.
+- Operations employees - These are users that will be copying log files for data analysis. You can map a drive using a Windows user name or use haassvc since the programmers only need to access the shares. Their role would be `user`.
+- Administrators - These are users that can modify the firewall, add users, etc. Use their Windows user name. Since the appliance isn't integrated into Active Directory, you will have to make up a password for them. Their role would be `administrator`.
+
+#### There are two trains of thoughts on usernames
+
+Use `haassvc` for all CNC controls, programmers, and operations people. They only get r/w access to shares. They cannot manage the appliance.
+Use `haassvc` for all CNC controls, use the Windows username for all other users. They only get r/w access to shares. They cannot manage the appliance.
+
+The first method is easier to deploy and maintain, but you lose the ability to track who has been logging in. Verify your company's security policy before deciding on a method to use.
+
+By default, the only user who can run Linux commands with superuser rights is `haas`, the user who installed Ubuntu.
+
+----------------------------------------------------------------
+
+I used `xxxxxxxxx` for all users. This is because GitHub is scanned thousands of times per day by attackers looking for secrets. If I used anything resembling a password, attackers would be publishing my repository all over the dark web. I attended a `Crowdstrike` conference in Las Vegas in 2024. In one of the classes I got to enter `rikosintie` into their `Dark Web` tool. I was stunned that my repositories were listed as having `ssh keys` and passwords in the clear. None of the `ssh keys` or passwords were valid, I had changed several characters in the keys and the passwords were nonsense, but the Dark Web as very excited about them!
+
+Here is the included sample file. Modify it to fit your environment:
+
+```text
+username, password
+mhubbard, xxxxxxxxx
+haassvc, xxxxxxxxx
+mchavez, xxxxxxxxx
+thubbard, xxxxxxxxx
+```
+
+I know it's odd that there are `users.csv` and `initial_users.csv` but there is no secure way to leave passwords lying around in plain text files.
+
+!!! Warning
+    This file contains usernames/passwords that the installation script will use to create the Samba shares. You should delete this file as soon as the script finishes the installation.
+
+----------------------------------------------------------------
+
+### The login banner - issue.net
 
 ![screenshot](img/tux-authorized2.resized.jpeg)
 
 ----------------------------------------------------------------
 
-This is a text file that is displayed ***before*** a user logs in over ssh. The included file is a basic "You need Authorization" banner. Modify it to match your organization's security policy before running the installation script. If you need to update it later, use `sudo nano /etc/issue.net` to open the file. Ascii art is a method of making banners using ASCII characters. I used the [Ascii Art Archive](https://www.asciiart.eu/text-to-ascii-art) to create this banner.
+This is a text file that is displayed ***before*** a user logs in over ssh. The included file is a basic "You need Authorization" banner. Modify it to match your organization's security policy before running the installation script. If you need to update it later, use `sudo nano /etc/issue.net` to open the file. ASCII art is a method of making banners using ASCII characters. I used the [ASCII Art Archive](https://www.asciiart.eu/text-to-ascii-art) to create this banner. You can get much fancier if you want to spend the time! If you are also responsible for network equipment, you can use the approved banner from a switch or router.
 
 ----------------------------------------------------------------
 
@@ -180,32 +233,6 @@ ctrl+x
 Open the `Files` application and right click on `issue.net` and select `Open with text Editor`. That will open the file in `Gnome Text Editor`.
 
 ----------------------------------------------------------------
-
-### The initial_users.csv file
-
-This is a comma separated value, `csv` format file that contains the users and passwords that are authorized to map drives to the appliance. This would include:
-
-- Haas CNC controls - Use haassvc on all machine tools when enabling file sharing. Their role would be `user`.
-- CNC Programmers - You can map a drive using a Windows user name or use haassvc since the programmers only need to access the shares. Their role would be `user`.
-- Operations employees - These are users that will be copying log files for data analysis. You can map a drive using a Windows user name or use haassvc since the programmers only need to access the shares. Their role would be `user`.
-- Administrators - These are users that can modify the firewall, add users, etc. Use their Windows user name. Since the appliance isn't integrated into Active Directory, you will have to make up a password for them. Their role would be `administrator`.
-
-!!! Warning
-    This file contains usernames/passwords that the installation script will use to create the Samba shares. You should delete this file as soon as the script finishes the installation.
-
-I used `xxxxxxxxx` for all users. This is because GitHub is scanned thousands of times per day by attackers looking for secrets. If I used anything resembling a password, attackers would be publishing my repository all over the dark web. I attended a `Crowdstrike` conference in Las Vegas in 2024. In one of the classes I got to enter `rikosintie` into their `Dark Web` tool. I was stunned that my repositories were listed as having `ssh keys` and passwords in the clear. None of the `ssh keys` or passwords were valid, I had changed several characters in the keys and the passwords were nonsense, but the Dark Web as very excited about them!
-
-Here is the included sample file. Modify it to fit your environment:
-
-```text
-username, password
-mhubbard, xxxxxxxxx
-haassvc, xxxxxxxxx
-mchavez, xxxxxxxxx
-thubbard, xxxxxxxxx
-```
-
-I know it's odd that there are `users.csv` and `initial_users.csv` but there is no secure way to leave passwords lying around in plain text files.
 
 Use the following to edit the file if you are connected over ssh:
 
