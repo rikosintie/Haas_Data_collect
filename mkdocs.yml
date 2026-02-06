@@ -3,6 +3,8 @@ site_author: Michael Hubbard (rikosintie)
 site_url: https://rikosintie.github.io/Haas-data-collect/
 repo_url: https://github.com/rikosintie/Haas_Data_collect
 repo_name: rikosintie/Haas_Data_collect
+docs_dir: docs
+
 nav:
   - home: README.md
   - Intro: Introduction.md
