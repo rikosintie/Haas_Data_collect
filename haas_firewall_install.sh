@@ -173,7 +173,7 @@ fi
 echo "[OK] Firewall scripts installed."
 
 ########################################
-# INSTALL SYSTEMD UNITS
+# INSTALL SYSTEMD Firewall UNITS
 ########################################
 
 echo "[*] Installing systemd service and timer..."

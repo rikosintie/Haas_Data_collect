@@ -33,7 +33,7 @@ The next sections will cover all of these topics in detail.
 
 ## Open a terminal on the Pi
 
-If you are using ssh to connect, you are at the terminal already. If you are using the GUI, press `ctrl+alt+t` to open a terminal.
+If you are using ssh to connect, you are already at the terminal. If you are using the desktop version of Ubuntu, press `ctrl+alt+t` to open a terminal.
 
 - Make sure you are in your home directory by running `cd ~`
 - Verify using `pwd` which is `print working directory` in Linux. You should see:
@@ -47,29 +47,27 @@ If you are using ssh to connect, you are at the terminal already. If you are usi
 !!! Note
     The examples in this document will have `/home/haas` and `/home/haas/Haas_Data_collect`. When you install Ubuntu on your Raspberry Pi 5 use `haas`, all lowercase, as the username. If you use a different name, remember to update the path after you paste a command into the terminal.
 
-- Clone the repository using `git clone https://github.com/rikosintie/Haas_Data_collect.git`
-- Change to the `Haas_Data_collect` folder using `cd Haas_Data_collect`
+- Clone the repository using
+
+```bash hl_lines="1"
+git clone https://github.com/rikosintie/Haas_Data_collect.git`
+```
+
+- Change to the `Haas_Data_collect` folder using
+
+```bash hl_lines="1"
+cd Haas_Data_collect`
+```
+
 - List the files for reference using `ls -l`
-
-----------------------------------------------------------------
-
-## Update text files
-
-There are a few files in the Haas_Data_collect directory that need to be updated to fit your environment:
-
-- users.csv - This file contains usernames, ip addresses and roles.
-- issue.net - This is the login banner. It get copied to `/etc/issue.net` by the `haas-firewall-install.sh` script. This is a generic file. Update it per your companies security policy.
-- initial_users.csv - Users who need access the Samba shares. The CNC controls will use the `haassvc` user account. Add CNC programmers, operations personnel that need to copy files from the appliance.
-
-These file are used as input to the `haas-firewall-install.sh` script that is presented next.
 
 ----------------------------------------------------------------
 
 ## The installation script
 
-The `haas_firewall_install.sh` script does a lot of the heavy lifting to get the appliance up and running. It does the following:
+The repository includes a script named: `haas_firewall_install.sh`. The script does a lot of the heavy lifting to get the appliance up and running.
 
-- Writes the `/etc/haas-firewall.conf` file allows you to add a custom subnet for the Haas CNCs if your network uses segmentation. Allow you to set a custom SSH port for the firewall rules if your security policy requires it.
+- Writes the `/etc/haas-firewall.conf` file that allows you to add a custom subnet for the Haas CNCs if your network uses segmentation. Allow you to set a custom SSH port for the firewall rules if your security policy requires it.
 - Installs systemd firewall service + timer
 - Installs Samba server and updates /etc/samba/smb.conf
 - Sets up Samba security and creates the "[Haas]" share
@@ -83,6 +81,194 @@ The `haas_firewall_install.sh` script does a lot of the heavy lifting to get the
 - Triggers an initial firewall configuration via systemd
 
 It does NOT modify or delete anything inside the repo.
+
+The script does not create the [The systemd service files](configuring_appliance.md/#the-systemd-service-files) because they must be modified for your machine names and ip addresses. They are covered after the installation script.
+
+----------------------------------------------------------------
+
+## Update text files
+
+There are a three files in the `Haas_Data_collect` directory that need to be updated to fit your environment before you run the install script:
+
+- users.csv - This file contains usernames, ip addresses and roles.
+- issue.net - This is the login banner. It gets copied to `/etc/issue.net` by the `haas-firewall-install.sh` script. This is a generic file. Update it per your companies security policy.
+- initial_users.csv - Users who need access to the Windows shares on the appliance. The CNC controls will use the `haassvc` user account. Add CNC programmers, and operations personnel that need to copy files to/from the appliance.
+
+These files are used as input to the `haas-firewall-install.sh` script that is presented next.
+
+----------------------------------------------------------------
+
+### users.csv
+
+This is a comma separated value, `csv` format file that contains the users, ip addresses and roles of any users that need to access the Raspberry Pi 5 appliance. The format is:
+
+```bash hl_lines='1'
+username,ip_address,role
+mhubbard,192.168.10.143,Administrator
+haassvc,192.168.10.104,user
+```
+
+- username - The username of a person or machine that will access the appliance.
+- ip _address - This is the IP address of devices that need to access the appliance.
+- roles:
+  1. Administrator - Users that can manage the appliance. They can access ssh, smb shares, Cockpit.
+  1. User - This role is configured on the Haas CNC and any users that only nee to map drives. Only file share access through the firewall
+
+The `users.csv` file will remain in the `Haas_Data_collection` folder after the appliance is in production. Anytime the firewall need to be modified you will update the `users.csv` file.
+
+Use the following to edit the file if you are connected over ssh:
+
+```bash hl_lines='1'
+cd ~/haas/Haas_Data_collect
+sudo users.csv
+```
+
+When you are finished use the following to `save` and `close` the file:
+
+```bash hl_lines='1'
+ctrl+s
+ctrl+x
+```
+
+If you are in the Desktop version of Ubuntu you can open the `Files` application and double click on `users.csv`. That will open the file in LibreOffice Calc. Make sure you save the file as `csv` file and not an `odf` or excel format.
+
+----------------------------------------------------------------
+
+### Login banner - issue.net
+
+![screenshot](img/tux-authorized2.resized.jpeg)
+
+----------------------------------------------------------------
+
+This is a text file that is displayed ***before*** a user logs in over ssh. The included file is a basic "You need Authorization" banner. Modify it to match your organization's security policy before running the installation script. If you need to update it later, use `sudo nano /etc/issue.net` to open the file. Ascii art is a method of making banners using ASCII characters. I used the [Ascii Art Archive](https://www.asciiart.eu/text-to-ascii-art) to create this banner.
+
+----------------------------------------------------------------
+
+```text
+
+
+                 Haas Data Collection Server
+
+╔═════════════════════════════════════════════════════════════════╗
+║                                                                 ║
+║ UNAUTHORIZED ACCESS TO THIS NETWORK DEVICE IS PROHIBITED.       ║
+║ You must have explicit permission to access or configure this   ║
+║ device.  All activities performed on this device are logged and ║
+║ violations of this policy may result in disciplinary action.    ║
+║                                                                 ║
+╚═════════════════════════════════════════════════════════════════╝
+
+
+
+```
+
+Use the following to edit the file if you are connected over ssh:
+
+```bash hl_lines='1'
+cd ~/haas/Haas_Data_collect
+nano issue.net
+```
+
+When you are finished use the following to `save` and `close` the file:
+
+```bash hl_lines='1'
+ctrl+s
+ctrl+x
+```
+
+**If you are in the Desktop version of Ubuntu**
+Open the `Files` application and right click on `issue.net` and select `Open with text Editor`. That will open the file in `Gnome Text Editor`.
+
+----------------------------------------------------------------
+
+### The initial_users.csv file
+
+This is a comma separated value, `csv` format file that contains the users and passwords that are authorized to map drives to the appliance. This would include:
+
+- Haas CNC controls - Use haassvc on all machine tools when enabling file sharing. Their role would be `user`.
+- CNC Programmers - You can map a drive using a Windows user name or use haassvc since the programmers only need to access the shares. Their role would be `user`.
+- Operations employees - These are users that will be copying log files for data analysis. You can map a drive using a Windows user name or use haassvc since the programmers only need to access the shares. Their role would be `user`.
+- Administrators - These are users that can modify the firewall, add users, etc. Use their Windows user name. Since the appliance isn't integrated into Active Directory, you will have to make up a password for them. Their role would be `administrator`.
+
+!!! Warning
+    This file contains usernames/passwords that the installation script will use to create the Samba shares. You should delete this file as soon as the script finishes the installation.
+
+I used `xxxxxxxxx` for all users. This is because GitHub is scanned thousands of times per day by attackers looking for secrets. If I used anything resembling a password, attackers would be publishing my repository all over the dark web. I attended a `Crowdstrike` conference in Las Vegas in 2024. In one of the classes I got to enter `rikosintie` into their `Dark Web` tool. I was stunned that my repositories were listed as having `ssh keys` and passwords in the clear. None of the `ssh keys` or passwords were valid, I had changed several characters in the keys and the passwords were nonsense, but the Dark Web as very excited about them!
+
+Here is the included sample file. Modify it to fit your environment:
+
+```text
+username, password
+mhubbard, xxxxxxxxx
+haassvc, xxxxxxxxx
+mchavez, xxxxxxxxx
+thubbard, xxxxxxxxx
+```
+
+I know it's odd that there are `users.csv` and `initial_users.csv` but there is no secure way to leave passwords lying around in plain text files.
+
+Use the following to edit the file if you are connected over ssh:
+
+```bash hl_lines='1'
+cd ~/haas/Haas_Data_collect
+sudo initial_users.csv
+```
+
+When you are finished use the following to `save` and `close` the file:
+
+```bash hl_lines='1'
+ctrl+s
+ctrl+x
+```
+
+If you are in the Desktop version of Ubuntu you can open the `Files` application and double click on `users.csv`. That will open the file in LibreOffice Calc. Make sure you save the file as `csv` file and not an `odf` or excel format.
+
+----------------------------------------------------------------
+
+## The install script details
+
+The installation script `haas_firewall_install.sh` is written in `bash`, the native Linux language for system administration tasks. I have included comments for every section. You should review the script before running it so that you have an idea what it does.
+
+Use the following to view the file if you are connected over ssh:
+
+```bash hl_lines='1'
+cd ~/haas/Haas_Data_collect
+cat initial_users.csv
+```
+
+**If you are in the Desktop version of Ubuntu**
+Open the `Files` application and right click on `haas_firewall_install.sh` and select `Open with text Editor`. That will open the file in `Gnome Text Editor`.
+
+### Run the installation script
+
+In Linux, scripts have to be marked `eXecutable` before you can run them. The files should already have the execute bit set but check with:
+
+```bash hl_lines='1'
+cd ~/haas/Haas_Data_collect
+ls -l haas_firewall_install.sh
+```
+
+```bash title='Command Output'
+ls -l haas_firewall_install.sh
+-rwxrwxr-x 1 mhubbard mhubbard 14347 Feb  5 15:12 haas_firewall_install.sh
+```
+
+If you don't see the `x` in the output, run the following:
+
+```bash linenums='1' hl_lines='1'
+chmod +x haas_firewall_install.sh
+```
+
+Execute the script using:
+
+```bash linenums='1' hl_lines='1'
+cd ~/Haas_Data_collect
+./haas_firewall_install.sh
+```
+
+There will be a lot of output as the script does it's job! Once it completes, review the output for any error messages. I don't expect any failures, the script has been tested on a Raspberry Pi 5 with an NVME drive, an Intel NUC running Ubuntu Desktop, a virtual machine running ubuntu Desktop.
+
+If there were no errors we can move on to creating the `systemd service files` that will automatically start the scripts when the Raspberry Pi 5 is booted.
 
 ----------------------------------------------------------------
 
@@ -348,7 +534,7 @@ I have a lot of Jinja2 resources on my [Cisco DevNet](https://github.com/rikosin
 
 ----------------------------------------------------------------
 
-### Create bash aliases
+### Create aliases
 
 During debugging you will find yourself typing the `systemctl` commands a lot. I recommend creating some bash aliases to cut down on the typing. Open the bashrc file on the Pi using `nano ~/.bashrc` or `gnome-text-editor ~/.bashrc`. If you are using zsh as your shell, the commands will be `nano ~/.zshrc` or `gnome-text-editor ~/.zshrc`
 
@@ -388,18 +574,15 @@ Now you can type the following:
 
 ----------------------------------------------------------------
 
-## The installation script
-
-
-Samba
+## Samba installation
 
 Key changes:
 
 - Overwrites /etc/samba/smb.conf entirely with tee (without -a)
 - Backs up the original to smb.conf.backup first
- - Includes all the security settings in the [global] section
- - Disable the printer share
-- Adds testparm to validate the configuration before restarting
+- Includes all the security settings in the [global] section
+- Disables the printer share
+- Adds `testparm -s` to validate the configuration before restarting
 
 ```text linenums='1' hl_lines='1'
 [global]
