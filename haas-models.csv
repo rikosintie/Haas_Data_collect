@@ -1,0 +1,21 @@
+model,description
+VF-1,CNC Vertical Mill; 20" x 16" x 20" travels; 40-taper
+VF-2,CNC Vertical Mill; 30" x 16" x 20" travels; 40-taper
+VF-2SS,Super-Speed Vertical Mill; 30" x 16" x 20" travels; 12k-rpm spindle
+VF-3,CNC Vertical Mill; 40" x 20" x 25" travels; 40-taper
+VF-4,CNC Vertical Mill; 50" x 20" x 25" travels; 40-taper
+UMC-500,Universal Machining Center; 5-Axis; 24" x 16" x 16" travels
+UMC-750,Universal Machining Center; 5-Axis; 30" x 20" x 20" travels
+UMC-1000,Universal Machining Center; 5-Axis; 40" x 25" x 25" travels
+ST-10,CNC Lathe; 12" x 16" max capacity; 1.75" bar capacity
+ST-20,CNC Lathe; 15" x 21" max capacity; 2.0" bar capacity
+ST-30,CNC Lathe; 21" x 26" max capacity; 3.0" bar capacity
+ST-10Y,Y-Axis CNC Lathe; 12" x 16" max capacity; +/- 2.0" Y-axis travel
+DS-30Y,Dual-Spindle CNC Lathe with Y-Axis; 18" x 23" max capacity
+EC-400,400 mm Twin-Pallet Horizontal Machining Center; 40-taper
+EC-500,500 mm Twin-Pallet Horizontal Machining Center; 50-taper options
+TM-1,Toolroom Mill; 30" x 12" x 16" travels; 40-taper; 1-phase or 3-phase
+TL-1,Toolroom Lathe; 16" x 30" max capacity; 8" chuck
+DM-1,High-Speed Drill/Mill Center; 20" x 16" x 15.5" travels; 40-taper
+DT-1,High-Speed Drill/Tap Center; 20" x 16" x 15.5" travels; BT30 taper
+Mini Mill,Compact Vertical Mill; 16" x 12" x 10" travels; 40-taper
