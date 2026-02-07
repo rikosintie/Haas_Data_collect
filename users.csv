@@ -1,6 +1,11 @@
 username,ip_address,role
 mhubbard,192.168.10.143,Administrator
 haassvc,192.168.10.104,user
-haassvc2,192.168.10.120,Administrator
-mchavez,192.168.10.133,Administrator
+mchavez,192.168.10.133,user
 thubbard,192.168.10.100,user
+st30,192.168.10.110,user
+st30l,192.168.10.111,user
+st40,192.168.10.112,user
+vf2ss,192.168.10.113,user
+vf5ss,192.168.10.114,user
+minimill,192.168.10.115,user
