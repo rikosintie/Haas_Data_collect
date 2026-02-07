@@ -61,8 +61,8 @@ REQUIRED_FILES=(
   "haas-firewall.service"
   "haas-firewall.timer"
   "rollback_csv.sh"
-  build-nmap.sh
-  issue.net
+  "build-nmap.sh"
+  "issue.net"
 )
 
 echo "[*] Verifying required files in repo..."
@@ -233,11 +233,11 @@ echo ""
 # Install nmap
 ########################################
 
-sudo /usr/local/sbin/build-nmap.sh
-VERSION=$(nmap --version | head -n1 | awk '{print $3}')
-echo "nmap version $VERSION was successfully installed."
-echo ""
-sleep 5
+# sudo /usr/local/sbin/build-nmap.sh
+# VERSION=$(nmap --version | head -n1 | awk '{print $3}')
+# echo "nmap version $VERSION was successfully installed."
+# echo ""
+# sleep 5
 
 ########################################
 # Install Samba Server
