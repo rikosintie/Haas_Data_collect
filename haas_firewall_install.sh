@@ -143,6 +143,9 @@ sudo cp "$REPO_DIR/build-nmap.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/csvlens" /usr/local/sbin/
 sudo cp "$REPO_DIR/issue.net" /etc/issue.net
 
+# change the prelogin banner in /etc/ssh/sshd_config to point to /etc/issue.net
+sudo sed -i 's|^#Banner none|Banner /etc/issue.net|' /etc/ssh/sshd_config
+
 # Update the banner setting in sshd_config
 if [ -f /etc/issue.net ] && grep -q "^Banner" /etc/ssh/sshd_config && sudo sshd -t; then
     echo "✅ Success: /etc/issue.net exists and SSH config is valid."
@@ -202,12 +205,26 @@ sleep 5
 ########################################
 # Install Fresh Editor
 ########################################
-echo "Installing the Fresh Editor"
-sudo https://raw.githubusercontent.com/sinelaw/fresh/refs/heads/master/scripts/install.sh | sh
-FRESH_VERSION=$(fresh --version)
-echo "[OK] Fresh Editor $FRESH_VERSION installed."
+echo "Installing Fresh Editor..."
+
+# 1. Attempt to get the download URL and install in one safe block
+if ARCH_URL=$(curl -s https://api.github.com/repos/sinelaw/fresh/releases/latest | grep "browser_download_url.*_$(dpkg --print-architecture)\.deb" | cut -d '"' -f 4) && [ -n "$ARCH_URL" ]; then
+
+    if curl -sL "$ARCH_URL" -o fresh-editor.deb && sudo dpkg -i fresh-editor.deb; then
+        echo "✅ Fresh Editor installed successfully."
+    else
+        echo "⚠️ Failed to install Fresh Editor .deb package. Continuing script..."
+    fi
+
+else
+    echo "⚠️ Could not find a Fresh Editor release for $(dpkg --print-architecture). Skipping..."
+fi
+
+# 2. Cleanup (the -f ensures this won't error if the file was never made)
+rm -f fresh-editor.deb
 echo ""
 sleep 5
+echo [OK] Fresh Editor installation attempted.
 
 ########################################
 # Install micro text editor
