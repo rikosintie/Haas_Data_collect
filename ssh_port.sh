@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 echo ""
 echo ""
-echo "############################################"
-echo "#                                          #"
-echo "#    Configure a custom port for SSH?      #"
-echo "#  Use a port between 22, or 1024-65535    #"
-echo "#                                          #"
-echo "############################################"
+echo "#############################################"
+echo "#                                           #"
+echo "#     Configure a custom port for SSH?      #"
+echo "#  Use port 22 or a port between 1024-65535 #"
+echo "#                                           #"
+echo "#############################################"
 echo ""
 echo ""
 # Ask user if they want to configure an SSH port
 read -r -p "Do you want use a custom ssh port? (y/n): " answer
 
-# convert answer to lowercase for easier comparison
+#  convert answer to lowercase for easier comparison
 
 answer=$(echo "$answer" | tr '[:upper:]' '[:lower:]')
 
@@ -52,13 +52,14 @@ if [[ "$answer" == "y" || "$answer" == "yes" ]]; then
         sudo systemctl status ssh.service | grep "Server listening on :: "
         echo ""
         echo ""
-        echo "################################################"
+        echo "##########################################################"
         echo "                                                "
         echo "           Script is now complete!              "
         echo "  The SSH service is configured for port $port     "
+        echo "  /etc/haas-firewall.conf is updated with SSH_PORT=$port  "
         echo "        Use Cockpit to update the Firewall            "
         echo "                                                "
-        echo "################################################"
+        echo "##########################################################"
         echo ""
         echo ""
 else
