@@ -61,4 +61,26 @@ if [[ "$answer" == "y" || "$answer" == "yes" ]]; then
         echo "################################################"
         echo ""
         echo ""
+else
+    SSH_PORT="22"
+    echo ""
+    echo ""
+    echo "###########################################"
+    echo "#                                         #"
+    echo "#            SSH set to port 22           #"
+    echo "#                                         #"
+    echo "###########################################"
+    echo ""
+    echo ""
+        sudo sed -i "s/^#\?Port.*/Port $SSH_PORT/" /etc/ssh/sshd_config
+        echo "Updating /etc/haas-firewall.conf..."
+        sudo sed -i "s/^SSH_PORT=.*/SSH_PORT=$SSH_PORT/" /etc/haas-firewall.conf
+    echo ""
+        echo "Restarting SSH Service..."
+        sudo systemctl daemon-reload
+        sudo systemctl restart ssh.service
+        sudo systemctl status ssh.service | grep "Server listening on 0.0.0.0 "
+        sudo systemctl status ssh.service | grep "Server listening on :: "
+    echo ""
+    echo ""
 fi
