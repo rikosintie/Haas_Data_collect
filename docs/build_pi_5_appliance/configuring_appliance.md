@@ -7,11 +7,11 @@
 
 As you can imagine, there are a lot of steps required to build a functional appliance from scratch. But once you have completed it, you will have gained a lot of useful knowledge!
 
-- Clone the repository - This is how you get the code from the repository
-- Create the systemd service files - Used to start the collection scripts per machine
+- Clone the repository - This is how you get the code from the repository to the appliance.
+- Create the systemd service files - Used to start the Python data collection scripts when the appliance is booted.
 - Enable the systemd services - Configure the services to start on boot
-- Install Samba Server - Samba is used to create Windows shares
-- Create the security group - Used to allow Windows users access to  the appliance
+- Install Samba Server - Samba is used to create Windows compatible shares.
+- Create the security group - Used to allow Windows users access to the directory shares on the appliance.
 - Create the users - Multiple users are needed to deploy into production
 - Add the users to the security group - Required for sharing
 - Create the directories - A place to store files
@@ -24,12 +24,13 @@ The next sections will cover all of these topics in detail.
 ## Clone the repository
 
 !!! Note
-    Linux uses a case sensitive file system. So `Haas` is different from `haas`. If you type a command, for example, `LS -l` and it says
-    ```bash linenums='1' hl_lines='1'
-    cd haas_data_collect
-    cd:cd:1: no such file or directory: haas_data_collect
+    Linux uses a case sensitive file system. So `Haas` is different from `haas`. If you type a command, for example, `LS -l` instead of `ls -l` and it says
+    ```bash hl_lines='1'
+    LS -l
+    zsh: command not found: LS
     ```
-    Make sure you have the case correct!
+
+Make sure you have the case correct!
 
 ## Open a terminal on the Pi
 
@@ -39,8 +40,7 @@ If you are using ssh to connect, you are already at the terminal. If you are usi
 - Verify using `pwd` which is `print working directory` in Linux. You should see:
 
 ```bash
-╭─haas@haas ~
-╰─$ pwd
+pwd
 /home/haas
 ```
 
@@ -50,13 +50,13 @@ If you are using ssh to connect, you are already at the terminal. If you are usi
 - Clone the repository using
 
 ```bash hl_lines="1"
-git clone https://github.com/rikosintie/Haas_Data_collect.git`
+git clone https://github.com/rikosintie/Haas_Data_collect.git
 ```
 
 - Change to the `Haas_Data_collect` folder using
 
 ```bash hl_lines="1"
-cd Haas_Data_collect`
+cd Haas_Data_collect
 ```
 
 - List the files for reference using `ls -l`
@@ -67,12 +67,12 @@ cd Haas_Data_collect`
 
 The repository includes a script named: `haas_firewall_install.sh`. The script does a lot of the heavy lifting to get the appliance up and running.
 
-- Writes the `/etc/haas-firewall.conf` file that allows you to add a custom subnet for the Haas CNCs if your network uses segmentation. Allow you to set a custom SSH port for the firewall rules if your security policy requires it.
-- Installs systemd firewall service + timer
+- Writes the `/etc/haas-firewall.conf` file that allows you to add a custom subnet for the Haas CNCs if your network uses segmentation. Allows you to set a custom SSH port for the firewall rules if your security policy requires it.
+- Installs the systemd firewall service + timer
 - Installs Samba server and updates /etc/samba/smb.conf
 - Sets up Samba security and creates the "[Haas]" share
-- Creates Samba users from the `initial_users.csv` file
-- Installs Cockpit extension for managing/monitoring the firewall
+- Creates Samba and Linux users from the `initial_users.csv` file
+- Installs the Cockpit extension for managing/monitoring the firewall
 - Installs the "micro" cli text editor
 - Installs the "fresh" cli text editor
 - Copies `issue.net` to `/etc/issue.net` (This is the Pre-logon banner)
@@ -82,7 +82,7 @@ The repository includes a script named: `haas_firewall_install.sh`. The script d
 
 It does NOT modify or delete anything inside the repo.
 
-The script does not create the [The systemd service files](configuring_appliance.md/#the-systemd-service-files) because they must be modified for your machine names and ip addresses. They are covered after the installation script.
+The installation script does not create the [The systemd service files](configuring_appliance.md/#the-systemd-service-files) because they must be modified for your machine names and ip addresses. They are covered after the installation script.
 
 ----------------------------------------------------------------
 
@@ -96,7 +96,7 @@ There are a three files in the `Haas_Data_collect` directory that need to be upd
 
 These files are used as input to the `haas-firewall-install.sh` script that is presented next.
 
-There two user components to the appliance setup, it may be confusing at first! The appliance is protected by the Ubuntu firewall. The firewall is configured automatically by the data in the file `users.csv`.
+There two user components to the appliance setup, which may be confusing at first! The appliance is protected by the Ubuntu firewall. The firewall is configured automatically by the data in the file `users.csv`.
 
 There are also `users` created from data in the file `initial_users.csv`. These are users that need to have both Linux and Samba accounts to access the file shares. The installation scripts creates the user accounts.
 
@@ -128,11 +128,11 @@ minimill,192.168.10.115,user
     1. Administrator - Users that can manage the appliance. They can access ssh, smb shares, Cockpit.
     1. User - This role is configured on the Haas CNC and any users that only needs to map drives. Only file share access through the firewall
 
-The `users.csv` file will remain in the `Haas_Data_collection` folder after the appliance is in production. Anytime the firewall need to be modified you will update the `users.csv` file.
+The `users.csv` file will remain in the `Haas_Data_collection` folder after the appliance is in production. Anytime the firewall needs to be modified you will update the `users.csv` file.
 
 Use the following to edit the file if you are connected over ssh:
 
-```bash hl_lines='1'
+```bash
 cd ~/haas/Haas_Data_collect
 nano users.csv
 ```
@@ -144,7 +144,7 @@ ctrl+s
 ctrl+x
 ```
 
-If you are in the Desktop version of Ubuntu you can open the `Files` application and double click on `users.csv`. That will open the file in LibreOffice Calc. Make sure you save the file as `csv` file and not an `odf` or excel format.
+If you are in the Desktop version of Ubuntu you can open the `Files` application and double click on `users.csv`. That will open the file in LibreOffice Calc. Make sure you save the file as a `csv` file and not an `odf` or excel format.
 
 ----------------------------------------------------------------
 
@@ -153,9 +153,9 @@ If you are in the Desktop version of Ubuntu you can open the `Files` application
 This is a comma-separated value (csv) file that contains usernames and passwords. These are users authorized to map drives to the appliance. Every user who needs to work with the appliance should be listed in this file. The installation script will create a Linux user account and Samba account for each user in `initial_users.csv`. This would include:
 
 - Haas CNC controls - Use `haassvc` on all machine tools when enabling file sharing. Their role is `user`.
-- CNC Programmers - You can map a drive using a Windows user name or use haassvc since the programmers only need to access the shares. Their role would be `user`.
-- Operations employees - These are users that will be copying log files for data analysis. You can map a drive using a Windows user name or use haassvc since the programmers only need to access the shares. Their role would be `user`.
-- Administrators - These are users that can modify the firewall, add users, etc. Use their Windows user name. Since the appliance isn't integrated into Active Directory, you will have to make up a password for them. Their role would be `administrator`.
+- CNC Programmers - You can map a drive using a Windows user name or use `haassvc` since the programmers only need to access the shares. Their role in `users.csv` would be `user`.
+- Operations employees - These are users that will be copying log files for data analysis. You can map a drive using a Windows user name or use `haassvc` since the programmers only need to access the shares. Their role in `users.csv` would be `user`.
+- Administrators - These are users that can add users, modify the firewall, and, monitor the appliance with the Cockpit extension. Use their Windows user name. Since the appliance isn't integrated into Active Directory, you will have to make up a password for them. Their role in `users.csv` would be `administrator`. The only administrator account that is mandatory is the `haas` account used to build the appliance,
 
 #### There are two trains of thoughts on usernames
 
@@ -217,14 +217,14 @@ This is a text file that is displayed ***before*** a user logs in over ssh. The 
 
 Use the following to edit the file if you are connected over ssh:
 
-```bash hl_lines='1'
+```bash
 cd ~/haas/Haas_Data_collect
 nano issue.net
 ```
 
 When you are finished use the following to `save` and `close` the file:
 
-```bash hl_lines='1'
+```bash
 ctrl+s
 ctrl+x
 ```
@@ -236,19 +236,19 @@ Open the `Files` application and right click on `issue.net` and select `Open wit
 
 Use the following to edit the file if you are connected over ssh:
 
-```bash hl_lines='1'
+```bash
 cd ~/haas/Haas_Data_collect
 sudo initial_users.csv
 ```
 
 When you are finished use the following to `save` and `close` the file:
 
-```bash hl_lines='1'
+```bash
 ctrl+s
 ctrl+x
 ```
 
-If you are in the Desktop version of Ubuntu you can open the `Files` application and double click on `users.csv`. That will open the file in LibreOffice Calc. Make sure you save the file as `csv` file and not an `odf` or excel format.
+If you are in the Desktop version of Ubuntu you can open the `Files` application and double click on `users.csv`. That will open the file in LibreOffice Calc. Make sure you save the file as a `csv` file and not an `odf` or excel format.
 
 ----------------------------------------------------------------
 
@@ -258,7 +258,7 @@ The installation script `haas_firewall_install.sh` is written in `bash`, the nat
 
 Use the following to view the file if you are connected over ssh:
 
-```bash hl_lines='1'
+```bash
 cd ~/haas/Haas_Data_collect
 cat initial_users.csv
 ```
@@ -270,7 +270,7 @@ Open the `Files` application and right click on `haas_firewall_install.sh` and s
 
 In Linux, scripts have to be marked `eXecutable` before you can run them. The files should already have the execute bit set but check with:
 
-```bash hl_lines='1'
+```bash
 cd ~/haas/Haas_Data_collect
 ls -l haas_firewall_install.sh
 ```
@@ -282,13 +282,13 @@ ls -l haas_firewall_install.sh
 
 If you don't see the `x` in the output, run the following:
 
-```bash linenums='1' hl_lines='1'
+```bash hl_lines='1'
 chmod +x haas_firewall_install.sh
 ```
 
 Execute the script using:
 
-```bash linenums='1' hl_lines='1'
+```bash
 cd ~/Haas_Data_collect
 ./haas_firewall_install.sh
 ```
@@ -611,7 +611,7 @@ Key changes:
 - Disables the printer share
 - Adds `testparm -s` to validate the configuration before restarting
 
-```text linenums='1' hl_lines='1'
+```text hl_lines='1 8  17 23 27 32'
 [global]
     workgroup = WORKGROUP
     server string = %h server (Samba, Ubuntu)
