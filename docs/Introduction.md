@@ -16,9 +16,9 @@ The project enables Haas CNC machines with NG controls and the `macro` option to
 
 1. Copy the files from the GitHub repository.
 2. Set Haas Options to output TCP/IP
-      1. 261 - IP Address of the Haas Control
+      1. 261 - Set to `TCP Port`
       2. 262 - Set to `User Data/` to send to a server
-      3. 263 - the `DPRNT` port to use. Haas recommends using `TCP/IP` ports 5001 - 5999 to communicate with the server.
+      3. 263 - the `DPRNT Port` to use. Haas recommends using `TCP/IP` ports 5001 - 5999 to communicate with the server.
 3. Python logger script connects to the machine’s IP/port.
 4. Haas NG control sends DPRNT messages over the network.
 5. Data is written into CSV files for later analysis.
