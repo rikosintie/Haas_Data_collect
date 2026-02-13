@@ -1,12 +1,13 @@
-import socket
-import threading
-import re
-from datetime import datetime
-import os
 import argparse
 import csv
+import os
+import re
+import socket
+import threading
 import time
-from typing import Optional, Dict, Tuple
+from datetime import datetime
+from typing import Dict, Optional, Tuple
+
 
 class HaasDataLogger:
     """
@@ -17,9 +18,14 @@ class HaasDataLogger:
     information, and saves complete cycles to timestamped CSV files.
     """
 
-    def __init__(self, host: str = '0.0.0.0', port: int = 5062,
-        machine_name: Optional[str] = None, append_mode: bool = False,
-        target_ip: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        host: str = "0.0.0.0",
+        port: int = 5062,
+        machine_name: Optional[str] = None,
+        append_mode: bool = False,
+        target_ip: Optional[str] = None,
+    ) -> None:
         """
         Initialize the Haas Data Logger.
 
@@ -52,7 +58,7 @@ class HaasDataLogger:
             The extracted part number string if found, None otherwise.
         """
         # Look for pattern like "PART NUMBER: 265-4183"
-        match = re.search(r'PART NUMBER:\s*([^\s,]+)', data, re.IGNORECASE)
+        match = re.search(r"PART NUMBER:\s*([^\s,]+)", data, re.IGNORECASE)
         if match:
             return match.group(1).strip()
         return None
@@ -72,42 +78,46 @@ class HaasDataLogger:
             Revision, Date_YYMMDD, Time_HHMMSS, Parts_Counter, and Last_Part_Time_Seconds.
         """
         result = {
-            'Machine': self.machine_name,
-            'Timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            'Part_Number': '',
-            'Revision': '',
-            'Date_YYMMDD': '',
-            'Time_HHMMSS': '',
-            'Parts_Counter': '',
-            'Last_Part_Time_Seconds': ''
+            "Machine": self.machine_name,
+            "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "Part_Number": "",
+            "Revision": "",
+            "Date_YYMMDD": "",
+            "Time_HHMMSS": "",
+            "Parts_Counter": "",
+            "Last_Part_Time_Seconds": "",
         }
 
         # Extract part number and revision
-        part_match = re.search(r'PART NUMBER:\s*([^\s,]+)(?:,\s*REV\.\s*([^\]]+))?', data, re.IGNORECASE)
+        part_match = re.search(
+            r"PART NUMBER:\s*([^\s,]+)(?:,\s*REV\.\s*([^\]]+))?", data, re.IGNORECASE
+        )
         if part_match:
-            result['Part_Number'] = part_match.group(1).strip()
+            result["Part_Number"] = part_match.group(1).strip()
             if part_match.group(2):
-                result['Revision'] = part_match.group(2).strip()
+                result["Revision"] = part_match.group(2).strip()
 
         # Extract date
-        date_match = re.search(r'DATE YYMMDD:\s*(\d+)', data, re.IGNORECASE)
+        date_match = re.search(r"DATE YYMMDD:\s*(\d+)", data, re.IGNORECASE)
         if date_match:
-            result['Date_YYMMDD'] = date_match.group(1).strip()
+            result["Date_YYMMDD"] = date_match.group(1).strip()
 
         # Extract time
-        time_match = re.search(r'TIME HHMMSS:\s*(\d+)', data, re.IGNORECASE)
+        time_match = re.search(r"TIME HHMMSS:\s*(\d+)", data, re.IGNORECASE)
         if time_match:
-            result['Time_HHMMSS'] = time_match.group(1).strip()
+            result["Time_HHMMSS"] = time_match.group(1).strip()
 
         # Extract parts counter (PARTS MADE: ###)
-        parts_match = re.search(r'PARTS\s*MADE:\s*(\d+)', data, re.IGNORECASE)
+        parts_match = re.search(r"PARTS\s*MADE:\s*(\d+)", data, re.IGNORECASE)
         if parts_match:
-            result['Parts_Counter'] = parts_match.group(1).strip()
+            result["Parts_Counter"] = parts_match.group(1).strip()
 
         # Extract last part timer (TIME, LAST PART: ### SECONDS)
-        timer_match = re.search(r'TIME,\s*LAST\s*PART:\s*(\d+(?:\.\d+)?)\s*SECONDS', data, re.IGNORECASE)
+        timer_match = re.search(
+            r"TIME,\s*LAST\s*PART:\s*(\d+(?:\.\d+)?)\s*SECONDS", data, re.IGNORECASE
+        )
         if timer_match:
-            result['Last_Part_Time_Seconds'] = timer_match.group(1).strip()
+            result["Last_Part_Time_Seconds"] = timer_match.group(1).strip()
 
         return result
 
@@ -131,7 +141,7 @@ class HaasDataLogger:
             IOError: If the file cannot be written in non-append mode.
         """
         # Create logs directory if it doesn't exist
-        os.makedirs('cnc_logs', exist_ok=True)
+        os.makedirs("cnc_logs", exist_ok=True)
 
         # Parse data into structured format
         parsed_data = self.parse_data_to_dict(data)
@@ -143,7 +153,7 @@ class HaasDataLogger:
             else:
                 filename = f"{self.machine_name}_unknown_part.csv"
 
-            filepath = os.path.join('cnc_logs', filename)
+            filepath = os.path.join("cnc_logs", filename)
 
             # Check if file exists to determine if we need to write header
             file_exists = os.path.isfile(filepath)
@@ -154,7 +164,7 @@ class HaasDataLogger:
 
             for attempt in range(max_retries):
                 try:
-                    with open(filepath, 'a', newline='') as f:
+                    with open(filepath, "a", newline="") as f:
                         writer = csv.DictWriter(f, fieldnames=parsed_data.keys())
                         if not file_exists:
                             writer.writeheader()
@@ -165,21 +175,29 @@ class HaasDataLogger:
 
                 except (IOError, PermissionError) as e:
                     if attempt < max_retries - 1:
-                        print(f"[{self.machine_name}] Warning: File locked or inaccessible, retrying in {retry_delay}s... (Attempt {attempt + 1}/{max_retries})")
+                        print(
+                            f"[{self.machine_name}] Warning: File locked or inaccessible, retrying in {retry_delay}s... (Attempt {attempt + 1}/{max_retries})"
+                        )
                         time.sleep(retry_delay)
                     else:
                         # Final attempt failed, create backup file with timestamp
                         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                        backup_filename = f"{self.machine_name}_{part_number}_{timestamp}_BACKUP.csv"
-                        backup_filepath = os.path.join('cnc_logs', backup_filename)
+                        backup_filename = (
+                            f"{self.machine_name}_{part_number}_{timestamp}_BACKUP.csv"
+                        )
+                        backup_filepath = os.path.join("cnc_logs", backup_filename)
 
-                        with open(backup_filepath, 'w', newline='') as f:
+                        with open(backup_filepath, "w", newline="") as f:
                             writer = csv.DictWriter(f, fieldnames=parsed_data.keys())
                             writer.writeheader()
                             writer.writerow(parsed_data)
 
-                        print(f"[{self.machine_name}] ERROR: Could not write to {filepath} (file may be open in Excel)")
-                        print(f"[{self.machine_name}] Data saved to backup file: {backup_filepath}")
+                        print(
+                            f"[{self.machine_name}] ERROR: Could not write to {filepath} (file may be open in Excel)"
+                        )
+                        print(
+                            f"[{self.machine_name}] Data saved to backup file: {backup_filepath}"
+                        )
                         filepath = backup_filepath
         else:
             # Normal mode: Create new file for each cycle with timestamp
@@ -190,23 +208,27 @@ class HaasDataLogger:
             else:
                 filename = f"{self.machine_name}_unknown_part_{timestamp}.csv"
 
-            filepath = os.path.join('cnc_logs', filename)
+            filepath = os.path.join("cnc_logs", filename)
 
             # Write to CSV
             try:
-                with open(filepath, 'w', newline='') as f:
+                with open(filepath, "w", newline="") as f:
                     writer = csv.DictWriter(f, fieldnames=parsed_data.keys())
                     writer.writeheader()
                     writer.writerow(parsed_data)
 
                 print(f"[{self.machine_name}] Data saved to: {filepath}")
             except (IOError, PermissionError) as e:
-                print(f"[{self.machine_name}] ERROR: Could not write to {filepath}: {e}")
+                print(
+                    f"[{self.machine_name}] ERROR: Could not write to {filepath}: {e}"
+                )
                 raise
 
         return filepath
 
-    def process_data(self, client_socket: socket.socket, address: Tuple[str, int]) -> None:
+    def process_data(
+        self, client_socket: socket.socket, address: Tuple[str, int]
+    ) -> None:
         """
         Process data from a connected socket.
 
@@ -230,14 +252,16 @@ class HaasDataLogger:
                     break
 
                 # Decode received data
-                received = data.decode('utf-8', errors='ignore')
+                received = data.decode("utf-8", errors="ignore")
                 buffer += received
 
                 # Extract part number if we haven't found it yet
                 if not part_number:
                     part_number = self.extract_part_number(buffer)
                     if part_number:
-                        print(f"[{self.machine_name}] Part number detected: {part_number}")
+                        print(
+                            f"[{self.machine_name}] Part number detected: {part_number}"
+                        )
 
                 # Check for end of cycle
                 if "End of Cycle" in buffer or "END OF CYCLE" in buffer.upper():
@@ -254,8 +278,9 @@ class HaasDataLogger:
             client_socket.close()
             print(f"[{self.machine_name}] Connection closed")
 
-    def handle_client(self, client_socket: socket.socket,
-        address: Tuple[str, int]) -> None:
+    def handle_client(
+        self, client_socket: socket.socket, address: Tuple[str, int]
+    ) -> None:
         """
         Handle individual client connection in server mode.
 
@@ -276,7 +301,9 @@ class HaasDataLogger:
         print(f"[{self.machine_name}] Starting in CLIENT mode")
         print(f"[{self.machine_name}] Will connect to {self.target_ip}:{self.port}")
         if self.append_mode:
-            print(f"[{self.machine_name}] TIP: Close CSV files in Excel to avoid file lock issues")
+            print(
+                f"[{self.machine_name}] TIP: Close CSV files in Excel to avoid file lock issues"
+            )
         print(f"[{self.machine_name}] Press Ctrl+C to stop")
 
         reconnect_delay = 5  # seconds
@@ -285,7 +312,9 @@ class HaasDataLogger:
             client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
             try:
-                print(f"[{self.machine_name}] Attempting to connect to {self.target_ip}:{self.port}...")
+                print(
+                    f"[{self.machine_name}] Attempting to connect to {self.target_ip}:{self.port}..."
+                )
                 client_socket.connect((self.target_ip, self.port))
                 print(f"[{self.machine_name}] Successfully connected!")
 
@@ -293,7 +322,9 @@ class HaasDataLogger:
                 self.process_data(client_socket, (self.target_ip, self.port))
 
             except ConnectionRefusedError:
-                print(f"[{self.machine_name}] Connection refused. Machine may be offline or not accepting connections.")
+                print(
+                    f"[{self.machine_name}] Connection refused. Machine may be offline or not accepting connections."
+                )
             except socket.timeout:
                 print(f"[{self.machine_name}] Connection timeout.")
             except Exception as e:
@@ -306,7 +337,9 @@ class HaasDataLogger:
 
             # Wait before attempting to reconnect
             if self.running:
-                print(f"[{self.machine_name}] Reconnecting in {reconnect_delay} seconds...")
+                print(
+                    f"[{self.machine_name}] Reconnecting in {reconnect_delay} seconds..."
+                )
                 time.sleep(reconnect_delay)
 
     def start_server_mode(self) -> None:
@@ -323,10 +356,14 @@ class HaasDataLogger:
             server_socket.bind((self.host, self.port))
             server_socket.listen(5)
             mode_str = "APPEND mode" if self.append_mode else "NEW FILE mode"
-            print(f"[{self.machine_name}] Haas CNC Data Logger started on {self.host}:{self.port} ({mode_str})")
+            print(
+                f"[{self.machine_name}] Haas CNC Data Logger started on {self.host}:{self.port} ({mode_str})"
+            )
             print(f"[{self.machine_name}] Waiting for connections...")
             if self.append_mode:
-                print(f"[{self.machine_name}] TIP: Close CSV files in Excel to avoid file lock issues")
+                print(
+                    f"[{self.machine_name}] TIP: Close CSV files in Excel to avoid file lock issues"
+                )
             print(f"[{self.machine_name}] Press Ctrl+C to stop")
 
             while self.running:
@@ -336,8 +373,7 @@ class HaasDataLogger:
 
                     # Handle each client in a separate thread
                     client_thread = threading.Thread(
-                        target=self.handle_client,
-                        args=(client_socket, address)
+                        target=self.handle_client, args=(client_socket, address)
                     )
                     client_thread.daemon = True
                     client_thread.start()
@@ -378,48 +414,66 @@ class HaasDataLogger:
             print(f"\n[{self.machine_name}] Shutting down...")
             self.running = False
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='Haas CNC Data Logger - Listens for or connects to machine data and saves to files',
+        description="Haas CNC Data Logger - Connects to a CNC machine and saves output to files",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog='''
+        epilog="""
 Examples:
-    SERVER MODE (machine connects to you):
+    CLIENT MODE (Connect to the Haas CNC machine):
+    python haas_logger.py -t 192.168.1.100                 # Connect to machine at this IP
+    python haas_logger.py -t 192.168.1.100 -p 5063         # Connect to machine on custom port
+    python haas_logger.py -t 192.168.1.100 -a -n "Mill_1"  # Connect with append mode and custom name
+
+    ---------------------
+
+    SERVER MODE (Listens for connections. Only used for script development, not production):
     python haas_logger.py                          # Listen on default port 5062
     python haas_logger.py -p 5063 -a               # Listen on port 5063 with append mode
     python haas_logger.py -H 0.0.0.0 -p 5062       # Listen on all interfaces
 
-    CLIENT MODE (you connect to machine):
-    python haas_logger.py -t 192.168.1.100         # Connect to machine at this IP
-    python haas_logger.py -t 192.168.1.100 -p 5063 # Connect to machine on custom port
-    python haas_logger.py -t 192.168.1.100 -a -n "Mill_1"  # Connect with append mode and custom name
-
 Notes:
-    - Use -t/--target to connect to a Haas machine (client mode)
+    - Use -t to connect to a Haas machine (client mode)
     - Without -t, the script waits for the machine to connect (server mode)
-    - In append mode (-a), close CSV files before production runs to avoid file locks
+    - In append mode (-a), close CSV files on PCs before production runs to avoid file locks
     - If a file is locked, the script will retry 3 times then create a backup file
     - In client mode, the script will auto-reconnect if the connection is lost
-        '''
+        """,
     )
 
-    parser.add_argument('-H', '--host',
-                        default='0.0.0.0',
-                        help='Host IP to bind to in server mode (default: 0.0.0.0)')
-    parser.add_argument('-p', '--port',
-                        type=int,
-                        default=5062,
-                        help='Port to listen on or connect to (default: 5062)')
-    parser.add_argument('-n', '--name',
-                        dest='machine_name',
-                        help='Machine name for logging (default: Machine_Port####)')
-    parser.add_argument('-a', '--append',
-                        action='store_true',
-                        dest='append_mode',
-                        help='Append mode: Save all cycles for same part number to one file')
-    parser.add_argument('-t', '--target',
-                        dest='target_ip',
-                        help='Target IP address to connect to (client mode). If not specified, runs in server mode.')
+    parser.add_argument(
+        "-H",
+        "--host",
+        default="0.0.0.0",
+        help="Host IP to bind to in server mode (default: 0.0.0.0)",
+    )
+    parser.add_argument(
+        "-p",
+        "--port",
+        type=int,
+        default=5062,
+        help="Port to listen on or connect to (default: 5062)",
+    )
+    parser.add_argument(
+        "-n",
+        "--name",
+        dest="machine_name",
+        help="Machine name for filename (default: Machine_Port####)",
+    )
+    parser.add_argument(
+        "-a",
+        "--append",
+        action="store_true",
+        dest="append_mode",
+        help="Append mode: Save all cycles for same part number to one file",
+    )
+    parser.add_argument(
+        "-t",
+        "--target",
+        dest="target_ip",
+        help="Target IP address to connect to (client mode). If not specified, runs in server mode.",
+    )
 
     args = parser.parse_args()
 
@@ -429,7 +483,7 @@ Notes:
         port=args.port,
         machine_name=args.machine_name,
         append_mode=args.append_mode,
-        target_ip=args.target_ip
+        target_ip=args.target_ip,
     )
 
     try:
