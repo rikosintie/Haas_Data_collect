@@ -8,6 +8,7 @@ docs_dir: docs
 nav:
   - home: README.md
   - Intro: Introduction.md
+  - Python: installing_python.md
   - Usage: usage.md
   - Raspberry Pi 5:
       - Why build a Pi 5_Appliance: 'build_pi_5_appliance/why_pi_5_appliance.md'
