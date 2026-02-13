@@ -3,7 +3,8 @@
 # Haas Appliance - Firewall Automation Installer (Config-File Architecture)
 #
 # This installer:
-#   - Assumes it is run from the repo root: Haas_Data_collect/
+#   - Requires Internet access to download installation packages!
+#   - Assumes it is run from the repo root: Haas_Data_collect/#    -
 #   - Detects the repo directory dynamically (can be anywhere)
 #   - Writes /etc/haas-firewall.conf with:
 #       CSV_PATH, BACKUP_DIR, HAAS_MACHINES_SUBNET_V4, HAAS_MACHINES_SUBNET_V6, SSH_PORT
@@ -45,7 +46,10 @@ if [[ "$REPO_NAME" != "Haas_Data_collect" ]]; then
     echo "          Proceeding anyway, using current directory as repo root."
 fi
 
+echo ""
 echo "[*] Repo directory detected as: $REPO_DIR"
+echo ""
+sleep 3
 
 BACKUP_DIR="$REPO_DIR/backups"
 COCKPIT_SRC="$REPO_DIR/cockpit"
@@ -62,6 +66,7 @@ REQUIRED_FILES=(
   "haas-firewall.timer"
   "rollback_csv.sh"
   "build-nmap.sh"
+  "ssh_port.sh"
   "issue.net"
 )
 
@@ -71,12 +76,16 @@ for f in "${REQUIRED_FILES[@]}"; do
   if [[ ! -f "$REPO_DIR/$f" ]]; then
     echo "[ERROR] Missing required file: $REPO_DIR/$f"
     exit 1
+  else
+      echo "✅ Success: $REPO_DIR/$f is valid."
+      sleep 2
   fi
 done
 
 if [[ ! -f "$CSV_PATH" ]]; then
   echo "[ERROR] CSV file not found at: $CSV_PATH"
   echo "        Create users.csv with header: username,ip_address,role"
+  sleep 2
   exit 1
 fi
 
@@ -92,8 +101,10 @@ for f in manifest.json index.html haas-firewall.js haas-firewall.css icon.png; d
   fi
 done
 
+echo "#########################################"
 echo "[OK] All required repo files are present."
-
+echo "#########################################"
+sleep 2
 ########################################
 # WRITE CONFIG FILE
 ########################################
@@ -141,6 +152,7 @@ sudo cp "$REPO_DIR/validate_users_csv.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/rollback_csv.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/build-nmap.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/csvlens" /usr/local/sbin/
+sudo cp "$REPO_DIR/ssh_port.sh" /usr/local/sbin
 sudo cp "$REPO_DIR/issue.net" /etc/issue.net
 
 # change the prelogin banner in /etc/ssh/sshd_config to point to /etc/issue.net
@@ -156,7 +168,10 @@ else
     ! sudo sshd -t && echo "   -> sshd syntax error detected."
     exit 1
 fi
-sleep 5
+sleep 3
+#########################################
+# Add execute permission to scripts
+#########################################
 
 sudo chmod +x /usr/local/sbin/configure_ufw_from_csv.sh
 sudo chmod +x /usr/local/sbin/validate_users_csv.sh
@@ -172,7 +187,7 @@ if [[ ! -x /usr/local/sbin/validate_users_csv.sh ]]; then
   echo "[ERROR] Failed to install validate_users_csv.sh"
   exit 1
 fi
-
+sleep 3
 echo "[OK] Firewall scripts installed."
 
 ########################################
@@ -190,17 +205,22 @@ sudo systemctl enable haas-firewall.service
 sudo systemctl enable --now haas-firewall.timer
 
 echo "[OK] Systemd service and timer installed and enabled."
-sleep 5
+sleep 3
 
 ########################################
 # Install Nala
 ########################################
-echo "Installing nala"
-sudo apt install nala -y
-NALA_VERSION=_VERSION=$(nala --version)
-echo "[OK] Nala $NALA_VERSION installed."
-echo ""
-sleep 5
+echo "Installing the Nala Package Manager"
+if sudo apt install nala -y; then
+    NALA_VERSION=_VERSION=$(nala --version)
+    echo "[OK] Nala $NALA_VERSION installed."
+    echo ""
+    sleep 3
+else
+    echo "Failed to install Nala package manager"
+    exit 1
+fi
+sleep 3
 
 ########################################
 # Install Fresh Editor
@@ -229,27 +249,33 @@ echo [OK] Fresh Editor installation attempted.
 ########################################
 # Install micro text editor
 ########################################
-
-sudo apt install micro -y
-echo ""
-MICRO_VERSION=$(micro --version)
-echo "[OK] micro text editor $MICRO_VERSION installed."
-echo ""
-sleep 5
+echo "Installing the micro cli text editor"
+if sudo apt install micro -y; then
+    MICRO_VERSION=$(micro --version)
+    echo "[OK] micro text editor $MICRO_VERSION installed."
+    echo ""
+else
+    echo "Failed to install micro cli text editor"
+    exit 1
+fi
 
 ########################################
 # Install inetutils-traceroute
 ########################################
 echo "installing inetutils-traceroute"
-sudo nala install inetutils-traceroute -y
+if sudo nala install inetutils-traceroute -y; then
 echo "[OK] inetutils-traceroute installed."
 sleep3
+else
+    echo "Failed to install inetutils-traceroute"
+    exit 1
+fi
 echo ""
 
 ########################################
 # Install nmap
 ########################################
-
+# to install nmap, remove the # on the next 5 lines
 # sudo /usr/local/sbin/build-nmap.sh
 # VERSION=$(nmap --version | head -n1 | awk '{print $3}')
 # echo "nmap version $VERSION was successfully installed."
