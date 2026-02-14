@@ -6,7 +6,7 @@ I included it in case you are coming from Windows and want to understand what th
 
 When I was at Cal Poly, the head of the department started a lecture with this:
 
-- I'm going to tell what I'm lecturing on today.
+- I'm going to tell you what I'm lecturing on today.
 - Then I'm going to lecture to you.
 - Then I'm going to summarize what I told you.
 
@@ -15,6 +15,7 @@ I was annoyed at first, but it was effective! This is done in a similar format, 
 ----------------------------------------------------------------
 
 **Samba authenticates Windows users, but Linux decides what they can access.**
+
 When a Windows user logs in, Samba maps them to a Linux user account that belongs to the `HaasGroup`. All folders under `Haas_Data_collect` are owned by `haas` and assigned to `HaasGroup`, so every user in that group gets the same read/write access. This keeps permissions simple and predictable without using Windows-style ACLs or effective permissions.
 
 ----------------------------------------------------------------
@@ -57,7 +58,8 @@ That’s it. No inheritance. No merging. No deny rules.
 
 ----------------------------------------------------------------
 
-🔍 How Linux Decides Access (the part Windows users must understand)
+🔍 **How Linux Decides Access (the part Windows users must understand).**
+
 Linux checks permissions in this exact order:
 
 1. Is the user the owner?
@@ -70,19 +72,20 @@ Linux checks permissions in this exact order:
 
 There is no combining of permissions like Windows does.
 
-**Example**
+### Example
 
 If a file has:
-Owner: read/write
-Group: read only
-Other: no access
+
+- Owner: read/write
+- Group: read only
+- Other: no access
 
 And a user is in the group but not the owner:
 
 - They get read only, even if they belong to multiple groups.
 - They cannot “inherit” write access from anywhere else.
 
-This is the biggest conceptual shift for Windows users.
+**This is the biggest conceptual shift for Windows users.**
 
 ----------------------------------------------------------------
 
@@ -100,7 +103,7 @@ If multiple users need access to the same shared folder (e.g., for Samba shares)
 ### 🧠 A Simple Analogy
 
 Linux doesn’t calculate permissions from multiple sources like Windows.
-Instead, every file chooses one set of permissions to apply — either the owner’s, the group’s, or everyone else’s — depending on who you are.
+Instead, every file chooses one set of permissions to apply — either the owner’s, the group’s, or the other's — depending on who you are.
 
 This analogy lands well with Windows admins
 
@@ -120,21 +123,22 @@ This analogy lands well with Windows admins
 ```text
                          ┌──────────────────────────────┐
                          │  Haas_Data_collect           │
-                         │  Owner: haas             │
+                         │  Owner: haas                 │
                          │  Group: HaasGroup            │
                          └──────────────┬───────────────┘
                                         │
         ┌───────────────────────────────┼────────────────────────────────┐
         │                               │                                │
 ┌──────────────────┐       ┌──────────────────────┐        ┌──────────────────┐
-│    minimill/     │       │      st30    /       │        │      st30l/      │
+│    minimill/     │       │      st30/           │        │      st30l/      │
 │ Owner: haas      │       │ Owner: haas          │        │ Owner: haas      │
 │ Group: HaasGroup │       │ Group: HaasGroup     │        │ Group: HaasGroup │
 └──────────────────┘       └──────────────────────┘        └──────────────────┘
 ```
 
-(Additional sibling directories follow the same pattern:)
-    st40/   vf2ss/   vf5ss/
+Additional sibling directories follow the same pattern:
+
+`st40/, vf2ss/, vf5ss/`
 
 This diagram makes the permission model visually obvious:
 
@@ -256,7 +260,7 @@ Each file chooses exactly one set of permissions to apply: the owner’s, the gr
 
 ### 5. How this ties into the appliance usage
 
-When a Windows user connects to the appliance (for example via a network share:
+When a Windows user connects to the appliance via a network drive share:
 
 - Their account is mapped to a Linux user that belongs to `HaasGroup`.
 - That membership gives them the **group** permissions on everything under `Haas_Data_collect`.
@@ -278,9 +282,11 @@ Here’s what actually happens behind the scenes.
 
 ### 1. A Windows user connects to the network share
 
-When someone on Windows opens:
+When someone on Windows enters the following into the `map network drive` dialog:
 
-\\your-appliance\Haas_Data_collect
+```unixconfig
+\\your-appliance-ip\Haas
+```
 
 Windows prompts them for a username and password.
 They enter the credentials you created for them (for example, `rgoodwin`).
@@ -289,15 +295,17 @@ They enter the credentials you created for them (for example, `rgoodwin`).
 
 ### 2. Samba checks the username and password
 
-Samba keeps its own password database, separate from Linux:
+Samba keeps its own password database, separate from Linux. To create the Samba user run the following command:
 
-sudo smbpasswd -a rgoodwin
+`sudo smbpasswd -a rgoodwin`
 
-This means:
+This will:
 
-- Linux has a user named `rgoodwin`
-- Samba also has a user named `rgoodwin`
-- Samba verifies the password when the user connects
+- Prompt you to enter and confirm a password for the Samba user `rgoodwin`.
+- Add `rgoodwin` to the Samba user database (if not already present).
+- Allow `rgoodwin` to authenticate when accessing Samba shares.
+
+⚠️ Important: The user must already exist as a Linux system user (e.g., created via `sudo adduser rgoodwin`) before you can add them to Samba.
 
 If the Samba password matches, the user is allowed in.
 
@@ -307,7 +315,7 @@ If the Samba password matches, the user is allowed in.
 
 Once authenticated, Samba says:
 
-“This Windows user is the Linux user `rgoodwin`”
+This Windows user is the Linux user `rgoodwin`
 
 From this point on, Linux file permissions apply, not Windows ACLs.
 This is the key idea for your readers:
