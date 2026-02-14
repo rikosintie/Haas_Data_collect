@@ -2,6 +2,8 @@
 
 The first step is downloading the script from my [GitHub Repository](https://github.com/rikosintie/Haas_Data_collect){target="_blank}. There are several ways to accomplish that task depending on your Operating System and how deep you want to go down the rabbit hole!
 
+## Download the script
+
 - From the homepage of the repository, click on `haas_logger2.py`
 - Click on the `Raw` download icon
 - Save the file to a location on your drive.
@@ -11,6 +13,8 @@ The first step is downloading the script from my [GitHub Repository](https://git
 ![screenshot](img/raw_download.resized.png)
 
 ----------------------------------------------------------------
+
+## Download the Repo
 
 You can also download a `zip` file with the entire repository. That is useful if you are going to build an appliance and need all of the scripts and files. To download the repository as a `zip` file:
 
@@ -87,6 +91,8 @@ The port number doesn't have to be unique per machine. The IP address of the  CN
 ![screenshot](img/Haas-dprnt.png)
 
 ----------------------------------------------------------------
+
+## Run the script
 
 When you execute the script, `Haas_logger2.py`, it runs continuously until you press `ctrl+c`. When `DPRNT[End of Cycle]` is executed in the CNC program, the script writes the data to disk and then resumes listening. Multiple copies of the script can be started on the same server to collect from multiple CNC machines concurrently.
 
@@ -186,7 +192,7 @@ For example - `Machine1_strut.csv`
 
 ## CNC Program Format
 
-The sample code for DPRNT can be found [here on the Haas.com site](https://www.haascnc.com/content/dam/haascnc/videos/bonus-content/ep63-dprnt/dprntexample_1.nc):
+The sample code for DPRNT can be found [here on the Haas.com site](https://www.haascnc.com/content/dam/haascnc/videos/bonus-content/ep63-dprnt/dprntexample_1.nc){target="_blank}:
 
 ### Here is a simple example
 
