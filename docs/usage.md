@@ -30,12 +30,32 @@ You can also download a `zip` file with the entire repository. That is useful if
 
 ----------------------------------------------------------------
 
-Finally, if you have `git` installed your PC you can simply clone the repository using:
+## Clone the Repository
+
+Cloning the repository pulls down all the files into a directory named `Haas_Data_collect` on your local drive. The installation steps are done in the Mac/Linux terminal or cmd.exe/PowerShell on Windows. In my recent testing on Windows 11 24H2, I learned a lot about using PowerShell on Windows 11. I created a page on what my setup looks like. I highly recommend installing the Windows Terminal and setting up PowerShell if you are a Windows user. Here is a link to the page - [Using PowerShell with the Network Discovery scripts](https://rikosintie.github.io/Discovery/Using_PowerShell/). PowerShell is also available on Mac/Linux. The configurations on the "Using PowerShell" page work on all three OSes.
+
+Open the Mac/Linux terminal or cmd/PowerShell terminal and cd to a location you want to install the scripts into. I have a directory named `Tools` that I use to organize tools I download from the Internet.
+
+Then paste the following:
 
 ```bash
 git clone https://github.com/rikosintie/Haas_Data_collect.git
 cd Haas_Data_collect
 ```
+
+The cloning operation creates a subfolder named `Haas_Data_collect`
+
+Inside the folder will be the :
+
+- haas_logger2.py - The script to listen for the Haas machines' output
+- cnc_logs - a folder to hold the data files
+- dprnt_example.txt - A sample CNC program with the dprnt statements
+- All of the scripts and files needed to build a data collection appliance.
+
+----------------------------------------------------------------
+
+!!! Note
+    You should run `git pull` on a regular basis. If there are any updates to the project, this will copy them down and overwrite the existing files.
 
 ----------------------------------------------------------------
 
