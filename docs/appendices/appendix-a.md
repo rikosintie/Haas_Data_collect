@@ -93,6 +93,6 @@ sudo systemctl status smbd
 ```
 
 !!! Note
-        Since `SMBv1` was permanently removed for Samba Server version 4.16, this step is not strictly needed, but disabling `NetBios`, the `spoolss` and the `pinter$` harden the appliance beyond just disabling `SMBv1`
+        Since `SMBv1` was permanently removed for Samba Server version 4.1 this step is not strictly needed, but disabling `NetBios`, the `spoolss` and the `pinter$` harden the appliance beyond just disabling `SMBv1`
 
 sudo sh -c 'cd /var/lib/samba/usershares && ls -l'
