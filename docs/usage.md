@@ -192,7 +192,7 @@ For example - `Machine1_strut.csv`
 
 ## CNC Program Format
 
-The sample code for DPRNT can be found [here on the Haas.com site](https://www.haascnc.com/content/dam/haascnc/videos/bonus-content/ep63-dprnt/dprntexample_1.nc){target="_blank}:
+The sample code for DPRNT can be found [here on the Haas.com site](https://www.haascnc.com/content/dam/haascnc/videos/bonus-content/ep63-dprnt/dprntexample_1.nc):
 
 ### Here is a simple example
 
