@@ -148,6 +148,12 @@ Notes:
 
 ----------------------------------------------------------------
 
+!!! Warning
+    Server mode isn't for use with Haas Data Collection. It's a mode for testing the script.
+    The haas_simulator.py script is used to send data to the script running in server mode.
+
+----------------------------------------------------------------
+
 ## Usage examples
 
 ```python hl_lines="2 5 8 11 14 17"
@@ -170,6 +176,8 @@ python haas_logger2.py -t 172.16.1.15  -p 5056 -n "Mill2"
 python haas_logger2.py -t 172.16.1.16 -p 5057 -n "Mill3"
 ```
 
+----------------------------------------------------------------
+
 A new file is created each time using the naming format: `machine-name_"part-number"_yymmdd_hh:mm:ss.csv`.
 
 For example - `Machine1_“265-4183”_20251202_151020.csv`
@@ -184,15 +192,26 @@ For example - `Machine1_strut.csv`
 
 ----------------------------------------------------------------
 
-!!! Warning
-    Server mode isn't for use with Haas Data Collection. It's a mode for testing the script.
-    The haas_simulator.py script is used to send data to the script running in server mode.
+## CNC Program Format
+
+The sample code for DPRNT can be downloaded from the Haas.com site [by clicking here](https://www.haascnc.com/content/dam/haascnc/videos/bonus-content/ep63-dprnt/dprntexample_1.nc).
 
 ----------------------------------------------------------------
 
-## CNC Program Format
+### DPRNT Allowed/Disallowed Characters
 
-The sample code for DPRNT can be found [here on the Haas.com site](https://www.haascnc.com/content/dam/haascnc/videos/bonus-content/ep63-dprnt/dprntexample_1.nc):
+### Allowed Characters
+
+- , + - . * () ? : # {} _ /
+- a-z A-Z 0-9
+
+### Disallowed characters, results in alarm 535
+
+- " & \ ; ` ~ | ' <> ! @ $ % ^ =
+- other languages like αβγ汉字
+- ascii chars like ® ± €
+
+----------------------------------------------------------------
 
 ### Here is a simple example
 
@@ -352,7 +371,7 @@ PART NUMBER: 265-4183, REV. X2
 End of Cycle
 ```
 
-On the machine with the script running:
+On the laptop with the script running:
 
 ```unixconfig
 [Machine2] Attempting to connect to 172.16.0.223:5052...
@@ -364,24 +383,3 @@ On the machine with the script running:
 ```
 
 ----------------------------------------------------------------
-
-## DPRNT Allowed/Disallowed Characters
-
-### Allowed Characters
-
-- +,-.*()?:#{}_/
-- a-z A-Z 0-9
-
-### Disallowed characters, results in alarm 535
-
-- "&\;`~|'<>!@$%^=
-- other languages like αβγ汉字
-- ascii chars like ®±€
-
-----------------------------------------------------------------
-
-**Core Scripts:**
-
-- haas_logger2.py → Connects to a Haas machine over TCP/IP, receives DPRNT output, and writes it into CSV files.
-
-- haas_simulator.py → Simulates Haas machine output for testing without needing a live machine.
