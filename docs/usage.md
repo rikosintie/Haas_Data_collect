@@ -14,6 +14,7 @@ The first step is downloading the script from my [GitHub Repository](https://git
 
 You can also download a `zip` file with the entire repository. That is useful if you are going to build an appliance and need all of the scripts and files. To download the repository as a `zip` file:
 
+- Open the Edge browser and navigate to [Haas_Data_collect](https://github.com/rikosintie/Haas_Data_collect){tartget="_blank"}.
 - Click on the green `Code` button
 - Click on `Download ZIP`
 - Unzip the files to your hard drive.
