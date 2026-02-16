@@ -36,7 +36,7 @@ echo "[4/4] Configuring shell profiles for Bash and Zsh..."
 # Define the lines we want to add
 PATH_LINE='export PATH="$HOME/.cargo/bin:$PATH"'
 # Replace the URL below with your actual tspin_alias.sh raw URL or local path
-SOURCE_LINE='[ -f "$HOME/Haas_Data_collect/tspin_alias.sh" ] && source "$HOME/Haas_Data_collect/tspin_alias.sh"'
+# SOURCE_LINE='[ -f "$HOME/Haas_Data_collect/tspin_alias.sh" ] && source "$HOME/Haas_Data_collect/tspin_alias.sh"'
 
 # List of profiles to check
 PROFILES=("$HOME/.bashrc" "$HOME/.zshrc")
