@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Check for root FIRST
+if [[ $EUID -ne 0 ]]; then
+  echo "[ERROR] This script must be run as root" >&2
+  exit 1
+fi
+
 # Exit immediately if a command exits with a non-zero status
 set -e
 echo "--- Starting Tailspin Build Environment Setup (Ubuntu 24.04) ---"
