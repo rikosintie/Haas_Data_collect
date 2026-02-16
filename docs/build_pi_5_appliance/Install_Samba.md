@@ -268,8 +268,28 @@ The following options are needed so that files created from Windows, Mac, Linux 
 1. **create mask = 0664 and force create mode = 0664:** These lines work together to ensure that the resulting file permissions are exactly rw-rw-r-- (664 octal).
 1. **directory mask = 0775 and force directory mode = 0775:** These lines ensure that new directories are created with rwxrwxr-x permissions (775 octal), which includes the necessary execute bit for directory traversal.
 
+----------------------------------------------------------------
+
 Ensure the underlying Linux directory permissions are correct:
-On the server's filesystem, make sure the shared directory (/home/haas/Haas_Data_collect) in this example is owned by `haas:HaasGroup`.
+On the server's filesystem, make sure the shared directory (/home/haas/Haas_Data_collect) in this example) is owned by haas:HaasGroup.
+
+```bash
+sudo chown -R haas:HaasGroup /home/haas/Haas_Data_collect
+sudo chmod -R 2775 /home/haas/Haas_Data_collect
+```
+
+The 2 in 2775 sets the setgid bit, which ensures that all locally created files also inherit the HaasGroup. Run the following to verify:
+
+```bash
+cd ~
+ls -l
+```
+
+```unixconfig title='Command Output'
+drwxrwxr-x 7 haas HaasGroup 4096 Feb 15 21:22 Haas_Data_collect
+```
+
+----------------------------------------------------------------
 
 After you add all the share configurations, save `/etc/samba/smb.conf` and exit nano.
 
@@ -378,9 +398,13 @@ Based on the [table](Install_Samba.md/#create-the-shares) above this is what the
 
 ## Restart the Samba Server
 
-Now that the /etc/samba/smb.conf file has been updated you need to restart the Samba Server service.
+Now that the /etc/samba/smb.conf file has been updated you need to test for errors. Use the following:
 
-This command restarts the samba service.
+```bash
+testparm -s
+```
+
+If there are no errors reported, restart the Samba Server service using:.
 
 ```bash
 sudo systemctl restart smbd
@@ -427,6 +451,8 @@ Pid          User(ID)   DenyMode   Access      R/W        Oplock           Share
 
 ```
 
+----------------------------------------------------------------
+
 ### What the output means
 
 The first section list the username, group, IP address of the machine that mapped the drive. Then you can see that SMB3 is being used. Yes, no SMBv1 vulnerabilities on the appliance!
@@ -442,35 +468,35 @@ The second section lists the `systemd service file` that was used for each devic
 
 ----------------------------------------------------------------
 
-The third section lists files that are locked. This can useful information if a user closed a
-
-
-
-
-----------------------------------------------------------------
-
-
+The third section lists files that are locked. This can useful information if a user left a file open.
 
 ----------------------------------------------------------------
 
 To force all new files and directories created via Samba to have a specific owner and permissions, you need to modify the share's configuration in your smb.conf file.
 
 This configuration requires two main changes:
-Enforce the desired user and group ownership for all connections to that share.
-Set the default file and directory creation masks to match the desired permissions.
-Configuration Steps
-Edit your Samba configuration file:
+
+- Enforce the desired user and group ownership for all connections to that share.
+- Set the default file and directory creation masks to match the desired permissions.
+
+## Permission errors
+
+If you have any problems with permissions after mapping a drive follow these steps to make sure new files get the correct permissions.
+
+- Edit your Samba configuration file:
 Use a text editor like nano to edit the smb.conf file. The path is typically /etc/samba/smb.conf.
 
 ```bash
 sudo nano /etc/samba/smb.conf
 ```
 
-Locate the relevant share definition (e.g., [myshare]) and add or modify the following lines within that specific share section:
+Locate the relevant share definition (e.g., [Haas]) and add or modify the following lines within that specific share section:
 ini
-[myshare]
-  comment = Shared Directory
-  path = /srv/samba/myshare
+
+```bash
+[HAAS]
+  comment = Haas Data collector home
+  path = /home/haas/Haas_Data_collect
   writable = yes
   browsable = yes
   public = no
@@ -481,16 +507,41 @@ ini
   force create mode = 0664
   directory mask = 0775
   force directory mode = 0775
+```
 
-1. force user = haas: Ensures that all operations on this share are performed as the user haas, making them the owner of all new files.
-1. force group = HaasGroup: Ensures that all new files and directories are assigned to the group HaasGroup.
-1. create mask = 0664 and force create mode = 0664: These lines work together to ensure that the resulting file permissions are exactly rw-rw-r-- (664 octal).
-1. directory mask = 0775 and force directory mode = 0775: These lines ensure that new directories are created with rwxrwxr-x permissions (775 octal), which includes the necessary execute bit for directory traversal.
+### Definitions
+
+- force user = haas: Ensures that all operations on this share are performed as the user haas, making them the owner of all new files.
+- force group = HaasGroup: Ensures that all new files and directories are assigned to the group HaasGroup.
+- create mask = 0664 and force create mode = 0664: These lines work together to ensure that the resulting file permissions are exactly rw-rw-r-- (664 octal).
+- directory mask = 0775 and force directory mode = 0775: These lines ensure that new directories are created with rwxrwxr-x permissions (775 octal), which includes the necessary execute bit for directory traversal.
+
+----------------------------------------------------------------
+
+### Restart Samba
+
+After any changes to the Samba configuration file you must test the configuration and restart the service.  Use the following:
+
+```bash
+testparm -s
+```
+
+If there are no errors reported, restart the Samba Server service using:.
+
+```bash
+sudo systemctl restart smbd
+```
+
+There is no output from this command.
+
+----------------------------------------------------------------
 
 Ensure the underlying Linux directory permissions are correct:
 On the server's filesystem, make sure the shared directory (/home/haas/Haas_Data_collect) in this example) is owned by haas:HaasGroup.
 
+```bash
 sudo chown -R haas:HaasGroup /home/haas/Haas_Data_collect
 sudo chmod -R 2775 /home/haas/Haas_Data_collect
+```
 
 The 2 in 2775 sets the setgid bit, which ensures that all locally created files also inherit the HaasGroup.
