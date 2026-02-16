@@ -2,7 +2,6 @@
 
 # Exit immediately if a command exits with a non-zero status
 set -e
-
 echo "--- Starting Tailspin Build Environment Setup (Ubuntu 24.04) ---"
 
 # 1. Update and install system dependencies
