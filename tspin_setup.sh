@@ -37,7 +37,7 @@ fi
 
 # 4. Run the installation
 echo "[4/4] Executing cargo install..."
-if cargo install --path .; then
+if cargo install tailspin .; then
     echo "------------------------------------------------"
     echo "SUCCESS: tailspin (tspin) installed to ~/.cargo/bin"
     echo "------------------------------------------------"
