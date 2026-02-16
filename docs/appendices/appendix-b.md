@@ -209,7 +209,9 @@ Group: HaasGroup     Group: HaasGroup               Group: HaasGroup
             Group: HaasGroup
 ```
 
-(And the same pattern for: st30l/, st40/, vf2ss/, vf5ss/)
+Additional sibling directories follow the same pattern:
+
+`st40/, vf2ss/, vf5ss/`
 
 So for every important directory:
 
