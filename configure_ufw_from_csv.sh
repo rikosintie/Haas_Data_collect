@@ -21,13 +21,17 @@
 #   --show-rules  (show current UFW rules)
 #
 
+# Check for root FIRST
+if [[ $EUID -ne 0 ]]; then
+  echo "[ERROR] This script must be run as root" >&2
+  exit 1
+fi
+
 set -euo pipefail
 
 ########################################
 # PATHS AND CONFIG
 ########################################
-
-set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_FILE="/etc/haas-firewall.conf"
@@ -42,10 +46,14 @@ HAAS_MACHINES_SUBNET_V4_DEFAULT=""
 HAAS_MACHINES_SUBNET_V6_DEFAULT=""
 SSH_PORT="22"
 
-# Load config if present (overrides defaults)
+# Validate config file syntax before sourcing
 if [[ -f "$CONFIG_FILE" ]]; then
-    # shellcheck disable=SC1090
-    source "$CONFIG_FILE"
+  if ! bash -n "$CONFIG_FILE"; then
+    echo "[ERROR] Config file has syntax errors: $CONFIG_FILE" >&2
+    exit 1
+  fi
+  # shellcheck source=/etc/haas-firewall.conf
+  source "$CONFIG_FILE"
 else
     echo "[WARN] Config file missing: $CONFIG_FILE"
     echo "[WARN] Falling back to script-local defaults."
