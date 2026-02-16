@@ -31,3 +31,26 @@ else
     echo "ERROR: Installation failed."
     exit 1
 fi
+echo "[4/4] Configuring shell profiles for Bash and Zsh..."
+
+# Define the lines we want to add
+PATH_LINE='export PATH="$HOME/.cargo/bin:$PATH"'
+# Replace the URL below with your actual tspin_alias.sh raw URL or local path
+SOURCE_LINE='[ -f "$HOME/Haas_Data_collect/tspin_alias.sh" ] && source "$HOME/Haas_Data_collect/tspin_alias.sh"'
+
+# List of profiles to check
+PROFILES=("$HOME/.bashrc" "$HOME/.zshrc")
+
+for PROFILE in "${PROFILES[@]}"; do
+    if [ -f "$PROFILE" ]; then
+        echo "Updating $PROFILE..."
+
+        # Add PATH if not already there
+        grep -qF "$PATH_LINE" "$PROFILE" || echo "$PATH_LINE" >> "$PROFILE"
+
+        # Add Alias sourcing if not already there
+        grep -qF "tspin_alias.sh" "$PROFILE" || echo "$SOURCE_LINE" >> "$PROFILE"
+    fi
+done
+
+echo "SUCCESS: Environment configured. Please RESTART your terminal session."
