@@ -46,14 +46,10 @@ HAAS_MACHINES_SUBNET_V4_DEFAULT=""
 HAAS_MACHINES_SUBNET_V6_DEFAULT=""
 SSH_PORT="22"
 
-# Validate config file syntax before sourcing
+# Load config if present (overrides defaults)
 if [[ -f "$CONFIG_FILE" ]]; then
-  if ! bash -n "$CONFIG_FILE"; then
-    echo "[ERROR] Config file has syntax errors: $CONFIG_FILE" >&2
-    exit 1
-  fi
-  # shellcheck source=/etc/haas-firewall.conf
-  source "$CONFIG_FILE"
+    # shellcheck disable=SC1090
+    source "$CONFIG_FILE"
 else
     echo "[WARN] Config file missing: $CONFIG_FILE"
     echo "[WARN] Falling back to script-local defaults."
