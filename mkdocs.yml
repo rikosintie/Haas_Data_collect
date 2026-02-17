@@ -19,7 +19,7 @@ nav:
       - Updating Appliance: 'build_pi_5_appliance/updating_appliance.md'
       - Firewall Configuration: 'build_pi_5_appliance/firewall_configuration.md'
   - Appendices:
-    - Appendix - appendices/README.md
+    - Appendix - 'appendices/README.md'
     - Appendix A - smbv1: 'appendices/appendix-a.md'
     - Appendix B - File Permissions: 'appendices/appendix-b.md'
     - Appendix C - Systemd type options: 'appendices/appendix-c.md'
