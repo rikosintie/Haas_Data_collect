@@ -9,10 +9,11 @@
 # Define the aliases in a variable
 ALIASES="
 # Tailspin Aliases
-alias t-samba='sudo tail -f /var/log/samba/log.smbd | tspin'
-alias t-ssh='sudo tail -f /var/log/auth.log | tspin'
 alias t-cockpit='sudo journalctl -u cockpit -f | tspin'
 alias t-health='sudo journalctl -u smbd -u ssh -u cockpit -f | tspin'
+alias t-samba='sudo tail -f /var/log/samba/log.smbd | tspin'
+alias t-ssh='sudo tail -f /var/log/auth.log | tspin'
+alias t-ufw='sudo tail -f /var/log/ufw.log | tspin'
 "
 
 # Check if already added to avoid duplicates, then append
