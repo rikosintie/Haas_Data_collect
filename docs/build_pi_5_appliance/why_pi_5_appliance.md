@@ -25,7 +25,8 @@ The second reason means creating file shares on the Windows computer that the sc
 - Creating a service that starts during boot is easy to do with Ubuntu.
 - Ubuntu has a long track record of security in the enterprise.
 
-You will still need to discuss the appliance with the IT security team, but it resolves most security issues. The appliance uses the Ubuntu UFW firewall and has SMB V1, NetBIOS disabled. [Red Hat Cockpit](https://www.redhat.com/en/blog/intro-cockpit) is used to manage the appliance, so applying security updates and verifying firewall status is accomplished in a GUI.
+You will still need to discuss the appliance with the IT security team, but it resolves most security issues. The appliance uses the Ubuntu UFW firewall and has SMB V1, NetBIOS disabled.
+See [Appendix A - Securing the Appliance](../appendices/appendix-a.md) for details on the security used. [Red Hat Cockpit](https://www.redhat.com/en/blog/intro-cockpit) is used to manage the appliance, so applying security updates and verifying firewall status is accomplished in a GUI.
 
 ----------------------------------------------------------------
 
