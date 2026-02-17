@@ -1,10 +1,10 @@
-# Raspberry Pi 5 Appliance
-
-----------------------------------------------------------------
+# Use an appliance for the scripts
 
 ![screenshot](img/Tux-Raspbery-Pi5.resized.jpeg)
 
-Why would you want to build a Raspberry Pi 5 appliance when the Python scripts will run on Windows? A couple of reasons jump out:
+----------------------------------------------------------------
+
+Why would you want to build a dedicated appliance when the Python scripts will run on Windows? A couple of reasons jump out:
 
 - The scripts need to be running anytime the shop is working.
 - You will need to have shares available for the files to be copied
@@ -15,14 +15,27 @@ The workaround to a user being logged in is to use a tool like `NSSM (Non-Suckin
 
 The second reason means creating file shares on the Windows computer that the scripts are running on. I have had a lot of wasted time in small shops making their MSP understand what is needed (a user account, the shares, security groups, etc.) and getting it done while I'm onsite. Plus, creating shares on a personal workstation may violate IT security policy.
 
-**A Raspberry Pi 5 appliance solves both of these problems:**
+----------------------------------------------------------------
 
+**An appliance solves both of these problems:**
+
+- Ubuntu is a well supported Operating System for appliances.
 - It can run 24/7 in the shop or in the server closet with no one logged in.
 - It uses less than 27 watts of power; electricity cost isn't an issue.
 - Creating a service that starts during boot is easy to do with Ubuntu.
 - Ubuntu has a long track record of security in the enterprise.
 
-You will still need to discuss the appliance with the IT security team, but it resolves most security issues. The appliance uses the Ubuntu UFW firewall and has SMB V1 disabled. [Red Hat Cockpit](https://www.redhat.com/en/blog/intro-cockpit) is used to manage the appliance, so applying security updates and verifying firewall status is accomplished in a GUI.
+You will still need to discuss the appliance with the IT security team, but it resolves most security issues. The appliance uses the Ubuntu UFW firewall and has SMB V1, NetBIOS disabled. [Red Hat Cockpit](https://www.redhat.com/en/blog/intro-cockpit) is used to manage the appliance, so applying security updates and verifying firewall status is accomplished in a GUI.
+
+----------------------------------------------------------------
+
+## What hardware is needed?
+
+Raspberry Pis have become popular for industrial applications. They are inexpensive, reliable, and have a massive community of blogs, YouTube videos, and magazine articles supporting them. Here is a link to [Raspberry Pi for Industry](https://www.raspberrypi.com/for-industry/) on the official Raspberry Pi site. The Raspberry Pi 5 with 8GB of RAM is more than enough power to run the scripts and create the data files.
+
+A Small Form Factor (SFF) Intel PC is also a good choice for a dedicated appliance. The Raspberry Pi 5 might be less expensive and the SFF my not run on PoE power! But, the appliance can be built on a repurposed PC or old server, or brand new SFF PC. All of the scripts and applications will run on ARM or Intel architecture chips.
+
+An easy way to get start would be to use a repurposed laptop to try out the appliance and then rebuild it on a Pi or SFF PC.
 
 ----------------------------------------------------------------
 
@@ -36,14 +49,6 @@ If you are building the appliance for personal use, Ubuntu has a service that is
 - Kernel Livepatch
 - Advanced Active Directory policies for Ubuntu Desktop
 - And much more
-
-----------------------------------------------------------------
-
-## Why use a Raspberry Pi
-
-Raspberry Pis have become popular for industrial applications. They are inexpensive, reliable, and have a massive community of blogs, YouTube videos, and magazine articles supporting them. Here is a link to [Raspberry Pi for Industry](https://www.raspberrypi.com/for-industry/) on the official Raspberry Pi site.
-
-A Small Form Factor (SFF) Intel PC will still cost more than the Raspberry Pi 5 and won't run on PoE power! But, the appliance can be built on a repurposed PC or old server, or brand new SFF PC. All of the scripts and applications will run on ARM or Intel architecture chips.
 
 ----------------------------------------------------------------
 
@@ -71,7 +76,7 @@ There is also a vibrant ecosystem of add-on "Hardware Attached on Top" boards, u
 Sites like:
 
 - [Adafruit](https://www.adafruit.com/)
-- [Waveshre](https://www.waveshare.com/)
+- [Waveshare](https://www.waveshare.com/)
 - [Ameridroid](https://ameridroid.com/)
 
 Sell a large array of add ons, cases, etc. for the Raspberry Pi 5.
@@ -142,7 +147,7 @@ The installation instructions are on the Amazon link but they are hard to find. 
 
 I recommend purchasing the [Waveshare Industrial USB to TTL (D) Serial Cable, compatible with the Raspberry Pi 5](https://www.amazon.com/Waveshare-Industrial-Compatible-Raspberry-Protection/dp/B0CX5C5KR4?crid=UOYE4ZQGD85P&dib=eyJ2IjoiMSJ9.BPFSkDQQOB_j9pTthVxIH4j29kCE7yNqMgc9hB24bXyZhFqiigw3R8GFKkNfReHcXnOziFKmQqQT18804nToT-uEjdtmRbNvjT7EAReShBp_-x8drPgFSEOiVlVJefzxlg92li3IySROS7fhPIbUUCjNmzzSXwEktDIOugk-NjlgFu55M4KYy8D7fpKQ_cFomwpIjZmp9w28W1e2MFkhYuAF2tf9ULMQeNLm8Mz8SIs.7Cn4aq4suv6rP_fKHjW11v9K2c4YlYELTGYOSVdyyDw&dib_tag=se&keywords=raspberry+pi+5+serial+cable&qid=1768278124&sprefix=raspberry+pi+5+serial%2Caps%2C193&sr=8-1) Serial to USB cable, for $13.99. The cable allows you to connect to the Raspberry Pi 5 if you lock yourself out over SSH. And that can happen when configuring the firewall. :smiley:
 
-This cable is nice because in addition to the individual 4 connects it includes the `3 pin UART` connector that the Raspberry Pi 5 has. I have used that cable to console into Aruba 315 APs that have 4 pins instead of the typical RJ45 console connector.
+This cable is nice because in addition to the individual 4 connects it includes the `3 pin UART` connector that the Raspberry Pi 5 has. I have used that cable to console into Aruba 315 APs that have 4 pins instead of the typical RJ45 console connector. The Waveshare case exposes the 3 pin connector on the back of the case.
 
 ----------------------------------------------------------------
 
