@@ -1,8 +1,24 @@
-# Secure Samba
+# How is the appliance hardened?
 
-The appliance can have Microsoft SMBv1 disabled because the Haas CNC controls support `SMBv2` and the Windows desktops that will access the shares should support `SMBv2` since it has been built into Windows since Vista in 2006!
+The appliance is built on Ubuntu 24.04 which is a Long Term Support (LTS) version of Ubuntu. Ubuntu 24.04 is well tested in enterprises the Ubuntu team releases security patches on a regular schedule.
 
-If you build the appliance with the `haas_firewall_install.sh` script then these step are already taken care of.
+Since the appliance has a very limited role it can be hardened against typical attacks. The follow steps are completed with the installation script:
+
+- The Linux UFW firewall is automatically configured and enabled based on the users and roles in the `users.csv` file. It can be updated at any time to add/remove users.
+- If the Haas machines are on a dedicated LAN segment, the firewall can be configured with one change to the configuration file reducing the chance of an error being made.
+- Samba Version 4.19.5-Ubuntu is installed.
+- Samba removed SMBv1 in version 4.1+.
+- NetBIOS is disabled by the installation script.
+- The [RedHat Cockpit management suite](https://www.redhat.com/en/blog/intro-cockpit) is installed by the installation script to provide a modern-looking and user-friendly interface to manage and administer the appliance.
+- An [Ubuntu Pro subscription](https://ubuntu.com/pricing/pro) can be purchased to provide automatic updates and enterprise level support.
+
+----------------------------------------------------------------
+
+## Securing Samba
+
+The appliance has Microsoft `SMBv1` disabled because the Haas CNC controls support `SMBv2` and the Windows desktops that will access the shares should support `SMBv2` since it has been built into Windows since Vista in 2006!
+
+If you build the appliance with the `haas_firewall_install.sh` script then these steps are already taken care of.
 
 ----------------------------------------------------------------
 
@@ -93,6 +109,70 @@ sudo systemctl status smbd
 ```
 
 !!! Note
-        Since `SMBv1` was permanently removed for Samba Server version 4.1 this step is not strictly needed, but disabling `NetBios`, the `spoolss` and the `pinter$` harden the appliance beyond just disabling `SMBv1`
+        `SMBv1` was permanently removed from Samba Server version 4.1 and above. Disabling `NetBios`, the `spoolss` service and the `printer$` share  harden the appliance beyond just disabling `SMBv1`
 
-sudo sh -c 'cd /var/lib/samba/usershares && ls -l'
+----------------------------------------------------------------
+
+## The UFW firewall
+
+The Linux UFW firewall is used to prevent attacks against the appliance. During the initial setup the installation script enable the UFW firewall and configures it based on the file `users.csv`. This file contains:
+
+- username
+- ip address
+- role
+
+for all users that need access.
+
+Based on this `users.csv` file:
+
+```bash linenums='1' hl_lines='1'
+cat users.csv
+username,ip_address,role
+haas,192.168.10.143,Administrator
+toolroom,192.168.10.104,user
+mchavez,192.168.10.113,Administrator
+thubbard,192.168.10.100,user
+```
+
+The installation script will create the following rules:
+
+```bash linenums='1' hl_lines='1'
+sudo ufw status numbered | sort -k5
+```
+
+```bash title='Command Output'
+     --                         ------      ----
+     To                         Action      From
+Status: active
+[ 1] 445                        ALLOW IN    10.10.10.0/24              # haas-smb
+[ 9] 445                        ALLOW IN    192.168.10.100             # thubbard-user-smb
+[ 5] 445                        ALLOW IN    192.168.10.104             # toolroom-user-smb
+[ 8] 9090                       ALLOW IN    192.168.10.113             # msp_admin-admin-cockpit
+[ 7] 445                        ALLOW IN    192.168.10.113             # msp_admin-admin-smb
+[ 6] 22                         ALLOW IN    192.168.10.113             # msp_admin-admin-ssh
+[ 4] 9090                       ALLOW IN    192.168.10.143             # haas-admin-cockpit
+[ 3] 445                        ALLOW IN    192.168.10.143             # haas-admin-smb
+[ 2] 22                         ALLOW IN    192.168.10.143             # haas-admin-ssh
+```
+
+### The Haas machines
+
+In this example, the Haas machines are on a dedicated vlan of `10.10.10.0/24` as seen in the first line of the output. They only get access to the SMB share so that they can upload/download CNC programs to the appliance.
+
+### The user role
+
+- thubbard - CNC Programmer
+- toolroom - A toolroom mill that isn't on the dedicated vlan
+
+Received only access to the SMB shares.
+
+### The Administrator Role
+
+- haas - the administrator account for the appliance
+- msp_admin - a user delegated to the MSP manage the appliance
+
+Receive ssh, smb and cockpit access through the firewall.
+
+All other IP addresses will only be able to ping the appliance.
+
+----------------------------------------------------------------
