@@ -10,7 +10,7 @@ nav:
   - Intro: Introduction.md
   - Python: installing_python.md
   - Usage: usage.md
-  - Raspberry Pi 5:
+  - Applinace:
       - Why build a Pi 5_Appliance: 'build_pi_5_appliance/why_pi_5_appliance.md'
       - Installing Ubuntu: 'build_pi_5_appliance/installing_ubuntu.md'
       - Creating the Appliance: 'build_pi_5_appliance/configuring_appliance.md'
