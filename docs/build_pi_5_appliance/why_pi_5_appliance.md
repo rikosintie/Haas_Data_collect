@@ -39,11 +39,11 @@ If you are building the appliance for personal use, Ubuntu has a service that is
 
 ----------------------------------------------------------------
 
-## Why use an RPi instead of a SFF Intel machine
+## Why use a Raspberry Pi
 
 Raspberry Pis have become popular for industrial applications. They are inexpensive, reliable, and have a massive community of blogs, YouTube videos, and magazine articles supporting them. Here is a link to [Raspberry Pi for Industry](https://www.raspberrypi.com/for-industry/) on the official Raspberry Pi site.
 
-A Small Form Factor (SFF) Intel PC will still cost more than the Raspberry Pi 5 and won't run on PoE power!
+A Small Form Factor (SFF) Intel PC will still cost more than the Raspberry Pi 5 and won't run on PoE power! But, the appliance can be built on a repurposed PC or old server, or brand new SFF PC. All of the scripts and applications will run on ARM or Intel architecture chips.
 
 ----------------------------------------------------------------
 
