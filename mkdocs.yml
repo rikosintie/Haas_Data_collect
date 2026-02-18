@@ -10,7 +10,7 @@ nav:
   - Intro: Introduction.md
   - Python: installing_python.md
   - Usage: usage.md
-  - Applinace:
+  - Appliance:
       - Why build a Pi 5_Appliance: 'build_pi_5_appliance/why_pi_5_appliance.md'
       - Installing Ubuntu: 'build_pi_5_appliance/installing_ubuntu.md'
       - Creating the Appliance: 'build_pi_5_appliance/configuring_appliance.md'
@@ -22,7 +22,8 @@ nav:
     - Appendix - Introduction: 'appendices/intro.md'
     - Appendix A - Securing the Appliance: 'appendices/appendix-a.md'
     - Appendix B - File Permissions: 'appendices/appendix-b.md'
-    - Appendix C - Systemd type options: 'appendices/appendix-c.md'
+    - Appendix C - Threat Model for Auditors: 'appendices/appendix-c.md'
+    - Appendix D - Systemd type options: 'appendices/appendix-d.md'
 
 
 theme:
