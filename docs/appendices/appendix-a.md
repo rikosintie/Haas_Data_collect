@@ -88,7 +88,7 @@ Out to the box, the appliance supports username/password login for SSH. The foll
 
 If the environment uses SSH keys for logins, the following additional steps can be taken to lock the appliance down using SSH Keys. Do not run this unless you are sure that you have configured ssh keys on your laptop and copied the public key to the appliance!
 
-### SSH Hardening Using a Drop-In Configuration File
+### Drop-In Config File
 
 Ubuntu 24.04 supports modular SSH configuration using the Include directive in the primary sshd_config file. Drop-in files located in /etc/ssh/sshd_config.d/ are automatically loaded
 
@@ -167,23 +167,6 @@ The output should reflect the enforced values.
 
 ----------------------------------------------------------------
 
-- The Ubuntu UFW firewall is automatically configured and enabled based on the users and roles in the `users.csv` file. It can be updated at any time to add/remove users.
-- Ubuntu 24.04 uses OpenSSH_9.9p1, and OpenSSL 3.4.1 11 Feb 2025 which have dropped several legacy ciphers:
-  - 1. DSA (ssh-dss) — fully removed
-  - 1. SHA‑1 Key Exchange
-- If the Haas machines are on a dedicated LAN segment, the firewall can be configured with one change to the configuration file reducing the chance of an error being made.
-- Samba Version 4.19.5-Ubuntu is installed.
-- Samba removed SMBv1 in version 4.1+.
-- NetBIOS is disabled by the installation script.
-- The Samba print spooler and printer share are disabled by the installation script.
-- The [RedHat Cockpit management suite](https://www.redhat.com/en/blog/intro-cockpit) is installed by the installation script to provide a modern-looking and user-friendly interface to manage and administer the appliance.
-- A custom Cockpit extension is installed to manage the firewall using a web interface.
-- An [Ubuntu Pro subscription](https://ubuntu.com/pricing/pro) can be purchased to provide automatic updates and enterprise level support.
-
-If you build the appliance with the `haas_firewall_install.sh` script then these steps are already taken care of. If you build from scratch, follow the instructions in the [Installing Samba chapter](../build_pi_5_appliance/Install_Samba.md).
-
-----------------------------------------------------------------
-
 ## Securing Samba
 
 The appliance has Microsoft `SMBv1` removed and supports `SMBv2/SMBv3`, the Haas CNC controls support `SMBv2` and the Windows desktops that will access the shares should support `SMBv2` since it has been built into Windows since Vista in 2006!
@@ -214,7 +197,7 @@ Security risks: NetBIOS and WINS are considered legacy protocols with known vuln
 
 ----------------------------------------------------------------
 
-## Updates to the smb.conf file
+### The smb.conf file
 
 The following settings are added the Samba Server configuration file by the installation script:
 
@@ -261,7 +244,7 @@ If there are any errors reopen the smb.conf file and correct them.
 
 ----------------------------------------------------------------
 
-## Restart Samba service
+### Restart Samba service
 
 Run the following to restart Samba and check the status:
 
