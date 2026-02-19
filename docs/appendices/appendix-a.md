@@ -80,7 +80,7 @@ Since the appliance has a very limited role it can be hardened against typical a
 
 ## MSP/MSSP Guidance for SSH
 
-Out to the box, the appliance supports username/password login for SSH. The following non-default settings are configured:
+Out of the box, the appliance supports username/password login for SSH. The following non-default settings are configured:
 
 - Root login is disabled (PermitRootLogin no)
 - Empty Passwords are not permitted (PermitEmptyPasswords no)
@@ -104,6 +104,20 @@ This approach ensures:
 - Improved audit transparency
 - Clean survivability across package updates
 - Simple identification of appliance-specific security controls
+
+----------------------------------------------------------------
+
+### Custom SSH port
+
+If your company's security policy requires a custom SSH port, you can use the `ssh_port.sh` script in the root of the `Haas_Data_collect` directory. The script prompts for a port number, then:
+
+- Updates /etc/ssh/sshd_config
+- Updates /etc/haas-firewall.conf
+- restarts the ssh daemon
+
+You can run the script as often as you want. It updates both files each time.
+
+If you are concerned about SSH security, I recommend switching to SSH keys after changing the port. It is nearly impossible to brute-force a certificate.
 
 ----------------------------------------------------------------
 
