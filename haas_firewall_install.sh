@@ -168,6 +168,7 @@ PubkeyAuthentication yes
 ChallengeResponseAuthentication no
 PermitEmptyPasswords no
 X11Forwarding no
+Banner /etc/issue.net
 EOF
 
 sudo systemctl restart ssh
