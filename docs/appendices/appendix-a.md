@@ -107,20 +107,6 @@ This approach ensures:
 
 ----------------------------------------------------------------
 
-### Custom SSH port
-
-If your company's security policy requires a custom SSH port, you can use the `ssh_port.sh` script in the root of the `Haas_Data_collect` directory. The script prompts for a port number, then:
-
-- Updates /etc/ssh/sshd_config
-- Updates /etc/haas-firewall.conf
-- restarts the ssh daemon
-
-You can run the script as often as you want. It updates both files each time.
-
-If you are concerned about SSH security, I recommend switching to SSH keys after changing the port. It is nearly impossible to brute-force a certificate.
-
-----------------------------------------------------------------
-
 ### Security Rationale
 
 - **PermitRootLogin no**
@@ -167,17 +153,326 @@ I have detailed instructions on setting up SSH for network devices that covers c
 To confirm effective configuration, run:
 
 ```bash linenums='1' hl_lines='1'
-sudo sshd -T | grep -E 'permitrootlogin|passwordauthentication|pubkeyauthentication|challengeresponseauthentication|permitemptypasswords'
+sudo sshd -T | grep -E 'permitrootlogin|passwordauthentication|pubkeyauthentication|challengeresponseauthentication|permitemptypasswords|^banner|x11f'
 ```
 
 ```bash title='Command Output'
 permitrootlogin no
 pubkeyauthentication yes
 passwordauthentication yes
+x11forwarding no
 permitemptypasswords no
+banner /etc/issue.net
 ```
 
 The output should reflect the enforced values.
+
+----------------------------------------------------------------
+
+Run this command to verify the port that ssh is actually listening on:
+
+```bash hl_lines='1'
+sudo ss -tulpn | grep ssh
+```
+
+```bash title='Command Output'
+tcp   LISTEN 0      4096                             0.0.0.0:3333       0.0.0.0:*    users:(("sshd",pid=46557,fd=3),("systemd",pid=1,fd=66))
+tcp   LISTEN 0      4096                                [::]:3333          [::]:*    users:(("sshd",pid=46557,fd=4),("systemd",pid=1,fd=67))
+```
+
+----------------------------------------------------------------
+
+**Operational Considerations**
+Before disabling password authentication:
+
+- Confirm SSH key-based access is functional.
+- Verify correct permissions:
+    1. ~/.ssh → 700
+    1. authorized_keys → 600
+
+Failure to validate key access before disabling passwords may result in administrative lockout.
+
+----------------------------------------------------------------
+
+## Custom SSH port
+
+If your company's security policy requires a custom SSH port, you can use the `ssh_port.sh` script in the root of the `Haas_Data_collect` directory. The script prompts for a port number, then:
+
+- Updates /etc/ssh/sshd_config
+- Updates /etc/haas-firewall.conf
+- restarts the ssh daemon
+
+You can run the script as often as you want. It updates both files each time.
+
+If you are concerned about SSH security, I recommend switching to SSH keys after changing the port. It is nearly impossible to brute-force a certificate.
+
+### The ssh_port script
+
+The script must be run with `sudo` since it modifies `/ect/haas-firewall.conf` and /etc/ssh/sshd_config`. Use the following to run the script:
+
+```bash linenums='1' hl_lines='1'
+sudo ./ssh_port.sh
+```
+
+```bash title='Command Output'
+#############################################
+#                                           #
+#      Configure a custom port for SSH      #
+#  Use port 22 or a port between 1024-65535 #
+#                                           #
+#############################################
+
+
+Enter the SSH port number (22, 1024-65535): 3333
+
+SSH_PORT set to 3333
+Updating /etc/ssh/sshd_config...
+Updating /etc/haas-firewall.conf...
+
+Restarting SSH Service...
+
+
+Feb 19 14:31:38 haas sshd[47452]: Server listening on 0.0.0.0 port 3333.
+Feb 19 14:31:38 haas sshd[47452]: Server listening on :: port 3333.
+
+
+##########################################################
+
+           Script is now complete!
+  The SSH service is configured for port 3333
+  /etc/haas-firewall.conf is updated with SSH_PORT=3333
+        Use Cockpit to update the Firewall
+
+##########################################################
+```
+
+### Update the firewall
+
+The firewall by default is configured to use port 22 for ssh. If you change the port using `sudo ssh_port` then you must run the firewall configuration script to update the port:
+
+```bash linenums='1' hl_lines='1'
+sudo /usr/local/sbin/configure_ufw_from_csv.sh
+```
+
+```bash title='Command Output'
+[INFO] Using CSV file: /home/haas/Haas_Data_collect/users.csv
+[INFO] Using backup directory: /home/haas/Haas_Data_collect/backups
+2026-02-19 14:36:12 [INFO] Starting UFW configuration from CSV.
+2026-02-19 14:36:12 [INFO] Using CSV file: /home/haas/Haas_Data_collect/users.csv
+2026-02-19 14:36:12 [INFO] Validating CSV...
+[*] Validating CSV: /home/haas/Haas_Data_collect/users.csv
+[*] CSV validation PASSED successfully.
+2026-02-19 14:36:12 [INFO] CSV validation passed.
+2026-02-19 14:36:12 [INFO] CSV backup created at: /home/haas/Haas_Data_collect/backups/users_2026-02-19_14-36-12.csv
+2026-02-19 14:36:12 [INFO] Applying Haas subnet rule: ALLOW 445/tcp FROM 10.10.10.0/24
+Skipping adding existing rule
+2026-02-19 14:36:12 [INFO] ADMIN: haas@192.168.10.143 → 3333, 445, 9090
+Skipping adding existing rule
+Skipping adding existing rule
+Skipping adding existing rule
+2026-02-19 14:36:12 [INFO] USER: toolroom@192.168.10.104 → 445
+Skipping adding existing rule
+2026-02-19 14:36:12 [INFO] ADMIN: msp_admin@192.168.10.113 → 3333, 445, 9090
+Skipping adding existing rule
+Skipping adding existing rule
+Skipping adding existing rule
+2026-02-19 14:36:13 [INFO] USER: thubbard@192.168.10.100 → 445
+Skipping adding existing rule
+2026-02-19 14:36:13 [INFO] Firewall rule application complete.
+```
+
+!!! Note
+        I have run this while connected to the appliance over ssh/port 22 and didn't get disconnected. But, it is possible that you will lose connectivity. If that happens reconnect using `ss -p 3333 haas@<ip_address>
+
+----------------------------------------------------------------
+
+## SSH Access Lost After Hardening Changes
+
+After applying SSH hardening settings, administrators may be unable to reconnect to the appliance. This is typically caused by firewall rules, authentication changes, or service configuration order rather than a system failure.
+
+This section provides a structured troubleshooting process to safely restore access.
+
+### Common Causes
+
+Loss of SSH access most commonly occurs when:
+
+- The SSH listening port was changed but the firewall was not updated
+- Password authentication was disabled before SSH keys were verified
+- Root login was disabled without confirming a sudo-capable user
+- SSH service configuration was modified but not restarted
+- Incorrect permissions exist on SSH key files
+
+----------------------------------------------------------------
+
+### Troubleshooting Procedure
+
+Perform the following checks from the appliance console or hypervisor access if using a Virtual Appliance.
+
+#### 1. Verify SSH Service Status
+
+```bash hl_lines='1'
+sudo systemctl status ssh
+```
+
+**Expected Result**: `Active: active (running) since Thu 2026-02-19 14:31:38 PST; 17min ago`
+
+**If not running**:
+
+```bash linenums='1' hl_lines='1'
+sudo systemctl restart ssh
+```
+
+#### 2. Confirm Listening Port
+
+Verify which port SSH is actually listening on:
+
+```bash lhl_lines='1'
+sudo ss -tulpn | grep ssh
+```
+
+```bash title='Command Output'
+tcp   LISTEN 0      4096                             0.0.0.0:3333       0.0.0.0:*    users:(("sshd",pid=47452,fd=3),("systemd",pid=1,fd=197))
+tcp   LISTEN 0      4096                                [::]:3333          [::]:*    users:(("sshd",pid=47452,fd=4),("systemd",pid=1,fd=198))
+```
+
+If the expected port is not shown, review:
+
+- /etc/ssh/sshd_config
+- /etc/ssh/sshd_config.d/99-haas-hardening.conf
+
+Using
+
+```bash linenums='1' hl_lines='1'
+sudo nano /etc/ssh/sshd_config
+sudo nano /etc/ssh/sshd_config.d/99-haas-hardening.conf
+```
+
+Then test configuration validity:
+
+```bash hl_lines='1'
+sudo sshd -T | grep -E 'permitrootlogin|passwordauthentication|pubkeyauthentication|challengeresponseauthentication|permitemptypasswords|^banner|x11f|port\ '
+```
+
+```bash title='Command Output'
+port 3333
+permitrootlogin no
+pubkeyauthentication yes
+passwordauthentication yes
+x11forwarding no
+permitemptypasswords no
+banner /etc/issue.net
+```
+
+#### 3. Check Firewall Rules
+
+A firewall blocking the new SSH port will result in connection timeouts.
+
+Check firewall status:
+
+```bash hl_lines='1'
+ sudo ufw status numbered | sort -k5
+```
+
+```bash title='Command Output'
+     --                         ------      ----
+     To                         Action      From
+Status: active
+[11] 3333                       ALLOW IN    192.168.10.113             # msp_admin-admin-ssh
+[10] 3333                       ALLOW IN    192.168.10.143             # haas-admin-ssh
+[ 1] 445                        ALLOW IN    10.10.10.0/24              # haas-smb
+[ 9] 445                        ALLOW IN    192.168.10.100             # thubbard-user-smb
+[ 5] 445                        ALLOW IN    192.168.10.104             # toolroom-user-smb
+[ 8] 9090                       ALLOW IN    192.168.10.113             # msp_admin-admin-cockpit
+[ 7] 445                        ALLOW IN    192.168.10.113             # msp_admin-admin-smb
+[ 6] 22                         ALLOW IN    192.168.10.113             # msp_admin-admin-ssh
+[ 4] 9090                       ALLOW IN    192.168.10.143             # haas-admin-cockpit
+[ 3] 445                        ALLOW IN    192.168.10.143             # haas-admin-smb
+[ 2] 22                         ALLOW IN    192.168.10.143             # haas-admin-ssh
+
+```
+
+#### 4. Validate Authentication Method
+
+If password authentication was disabled, confirm SSH key access:
+
+```bash hl_lines='1'
+ls -ld ~/.ssh
+ls -l ~/.ssh/authorized_keys
+```
+
+```bash title='Command Output'
+drwx------ 2 haas haas 4096 Feb 19 14:19 /home/haas/.ssh
+-rw------- 1 haas haas 86 Feb 19 14:45 /home/haas/.ssh/authorized_keys
+```
+
+The `drwx------` on /home/haas/.ssh means the permission is read/write/execute (700) for owner. No permission for the group or other users.
+The `-rw-------` on /home/haas/.ssh/authorized_keys means rw for owner, No permission for the group or other users.
+
+Fix if necessary:
+
+```bash hl_lines='1'
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys
+```
+
+The ~/.ssh directory must be restricted to the account owner (700). OpenSSH will reject key-based authentication if directory permissions allow write access by group or other users.
+
+----------------------------------------------------------------
+
+#### 5. Test from a Remote System
+
+Use verbose SSH output to identify failures:
+
+```bash hl_lines="1"
+ssh -vvv -p [custom port] haas@[appliance-ip]
+```
+
+This will indicate whether the failure is due to:
+
+- Network filtering
+- Authentication rejection
+- Key negotiation issues
+
+### Nmap Diagnostic Reference
+
+From another host:
+
+```bash hl_lines="1"
+nmap -p [custom port] appliance-ip
+```
+
+```bash title='Command Output'
+Starting Nmap 7.95 ( https://nmap.org ) at 2026-02-19 15:08 PST
+Nmap scan report for haas.pu.pri (192.168.10.136)
+Host is up (0.0068s latency).
+
+PORT     STATE SERVICE VERSION
+3333/tcp open  ssh     OpenSSH 9.6p1 Ubuntu 3ubuntu13.13 (Ubuntu Linux; protocol 2.0)
+MAC Address: 88:A2:9E:43:4D:DE (Unknown)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 0.34 seconds
+```
+
+### Recovery Recommendation
+
+When changing SSH ports or authentication settings, always apply changes in this order:
+
+1. Log into a second session before starting the change
+2. Update the ssh configuration files (run `./ssh_port.sh`)
+3. update the firewall rules (`sudo /usr/local/sbin/configure_ufw_from_csv.sh` )
+4. Verify new access from a another session
+
+This staged approach prevents administrative lockout.
+
+### Design Note
+
+The Haas Data Collection Appliance applies SSH hardening using configuration drop-in files located in:
+
+`/etc/ssh/sshd_config.d/99-haas-hardening.conf`
+
+This provides protection during Operating System upgrades because the updater will now try to overwrite the files in cat /etc/ssh/sshd_config.d/`
 
 ----------------------------------------------------------------
 
