@@ -73,8 +73,8 @@ Since the appliance has a very limited role it can be hardened against typical a
     4. Clear instructions are provided for MSPs on how to connect using a wired interface.
 
 1. IPv6 Machine tool network
-   1. The `/etc/haas-firewall.conf` file supports a segmented IPv6 vlan for the machine tools.
-   2. Edit the entry `HAAS_MACHINES_SUBNET_V6=""` to add your IPv6 subnet.
+    1. The `/etc/haas-firewall.conf` file supports a segmented IPv6 vlan for the machine tools.
+    2. Edit the entry `HAAS_MACHINES_SUBNET_V6=""` to add your IPv6 subnet.
 
 ----------------------------------------------------------------
 
