@@ -156,9 +156,21 @@ sudo cp "$REPO_DIR/ssh_port.sh" /usr/local/sbin
 sudo cp "$REPO_DIR/issue.net" /etc/issue.net
 
 # change the prelogin banner in /etc/ssh/sshd_config to point to /etc/issue.net
-sudo sed -i 's|^#Banner none|Banner /etc/issue.net|' /etc/ssh/sshd_config
+#sudo sed -i 's|^#Banner none|Banner /etc/issue.net|' /etc/ssh/sshd_config
 # Disable direct root SSH login
-sudo sed -i 's|^[[:space:]]*#\?PermitRootLogin .*|PermitRootLogin no|' /etc/ssh/sshd_config
+#sudo sed -i 's|^[[:space:]]*#\?PermitRootLogin .*|PermitRootLogin no|' /etc/ssh/sshd_config
+
+# Create a custom ssh options file
+sudo tee /etc/ssh/sshd_config.d/99-haas-hardening.conf > /dev/null << 'EOF'
+PermitRootLogin no
+PasswordAuthentication yes
+PubkeyAuthentication yes
+ChallengeResponseAuthentication no
+PermitEmptyPasswords no
+X11Forwarding no
+EOF
+
+sudo systemctl restart ssh
 
 # Update the banner setting in sshd_config
 if [ -f /etc/issue.net ] && grep -q "^Banner" /etc/ssh/sshd_config && sudo sshd -t; then
