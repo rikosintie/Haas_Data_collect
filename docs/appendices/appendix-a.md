@@ -78,6 +78,11 @@ Since the appliance has a very limited role it can be hardened against typical a
 
 ----------------------------------------------------------------
 
+!!! Note
+        The IPv6 capability is for future proofing. I don't believe that the Haas CNC control currently supports IPv6
+
+----------------------------------------------------------------
+
 ## MSP/MSSP Guidance for SSH
 
 Out of the box, the appliance supports username/password login for SSH. The following non-default settings are configured:
