@@ -77,9 +77,58 @@ Change to the home directory using `cd ~` before you run:
 
 ----------------------------------------------------------------
 
+### Configure Nano
+
+Nano is built into most Linux distributions and you will need to use it initially, so it's worth spending a couple minutes customizing it. From the terminal run:
+
+```bash  hl_lines='1'
+nano ~/nanorc
+```
+
+Paste the following into the file:
+
+```bash linenums='1' hl_lines='1'
+set autoindent
+set historylog
+set linenumbers
+set regexp
+set smarthome
+set tabsize 4
+set tabstospaces
+include "/usr/share/nano/awk.nanorc"
+include "/usr/share/nano/css.nanorc"
+include "/usr/share/nano/html.nanorc"
+include "/usr/share/nano/man.nanorc"
+include "/usr/share/nano/nanorc.nanorc"
+include "/usr/share/nano/python.nanorc"
+include "/usr/share/nano/sh.nanorc"
+include "/usr/share/nano/tcl.nanorc"
+include "/usr/share/nano/xml.nanorc"
+```
+
+Press `ctrl+s` and `ctrl+x` to save and exit.
+
+Now when you open Nano it will `lint` (colorize) bash scripts, python, xml, html, man pages, etc. You can use `ls -l /usr/share/nano/*rc` to view all of the file types that Nano supports.
+
+This also sets:
+
+- autoindent - automatically indent a newly created line to the same level of indentation (tabs and/or spaces) as the previous line.
+- historylog - Save the last hundred search strings and replacement strings and executed commands, so they can be easily reused in later sessions.
+- linenumbers - Display line numbers to the left of the text area.
+- regexp - Do extended regular expression searches by default.
+- smarthome - Make the Home key smarter. When Home is pressed anywhere but at the very beginning of non-whitespace characters on a line, the cursor will jump to that beginning (either forwards or backwards). If the cursor is already at that position, it will jump to the true beginning of the line.
+- tabsize 4 - Use a tab size of number columns.
+- tabstospaces - Convert typed tabs to spaces.
+
+----------------------------------------------------------------
+
+You can find a detailed list of `nanorc` options at [NANORC](https://www.nano-editor.org/dist/v3/nanorc.5.html)
+
+----------------------------------------------------------------
+
 ### Change the shell to zsh
 
-When the installation is complete and you have rebooted, follow these [instructions](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal) to configure the terminal for ease of use. I wrote that procedure on Ubuntu 18.04 and have updated it as versions have changed. It will make your terminal use much easier.
+When the Ubuntu installation is complete and you have rebooted, follow these [instructions](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal) to configure the terminal for ease of use. I wrote that procedure on Ubuntu 18.04 and have updated it as versions have changed. It will make the appliance's  terminal use much easier.
 
 ----------------------------------------------------------------
 
@@ -111,18 +160,6 @@ network:
 
 ----------------------------------------------------------------
 
-Use the following code to create a backup and then edit the yaml file:
-
-```bash linenums='1' hl_lines='1'
-cd /etc/netplan/
-ls -l # look for a yaml file
-sudo cp /etc/netplan/91-nw-init.yaml /etc/netplan/91-nw-init.bak
-ls -l # look for the backup file
-sudo nano /etc/netplan/91-nw-init.yaml
-```
-
-----------------------------------------------------------------
-
 - Replace eth0 with the actual interface name (use ip link to find it, often eth0 or enp1s0 on Pi 5)
 - Replace 192.168.1.100/24 with the desired static IP and subnet
 - Replace 192.168.1.1 with the actual gateway IP
@@ -133,8 +170,43 @@ In general, do not use a public DNS server address. Your company security policy
 
 ----------------------------------------------------------------
 
+Use `ip link` to find the actual interface name on your Raspberry Pi 5. Here is the output on my Raspberry Pi 5 with Ubuntu server 24.04.3. As you can see the interface is `eth0`
+
+```bash hl_lines='1'
+ip link
+```
+
+```bash title='Command Output'
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP mode DEFAULT group default qlen 1000
+    link/ether 88:a2:9e:43:4d:de brd ff:ff:ff:ff:ff:ff
+3: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP mode DORMANT group default qlen 1000
+    link/ether 88:a2:9e:43:4d:df brd ff:ff:ff:ff:ff:ff
+```
+
+----------------------------------------------------------------
+
+Use the following code to create a backup and then edit the yaml file:
+
+```bash linenums='1' hl_lines='1'
+cd /etc/netplan/
+ls -l # look for a yaml file
+sudo cp /etc/netplan/91-nw-init.yaml /etc/netplan/91-nw-init.bak
+ls -l # look for the backup file
+sudo nano /etc/netplan/91-nw-init.yaml
+```
+
+Replace the `91-nw-init.yaml` with the name of the file you find with the `ls -l` command.
+
+----------------------------------------------------------------
+
 !!! Note
-    The yaml file might not be named "91-nw-init.yaml" depending on the version you install. If that is the case, substitute the actual filename. The last time I installed the server version the file was named `50-cloud-init.yaml`.
+    The yaml file might not be named "91-nw-init.yaml" depending on the version you install. If that is the case, substitute the actual filename. On the server version the file should be named `50-cloud-init.yaml`.
+
+----------------------------------------------------------------
+
+#### YAML editor
 
 Yaml is very particular about indentation. Ubuntu provides `netplan try` that will show any errors in the yaml file.
 
@@ -259,9 +331,7 @@ procs localsend
 
 ## Use SSH keys
 
-Ubuntu supports using ssh keys instead of usernames/passwords for logging in over ssh. The advantage is that it's near impossible to brute force ssh keys compared to brute forcing a password.
-
-The process is very similar on Mac/Windows/Linux and will take less than 5 minutes to set it up.
+Ubuntu supports using ssh keys instead of usernames/passwords for logging in over ssh. The advantage is that it's near impossible to brute force ssh keys compared to brute forcing a password. The process is very similar on Mac/Windows/Linux and will take less than 5 minutes to set it up.
 
 ### Windows 11 25H2
 
@@ -304,7 +374,7 @@ This isn't strictly necessary but I like to name my keys since I uses ssh with k
 
 Also notice that I entered a passphrase for the keys. When logging in using the `id_haas` private key, you will be prompted to enter the passphrase. Why would I use a passphrase when I just said that keys are hard to brute force?
 
-Keys are difficult to brute force, but if you forget to lock your workstation and walk away someone can copy the private key from `C:\Users\mhubbard.PU/.ssh` and then log in with out being prompted. The passphrase is a way to prevent that. I don't use a long, complex, impossible to type passphrase but it's one that would take some time to brute force with `Hashcat` or `John the Ripper`.
+Keys are difficult to brute force, but if you forget to lock your workstation and walk away someone can copy the private key from `C:\Users\mhubbard.PU/.ssh` and then log in with out being prompted. The passphrase is a way to prevent that. I don't use a long, complex, impossible to type passphrase but it's random characters that would take some time to brute force with `Hashcat` or `John the Ripper`.
 
 I wrote a PowerShell script a while back that I keep on a flash drive. If a user forgets to lock their workstation this script will search every drive for `Keepass database files` and copy them to the flash drive. It could easily be modified to copy private keys now that  Microsoft supports ssh. I wrote the script as an educational tool so show people what can happen if they don't lock their workstations when they walk away. Think "working in a coffee shop and running to the bathroom".
 
@@ -313,11 +383,12 @@ I wrote a PowerShell script a while back that I keep on a flash drive. If a user
 Windows didn't implement the `ssh-copy-id` script from the OpenSSH project for some reason. Here is how to use PowerShell to copy the key to the appliance:
 
 ```bash hl_lines='1'
-type $env:USERPROFILE\.ssh\id_haas.pub | ssh haas@192.168.10.136 "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys && chmod 700 ~/.ssh"
+PS C:\Users\mhubbard.PU> type $env:USERPROFILE\.ssh\id_haas.pub | ssh -p 3333 haas@192.168.10.136 "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys && chmod 700 ~/.ssh"
 ```
 
+----------------------------------------------------------------
+
 ```bash title='Command Output'
-PS C:\Users\mhubbard.PU> type $env:USERPROFILE\.ssh\id_haas.pub | ssh -p 3333 haas@192.168.10.136 "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys && chmod 700 ~/.ssh"
 The authenticity of host '[192.168.10.136]:3333 ([192.168.10.136]:3333)' can't be established.
 ED25519 key fingerprint is SHA256:0/RO4plpIpA6dw7EASpfdACx5KmqXT19oUjlyIRmffs.
 This key is not known by any other names.
@@ -339,7 +410,11 @@ Warning: Permanently added '[192.168.10.136]:3333' (ED25519) to the list of know
 haas@192.168.10.136's password:
 ```
 
+----------------------------------------------------------------
+
 The `$env:USERPROFILE\` expands out to your full user path.
+
+I had to use `-p 3333` because I had changed the port that is used for ssh.
 
 ----------------------------------------------------------------
 
@@ -353,13 +428,13 @@ ssh-keygen
 
 ```bash title='Command Output'
 Generating public/private ed25519 key pair.
-Enter file in which to save the key (/home/mhubbard/.ssh/id_ed25519): haas
+Enter file in which to save the key (/home/mhubbard/.ssh/id_ed25519): id_haas
 Enter passphrase for "haas" (empty for no passphrase):
 Enter same passphrase again:
 Your identification has been saved in haas
 Your public key has been saved in haas.pub
 The key fingerprint is:
-SHA256:OzzMu5XQjcXeG5Rks2hV2tSZ/jFq8QoPeTJy/w9QkgI Haas
+SHA256:OzzMu5XQjcXeG5Rks2hV2tSZ/jFq8QoPeTJy/w9QkgI
 The key's randomart image is:
 +--[ED25519 256]--+
 |        E     =.*|
@@ -380,9 +455,11 @@ Notice that I changed the key name to:
 
 This isn't strictly necessary but I like to name my keys since I uses ssh with keys to log into many different systems. Also notice that I entered a passphrase for the keys. When logging in using the `id_haas` private key, you will be prompted to enter the passphrase. Why would I use a passphrase when I just said that keys are hard to brute force?
 
-Keys are difficult to brute force, but if you forget to lock your workstation and walk away someone can copy the private key from `C:\Users\mhubbard.PU/.ssh` and then log in with out being prompted. The passphrase is a way to prevent that. I don't use a long, complex, impossible to type passphrase but it's one that would take some time to brute force with `Hashcat` or `John the Ripper`.
+Keys are difficult to brute force, but if you forget to lock your workstation and walk away someone can copy the private key from `C:\Users\mhubbard.PU/.ssh` and then log in with out being prompted. The passphrase is a way to prevent that. I don't use a long, complex, impossible to type passphrase but it's random characters that would take some time to brute force with `Hashcat` or `John the Ripper`.
 
 I wrote a PowerShell script a while back that I keep on a flash drive. If a user forgets to lock their workstation this script will search every drive for `Keepass database files` and copy them to the flash drive. It could easily be modified to copy private keys now that  Microsoft supports ssh. I wrote the script as an educational tool so show people what can happen if they don't lock their workstations when they walk away. Think "working in a coffee shop and running to the bathroom".
+
+----------------------------------------------------------------
 
 #### Copy the key over
 
@@ -392,9 +469,7 @@ Linux and Mac support the OpenSSH tool `ssh-copy-id`for moving the public key to
 ssh-copy-id -i ~/.ssh/haas.pub -p 3333 haas@192.168.10.136
 ```
 
-The `-i` is used to name the key to copy. Since I have many public keys on this system I had to explicitly name the key to copy.
-
-I had to use `-p 3333` because I had changed the port that is used for ssh.
+----------------------------------------------------------------
 
 ```bash title='Command Output'
 /usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/home/mhubbard/.ssh/haas.pub"
@@ -422,9 +497,15 @@ Now try logging into the machine, with: "ssh -i /home/mhubbard/.ssh/haas -p 3333
 and check to make sure that only the key(s) you wanted were added.
 ```
 
+----------------------------------------------------------------
+
+The `-i` is used to name the key to copy. Since I have many public keys on this system I had to explicitly name the key to copy.
+
+I had to use `-p 3333` because I had changed the port that is used for ssh.
+
 The message "Now try logging into the machine..." is because even though you see the pre-login banner and enter the password, you don't have a user login. Once the key is copied, the session ends.
 
-But if I try to login now
+If I try to login now
 
 ```bash hl_lines='1'
 ssh -i /home/mhubbard/.ssh/haas -p 3333 'haas@192.168.10.136'
@@ -434,7 +515,7 @@ You will be asked for the passphrase then logged into the appliance.
 
 I can log in without including the `-i /home/mhubbard/.ssh/haas` and the ssh client will try all of the keys in `~/.ssh` directory until it finds a match. But that will add a significant delay since I have a lot of keys. After you type the command to login once it will be in your history so you don't have to type all of it.
 
-Or you could create an alias:
+#### create an alias
 
 ```bash hl_lines='1'
 nano ~/.bashrc
@@ -444,24 +525,24 @@ alias haas="ssh -i /home/mhubbard/.ssh/haas -p 3333 'haas@192.168.10.136'"
 Press `ctrl+s` and `ctrl+x` to save and exit. Then run:
 
 ```bash hl_lines='1'
-
-```h hl_lines='1'
 exec bash
 ```
 
-to reload the shell.
+to reload the shell. Now you type `haas` and log in!
 
 ----------------------------------------------------------------
 
 ### Hardware Security Modules (HSM)
 
-Companies like `Yubico` and `Google` offer hardware keys to store your ssh private keys on. They are out of scope for this document, just go to [Yubico Security Key](https://www.yubico.com/products/security-key/) and read up. One caution, if you lose the HSM and didn't make a backup it's a bad day. Just saying...
+Companies like `Yubico` and `Google` offer hardware keys to store your ssh private keys on. They are out of scope for this document, but you can go to [Yubico Security Key](https://www.yubico.com/products/security-key/) and read up. One caution, if you lose the HSM and didn't make a backup it's a bad day. Just saying...
+
+You may want to buy two HSMs and keep one locked in a safe place.
 
 ----------------------------------------------------------------
 
 ## Use IPv6
 
-If you don't mind learning a little IPv6, you can SSH to the Pi over IPv6 even if it doesn't have an IPv4 address.
+If you don't mind learning a little IPv6, you can SSH to the Pi over IPv6 even if it doesn't have an IPv4 address. This is only for the initial configuration of Ubuntu. Once you run the `haas_firewall_install.sh` script you are limited to iIPv4. The reason is that the `configure_ufw_from_csv.sh` script doesn't support IPv6 for Administrators. I plan to add it in the future if there is demand for the feature.
 
 If you followed the Paulus blog, add `dhcp6: true` to the netplan yaml file
 
