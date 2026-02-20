@@ -306,7 +306,7 @@ Also notice that I entered a passphrase for the keys. When logging in using the 
 
 Keys are difficult to brute force, but if you forget to lock your workstation and walk away someone can copy the private key from `C:\Users\mhubbard.PU/.ssh` and then log in with out being prompted. The passphrase is a way to prevent that. I don't use a long, complex, impossible to type passphrase but it's one that would take some time to brute force with `Hashcat` or `John the Ripper`.
 
-I wrote a PowerShell script a while back that I keep on a flash drive. If a user forgets to lock their workstation this script will search every drive for `Keepass database files` and copy them to the flash drive. I could easily be modified to copy private keys now that  Microsoft supports ssh. I wrote the script as an educational tool so show people what can happen if they don't lock their workstations when they walk away. Think "working is a coffee shop and running to the bathroom".
+I wrote a PowerShell script a while back that I keep on a flash drive. If a user forgets to lock their workstation this script will search every drive for `Keepass database files` and copy them to the flash drive. It could easily be modified to copy private keys now that  Microsoft supports ssh. I wrote the script as an educational tool so show people what can happen if they don't lock their workstations when they walk away. Think "working in a coffee shop and running to the bathroom".
 
 #### Copy the key
 
@@ -382,7 +382,7 @@ This isn't strictly necessary but I like to name my keys since I uses ssh with k
 
 Keys are difficult to brute force, but if you forget to lock your workstation and walk away someone can copy the private key from `C:\Users\mhubbard.PU/.ssh` and then log in with out being prompted. The passphrase is a way to prevent that. I don't use a long, complex, impossible to type passphrase but it's one that would take some time to brute force with `Hashcat` or `John the Ripper`.
 
-I wrote a PowerShell script a while back that I keep on a flash drive. If a user forgets to lock their workstation this script will search every drive for `Keepass database files` and copy them to the flash drive. I could easily be modified to copy private keys now that  Microsoft supports ssh. I wrote the script as an educational tool so show people what can happen if they don't lock their workstations when they walk away. Think "working is a coffee shop and running to the bathroom".
+I wrote a PowerShell script a while back that I keep on a flash drive. If a user forgets to lock their workstation this script will search every drive for `Keepass database files` and copy them to the flash drive. It could easily be modified to copy private keys now that  Microsoft supports ssh. I wrote the script as an educational tool so show people what can happen if they don't lock their workstations when they walk away. Think "working in a coffee shop and running to the bathroom".
 
 #### Copy the key over
 
@@ -426,7 +426,7 @@ The message "Now try logging into the machine..." is because even though you see
 
 But if I try to login now
 
-```bash linenums='1' hl_lines='1'
+```bash hl_lines='1'
 ssh -i /home/mhubbard/.ssh/haas -p 3333 'haas@192.168.10.136'
 ```
 
@@ -443,7 +443,7 @@ alias haas="ssh -i /home/mhubbard/.ssh/haas -p 3333 'haas@192.168.10.136'"
 
 Press `ctrl+s` and `ctrl+x` to save and exit. Then run:
 
-s```bash linenums='1' hl_lines='1'
+```bash hl_lines='1'
 
 ```h hl_lines='1'
 exec bash
