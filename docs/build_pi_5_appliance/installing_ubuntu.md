@@ -257,6 +257,208 @@ procs localsend
 
 ----------------------------------------------------------------
 
+## Use SSH keys
+
+Ubuntu supports using ssh keys instead of usernames/passwords for logging in over ssh. The advantage is that it's near impossible to brute force ssh keys compared to brute forcing a password.
+
+The process is very similar on Mac/Windows/Linux and will take less than 5 minutes to set it up.
+
+### Windows 11 25H2
+
+Windows 11 includes the OpenSSH package now. The command to create a key pair is the same as on Linux or Mac. Open the PowerShell terminal and enter the following to create an ed255519 key pair.:
+
+```bash hl_lines='1'
+ssh-keygen
+```
+
+```bash title='Command Output'
+Generating public/private ed25519 key pair.
+Enter file in which to save the key (C:\Users\mhubbard.PU/.ssh/id_ed25519): C:\Users\mhubbard.PU/.ssh/id_haas
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in id_haas
+Your public key has been saved in id_haas.pub
+The key fingerprint is:
+SHA256:uRaO2zyrlClNmSI2sz4TK4ibskCmVCOg3j5C6RkNM34 pu\mhubbard@Test
+The key's randomart image is:
++--[ED25519 256]--+
+|.                |
+|o                |
+|.= o             |
+|o X .  o .       |
+| X=E. + S        |
+|B.*= + = o       |
+|=+.=. * +        |
+|*o= .o =.        |
+|=+.o  o.+o       |
++----[SHA256]-----+
+```
+
+Notice that I changed the key name to:
+
+`C:\Users\mhubbard.PU/.ssh/id_haas`
+
+This isn't strictly necessary but I like to name my keys since I uses ssh with keys to log into many different systems.
+
+----------------------------------------------------------------
+
+Also notice that I entered a passphrase for the keys. When logging in using the `id_haas` private key, you will be prompted to enter the passphrase. Why would I use a passphrase when I just said that keys are hard to brute force?
+
+Keys are difficult to brute force, but if you forget to lock your workstation and walk away someone can copy the private key from `C:\Users\mhubbard.PU/.ssh` and then log in with out being prompted. The passphrase is a way to prevent that. I don't use a long, complex, impossible to type passphrase but it's one that would take some time to brute force with `Hashcat` or `John the Ripper`.
+
+I wrote a PowerShell script a while back that I keep on a flash drive. If a user forgets to lock their workstation this script will search every drive for `Keepass database files` and copy them to the flash drive. I could easily be modified to copy private keys now that  Microsoft supports ssh. I wrote the script as an educational tool so show people what can happen if they don't lock their workstations when they walk away. Think "working is a coffee shop and running to the bathroom".
+
+#### Copy the key
+
+Windows didn't implement the `ssh-copy-id` script from the OpenSSH project for some reason. Here is how to use PowerShell to copy the key to the appliance:
+
+```bash hl_lines='1'
+type $env:USERPROFILE\.ssh\id_haas.pub | ssh haas@192.168.10.136 "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys && chmod 700 ~/.ssh"
+```
+
+```bash title='Command Output'
+PS C:\Users\mhubbard.PU> type $env:USERPROFILE\.ssh\id_haas.pub | ssh -p 3333 haas@192.168.10.136 "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys && chmod 700 ~/.ssh"
+The authenticity of host '[192.168.10.136]:3333 ([192.168.10.136]:3333)' can't be established.
+ED25519 key fingerprint is SHA256:0/RO4plpIpA6dw7EASpfdACx5KmqXT19oUjlyIRmffs.
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '[192.168.10.136]:3333' (ED25519) to the list of known hosts.
+
+
+                 Haas Data Collection Server
+
+╔═════════════════════════════════════════════════════════════════╗
+║                                                                 ║
+║ UNAUTHORIZED ACCESS TO THIS NETWORK DEVICE IS PROHIBITED.       ║
+║ You must have explicit permission to access or configure this   ║
+║ device.  All activities performed on this device are logged and ║
+║ violations of this policy may result in disciplinary action.    ║
+║                                                                 ║
+╚═════════════════════════════════════════════════════════════════╝
+
+haas@192.168.10.136's password:
+```
+
+The `$env:USERPROFILE\` expands out to your full user path.
+
+----------------------------------------------------------------
+
+### Linux/Mac
+
+Open the terminal and enter the following to create an ed255519 key pair.:
+
+```bash hl_lines='1'
+ssh-keygen
+```
+
+```bash title='Command Output'
+Generating public/private ed25519 key pair.
+Enter file in which to save the key (/home/mhubbard/.ssh/id_ed25519): haas
+Enter passphrase for "haas" (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in haas
+Your public key has been saved in haas.pub
+The key fingerprint is:
+SHA256:OzzMu5XQjcXeG5Rks2hV2tSZ/jFq8QoPeTJy/w9QkgI Haas
+The key's randomart image is:
++--[ED25519 256]--+
+|        E     =.*|
+|         . . * X.|
+|          . B B .|
+|         . B * + |
+|        S o = * +|
+|       + + O = +.|
+|        B = X +  |
+|         =   + . |
+|        o.    ..o|
++----[SHA256]-----+
+```
+
+Notice that I changed the key name to:
+
+`/home/mhubbard/.ssh/haas`
+
+This isn't strictly necessary but I like to name my keys since I uses ssh with keys to log into many different systems. Also notice that I entered a passphrase for the keys. When logging in using the `id_haas` private key, you will be prompted to enter the passphrase. Why would I use a passphrase when I just said that keys are hard to brute force?
+
+Keys are difficult to brute force, but if you forget to lock your workstation and walk away someone can copy the private key from `C:\Users\mhubbard.PU/.ssh` and then log in with out being prompted. The passphrase is a way to prevent that. I don't use a long, complex, impossible to type passphrase but it's one that would take some time to brute force with `Hashcat` or `John the Ripper`.
+
+I wrote a PowerShell script a while back that I keep on a flash drive. If a user forgets to lock their workstation this script will search every drive for `Keepass database files` and copy them to the flash drive. I could easily be modified to copy private keys now that  Microsoft supports ssh. I wrote the script as an educational tool so show people what can happen if they don't lock their workstations when they walk away. Think "working is a coffee shop and running to the bathroom".
+
+#### Copy the key over
+
+Linux and Mac support the OpenSSH tool `ssh-copy-id`for moving the public key to a host. Run the following:
+
+```bash hl_lines='1'
+ssh-copy-id -i ~/.ssh/haas.pub -p 3333 haas@192.168.10.136
+```
+
+The `-i` is used to name the key to copy. Since I have many public keys on this system I had to explicitly name the key to copy.
+
+I had to use `-p 3333` because I had changed the port that is used for ssh.
+
+```bash title='Command Output'
+/usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/home/mhubbard/.ssh/haas.pub"
+/usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
+/usr/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
+
+
+                 Haas Data Collection Server
+
+╔═════════════════════════════════════════════════════════════════╗
+║                                                                 ║
+║ UNAUTHORIZED ACCESS TO THIS NETWORK DEVICE IS PROHIBITED.       ║
+║ You must have explicit permission to access or configure this   ║
+║ device.  All activities performed on this device are logged and ║
+║ violations of this policy may result in disciplinary action.    ║
+║                                                                 ║
+╚═════════════════════════════════════════════════════════════════╝
+
+
+haas@192.168.10.136's password:
+
+Number of key(s) added: 1
+
+Now try logging into the machine, with: "ssh -i /home/mhubbard/.ssh/haas -p 3333 'haas@192.168.10.136'"
+and check to make sure that only the key(s) you wanted were added.
+```
+
+The message "Now try logging into the machine..." is because even though you see the pre-login banner and enter the password, you don't have a user login. Once the key is copied, the session ends.
+
+But if I try to login now
+
+```bash linenums='1' hl_lines='1'
+ssh -i /home/mhubbard/.ssh/haas -p 3333 'haas@192.168.10.136'
+```
+
+You will be asked for the passphrase then logged into the appliance.
+
+I can log in without including the `-i /home/mhubbard/.ssh/haas` and the ssh client will try all of the keys in `~/.ssh` directory until it finds a match. But that will add a significant delay since I have a lot of keys. After you type the command to login once it will be in your history so you don't have to type all of it.
+
+Or you could create an alias:
+
+```bash hl_lines='1'
+nano ~/.bashrc
+alias haas="ssh -i /home/mhubbard/.ssh/haas -p 3333 'haas@192.168.10.136'"
+```
+
+Press `ctrl+s` and `ctrl+x` to save and exit. Then run:
+
+s```bash linenums='1' hl_lines='1'
+
+```h hl_lines='1'
+exec bash
+```
+
+to reload the shell.
+
+----------------------------------------------------------------
+
+### Hardware Security Modules (HSM)
+
+Companies like `Yubico` and `Google` offer hardware keys to store your ssh private keys on. They are out of scope for this document, just go to [Yubico Security Key](https://www.yubico.com/products/security-key/) and read up. One caution, if you lose the HSM and didn't make a backup it's a bad day. Just saying...
+
+----------------------------------------------------------------
+
 ## Use IPv6
 
 If you don't mind learning a little IPv6, you can SSH to the Pi over IPv6 even if it doesn't have an IPv4 address.
