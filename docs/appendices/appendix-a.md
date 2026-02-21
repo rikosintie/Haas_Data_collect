@@ -135,11 +135,13 @@ You can create the drop-in file using the following commands:
 
 ```bash hl_lines='1'
 sudo tee /etc/ssh/sshd_config.d/99-haas-hardening.conf > /dev/null << 'EOF'
-PermitRootLogin no
-PasswordAuthentication no
-PubkeyAuthentication yes
+Banner /etc/issue.net
 ChallengeResponseAuthentication no
+LogLevel VERBOSE
+PasswordAuthentication no
 PermitEmptyPasswords no
+PermitRootLogin no
+PubkeyAuthentication yes
 X11Forwarding no
 EOF
 
