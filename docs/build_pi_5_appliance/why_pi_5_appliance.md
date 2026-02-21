@@ -146,7 +146,7 @@ The difference is the amount of RAM. To build a dedicated RPi 5 for this project
 - Raspberry Pi 5 4GB: $76.95
 
 !!! Warning
-        The AI craze is dramtically increasing the cost of RAM, GPUs and NVME drives. It's not expected to change for a couple years. Don't get stuck in `Analysis Paralysis` if you plan to build one.
+    The AI craze is dramatically increasing the cost of RAM, GPUs and NVME drives. It's not expected to change for a couple years. Don't get stuck in `Analysis Paralysis` if you plan to build one.
 
 ----------------------------------------------------------------
 
@@ -171,7 +171,7 @@ The Waveshare [case](https://www.amazon.com/dp/B0D97VK1VW?ref=fed_asin_title){ta
 The installation instructions are on the Amazon link but they are hard to find. You can click the [link here](https://github.com/rikosintie/Haas_Data_collect/blob/main/docs/img/Waveshare-case-instruction.png) to view them.
 
 !!! Note
-        The case came withe wrong number of m2.5 x 6 flat head screws. I had some from other projects but you should order some [mankk 360PCS Laptop Screws](https://www.amazon.com/mankk-Replacement-Computer-Motherboard-Screwdriver/dp/B0DRJPBLN7/142-6009986-5858014){target="_blank}.
+    The case came withe wrong number of m2.5 x 6 flat head screws. I had some from other projects but you should order some [mankk 360PCS Laptop Screws](https://www.amazon.com/mankk-Replacement-Computer-Motherboard-Screwdriver/dp/B0DRJPBLN7/142-6009986-5858014){target="_blank}.
 
         Also, the PoE hat came with 6mm x 16mm female/female standoffs. The case needs mal/female. I ordered these [YOKIVE 20 Pcs M2.5 Standoff Screws](https://www.amazon.com/YOKIVE-Standoff-Standoffs-Consistent-Motherboard/dp/B0BK98MP16){target="_blank}
 
