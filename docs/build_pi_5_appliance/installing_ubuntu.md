@@ -1,16 +1,19 @@
 # Which version of Ubuntu should you use
 
-Ubuntu comes in three versions for the Raspberry Pi 5:
+Ubuntu comes in two versions:
 
 - Server - No desktop.
 - Desktop - Includes the Gnome desktop
-- Core - A dedicated version for IoT devices. I haven't used it yet, but it's on my list of projects!
 
 ## Server version (Headless)
 
 I am experienced with Ubuntu, and this is a personal device; the headless server version is my choice. I use SSH to manage the appliance and the scripts don't require the Gnome desktop. The server uses fewer resources since it doesn't run a desktop.
 
-You can connect a monitor and keyboard, but you still use terminal-only tools since the desktop isn't installed. To copy files off the server to another PC, you can use SCP. On WIndows, the popular `putty` application has an SCP client. I recommend purchasing the serial console cable. It allows you to configure the Pi from your laptop if the Pi doesn't have an IP Address.
+You can connect a monitor and keyboard, but you still use terminal-only tools since the desktop isn't installed. To copy files off the server to another PC, you can use SCP. On a Windows client, the popular `putty` application has an [SCP client](https://the.earth.li/~sgtatham/putty/0.83/htmldoc/Chapter5.html#pscp). Ubuntu 24.04 has the OpenSSH client built in.
+
+### Serial Console cable
+
+If you are building your appliance on a Raspberry Pi 5, I recommend purchasing the [serial console cable](../build_pi_5_appliance/why_pi_5_appliance.md/#usb-serial-cable-for-the-raspberry-pi-5). It allows you to configure the Pi from your laptop if the Pi doesn't have an IP Address or you have locked yourself out with the firewall.
 
 ----------------------------------------------------------------
 
@@ -18,7 +21,7 @@ You can connect a monitor and keyboard, but you still use terminal-only tools si
 
 If you are new to Linux and building appliances, use the desktop version. The desktop version of Ubuntu uses the GNOME desktop, which is similar to a Windows desktop. It includes LibreOffice Calc (spreadsheet), allowing you to manage the firewall configuration file from the appliance.
 
-With the desktop version, you can use a keyboard, mouse, and monitor (KVM) to configure the Pi using GUI tools like Gnome Text Editor, File Manager, Local Send, etc. [Local Send](https://localsend.org/) is a free, open-source Flatpak app that allows you to move files between two systems. It supports Windows, Mac, Linux, Android, and iOS.
+With the desktop version, you can use a keyboard, mouse, and monitor (KVM) to configure the Pi using GUI tools like Gnome Text Editor, File Manager, Local Send, etc. [Local Send](https://localsend.org/) is a free, open-source Flatpak app that allows you to move files between two systems. It supports Windows, Mac, Linux, Android, and iOS. On a Windows client, the popular `putty` application has an [SCP client](https://the.earth.li/~sgtatham/putty/0.83/htmldoc/Chapter5.html#pscp).
 
 The other advantage is that you can register with Canonical for Ubuntu Pro at $25/year vs. $300/year for the server version. The Ubuntu Pro is a great deal. You get automatic updates and most do not require a reboot. The appliance will stay patched for at least one quarter with no user intervention.
 
