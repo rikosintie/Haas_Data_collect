@@ -162,13 +162,14 @@ sudo cp "$REPO_DIR/issue.net" /etc/issue.net
 
 # Create a custom ssh options file
 sudo tee /etc/ssh/sshd_config.d/99-haas-hardening.conf > /dev/null << 'EOF'
-PermitRootLogin no
-PasswordAuthentication yes
-PubkeyAuthentication yes
-ChallengeResponseAuthentication no
-PermitEmptyPasswords no
-X11Forwarding no
 Banner /etc/issue.net
+ChallengeResponseAuthentication no
+LogLevel VERBOSE
+PasswordAuthentication yes
+PermitEmptyPasswords no
+PermitRootLogin no
+PubkeyAuthentication yes
+X11Forwarding no
 EOF
 
 sudo systemctl restart ssh
