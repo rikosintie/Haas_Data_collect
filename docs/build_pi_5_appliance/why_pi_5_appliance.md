@@ -34,9 +34,18 @@ See [Appendix A - Securing the Appliance](../appendices/appendix-a.md) for detai
 
 Raspberry Pis have become popular for industrial applications. They are inexpensive, reliable, and have a massive community of blogs, YouTube videos, and magazine articles supporting them. Here is a link to [Raspberry Pi for Industry](https://www.raspberrypi.com/for-industry/) on the official Raspberry Pi site. The Raspberry Pi 5 with 8GB of RAM is more than enough power to run the scripts and create the data files.
 
-A Small Form Factor (SFF) Intel PC is also a good choice for a dedicated appliance. The Raspberry Pi 5 might be less expensive and the SFF my not run on PoE power! But, the appliance can be built on a repurposed PC or old server, or brand new SFF PC. All of the scripts and applications will run on ARM or Intel architecture chips.
+If your company runs virtualization using:
 
-An easy way to get start would be to use a repurposed laptop to try out the appliance and then rebuild it on a Pi or SFF PC.
+- Microsoft HyperV
+- VMware ESXi
+- ProxMox
+- Linux KVM
+
+You can ask the IT department to spin up an Ubuntu VM for you. Ubuntu is free to download, I usually do a $25 donation, to help offset the projects costs. A VM on company infrastructure is a great way to run the appliance software. It can back it up and create snapshots before you make big changes. Appendix A and B go into detail on how the appliance operating system is secured. That should help with getting the request approved by IT and the security team.
+
+A Small Form Factor (SFF) Intel PC is also a good choice for a dedicated appliance. The Raspberry Pi 5 might be less expensive and the SFF may not run on PoE power! But, the appliance can be built on a repurposed PC or old server, or brand new SFF PC. All of the scripts and applications will run on ARM or Intel architecture chips.
+
+An easy way to get started if you just want to do a Proof of Concept would be to use a repurposed laptop to try out the appliance and then rebuild it on a Pi or SFF PC. Almost any laptop made in the last 8 years will run Ubuntu 24.04 and the Ethernet, and probably WiFi, will just work.
 
 ----------------------------------------------------------------
 
