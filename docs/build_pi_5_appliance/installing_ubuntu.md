@@ -338,62 +338,92 @@ Ubuntu supports using ssh keys instead of usernames/passwords for logging in ove
 Windows 11 includes the OpenSSH package now. The command to create a key pair is the same as on Linux or Mac. Open the PowerShell terminal and enter the following to create an ed255519 key pair.:
 
 ```bash hl_lines='1'
-ssh-keygen
+cd .ssh
+PS C:\Users\mhubbard.PU\.ssh> ssh-keygen -C Haas
 ```
 
 ```bash title='Command Output'
 Generating public/private ed25519 key pair.
-Enter file in which to save the key (C:\Users\mhubbard.PU/.ssh/id_ed25519): C:\Users\mhubbard.PU/.ssh/id_haas
+Enter file in which to save the key (C:\Users\mhubbard.PU/.ssh/id_ed25519): id_haas
+id_haas already exists.
+Overwrite (y/n)? y
 Enter passphrase (empty for no passphrase):
 Enter same passphrase again:
 Your identification has been saved in id_haas
 Your public key has been saved in id_haas.pub
 The key fingerprint is:
-SHA256:uRaO2zyrlClNmSI2sz4TK4ibskCmVCOg3j5C6RkNM34 pu\mhubbard@Test
+SHA256:h6lAMwPk2aF6M66kN5p11KBNCFL5NJfRjCbcytYRnaU Haas
 The key's randomart image is:
 +--[ED25519 256]--+
-|.                |
-|o                |
-|.= o             |
-|o X .  o .       |
-| X=E. + S        |
-|B.*= + = o       |
-|=+.=. * +        |
-|*o= .o =.        |
-|=+.o  o.+o       |
+|oo+o..oO o.      |
+|.o.*=.B =.       |
+|  =+OB .E        |
+| . ==*.  o       |
+|. =.+ . S .      |
+| o + . . .       |
+| .o . .          |
+|o+o.             |
+|=o .             |
 +----[SHA256]-----+
 ```
 
 Notice that I changed the key name to:
 
-`C:\Users\mhubbard.PU/.ssh/id_haas`
+`id_haas`
 
 This isn't strictly necessary but I like to name my keys since I uses ssh with keys to log into many different systems.
 
-----------------------------------------------------------------
-
-Also notice that I entered a passphrase for the keys. When logging in using the `id_haas` private key, you will be prompted to enter the passphrase. Why would I use a passphrase when I just said that keys are hard to brute force?
+I also entered a passphrase for the keys. When logging in using the `id_haas` private key, you will be prompted to enter the passphrase. Why would I use a passphrase when I just said that keys are hard to brute force?
 
 Keys are difficult to brute force, but if you forget to lock your workstation and walk away someone can copy the private key from `C:\Users\mhubbard.PU/.ssh` and then log in with out being prompted. The passphrase is a way to prevent that. I don't use a long, complex, impossible to type passphrase but it's random characters that would take some time to brute force with `Hashcat` or `John the Ripper`.
 
 I wrote a PowerShell script a while back that I keep on a flash drive. If a user forgets to lock their workstation this script will search every drive for `Keepass database files` and copy them to the flash drive. It could easily be modified to copy private keys now that  Microsoft supports ssh. I wrote the script as an educational tool so show people what can happen if they don't lock their workstations when they walk away. Think "working in a coffee shop and running to the bathroom".
+
+----------------------------------------------------------------
+
+The `-c Haas` in the `ssh-keygen` command creates a comment for the comment that is stored with the key.
+
+- -l - Show  fingerprint  of specified public key file. If combined with -v, a visual ASCII art representation of the key is supplied with the fingerprint.
+
+Run this command to view the hey's fingerprint:
+
+```bash  hl_lines='1'
+ssh-keygen -l -f id_haas -v
+```
+
+```bash title='Command Output'
+256 SHA256:h6lAMwPk2aF6M66kN5p11KBNCFL5NJfRjCbcytYRnaU Haas (ED25519)
++--[ED25519 256]--+
+|oo+o..oO o.      |
+|.o.*=.B =.       |
+|  =+OB .E        |
+| . ==*.  o       |
+|. =.+ . S .      |
+| o + . . .       |
+| .o . .          |
+|o+o.             |
+|=o .             |
++----[SHA256]-----+
+```
+
+----------------------------------------------------------------
 
 #### Copy the key
 
 Windows didn't implement the `ssh-copy-id` script from the OpenSSH project for some reason. Here is how to use PowerShell to copy the key to the appliance:
 
 ```bash hl_lines='1'
-PS C:\Users\mhubbard.PU> type $env:USERPROFILE\.ssh\id_haas.pub | ssh -p 3333 haas@192.168.10.136 "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys && chmod 700 ~/.ssh"
+PS C:\Users\mhubbard.PU> type $env:USERPROFILE\.ssh\id_haas.pub | ssh -p 3333 haas@192.168.10.127 "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys && chmod 700 ~/.ssh"
 ```
 
 ----------------------------------------------------------------
 
 ```bash title='Command Output'
-The authenticity of host '[192.168.10.136]:3333 ([192.168.10.136]:3333)' can't be established.
+The authenticity of host '[192.168.10.127]:3333 ([192.168.10.127]:3333)' can't be established.
 ED25519 key fingerprint is SHA256:0/RO4plpIpA6dw7EASpfdACx5KmqXT19oUjlyIRmffs.
 This key is not known by any other names.
 Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
-Warning: Permanently added '[192.168.10.136]:3333' (ED25519) to the list of known hosts.
+Warning: Permanently added '[192.168.10.127]:3333' (ED25519) to the list of known hosts.
 
 
                  Haas Data Collection Server
@@ -407,7 +437,7 @@ Warning: Permanently added '[192.168.10.136]:3333' (ED25519) to the list of know
 ║                                                                 ║
 ╚═════════════════════════════════════════════════════════════════╝
 
-haas@192.168.10.136's password:
+haas@192.168.10.127's password:
 ```
 
 ----------------------------------------------------------------
@@ -415,6 +445,33 @@ haas@192.168.10.136's password:
 The `$env:USERPROFILE\` expands out to your full user path.
 
 I had to use `-p 3333` because I had changed the port that is used for ssh.
+
+The message about `The authenticity of host can't be established is because the appliance has a set of ssh keys and it offered its key to the W11 box. If you logged in initially with a password you could run:
+
+```bash hl_lines='1'
+ssh-keygen -l -f /etc/ssh/ssh_host_ed25519_key.pub
+```
+
+```bash title='Command Output'
+256 SHA256:0/RO4plpIpA6dw7EASpfdACx5KmqXT19oUjlyIRmffs root@haas (ED25519)
+```
+
+To verity that you are indeed copying the keys to the appliance.
+
+### View the comment
+
+On the appliance, run:
+
+```bash hl_lines='1'
+cat ~/.ssh/authorized_keys
+```
+
+```bash title='Command Output'
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIe4VtZB4+t8LAWPLT54qMWRI5NgwIU7/SoIMYtWl4Tu Haas
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBt1FUYKmKsS98KZBEjLSdg95dCTydiB54SeNAAt2V7m Haas-223
+```
+
+You will see the comment at the end of the key. It makes identifying keys easier if you manage many servers. The second key `Haas-223` is a key from another device that has an IP ending in .223. You can make up a convention if you adopt using keys.
 
 ----------------------------------------------------------------
 
@@ -466,7 +523,7 @@ I wrote a PowerShell script a while back that I keep on a flash drive. If a user
 Linux and Mac support the OpenSSH tool `ssh-copy-id`for moving the public key to a host. Run the following:
 
 ```bash hl_lines='1'
-ssh-copy-id -i ~/.ssh/haas.pub -p 3333 haas@192.168.10.136
+ssh-copy-id -i ~/.ssh/haas.pub -p 3333 haas@192.168.10.127
 ```
 
 ----------------------------------------------------------------
@@ -489,11 +546,11 @@ ssh-copy-id -i ~/.ssh/haas.pub -p 3333 haas@192.168.10.136
 ╚═════════════════════════════════════════════════════════════════╝
 
 
-haas@192.168.10.136's password:
+haas@192.168.10.127's password:
 
 Number of key(s) added: 1
 
-Now try logging into the machine, with: "ssh -i /home/mhubbard/.ssh/haas -p 3333 'haas@192.168.10.136'"
+Now try logging into the machine, with: "ssh -i /home/mhubbard/.ssh/haas -p 3333 'haas@192.168.10.127'"
 and check to make sure that only the key(s) you wanted were added.
 ```
 
@@ -505,13 +562,44 @@ I had to use `-p 3333` because I had changed the port that is used for ssh.
 
 The message "Now try logging into the machine..." is because even though you see the pre-login banner and enter the password, you don't have a user login. Once the key is copied, the session ends.
 
-If I try to login now
+----------------------------------------------------------------
+
+The message about `The authenticity of host can't be established is because the appliance has a set of ssh keys and it offered its key to the W11 box. If you logged in initially with a password you could run:
 
 ```bash hl_lines='1'
-ssh -i /home/mhubbard/.ssh/haas -p 3333 'haas@192.168.10.136'
+ssh-keygen -l -f /etc/ssh/ssh_host_ed25519_key.pub
 ```
 
-You will be asked for the passphrase then logged into the appliance.
+```bash title='Command Output'
+256 SHA256:0/RO4plpIpA6dw7EASpfdACx5KmqXT19oUjlyIRmffs root@haas (ED25519)
+```
+
+To verity that you are indeed copying the keys to the appliance.
+
+### View the key comment
+
+On the appliance, run:
+
+```bash hl_lines='1'
+cat ~/.ssh/authorized_keys
+```
+
+```bash title='Command Output'
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIe4VtZB4+t8LAWPLT54qMWRI5NgwIU7/SoIMYtWl4Tu Haas
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBt1FUYKmKsS98KZBEjLSdg95dCTydiB54SeNAAt2V7m Haas-223
+```
+
+You will see the comment at the end of the key. It makes identifying keys easier if you manage many servers. The second key `Haas-223` is a key from another device that has an IP ending in .223. You can make up a convention if you adopt using keys.
+
+----------------------------------------------------------------
+
+If you try to login now
+
+```bash hl_lines='1'
+ssh -i /home/mhubbard/.ssh/haas -p 3333 'haas@192.168.10.127'
+```
+
+You will be asked for the passphrase, then logged into the appliance.
 
 I can log in without including the `-i /home/mhubbard/.ssh/haas` and the ssh client will try all of the keys in `~/.ssh` directory until it finds a match. But that will add a significant delay since I have a lot of keys. After you type the command to login once it will be in your history so you don't have to type all of it.
 
@@ -519,7 +607,7 @@ I can log in without including the `-i /home/mhubbard/.ssh/haas` and the ssh cli
 
 ```bash hl_lines='1'
 nano ~/.bashrc
-alias haas="ssh -i /home/mhubbard/.ssh/haas -p 3333 'haas@192.168.10.136'"
+alias haas="ssh -i /home/mhubbard/.ssh/haas -p 3333 'haas@192.168.10.127'"
 ```
 
 Press `ctrl+s` and `ctrl+x` to save and exit. Then run:
