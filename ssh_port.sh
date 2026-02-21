@@ -38,8 +38,12 @@ done
     echo "Updating /etc/ssh/sshd_config..."
     sudo sed -i "s/^#\?Port.*/Port $port/" /etc/ssh/sshd_config
     # Update /etc/haas-firewall.conf
+    echo ""
     echo "Updating /etc/haas-firewall.conf..."
     sudo sed -i "s/^SSH_PORT=.*/SSH_PORT=$port/" /etc/haas-firewall.conf
+    echo ""
+    echo "Updating /etc/ssh/sshd_config.d/99-haas-hardening.conf"
+    sudo sed -i "s/^#\?Port.*/Port $port/" /etc/ssh/sshd_config.d/99-haas-hardening.conf
 
     # Reload systemd and restart SSH Service
     echo ""
