@@ -29,7 +29,9 @@ The other advantage is that you can register with Canonical for Ubuntu Pro at $2
 
 ## Installation
 
-During the installation:
+The steps to install Ubuntu on a Raspberry Pi 5 with an NVME drive are different than installing on an Intel PC or virtual machine.
+
+During the installation on a Raspberry Pi 5 or Intel box:
 
 - Use `haas` as the username, all lowercase, and use a simple password that you can type with both hands on the keyboard. You will be typing the password a lot during the creation of the appliance.
 - Use `haas` as the hostname, all lowercase. You can use anything, but the examples use `haas`.
@@ -38,6 +40,10 @@ The code in the rest of the setup expects the username to be haas, which creates
 
 For ease of logging into the appliance, create ssh keys as shown here - [Use SSH Keys](../build_pi_5_appliance/installing_ubuntu.md/#use-ssh-keys).
 
+----------------------------------------------------------------
+
+### Raspberry Pi 5 install
+
 Once you have decided on a version, follow these instructions to complete the installation. The instructions are from the Wolf Paulus blog, he does a great job, and I didn't see that I could do any better!
 
 Regardless of which version you want for production, install the desktop version of Raspberry Pi OS for the first step.
@@ -45,14 +51,16 @@ Regardless of which version you want for production, install the desktop version
 - [Raspberry Pi 5 with NVMe](https://wolfpaulus.com/rp5/)
 - [Install Ubuntu Server on Raspberry Pi 5 with NVMe SSD (Headless Setup)](https://wolfpaulus.com/rp5-ubuntu-cli/)
 
+----------------------------------------------------------------
+
 !!! Note
     Read the instructions below before you do the install to the nvme drive.
 
 ----------------------------------------------------------------
 
-### Copy files to a PC
+#### Copy files to a PC
 
-You can copy the cmdline.txt, network-config, user-data files to a flash drive or use scp to a laptop.
+As stated in the Wolf Paulus blog, you need to copy files off the Raspberry Pi 5 before installing Ubuntu to the NVME drive. You can copy the cmdline.txt, network-config, user-data files to a flash drive or use scp to a laptop.
 
 To copy from the RPi to my laptop at 192.168.10.138
 
@@ -60,7 +68,9 @@ To copy from the RPi to my laptop at 192.168.10.138
 - scp /boot/firmware/network-config mhubbard@192.168.19.138:/home/mhubbard/Downloads
 - scp /boot/firmware/cmdline.txt mhubbard@192.168.19.138:/home/mhubbard/Downloads
 
-### Copy back to the Pi
+#### Copy back to the Pi
+
+After Ubuntu is installed, but before booting for the first time:
 
 - sudo scp mhubbard@192.168.19.138:/home/mhubbard/Downloads/user-data /mnt/nvfat
 - sudo scp mhubbard@192.168.19.138:/home/mhubbard/Downloads/network-config /mnt/nvfat
@@ -68,27 +78,54 @@ To copy from the RPi to my laptop at 192.168.10.138
 
 ----------------------------------------------------------------
 
-### Ubuntu is version 24.04.3 now
+#### Ubuntu is version 24.04.3 now
 
 Below are updated links to `wget` 24.04.3.
 
-Change to the home directory using `cd ~` before you run:
+Server installer
 
-**Server installer**
-
-```bash hl_lines="1"
+```bash
+cd ~
 wget https://cdimage.ubuntu.com/releases/24.04.3/release/ubuntu-24.04.3-preinstalled-server-arm64+raspi.img.xz`.
+```
 
-**Desktop installer**
+Desktop installer
 
-```bash hl+lines="1"
+```bash
+cd ~
 `wget https://cdimage.ubuntu.com/releases/24.04.3/release/ubuntu-24.04.3-preinstalled-desktop-arm64+raspi.img.xz`
+```
+
+----------------------------------------------------------------
+
+### Intel install
+
+Just like for the Raspberry Pi 5, there are a lot of quality tutorials on installing Ubuntu 24.04. I'm not going to document that in this guide.
+
+**Server Install**
+Here is a link to the official Canonical tutorial - [Install Ubuntu server](https://ubuntu.com/tutorials/install-ubuntu-server){target="_blank"}
+
+If you need instructions to create a bootable flash drive - Open the Desktop link below and it explains how to use Rufus to create a flash drive. For a virtual machine you will use the ISO image that you downloaded.
+
+**Desktop install**
+Here is a link to the official Canonical tutorial - [Install Ubuntu Desktop](https://documentation.ubuntu.com/desktop/en/latest/tutorial/install-ubuntu-desktop/){target="_blank"}
+
+When you get to this screen:
+
+![screenshot](../build_pi_5_appliance/img/Ubuntu-Install.resized.png)
+
+Select `Install Ubuntu` and click `next`.
+
+----------------------------------------------------------------
+
+!!! Note
+    From here on out the steps apply whether you installing on an Raspberry Pi 5 or an Intel based devices.
 
 ----------------------------------------------------------------
 
 ### Configure Nano
 
-Nano is built into most Linux distributions and you will need to use it initially, so it's worth spending a couple minutes customizing it. From the terminal run:
+Nano is a terminal text editor built into most Linux distributions and you will need to use it initially, so it's worth spending a couple minutes customizing it. From the terminal run:
 
 ```bash  hl_lines='1'
 nano ~/nanorc
@@ -113,6 +150,7 @@ include "/usr/share/nano/python.nanorc"
 include "/usr/share/nano/sh.nanorc"
 include "/usr/share/nano/tcl.nanorc"
 include "/usr/share/nano/xml.nanorc"
+include "/usr/share/nano/yaml.nanorc"
 ```
 
 Press `ctrl+s` and `ctrl+x` to save and exit.
@@ -131,6 +169,12 @@ This also sets:
 
 ----------------------------------------------------------------
 
+Here is a screenshot of an Ubuntu server `netplan` yaml file after the nano updates:
+
+![screenshot](../build_pi_5_appliance/img/nano-linter.resized.png)
+
+----------------------------------------------------------------
+
 You can find a detailed list of `nanorc` options at [NANORC](https://www.nano-editor.org/dist/v3/nanorc.5.html)
 
 ----------------------------------------------------------------
@@ -139,13 +183,21 @@ You can find a detailed list of `nanorc` options at [NANORC](https://www.nano-ed
 
 When the Ubuntu installation is complete and you have rebooted, follow these [instructions](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal) to configure the terminal for ease of use. I wrote that procedure on Ubuntu 18.04 and have updated it as versions have changed. It will make the appliance's  terminal use much easier.
 
+If you skip this step, not recommended, replace `.zshrc` with `.bashrc` where you see it in the documentation.
+
 ----------------------------------------------------------------
 
 ### Static IP address
 
-Ubuntu server doesn't have a GUI to change IP addresses. You have to modify a `yaml` file in the `/etc/netplan` directory. The desktop version uses a GUI to change IP addresses configuration. CLick the "settigs" area in the top right of the screen, the gear icon, then network.
+The desktop version uses a GUI to change IP address configuration. Go to the **system menu**, which is accessible from the top-right screen corner, click the gear icon, then network. The network settings dialog is very similar to Windows 11. Here is a screenshot:
 
-On the server version to use a static IP address instead of DHCP, replace `/etc/netplan/91-nw-init.yaml` with this yaml file:
+----------------------------------------------------------------
+
+![Ubuntu Network settings](../build_pi_5_appliance/img/Ubuntu-Desktop-static.resized.png)
+
+----------------------------------------------------------------
+
+Ubuntu server doesn't have a GUI to change IP address settings. You have to modify a `yaml` file in the `/etc/netplan` directory. On the server version to use a static IP address instead of DHCP, replace `/etc/netplan/91-nw-init.yaml` with this yaml file:
 
 ```bash linenums='1' hl_lines='1'
 network:
@@ -159,11 +211,11 @@ network:
         - 192.168.1.100/24
       routes:
         - to: default
-          via: 192.168.1.1
+          via: 192.168.1.254
       nameservers:
         addresses:
-          - 8.8.8.8
-          - 8.8.4.4
+          - 192.168.10.222
+          - 192.168.1.222
       parameters:
         stp: false
         forward-delay: 0
@@ -177,11 +229,11 @@ network:
 - Replace DNS servers (8.8.8.8, 8.8.4.4) with appropriate ones for the shop network
 - The stp: false and forward-delay: 0 parameters disable Spanning Tree Protocol and reduce network startup delay
 
-In general, do not use a public DNS server address. Your company security policy ***SHOULD*** require you to use their DNS Server or Proxy. Bypassing either could allow the appliance to contact a `control and command C2` server on the Internet without detection!
+In general, do not use a public DNS server address. Your company security policy ***SHOULD*** require you to use their DNS Server or Proxy server. Bypassing either could allow the appliance to contact a `control and command C2` server on the Internet without detection!
 
 ----------------------------------------------------------------
 
-Use `ip link` to find the actual interface name on your Raspberry Pi 5. Here is the output on my Raspberry Pi 5 with Ubuntu server 24.04.3. As you can see the interface is `eth0`
+Use `ip link` to find the actual interface name on your device. As you can see the interface is `eth0`. On an Intel installation it will probably be something like `enp60s0` on physical hardware or `ens33` on a virtual installation. Here is the output on my Raspberry Pi 5 with Ubuntu server 24.04.3.
 
 ```bash hl_lines='1'
 ip link
@@ -217,40 +269,47 @@ Replace the `91-nw-init.yaml` with the name of the file you find with the `ls -l
 
 ----------------------------------------------------------------
 
-#### YAML editor
+#### Apply the configuration
 
 Yaml is very particular about indentation. Ubuntu provides `netplan try` that will show any errors in the yaml file.
 
-### Apply the configuration
-
-```bash hl_lines='1'
+```bash hl_lines='1-3'
 # This is all you really need:
 sudo netplan generate
 sudo netplan try
 sudo netplan apply
 ```
 
-### Verify the configuration
+#### Verify the configuration
 
 ```bash hl_lines='1-2'
 ip addr show eth0
 ip route show
 ```
 
-### YAML Validation script
+#### YAML Validation script
 
-If you are doing a lot of changes to the yaml file you can use this script to automate the testing:
+If you are doing a lot of changes to the yaml file you can use this script to automate the testing. It's in the root of the `Haas_Data_collect` directory:
 
-Change directory to `/etc/netplan` and open `nano`
-
-```bash
-cd /etc/netplan
-sudo nano netplan-try.sh
+```bash linenums='1' hl_lines='1'
+cd ~/Haas_Data_collect
+./netplan-try.sh
 ```
 
-Paste this into `nano`, save `ctrl+s`, exit `ctrl+x`
+If you receive an error `zsh: permission denied: ./netplan-try.sh
+` the script isn't executable. Run this to correct it:
+
+```bash hl_lines='1'
+chmod -x netplan-try.sh
+```
+
+----------------------------------------------------------------
+
+**Here are the contents of the script:**
 
 ```bash
+#!/usr/bin/env bash
+#
 # Validate the configuration
 echo "Validating network configuration..."
 if sudo netplan generate; then
@@ -275,18 +334,9 @@ fi
 
 ----------------------------------------------------------------
 
-make the script executable
-`sudo chmod +x netplan-try.sh`
-
-run the script
-
-`./netplan-try.sh`
-
-----------------------------------------------------------------
-
 ## Show the processor
 
-The Raspberry Pi uses `Advanced RISC Machine (ARM)` architecture vs the Intel x86 in your laptop. You can use the standard Linux command `List CPU - lscpu' to verify:
+The Raspberry Pi uses `Advanced RISC Machine (ARM)` architecture vs the Intel x86 in your laptop. You can use the standard Linux command `List CPU - lscpu' to display the CPU in your device:
 
 ```bash linenums='1' hl_lines='1'
 lscpu
@@ -312,9 +362,11 @@ Vendor ID:                ARM
     BogoMIPS:             108.00
 ```
 
+In this example I ran it on an Raspberry Pi 5.
+
 ----------------------------------------------------------------
 
-### Linux List commands
+## Linux List commands
 
 You can get a list of all `ls` commands by typying `ls` and pressing `tab`. You can google or use `man lscommand` to see help on any ls command. Some useful `ls` commands:
 
@@ -342,7 +394,11 @@ procs localsend
 
 ## Use SSH keys
 
-Ubuntu supports using ssh keys instead of usernames/passwords for logging in over ssh. The advantage is that it's near impossible to brute force ssh keys compared to brute forcing a password. The process is very similar on Mac/Windows/Linux and will take less than 5 minutes to set it up.
+Ubuntu supports using ssh keys instead of usernames/passwords for logging in over ssh. The advantage is that it's near impossible to brute force ssh keys compared to brute forcing a password. You can create more than one set of keys to be used with the appliance. If you have an MSP/MSSP that manages servers, you can create a set of keys for their use. If you ever replace them, you just delete their key on the appliance and they can no longer log in.
+
+----------------------------------------------------------------
+
+The process to create ssh keys is very similar on Mac/Windows/Linux and will take less than 5 minutes to set it up.
 
 ### Windows 11 25H2
 
@@ -641,7 +697,7 @@ You may want to buy two HSMs and keep one locked in a safe place.
 
 ## Use IPv6
 
-If you don't mind learning a little IPv6, you can SSH to the Pi over IPv6 even if it doesn't have an IPv4 address. This is only for the initial configuration of Ubuntu. Once you run the `haas_firewall_install.sh` script you are limited to iIPv4. The reason is that the `configure_ufw_from_csv.sh` script doesn't support IPv6 for Administrators. I plan to add it in the future if there is demand for the feature.
+If you don't mind learning a little IPv6, you can SSH to the Pi over IPv6 even if it doesn't have an IPv4 address. This is only for the initial configuration of Ubuntu. Once you run the `haas_firewall_install.sh` script you are limited to IPv4. The reason is that the `configure_ufw_from_csv.sh` script doesn't support IPv6 for Administrators. I plan to add it in the future if there is demand for the feature.
 
 If you followed the Paulus blog, add `dhcp6: true` to the netplan yaml file
 
