@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#
+echo ""
 # Validate the network configuration
 echo "Validating network configuration..."
 if sudo netplan generate; then
