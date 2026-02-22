@@ -1,0 +1,2214 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+        <meta name="author" content="Michael Hubbard (rikosintie)">
+      
+      
+        <link rel="canonical" href="https://rikosintie.github.io/Haas-data-collect/build_pi_5_appliance/installing_ubuntu/">
+      
+      
+        <link rel="prev" href="../why_pi_5_appliance/">
+      
+      
+        <link rel="next" href="../configuring_appliance/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../img/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+    
+    
+      
+        <title>Installing Ubuntu - Haas-data-collect</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+  
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+  
+  <style>:root{--md-admonition-icon--info:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%208a8%208%200%201%201%2016%200A8%208%200%200%201%200%208m8-6.5a6.5%206.5%200%201%200%200%2013%206.5%206.5%200%200%200%200-13M6.5%207.75A.75.75%200%200%201%207.25%207h1a.75.75%200%200%201%20.75.75v2.75h.25a.75.75%200%200%201%200%201.5h-2a.75.75%200%200%201%200-1.5h.25v-2h-.25a.75.75%200%200%201-.75-.75M8%206a1%201%200%201%201%200-2%201%201%200%200%201%200%202%22/%3E%3C/svg%3E');--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M1%207.775V2.75C1%201.784%201.784%201%202.75%201h5.025c.464%200%20.91.184%201.238.513l6.25%206.25a1.75%201.75%200%200%201%200%202.474l-5.026%205.026a1.75%201.75%200%200%201-2.474%200l-6.25-6.25A1.75%201.75%200%200%201%201%207.775m1.5%200c0%20.066.026.13.073.177l6.25%206.25a.25.25%200%200%200%20.354%200l5.025-5.025a.25.25%200%200%200%200-.354l-6.25-6.25a.25.25%200%200%200-.177-.073H2.75a.25.25%200%200%200-.25.25ZM6%205a1%201%200%201%201%200%202%201%201%200%200%201%200-2%22/%3E%3C/svg%3E');--md-admonition-icon--tip:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M3.499.75a.75.75%200%200%201%201.5%200v.996C5.9%202.903%206.793%203.65%207.662%204.376l.24.202c-.036-.694.055-1.422.426-2.163C9.1.873%2010.794-.045%2012.622.26%2014.408.558%2016%201.94%2016%204.25c0%201.278-.954%202.575-2.44%202.734l.146.508.065.22c.203.701.412%201.455.476%202.226.142%201.707-.4%203.03-1.487%203.898C11.714%2014.671%2010.27%2015%208.75%2015h-6a.75.75%200%200%201%200-1.5h1.376a4.5%204.5%200%200%201-.563-1.191%203.84%203.84%200%200%201-.05-2.063%204.65%204.65%200%200%201-2.025-.293.75.75%200%200%201%20.525-1.406c1.357.507%202.376-.006%202.698-.318l.009-.01a.747.747%200%200%201%201.06%200%20.75.75%200%200%201-.012%201.074c-.912.92-.992%201.835-.768%202.586.221.74.745%201.337%201.196%201.621H8.75c1.343%200%202.398-.296%203.074-.836.635-.507%201.036-1.31.928-2.602-.05-.603-.216-1.224-.422-1.93l-.064-.221c-.12-.407-.246-.84-.353-1.29a2.4%202.4%200%200%201-.507-.441%203.1%203.1%200%200%201-.633-1.248.75.75%200%200%201%201.455-.364c.046.185.144.436.31.627.146.168.353.305.712.305.738%200%201.25-.615%201.25-1.25%200-1.47-.95-2.315-2.123-2.51-1.172-.196-2.227.387-2.706%201.345-.46.92-.27%201.774.019%203.062l.042.19.01.05c.348.443.666.949.94%201.553a.75.75%200%201%201-1.365.62c-.553-1.217-1.32-1.94-2.3-2.768L6.7%205.527c-.814-.68-1.75-1.462-2.692-2.619a3.7%203.7%200%200%200-1.023.88c-.406.495-.663%201.036-.722%201.508.116.122.306.21.591.239.388.038.797-.06%201.032-.19a.75.75%200%200%201%20.728%201.31c-.515.287-1.23.439-1.906.373-.682-.067-1.473-.38-1.879-1.193L.75%205.677V5.5c0-.984.48-1.94%201.077-2.664.46-.559%201.05-1.055%201.673-1.353z%22/%3E%3C/svg%3E');--md-admonition-icon--warning:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M6.457%201.047c.659-1.234%202.427-1.234%203.086%200l6.082%2011.378A1.75%201.75%200%200%201%2014.082%2015H1.918a1.75%201.75%200%200%201-1.543-2.575Zm1.763.707a.25.25%200%200%200-.44%200L1.698%2013.132a.25.25%200%200%200%20.22.368h12.164a.25.25%200%200%200%20.22-.368Zm.53%203.996v2.5a.75.75%200%200%201-1.5%200v-2.5a.75.75%200%200%201%201.5%200M9%2011a1%201%200%201%201-2%200%201%201%200%200%201%202%200%22/%3E%3C/svg%3E');--md-admonition-icon--success:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M13.78%204.22a.75.75%200%200%201%200%201.06l-7.25%207.25a.75.75%200%200%201-1.06%200L2.22%209.28a.75.75%200%200%201%20.018-1.042.75.75%200%200%201%201.042-.018L6%2010.94l6.72-6.72a.75.75%200%200%201%201.06%200%22/%3E%3C/svg%3E');--md-admonition-icon--question:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%208a8%208%200%201%201%2016%200A8%208%200%200%201%200%208m8-6.5a6.5%206.5%200%201%200%200%2013%206.5%206.5%200%200%200%200-13M6.92%206.085h.001a.749.749%200%201%201-1.342-.67c.169-.339.436-.701.849-.977C6.845%204.16%207.369%204%208%204a2.76%202.76%200%200%201%201.637.525c.503.377.863.965.863%201.725%200%20.448-.115.83-.329%201.15-.205.307-.47.513-.692.662-.109.072-.22.138-.313.195l-.006.004a6%206%200%200%200-.26.16%201%201%200%200%200-.276.245.75.75%200%200%201-1.248-.832c.184-.264.42-.489.692-.661q.154-.1.313-.195l.007-.004c.1-.061.182-.11.258-.161a1%201%200%200%200%20.277-.245C8.96%206.514%209%206.427%209%206.25a.61.61%200%200%200-.262-.525A1.27%201.27%200%200%200%208%205.5c-.369%200-.595.09-.74.187a1%201%200%200%200-.34.398M9%2011a1%201%200%201%201-2%200%201%201%200%200%201%202%200%22/%3E%3C/svg%3E');--md-admonition-icon--failure:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M2.344%202.343za8%208%200%200%201%2011.314%2011.314A8.002%208.002%200%200%201%20.234%2010.089a8%208%200%200%201%202.11-7.746m1.06%2010.253a6.5%206.5%200%201%200%209.108-9.275%206.5%206.5%200%200%200-9.108%209.275M6.03%204.97%208%206.94l1.97-1.97a.749.749%200%200%201%201.275.326.75.75%200%200%201-.215.734L9.06%208l1.97%201.97a.749.749%200%200%201-.326%201.275.75.75%200%200%201-.734-.215L8%209.06l-1.97%201.97a.749.749%200%200%201-1.275-.326.75.75%200%200%201%20.215-.734L6.94%208%204.97%206.03a.75.75%200%200%201%20.018-1.042.75.75%200%200%201%201.042-.018%22/%3E%3C/svg%3E');--md-admonition-icon--danger:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M9.504.43a1.516%201.516%200%200%201%202.437%201.713L10.415%205.5h2.123c1.57%200%202.346%201.909%201.22%203.004l-7.34%207.142a1.25%201.25%200%200%201-.871.354h-.302a1.25%201.25%200%200%201-1.157-1.723L5.633%2010.5H3.462c-1.57%200-2.346-1.909-1.22-3.004zm1.047%201.074L3.286%208.571A.25.25%200%200%200%203.462%209H6.75a.75.75%200%200%201%20.694%201.034l-1.713%204.188%206.982-6.793A.25.25%200%200%200%2012.538%207H9.25a.75.75%200%200%201-.683-1.06l2.008-4.418.003-.006-.004-.009-.006-.006-.008-.001q-.005%200-.009.004%22/%3E%3C/svg%3E');--md-admonition-icon--bug:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M4.72.22a.75.75%200%200%201%201.06%200l1%20.999a3.5%203.5%200%200%201%202.441%200l.999-1a.748.748%200%200%201%201.265.332.75.75%200%200%201-.205.729l-.775.776c.616.63.995%201.493.995%202.444v.327q0%20.15-.025.292c.408.14.764.392%201.029.722l1.968-.787a.75.75%200%200%201%20.556%201.392L13%207.258V9h2.25a.75.75%200%200%201%200%201.5H13v.5q-.002.615-.141%201.186l2.17.868a.75.75%200%200%201-.557%201.392l-2.184-.873A5%205%200%200%201%208%2016a5%205%200%200%201-4.288-2.427l-2.183.873a.75.75%200%200%201-.558-1.392l2.17-.868A5%205%200%200%201%203%2011v-.5H.75a.75.75%200%200%201%200-1.5H3V7.258L.971%206.446a.75.75%200%200%201%20.558-1.392l1.967.787c.265-.33.62-.583%201.03-.722a1.7%201.7%200%200%201-.026-.292V4.5c0-.951.38-1.814.995-2.444L4.72%201.28a.75.75%200%200%201%200-1.06m.53%206.28a.75.75%200%200%200-.75.75V11a3.5%203.5%200%201%200%207%200V7.25a.75.75%200%200%200-.75-.75ZM6.173%205h3.654A.17.17%200%200%200%2010%204.827V4.5a2%202%200%201%200-4%200v.327c0%20.096.077.173.173.173%22/%3E%3C/svg%3E');--md-admonition-icon--example:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M5%205.782V2.5h-.25a.75.75%200%200%201%200-1.5h6.5a.75.75%200%200%201%200%201.5H11v3.282l3.666%205.76C15.619%2013.04%2014.543%2015%2012.767%2015H3.233c-1.776%200-2.852-1.96-1.899-3.458Zm-2.4%206.565a.75.75%200%200%200%20.633%201.153h9.534a.75.75%200%200%200%20.633-1.153L12.225%2010.5h-8.45ZM9.5%202.5h-3V6c0%20.143-.04.283-.117.403L4.73%209h6.54L9.617%206.403A.75.75%200%200%201%209.5%206Z%22/%3E%3C/svg%3E');--md-admonition-icon--quote:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M1.75%202.5h10.5a.75.75%200%200%201%200%201.5H1.75a.75.75%200%200%201%200-1.5m4%205h8.5a.75.75%200%200%201%200%201.5h-8.5a.75.75%200%200%201%200-1.5m0%205h8.5a.75.75%200%200%201%200%201.5h-8.5a.75.75%200%200%201%200-1.5M2.5%207.75v6a.75.75%200%200%201-1.5%200v-6a.75.75%200%200%201%201.5%200%22/%3E%3C/svg%3E');}</style>
+
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:300,300i,400,400i,700,700i%7CRed+Hat+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Ubuntu";--md-code-font:"Red Hat Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Installing Ubuntu - Haas-data-collect" />
+<meta property="og:image" content="https://rikosintie.github.io/Haas-data-collect/assets/images/social/build_pi_5_appliance/installing_ubuntu.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://rikosintie.github.io/Haas-data-collect/build_pi_5_appliance/installing_ubuntu/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Installing Ubuntu - Haas-data-collect" />
+<meta property="twitter:image" content="https://rikosintie.github.io/Haas-data-collect/assets/images/social/build_pi_5_appliance/installing_ubuntu.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#which-version-of-ubuntu-should-you-use" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Haas-data-collect" class="md-header__button md-logo" aria-label="Haas-data-collect" data-md-component="logo">
+      
+  <img src="../../img/ubuntu_icon1.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Haas-data-collect
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Installing Ubuntu
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6m0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4M7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="lime"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256l137.3-137.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/rikosintie/Haas_Data_collect" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    rikosintie/Haas_Data_collect
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../Introduction/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Intro
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../installing_python/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Python
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../usage/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Usage
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../why_pi_5_appliance/" class="md-tabs__link">
+          
+  
+  
+  Appliance
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../appendices/intro/" class="md-tabs__link">
+          
+  
+  
+  Appendices
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Haas-data-collect" class="md-nav__button md-logo" aria-label="Haas-data-collect" data-md-component="logo">
+      
+  <img src="../../img/ubuntu_icon1.png" alt="logo">
+
+    </a>
+    Haas-data-collect
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/rikosintie/Haas_Data_collect" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    rikosintie/Haas_Data_collect
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Intro
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installing_python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Appliance
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Appliance
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../why_pi_5_appliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Why build an_Appliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installing Ubuntu
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installing Ubuntu
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#server-version-headless" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Server version (Headless)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Server version (Headless)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#serial-console-cable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Serial Console cable
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#desktop-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Desktop Version
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Installation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#raspberry-pi-5-install" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Raspberry Pi 5 install
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Raspberry Pi 5 install">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#copy-files-to-a-pc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Copy files to a PC
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#copy-back-to-the-pi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Copy back to the Pi
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ubuntu-is-version-24043-now" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ubuntu is version 24.04.3 now
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#intel-install" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intel install
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configure-nano" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configure Nano
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#change-the-shell-to-zsh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Change the shell to zsh
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#static-ip-address" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Static IP address
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Static IP address">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#apply-the-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Apply the configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verify-the-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verify the configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#show-the-processor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Show the processor
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#linux-list-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Linux List commands
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-ssh-keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use SSH keys
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Use SSH keys">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#windows-11-25h2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Windows 11 25H2
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Windows 11 25H2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#copy-the-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Copy the key
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#view-the-comment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        View the comment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linuxmac" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Linux/Mac
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Linux/Mac">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#copy-the-key-over" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Copy the key over
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#view-the-key-comment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        View the key comment
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="View the key comment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-an-alias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        create an alias
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hardware-security-modules-hsm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hardware Security Modules (HSM)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-ipv6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use IPv6
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Use IPv6">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-to-ssh-to-this-ipv6-address" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How to ssh to this IPv6 address
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ipv6-link-local-addresses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IPv6 Link Local addresses
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuring_appliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Creating the Appliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../create-groups/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Create Group and File Perms
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Install_Samba/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installing Samba
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../updating_appliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Updating Appliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../firewall_configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Firewall Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Appendices
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Appendices
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../appendices/intro/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Appendix - Introduction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../appendices/appendix-a/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Appendix A - Securing the Appliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../appendices/appendix-b/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Appendix B - File Permissions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../appendices/appendix-c/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Appendix C - Threat Model for Auditors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../appendices/appendix-d/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Appendix D - Systemd type options
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../why_pi_5_appliance/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Appliance
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="which-version-of-ubuntu-should-you-use">Which version of Ubuntu should you use</h1>
+<p>Ubuntu comes in two versions:</p>
+<ul>
+<li>Server - No desktop.</li>
+<li>Desktop - Includes the Gnome desktop</li>
+</ul>
+<h2 id="server-version-headless">Server version (Headless)</h2>
+<p>I am experienced with Ubuntu, and this is a personal device; the headless server version is my choice. I use SSH to manage the appliance and the scripts don't require the Gnome desktop. The server uses fewer resources since it doesn't run a desktop.</p>
+<p>You can connect a monitor and keyboard, but you still use terminal-only tools since the desktop isn't installed. To copy files off the server to another PC, you can use SCP. On a Windows client, the popular <code>putty</code> application has an <a href="https://the.earth.li/~sgtatham/putty/0.83/htmldoc/Chapter5.html#pscp">SCP client</a>. Ubuntu 24.04 has the OpenSSH client built in.</p>
+<h3 id="serial-console-cable">Serial Console cable</h3>
+<p>If you are building your appliance on a Raspberry Pi 5, I recommend purchasing the <a href="../why_pi_5_appliance/#usb-serial-cable-for-the-raspberry-pi-5">serial console cable</a>. It allows you to configure the Pi from your laptop if the Pi doesn't have an IP Address or you have locked yourself out with the firewall.</p>
+<hr />
+<h2 id="desktop-version">Desktop Version</h2>
+<p>If you are new to Linux and building appliances, use the desktop version. The desktop version of Ubuntu uses the GNOME desktop, which is similar to a Windows desktop. It includes LibreOffice Calc (spreadsheet), allowing you to manage the firewall configuration file from the appliance.</p>
+<p>With the desktop version, you can use a keyboard, mouse, and monitor (KVM) to configure the Pi using GUI tools like Gnome Text Editor, File Manager, Local Send, etc. <a href="https://localsend.org/">Local Send</a> is a free, open-source Flatpak app that allows you to move files between two systems. It supports Windows, Mac, Linux, Android, and iOS. On a Windows client, the popular <code>putty</code> application has an <a href="https://the.earth.li/~sgtatham/putty/0.83/htmldoc/Chapter5.html#pscp">SCP client</a>.</p>
+<p>The other advantage is that you can register with Canonical for Ubuntu Pro at $25/year vs. $300/year for the server version. The Ubuntu Pro is a great deal. You get automatic updates and most do not require a reboot. The appliance will stay patched for at least one quarter with no user intervention.</p>
+<hr />
+<h2 id="installation">Installation</h2>
+<p>The steps to install Ubuntu on a Raspberry Pi 5 with an NVME drive are different than installing on an Intel PC or virtual machine.</p>
+<p>During the installation on a Raspberry Pi 5 or Intel box:</p>
+<ul>
+<li>Use <code>haas</code> as the username, all lowercase, and use a simple password that you can type with both hands on the keyboard. You will be typing the password a lot during the creation of the appliance.</li>
+<li>Use <code>haas</code> as the hostname, all lowercase. You can use anything, but the examples use <code>haas</code>.</li>
+</ul>
+<p>The code in the rest of the setup expects the username to be haas, which creates a home directory at /home/haas, used in all the examples in the guide. When the appliance is ready for production, change the password to a long and complex password. Save it in a password manager so that you don't forget it.</p>
+<p>For ease of logging into the appliance, create ssh keys as shown here - <a href="./#use-ssh-keys">Use SSH Keys</a>.</p>
+<hr />
+<h3 id="raspberry-pi-5-install">Raspberry Pi 5 install</h3>
+<p>Once you have decided on a version, follow these instructions to complete the installation. The instructions are from the Wolf Paulus blog, he does a great job, and I didn't see that I could do any better!</p>
+<p>Regardless of which version you want for production, install the desktop version of Raspberry Pi OS for the first step.</p>
+<ul>
+<li><a href="https://wolfpaulus.com/rp5/">Raspberry Pi 5 with NVMe</a></li>
+<li><a href="https://wolfpaulus.com/rp5-ubuntu-cli/">Install Ubuntu Server on Raspberry Pi 5 with NVMe SSD (Headless Setup)</a></li>
+</ul>
+<hr />
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Read the instructions below before you do the install to the nvme drive.</p>
+</div>
+<hr />
+<h4 id="copy-files-to-a-pc">Copy files to a PC</h4>
+<p>As stated in the Wolf Paulus blog, you need to copy files off the Raspberry Pi 5 before installing Ubuntu to the NVME drive. You can copy the cmdline.txt, network-config, user-data files to a flash drive or use scp to a laptop.</p>
+<p>To copy from the RPi to my laptop at 192.168.10.138</p>
+<ul>
+<li>scp /boot/firmware/user-data mhubbard@192.168.19.138:/home/mhubbard/Downloads</li>
+<li>scp /boot/firmware/network-config mhubbard@192.168.19.138:/home/mhubbard/Downloads</li>
+<li>scp /boot/firmware/cmdline.txt mhubbard@192.168.19.138:/home/mhubbard/Downloads</li>
+</ul>
+<h4 id="copy-back-to-the-pi">Copy back to the Pi</h4>
+<p>After Ubuntu is installed, but before booting for the first time:</p>
+<ul>
+<li>sudo scp mhubbard@192.168.19.138:/home/mhubbard/Downloads/user-data /mnt/nvfat</li>
+<li>sudo scp mhubbard@192.168.19.138:/home/mhubbard/Downloads/network-config /mnt/nvfat</li>
+<li>sudo scp mhubbard@192.168.19.138:/home/mhubbard/Downloads/cmdline.txt /mnt/nvfat</li>
+</ul>
+<hr />
+<h4 id="ubuntu-is-version-24043-now">Ubuntu is version 24.04.3 now</h4>
+<p>Below are updated links to <code>wget</code> 24.04.3.</p>
+<p>Server installer</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">cd</span><span class="w"> </span>~
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>wget<span class="w"> </span>https://cdimage.ubuntu.com/releases/24.04.3/release/ubuntu-24.04.3-preinstalled-server-arm64+raspi.img.xz<span class="sb">`</span>.
+</span></code></pre></div>
+<p>Desktop installer</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">cd</span><span class="w"> </span>~
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="sb">`</span>wget<span class="w"> </span>https://cdimage.ubuntu.com/releases/24.04.3/release/ubuntu-24.04.3-preinstalled-desktop-arm64+raspi.img.xz<span class="sb">`</span>
+</span></code></pre></div>
+<hr />
+<h3 id="intel-install">Intel install</h3>
+<p>Just like for the Raspberry Pi 5, there are a lot of quality tutorials on installing Ubuntu 24.04. I'm not going to document that in this guide.</p>
+<p><strong>Server Install</strong>
+Here is a link to the official Canonical tutorial - <a href="https://ubuntu.com/tutorials/install-ubuntu-server" target="_blank">Install Ubuntu server</a></p>
+<p>If you need instructions to create a bootable flash drive - Open the Desktop link below and it explains how to use Rufus to create a flash drive. For a virtual machine you will use the ISO image that you downloaded.</p>
+<p><strong>Desktop install</strong>
+Here is a link to the official Canonical tutorial - <a href="https://documentation.ubuntu.com/desktop/en/latest/tutorial/install-ubuntu-desktop/" target="_blank">Install Ubuntu Desktop</a></p>
+<p>When you get to this screen:</p>
+<p><img alt="screenshot" src="../img/Ubuntu-Install.resized.png" /></p>
+<p>Select <code>Install Ubuntu</code> and click <code>next</code>.</p>
+<hr />
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>From here on out the steps apply whether you installing on an Raspberry Pi 5 or an Intel based devices.</p>
+</div>
+<hr />
+<h3 id="configure-nano">Configure Nano</h3>
+<p>Nano is a terminal text editor built into most Linux distributions and you will need to use it initially, so it's worth spending a couple minutes customizing it. From the terminal run:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="hll">nano<span class="w"> </span>~/.nanorc
+</span></span></code></pre></div>
+<p>Note hte <code>dot</code> in front of the file. In Mac/Linux that means it's a hidden file. You must include the do or nano won't read it.</p>
+<p>Paste the following into the file:</p>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-3-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-3-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-3-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-3-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-3-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-3-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-3-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-3-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-3-10">10</a></span>
+<span class="normal"><a href="#__codelineno-3-11">11</a></span>
+<span class="normal"><a href="#__codelineno-3-12">12</a></span>
+<span class="normal"><a href="#__codelineno-3-13">13</a></span>
+<span class="normal"><a href="#__codelineno-3-14">14</a></span>
+<span class="normal"><a href="#__codelineno-3-15">15</a></span>
+<span class="normal"><a href="#__codelineno-3-16">16</a></span>
+<span class="normal"><a href="#__codelineno-3-17">17</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="hll"><span class="nb">set</span><span class="w"> </span>autoindent
+</span></span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="nb">set</span><span class="w"> </span>historylog
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="nb">set</span><span class="w"> </span>linenumbers
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="nb">set</span><span class="w"> </span>regexp
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="nb">set</span><span class="w"> </span>smarthome
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="nb">set</span><span class="w"> </span>tabsize<span class="w"> </span><span class="m">4</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="nb">set</span><span class="w"> </span>tabstospaces
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8"></a>include<span class="w"> </span><span class="s2">&quot;/usr/share/nano/awk.nanorc&quot;</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9"></a>include<span class="w"> </span><span class="s2">&quot;/usr/share/nano/css.nanorc&quot;</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10"></a>include<span class="w"> </span><span class="s2">&quot;/usr/share/nano/html.nanorc&quot;</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11"></a>include<span class="w"> </span><span class="s2">&quot;/usr/share/nano/man.nanorc&quot;</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12"></a>include<span class="w"> </span><span class="s2">&quot;/usr/share/nano/nanorc.nanorc&quot;</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13"></a>include<span class="w"> </span><span class="s2">&quot;/usr/share/nano/python.nanorc&quot;</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14"></a>include<span class="w"> </span><span class="s2">&quot;/usr/share/nano/sh.nanorc&quot;</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15"></a>include<span class="w"> </span><span class="s2">&quot;/usr/share/nano/tcl.nanorc&quot;</span>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16"></a>include<span class="w"> </span><span class="s2">&quot;/usr/share/nano/xml.nanorc&quot;</span>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17"></a>include<span class="w"> </span><span class="s2">&quot;/usr/share/nano/yaml.nanorc&quot;</span>
+</span></code></pre></div></td></tr></table></div>
+<p>Press <code>ctrl+s</code> and <code>ctrl+x</code> to save and exit.</p>
+<p>Now when you open Nano it will <code>lint</code> (colorize) bash scripts, python, xml, html, man pages, etc. You can use <code>ls -l /usr/share/nano/*rc</code> to view all of the file types that Nano supports.</p>
+<p>This also sets:</p>
+<ul>
+<li>autoindent - automatically indent a newly created line to the same level of indentation (tabs and/or spaces) as the previous line.</li>
+<li>historylog - Save the last hundred search strings and replacement strings and executed commands, so they can be easily reused in later sessions.</li>
+<li>linenumbers - Display line numbers to the left of the text area.</li>
+<li>regexp - Do extended regular expression searches by default.</li>
+<li>smarthome - Make the Home key smarter. When Home is pressed anywhere but at the very beginning of non-whitespace characters on a line, the cursor will jump to that beginning (either forwards or backwards). If the cursor is already at that position, it will jump to the true beginning of the line.</li>
+<li>tabsize 4 - Use a tab size of number columns.</li>
+<li>tabstospaces - Convert typed tabs to spaces.</li>
+</ul>
+<hr />
+<p>Here is a screenshot of an Ubuntu server <code>netplan</code> yaml file after the nano updates:</p>
+<p><img alt="screenshot" src="../img/nano-linter.resized.png" /></p>
+<hr />
+<p>You can find a detailed list of <code>nanorc</code> options at <a href="https://www.nano-editor.org/dist/v3/nanorc.5.html">NANORC</a></p>
+<hr />
+<h3 id="change-the-shell-to-zsh">Change the shell to zsh</h3>
+<p>When the Ubuntu installation is complete and you have rebooted, follow these <a href="https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal">instructions</a> to configure the terminal for ease of use. I wrote that procedure on Ubuntu 18.04 and have updated it as versions have changed. It will make the appliance's  terminal use much easier.</p>
+<p>If you skip this step, not recommended, replace <code>.zshrc</code> with <code>.bashrc</code> where you see it in the documentation.</p>
+<hr />
+<h3 id="static-ip-address">Static IP address</h3>
+<p>The desktop version uses a GUI to change IP address configuration. Go to the <strong>system menu</strong>, which is accessible from the top-right screen corner, click the gear icon, then network. The network settings dialog is very similar to Windows 11. Here is a screenshot:</p>
+<hr />
+<p><img alt="Ubuntu Network settings" src="../img/Ubuntu-Desktop-static.resized.png" /></p>
+<hr />
+<p>Ubuntu server doesn't have a GUI to change IP address settings. You have to modify a <code>yaml</code> file in the <code>/etc/netplan</code> directory. On the server version to use a static IP address instead of DHCP, replace <code>/etc/netplan/91-nw-init.yaml</code> with this yaml file:</p>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-4-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-4-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-4-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-4-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-4-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-4-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-4-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-4-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-4-10">10</a></span>
+<span class="normal"><a href="#__codelineno-4-11">11</a></span>
+<span class="normal"><a href="#__codelineno-4-12">12</a></span>
+<span class="normal"><a href="#__codelineno-4-13">13</a></span>
+<span class="normal"><a href="#__codelineno-4-14">14</a></span>
+<span class="normal"><a href="#__codelineno-4-15">15</a></span>
+<span class="normal"><a href="#__codelineno-4-16">16</a></span>
+<span class="normal"><a href="#__codelineno-4-17">17</a></span>
+<span class="normal"><a href="#__codelineno-4-18">18</a></span>
+<span class="normal"><a href="#__codelineno-4-19">19</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="hll">network:
+</span></span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="w">  </span>version:<span class="w"> </span><span class="m">2</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">  </span>renderer:<span class="w"> </span>networkd
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="w">  </span>ethernets:
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="w">    </span>eth0:
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="w">      </span>dhcp4:<span class="w"> </span>no
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7"></a><span class="w">      </span>dhcp6:<span class="w"> </span><span class="nb">true</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8"></a><span class="w">      </span>addresses:
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9"></a><span class="w">        </span>-<span class="w"> </span><span class="m">192</span>.168.1.100/24
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10"></a><span class="w">      </span>routes:
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11"></a><span class="w">        </span>-<span class="w"> </span>to:<span class="w"> </span>default
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12"></a><span class="w">          </span>via:<span class="w"> </span><span class="m">192</span>.168.1.254
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13"></a><span class="w">      </span>nameservers:
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14"></a><span class="w">        </span>addresses:
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15"></a><span class="w">          </span>-<span class="w"> </span><span class="m">192</span>.168.10.222
+</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16"></a><span class="w">          </span>-<span class="w"> </span><span class="m">192</span>.168.1.222
+</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17"></a><span class="w">      </span>parameters:
+</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18"></a><span class="w">        </span>stp:<span class="w"> </span><span class="nb">false</span>
+</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19"></a><span class="w">        </span>forward-delay:<span class="w"> </span><span class="m">0</span>
+</span></code></pre></div></td></tr></table></div>
+<hr />
+<ul>
+<li>Replace eth0 with the actual interface name (use ip link to find it, often eth0 or enp1s0 on Pi 5)</li>
+<li>Replace 192.168.1.100/24 with the desired static IP and subnet</li>
+<li>Replace 192.168.1.1 with the actual gateway IP</li>
+<li>Replace DNS servers (8.8.8.8, 8.8.4.4) with appropriate ones for the shop network</li>
+<li>The stp: false and forward-delay: 0 parameters disable Spanning Tree Protocol and reduce network startup delay</li>
+</ul>
+<p>In general, do not use a public DNS server address. Your company security policy <strong><em>SHOULD</em></strong> require you to use their DNS Server or Proxy server. Bypassing either could allow the appliance to contact a <code>control and command C2</code> server on the Internet without detection!</p>
+<hr />
+<p>Use <code>ip link</code> to find the actual interface name on your device. As you can see the interface is <code>eth0</code>. On an Intel installation it will probably be something like <code>enp60s0</code> on physical hardware or <code>ens33</code> on a virtual installation. Here is the output on my Raspberry Pi 5 with Ubuntu server 24.04.3.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="hll">ip<span class="w"> </span>link
+</span></span></code></pre></div>
+<div class="language-bash highlight"><span class="filename">Command Output</span><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="m">1</span>:<span class="w"> </span>lo:<span class="w"> </span>&lt;LOOPBACK,UP,LOWER_UP&gt;<span class="w"> </span>mtu<span class="w"> </span><span class="m">65536</span><span class="w"> </span>qdisc<span class="w"> </span>noqueue<span class="w"> </span>state<span class="w"> </span>UNKNOWN<span class="w"> </span>mode<span class="w"> </span>DEFAULT<span class="w"> </span>group<span class="w"> </span>default<span class="w"> </span>qlen<span class="w"> </span><span class="m">1000</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span>link/loopback<span class="w"> </span><span class="m">00</span>:00:00:00:00:00<span class="w"> </span>brd<span class="w"> </span><span class="m">00</span>:00:00:00:00:00
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="m">2</span>:<span class="w"> </span>eth0:<span class="w"> </span>&lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt;<span class="w"> </span>mtu<span class="w"> </span><span class="m">1500</span><span class="w"> </span>qdisc<span class="w"> </span>pfifo_fast<span class="w"> </span>state<span class="w"> </span>UP<span class="w"> </span>mode<span class="w"> </span>DEFAULT<span class="w"> </span>group<span class="w"> </span>default<span class="w"> </span>qlen<span class="w"> </span><span class="m">1000</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span>link/ether<span class="w"> </span><span class="m">88</span>:a2:9e:43:4d:de<span class="w"> </span>brd<span class="w"> </span>ff:ff:ff:ff:ff:ff
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="m">3</span>:<span class="w"> </span>wlan0:<span class="w"> </span>&lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt;<span class="w"> </span>mtu<span class="w"> </span><span class="m">1500</span><span class="w"> </span>qdisc<span class="w"> </span>pfifo_fast<span class="w"> </span>state<span class="w"> </span>UP<span class="w"> </span>mode<span class="w"> </span>DORMANT<span class="w"> </span>group<span class="w"> </span>default<span class="w"> </span>qlen<span class="w"> </span><span class="m">1000</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span>link/ether<span class="w"> </span><span class="m">88</span>:a2:9e:43:4d:df<span class="w"> </span>brd<span class="w"> </span>ff:ff:ff:ff:ff:ff
+</span></code></pre></div>
+<hr />
+<p>Use the following code to create a backup and then edit the yaml file:</p>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1">1</a></span>
+<span class="normal"><a href="#__codelineno-7-2">2</a></span>
+<span class="normal"><a href="#__codelineno-7-3">3</a></span>
+<span class="normal"><a href="#__codelineno-7-4">4</a></span>
+<span class="normal"><a href="#__codelineno-7-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="hll"><span class="nb">cd</span><span class="w"> </span>/etc/netplan/
+</span></span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2"></a>ls<span class="w"> </span>-l<span class="w"> </span><span class="c1"># look for a yaml file</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3"></a>sudo<span class="w"> </span>cp<span class="w"> </span>/etc/netplan/91-nw-init.yaml<span class="w"> </span>/etc/netplan/91-nw-init.bak
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4"></a>ls<span class="w"> </span>-l<span class="w"> </span><span class="c1"># look for the backup file</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5"></a>sudo<span class="w"> </span>nano<span class="w"> </span>/etc/netplan/91-nw-init.yaml
+</span></code></pre></div></td></tr></table></div>
+<p>Replace the <code>91-nw-init.yaml</code> with the name of the file you find with the <code>ls -l</code> command.</p>
+<hr />
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The yaml file might not be named "91-nw-init.yaml" depending on the version you install. If that is the case, substitute the actual filename. On the server version the file should be named <code>50-cloud-init.yaml</code>.</p>
+</div>
+<hr />
+<h4 id="apply-the-configuration">Apply the configuration</h4>
+<p>Yaml is very particular about indentation. Ubuntu provides <code>netplan try</code> that will show any errors in the yaml file.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="hll"><span class="c1"># This is all you really need:</span>
+</span></span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="hll">sudo<span class="w"> </span>netplan<span class="w"> </span>generate
+</span></span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="hll">sudo<span class="w"> </span>netplan<span class="w"> </span>try
+</span></span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>sudo<span class="w"> </span>netplan<span class="w"> </span>apply
+</span></code></pre></div>
+<h4 id="verify-the-configuration">Verify the configuration</h4>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="hll">ip<span class="w"> </span>addr<span class="w"> </span>show<span class="w"> </span>eth0
+</span></span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="hll">ip<span class="w"> </span>route<span class="w"> </span>show
+</span></span></code></pre></div>
+<hr />
+<h2 id="show-the-processor">Show the processor</h2>
+<p>The Raspberry Pi uses <code>Advanced RISC Machine (ARM)</code> architecture vs the Intel x86 in your laptop. You can use the standard Linux command `List CPU - lscpu' to display the CPU in your device:</p>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-10-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="hll">lscpu
+</span></span></code></pre></div></td></tr></table></div>
+<div class="language-unixconfig highlight"><span class="filename">Command Output</span><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>Architecture<span class="p">:</span>             aarch64
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>  CPU op-mode(s)<span class="p">:</span>         32-bit, 64-bit
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>  Byte Order<span class="p">:</span>             Little Endian
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>CPU(s)<span class="p">:</span>                   4
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>  On-line CPU(s) list<span class="p">:</span>    0-3
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>Vendor ID<span class="p">:</span>                ARM
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>  Model name<span class="p">:</span>             Cortex-A76
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>    Model<span class="p">:</span>                1
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>    Thread(s) per core<span class="p">:</span>   1
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>    Core(s) per cluster<span class="p">:</span>  4
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>    Socket(s)<span class="p">:</span>            -
+</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>    Cluster(s)<span class="p">:</span>           1
+</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>    Stepping<span class="p">:</span>             r4p1
+</span><span id="__span-11-14"><a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>    CPU(s) scaling MHz<span class="p">:</span>   62<span class="s">%</span>
+</span><span id="__span-11-15"><a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>    CPU max MHz<span class="p">:</span>          2400<span class="s">.0000</span>
+</span><span id="__span-11-16"><a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>    CPU min MHz<span class="p">:</span>          1500<span class="s">.0000</span>
+</span><span id="__span-11-17"><a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>    BogoMIPS<span class="p">:</span>             108<span class="s">.00</span>
+</span></code></pre></div>
+<p>In this example I ran it on an Raspberry Pi 5.</p>
+<hr />
+<h2 id="linux-list-commands">Linux List commands</h2>
+<p>You can get a list of all <code>ls</code> commands by typying <code>ls</code> and pressing <code>tab</code>. You can google or use <code>man lscommand</code> to see help on any ls command. Some useful <code>ls</code> commands:</p>
+<ul>
+<li>ls - list files in current directory</li>
+<li>lsattr - list file attributes on a Linux extended file system</li>
+<li>lsblk - list block storage devices line SD cards, USB Flash Drives, NVMEs.</li>
+<li>lsb_release - the <code>-a</code> option displays all information about a release.</li>
+<li>lshw - list hardware - A detailed list of installed hardware.</li>
+<li>lslocks - list local system locks</li>
+<li>lsof - list open files. example sudo lsof -i -n | grep localsend to see the PID and IPv4 info.</li>
+<li>lsusb - list all USB devices</li>
+</ul>
+<hr />
+<p>procs - not an ls command but very userful - example <code>procs localsend</code> will show the <code>localsend</code> app's PID, CPU/Mem data, filepath</p>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-12-1">1</a></span>
+<span class="normal"><a href="#__codelineno-12-2">2</a></span>
+<span class="normal"><a href="#__codelineno-12-3">3</a></span>
+<span class="normal"><a href="#__codelineno-12-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="hll">procs<span class="w"> </span>localsend
+</span></span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="w"> </span>PID:▲<span class="w">  </span>User<span class="w">     </span>│<span class="w"> </span>TTY<span class="w"> </span>CPU<span class="w"> </span>MEM<span class="w"> </span>CPU<span class="w"> </span>Time<span class="w"> </span>│<span class="w"> </span>Command
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="w">                 </span>│<span class="w">     </span><span class="o">[</span>%<span class="o">]</span><span class="w"> </span><span class="o">[</span>%<span class="o">]</span><span class="w">          </span>│
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="w"> </span><span class="m">515639</span><span class="w"> </span>mhubbard<span class="w"> </span>│<span class="w">     </span><span class="m">0</span>.0<span class="w"> </span><span class="m">0</span>.2<span class="w"> </span><span class="m">08</span>:02:59<span class="w"> </span>│<span class="w"> </span>/snap/localsend/32/usr/share/localsend_app/localsend_app
+</span></code></pre></div></td></tr></table></div>
+<hr />
+<h2 id="use-ssh-keys">Use SSH keys</h2>
+<p>Ubuntu supports using ssh keys instead of usernames/passwords for logging in over ssh. The advantage is that it's near impossible to brute force ssh keys compared to brute forcing a password. You can create more than one set of keys to be used with the appliance. If you have an MSP/MSSP that manages servers, you can create a set of keys for their use. If you ever replace them, you just delete their key on the appliance and they can no longer log in.</p>
+<hr />
+<p>The process to create ssh keys is very similar on Mac/Windows/Linux and will take less than 5 minutes to set it up.</p>
+<h3 id="windows-11-25h2">Windows 11 25H2</h3>
+<p>Windows 11 includes the OpenSSH package now. The command to create a key pair is the same as on Linux or Mac. Open the PowerShell terminal and enter the following to create an ed255519 key pair.:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="hll"><span class="nb">cd</span><span class="w"> </span>.ssh
+</span></span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>PS<span class="w"> </span>C:<span class="se">\U</span>sers<span class="se">\m</span>hubbard.PU<span class="se">\.</span>ssh&gt;<span class="w"> </span>ssh-keygen<span class="w"> </span>-C<span class="w"> </span>Haas
+</span></code></pre></div>
+<div class="language-bash highlight"><span class="filename">Command Output</span><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>Generating<span class="w"> </span>public/private<span class="w"> </span>ed25519<span class="w"> </span>key<span class="w"> </span>pair.
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>Enter<span class="w"> </span>file<span class="w"> </span><span class="k">in</span><span class="w"> </span>which<span class="w"> </span>to<span class="w"> </span>save<span class="w"> </span>the<span class="w"> </span>key<span class="w"> </span><span class="o">(</span>C:<span class="se">\U</span>sers<span class="se">\m</span>hubbard.PU/.ssh/id_ed25519<span class="o">)</span>:<span class="w"> </span>id_haas
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>id_haas<span class="w"> </span>already<span class="w"> </span>exists.
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>Overwrite<span class="w"> </span><span class="o">(</span>y/n<span class="o">)</span>?<span class="w"> </span>y
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>Enter<span class="w"> </span>passphrase<span class="w"> </span><span class="o">(</span>empty<span class="w"> </span><span class="k">for</span><span class="w"> </span>no<span class="w"> </span>passphrase<span class="o">)</span>:
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>Enter<span class="w"> </span>same<span class="w"> </span>passphrase<span class="w"> </span>again:
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>Your<span class="w"> </span>identification<span class="w"> </span>has<span class="w"> </span>been<span class="w"> </span>saved<span class="w"> </span><span class="k">in</span><span class="w"> </span>id_haas
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>Your<span class="w"> </span>public<span class="w"> </span>key<span class="w"> </span>has<span class="w"> </span>been<span class="w"> </span>saved<span class="w"> </span><span class="k">in</span><span class="w"> </span>id_haas.pub
+</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>The<span class="w"> </span>key<span class="w"> </span>fingerprint<span class="w"> </span>is:
+</span><span id="__span-14-10"><a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>SHA256:h6lAMwPk2aF6M66kN5p11KBNCFL5NJfRjCbcytYRnaU<span class="w"> </span>Haas
+</span><span id="__span-14-11"><a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>The<span class="w"> </span>key<span class="err">&#39;</span>s<span class="w"> </span>randomart<span class="w"> </span>image<span class="w"> </span>is:
+</span><span id="__span-14-12"><a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>+--<span class="o">[</span>ED25519<span class="w"> </span><span class="m">256</span><span class="o">]</span>--+
+</span><span id="__span-14-13"><a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="p">|</span>oo+o..oO<span class="w"> </span>o.<span class="w">      </span><span class="p">|</span>
+</span><span id="__span-14-14"><a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a><span class="p">|</span>.o.*<span class="o">=</span>.B<span class="w"> </span><span class="o">=</span>.<span class="w">       </span><span class="p">|</span>
+</span><span id="__span-14-15"><a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a><span class="p">|</span><span class="w">  </span><span class="o">=</span>+OB<span class="w"> </span>.E<span class="w">        </span><span class="p">|</span>
+</span><span id="__span-14-16"><a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a><span class="p">|</span><span class="w"> </span>.<span class="w"> </span><span class="o">==</span>*.<span class="w">  </span>o<span class="w">       </span><span class="p">|</span>
+</span><span id="__span-14-17"><a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a><span class="p">|</span>.<span class="w"> </span><span class="o">=</span>.+<span class="w"> </span>.<span class="w"> </span>S<span class="w"> </span>.<span class="w">      </span><span class="p">|</span>
+</span><span id="__span-14-18"><a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a><span class="p">|</span><span class="w"> </span>o<span class="w"> </span>+<span class="w"> </span>.<span class="w"> </span>.<span class="w"> </span>.<span class="w">       </span><span class="p">|</span>
+</span><span id="__span-14-19"><a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a><span class="p">|</span><span class="w"> </span>.o<span class="w"> </span>.<span class="w"> </span>.<span class="w">          </span><span class="p">|</span>
+</span><span id="__span-14-20"><a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a><span class="p">|</span>o+o.<span class="w">             </span><span class="p">|</span>
+</span><span id="__span-14-21"><a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a><span class="p">|</span><span class="o">=</span>o<span class="w"> </span>.<span class="w">             </span><span class="p">|</span>
+</span><span id="__span-14-22"><a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a>+----<span class="o">[</span>SHA256<span class="o">]</span>-----+
+</span></code></pre></div>
+<p>Notice that I changed the key name to:</p>
+<p><code>id_haas</code></p>
+<p>This isn't strictly necessary but I like to name my keys since I uses ssh with keys to log into many different systems.</p>
+<p>I also entered a passphrase for the keys. When logging in using the <code>id_haas</code> private key, you will be prompted to enter the passphrase. Why would I use a passphrase when I just said that keys are hard to brute force?</p>
+<p>Keys are difficult to brute force, but if you forget to lock your workstation and walk away someone can copy the private key from <code>C:\Users\mhubbard.PU/.ssh</code> and then log in with out being prompted. The passphrase is a way to prevent that. I don't use a long, complex, impossible to type passphrase but it's random characters that would take some time to brute force with <code>Hashcat</code> or <code>John the Ripper</code>.</p>
+<p>I wrote a PowerShell script a while back that I keep on a flash drive. If a user forgets to lock their workstation this script will search every drive for <code>Keepass database files</code> and copy them to the flash drive. It could easily be modified to copy private keys now that  Microsoft supports ssh. I wrote the script as an educational tool so show people what can happen if they don't lock their workstations when they walk away. Think "working in a coffee shop and running to the bathroom".</p>
+<hr />
+<p>The <code>-c Haas</code> in the <code>ssh-keygen</code> command creates a comment for the comment that is stored with the key.</p>
+<ul>
+<li>-l - Show  fingerprint  of specified public key file. If combined with -v, a visual ASCII art representation of the key is supplied with the fingerprint.</li>
+</ul>
+<p>Run this command to view the hey's fingerprint:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="hll">ssh-keygen<span class="w"> </span>-l<span class="w"> </span>-f<span class="w"> </span>id_haas<span class="w"> </span>-v
+</span></span></code></pre></div>
+<div class="language-bash highlight"><span class="filename">Command Output</span><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="m">256</span><span class="w"> </span>SHA256:h6lAMwPk2aF6M66kN5p11KBNCFL5NJfRjCbcytYRnaU<span class="w"> </span>Haas<span class="w"> </span><span class="o">(</span>ED25519<span class="o">)</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>+--<span class="o">[</span>ED25519<span class="w"> </span><span class="m">256</span><span class="o">]</span>--+
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="p">|</span>oo+o..oO<span class="w"> </span>o.<span class="w">      </span><span class="p">|</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="p">|</span>.o.*<span class="o">=</span>.B<span class="w"> </span><span class="o">=</span>.<span class="w">       </span><span class="p">|</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="p">|</span><span class="w">  </span><span class="o">=</span>+OB<span class="w"> </span>.E<span class="w">        </span><span class="p">|</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="p">|</span><span class="w"> </span>.<span class="w"> </span><span class="o">==</span>*.<span class="w">  </span>o<span class="w">       </span><span class="p">|</span>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="p">|</span>.<span class="w"> </span><span class="o">=</span>.+<span class="w"> </span>.<span class="w"> </span>S<span class="w"> </span>.<span class="w">      </span><span class="p">|</span>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="p">|</span><span class="w"> </span>o<span class="w"> </span>+<span class="w"> </span>.<span class="w"> </span>.<span class="w"> </span>.<span class="w">       </span><span class="p">|</span>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="p">|</span><span class="w"> </span>.o<span class="w"> </span>.<span class="w"> </span>.<span class="w">          </span><span class="p">|</span>
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="p">|</span>o+o.<span class="w">             </span><span class="p">|</span>
+</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="p">|</span><span class="o">=</span>o<span class="w"> </span>.<span class="w">             </span><span class="p">|</span>
+</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>+----<span class="o">[</span>SHA256<span class="o">]</span>-----+
+</span></code></pre></div>
+<hr />
+<h4 id="copy-the-key">Copy the key</h4>
+<p>Windows didn't implement the <code>ssh-copy-id</code> script from the OpenSSH project for some reason. Here is how to use PowerShell to copy the key to the appliance:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="hll">PS<span class="w"> </span>C:<span class="se">\U</span>sers<span class="se">\m</span>hubbard.PU&gt;<span class="w"> </span><span class="nb">type</span><span class="w"> </span><span class="nv">$env</span>:USERPROFILE<span class="se">\.</span>ssh<span class="se">\i</span>d_haas.pub<span class="w"> </span><span class="p">|</span><span class="w"> </span>ssh<span class="w"> </span>-p<span class="w"> </span><span class="m">3333</span><span class="w"> </span>haas@192.168.10.127<span class="w"> </span><span class="s2">&quot;mkdir -p ~/.ssh &amp;&amp; cat &gt;&gt; ~/.ssh/authorized_keys &amp;&amp; chmod 600 ~/.ssh/authorized_keys &amp;&amp; chmod 700 ~/.ssh&quot;</span>
+</span></span></code></pre></div>
+<hr />
+<div class="language-bash highlight"><span class="filename">Command Output</span><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>The<span class="w"> </span>authenticity<span class="w"> </span>of<span class="w"> </span>host<span class="w"> </span><span class="s1">&#39;[192.168.10.127]:3333 ([192.168.10.127]:3333)&#39;</span><span class="w"> </span>can<span class="s1">&#39;t be established.</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="s1">ED25519 key fingerprint is SHA256:0/RO4plpIpA6dw7EASpfdACx5KmqXT19oUjlyIRmffs.</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="s1">This key is not known by any other names.</span>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="s1">Are you sure you want to continue connecting (yes/no/[fingerprint])? yes</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="s1">Warning: Permanently added &#39;</span><span class="o">[</span><span class="m">192</span>.168.10.127<span class="o">]</span>:3333<span class="s1">&#39; (ED25519) to the list of known hosts.</span>
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="s1">haas@192.168.10.127&#39;</span>s<span class="w"> </span>password:
+</span></code></pre></div>
+<hr />
+<p>The <code>$env:USERPROFILE\</code> expands out to your full user path.</p>
+<p>I had to use <code>-p 3333</code> because I had changed the port that is used for ssh.</p>
+<p>The message about `The authenticity of host can't be established is because the appliance has a set of ssh keys and it offered its key to the W11 box. If you logged in initially with a password you could run:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="hll">ssh-keygen<span class="w"> </span>-l<span class="w"> </span>-f<span class="w"> </span>/etc/ssh/ssh_host_ed25519_key.pub
+</span></span></code></pre></div>
+<div class="language-bash highlight"><span class="filename">Command Output</span><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="m">256</span><span class="w"> </span>SHA256:0/RO4plpIpA6dw7EASpfdACx5KmqXT19oUjlyIRmffs<span class="w"> </span>root@haas<span class="w"> </span><span class="o">(</span>ED25519<span class="o">)</span>
+</span></code></pre></div>
+<p>To verity that you are indeed copying the keys to the appliance.</p>
+<h3 id="view-the-comment">View the comment</h3>
+<p>On the appliance, run:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="hll">cat<span class="w"> </span>~/.ssh/authorized_keys
+</span></span></code></pre></div>
+<div class="language-bash highlight"><span class="filename">Command Output</span><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>ssh-ed25519<span class="w"> </span>AAAAC3NzaC1lZDI1NTE5AAAAIIe4VtZB4+t8LAWPLT54qMWRI5NgwIU7/SoIMYtWl4Tu<span class="w"> </span>Haas
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>ssh-ed25519<span class="w"> </span>AAAAC3NzaC1lZDI1NTE5AAAAIBt1FUYKmKsS98KZBEjLSdg95dCTydiB54SeNAAt2V7m<span class="w"> </span>Haas-223
+</span></code></pre></div>
+<p>You will see the comment at the end of the key. It makes identifying keys easier if you manage many servers. The second key <code>Haas-223</code> is a key from another device that has an IP ending in .223. You can make up a convention if you adopt using keys.</p>
+<hr />
+<h3 id="linuxmac">Linux/Mac</h3>
+<p>Open the terminal and enter the following to create an ed255519 key pair.:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="hll">ssh-keygen
+</span></span></code></pre></div>
+<div class="language-bash highlight"><span class="filename">Command Output</span><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>Generating<span class="w"> </span>public/private<span class="w"> </span>ed25519<span class="w"> </span>key<span class="w"> </span>pair.
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>Enter<span class="w"> </span>file<span class="w"> </span><span class="k">in</span><span class="w"> </span>which<span class="w"> </span>to<span class="w"> </span>save<span class="w"> </span>the<span class="w"> </span>key<span class="w"> </span><span class="o">(</span>/home/mhubbard/.ssh/id_ed25519<span class="o">)</span>:<span class="w"> </span>id_haas
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>Enter<span class="w"> </span>passphrase<span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="s2">&quot;haas&quot;</span><span class="w"> </span><span class="o">(</span>empty<span class="w"> </span><span class="k">for</span><span class="w"> </span>no<span class="w"> </span>passphrase<span class="o">)</span>:
+</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>Enter<span class="w"> </span>same<span class="w"> </span>passphrase<span class="w"> </span>again:
+</span><span id="__span-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>Your<span class="w"> </span>identification<span class="w"> </span>has<span class="w"> </span>been<span class="w"> </span>saved<span class="w"> </span><span class="k">in</span><span class="w"> </span>haas
+</span><span id="__span-24-6"><a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>Your<span class="w"> </span>public<span class="w"> </span>key<span class="w"> </span>has<span class="w"> </span>been<span class="w"> </span>saved<span class="w"> </span><span class="k">in</span><span class="w"> </span>haas.pub
+</span><span id="__span-24-7"><a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>The<span class="w"> </span>key<span class="w"> </span>fingerprint<span class="w"> </span>is:
+</span><span id="__span-24-8"><a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>SHA256:OzzMu5XQjcXeG5Rks2hV2tSZ/jFq8QoPeTJy/w9QkgI
+</span><span id="__span-24-9"><a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a>The<span class="w"> </span>key<span class="err">&#39;</span>s<span class="w"> </span>randomart<span class="w"> </span>image<span class="w"> </span>is:
+</span><span id="__span-24-10"><a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a>+--<span class="o">[</span>ED25519<span class="w"> </span><span class="m">256</span><span class="o">]</span>--+
+</span><span id="__span-24-11"><a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a><span class="p">|</span><span class="w">        </span><span class="nv">E</span><span class="w">     </span><span class="o">=</span>.*<span class="p">|</span>
+</span><span id="__span-24-12"><a id="__codelineno-24-12" name="__codelineno-24-12" href="#__codelineno-24-12"></a><span class="p">|</span><span class="w">         </span>.<span class="w"> </span>.<span class="w"> </span>*<span class="w"> </span>X.<span class="p">|</span>
+</span><span id="__span-24-13"><a id="__codelineno-24-13" name="__codelineno-24-13" href="#__codelineno-24-13"></a><span class="p">|</span><span class="w">          </span>.<span class="w"> </span>B<span class="w"> </span>B<span class="w"> </span>.<span class="p">|</span>
+</span><span id="__span-24-14"><a id="__codelineno-24-14" name="__codelineno-24-14" href="#__codelineno-24-14"></a><span class="p">|</span><span class="w">         </span>.<span class="w"> </span>B<span class="w"> </span>*<span class="w"> </span>+<span class="w"> </span><span class="p">|</span>
+</span><span id="__span-24-15"><a id="__codelineno-24-15" name="__codelineno-24-15" href="#__codelineno-24-15"></a><span class="p">|</span><span class="w">        </span>S<span class="w"> </span><span class="nv">o</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>*<span class="w"> </span>+<span class="p">|</span>
+</span><span id="__span-24-16"><a id="__codelineno-24-16" name="__codelineno-24-16" href="#__codelineno-24-16"></a><span class="p">|</span><span class="w">       </span>+<span class="w"> </span>+<span class="w"> </span><span class="nv">O</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>+.<span class="p">|</span>
+</span><span id="__span-24-17"><a id="__codelineno-24-17" name="__codelineno-24-17" href="#__codelineno-24-17"></a><span class="p">|</span><span class="w">        </span><span class="nv">B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>X<span class="w"> </span>+<span class="w">  </span><span class="p">|</span>
+</span><span id="__span-24-18"><a id="__codelineno-24-18" name="__codelineno-24-18" href="#__codelineno-24-18"></a><span class="p">|</span><span class="w">         </span><span class="o">=</span><span class="w">   </span>+<span class="w"> </span>.<span class="w"> </span><span class="p">|</span>
+</span><span id="__span-24-19"><a id="__codelineno-24-19" name="__codelineno-24-19" href="#__codelineno-24-19"></a><span class="p">|</span><span class="w">        </span>o.<span class="w">    </span>..o<span class="p">|</span>
+</span><span id="__span-24-20"><a id="__codelineno-24-20" name="__codelineno-24-20" href="#__codelineno-24-20"></a>+----<span class="o">[</span>SHA256<span class="o">]</span>-----+
+</span></code></pre></div>
+<p>Notice that I changed the key name to:</p>
+<p><code>/home/mhubbard/.ssh/haas</code></p>
+<p>This isn't strictly necessary but I like to name my keys since I uses ssh with keys to log into many different systems. Also notice that I entered a passphrase for the keys. When logging in using the <code>id_haas</code> private key, you will be prompted to enter the passphrase. Why would I use a passphrase when I just said that keys are hard to brute force?</p>
+<p>Keys are difficult to brute force, but if you forget to lock your workstation and walk away someone can copy the private key from <code>C:\Users\mhubbard.PU/.ssh</code> and then log in with out being prompted. The passphrase is a way to prevent that. I don't use a long, complex, impossible to type passphrase but it's random characters that would take some time to brute force with <code>Hashcat</code> or <code>John the Ripper</code>.</p>
+<p>I wrote a PowerShell script a while back that I keep on a flash drive. If a user forgets to lock their workstation this script will search every drive for <code>Keepass database files</code> and copy them to the flash drive. It could easily be modified to copy private keys now that  Microsoft supports ssh. I wrote the script as an educational tool so show people what can happen if they don't lock their workstations when they walk away. Think "working in a coffee shop and running to the bathroom".</p>
+<hr />
+<h4 id="copy-the-key-over">Copy the key over</h4>
+<p>Linux and Mac support the OpenSSH tool <code>ssh-copy-id</code>for moving the public key to a host. Run the following:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="hll">ssh-copy-id<span class="w"> </span>-i<span class="w"> </span>~/.ssh/haas.pub<span class="w"> </span>-p<span class="w"> </span><span class="m">3333</span><span class="w"> </span>haas@192.168.10.127
+</span></span></code></pre></div>
+<hr />
+<div class="language-bash highlight"><span class="filename">Command Output</span><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>/usr/bin/ssh-copy-id:<span class="w"> </span>INFO:<span class="w"> </span>Source<span class="w"> </span>of<span class="w"> </span>key<span class="o">(</span>s<span class="o">)</span><span class="w"> </span>to<span class="w"> </span>be<span class="w"> </span>installed:<span class="w"> </span><span class="s2">&quot;/home/mhubbard/.ssh/haas.pub&quot;</span>
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>/usr/bin/ssh-copy-id:<span class="w"> </span>INFO:<span class="w"> </span>attempting<span class="w"> </span>to<span class="w"> </span>log<span class="w"> </span><span class="k">in</span><span class="w"> </span>with<span class="w"> </span>the<span class="w"> </span>new<span class="w"> </span>key<span class="o">(</span>s<span class="o">)</span>,<span class="w"> </span>to<span class="w"> </span>filter<span class="w"> </span>out<span class="w"> </span>any<span class="w"> </span>that<span class="w"> </span>are<span class="w"> </span>already<span class="w"> </span>installed
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>/usr/bin/ssh-copy-id:<span class="w"> </span>INFO:<span class="w"> </span><span class="m">1</span><span class="w"> </span>key<span class="o">(</span>s<span class="o">)</span><span class="w"> </span>remain<span class="w"> </span>to<span class="w"> </span>be<span class="w"> </span>installed<span class="w"> </span>--<span class="w"> </span><span class="k">if</span><span class="w"> </span>you<span class="w"> </span>are<span class="w"> </span>prompted<span class="w"> </span>now<span class="w"> </span>it<span class="w"> </span>is<span class="w"> </span>to<span class="w"> </span>install<span class="w"> </span>the<span class="w"> </span>new<span class="w"> </span>keys
+</span><span id="__span-26-4"><a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>
+</span><span id="__span-26-5"><a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>
+</span><span id="__span-26-6"><a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a>haas@192.168.10.127<span class="s1">&#39;s password:</span>
+</span><span id="__span-26-7"><a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a>
+</span><span id="__span-26-8"><a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a><span class="s1">Number of key(s) added: 1</span>
+</span><span id="__span-26-9"><a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a>
+</span><span id="__span-26-10"><a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a><span class="s1">Now try logging into the machine, with: &quot;ssh -i /home/mhubbard/.ssh/haas -p 3333 &#39;</span>haas@192.168.10.127<span class="err">&#39;</span><span class="s2">&quot;</span>
+</span><span id="__span-26-11"><a id="__codelineno-26-11" name="__codelineno-26-11" href="#__codelineno-26-11"></a><span class="s2">and check to make sure that only the key(s) you wanted were added.</span>
+</span></code></pre></div>
+<hr />
+<p>The <code>-i</code> is used to name the key to copy. Since I have many public keys on this system I had to explicitly name the key to copy.</p>
+<p>I had to use <code>-p 3333</code> because I had changed the port that is used for ssh.</p>
+<p>The message "Now try logging into the machine..." is because even though you see the pre-login banner and enter the password, you don't have a user login. Once the key is copied, the session ends.</p>
+<hr />
+<p>The message about `The authenticity of host can't be established is because the appliance has a set of ssh keys and it offered its key to the W11 box. If you logged in initially with a password you could run:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="hll">ssh-keygen<span class="w"> </span>-l<span class="w"> </span>-f<span class="w"> </span>/etc/ssh/ssh_host_ed25519_key.pub
+</span></span></code></pre></div>
+<div class="language-bash highlight"><span class="filename">Command Output</span><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="m">256</span><span class="w"> </span>SHA256:0/RO4plpIpA6dw7EASpfdACx5KmqXT19oUjlyIRmffs<span class="w"> </span>root@haas<span class="w"> </span><span class="o">(</span>ED25519<span class="o">)</span>
+</span></code></pre></div>
+<p>To verity that you are indeed copying the keys to the appliance.</p>
+<h3 id="view-the-key-comment">View the key comment</h3>
+<p>On the appliance, run:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="hll">cat<span class="w"> </span>~/.ssh/authorized_keys
+</span></span></code></pre></div>
+<div class="language-bash highlight"><span class="filename">Command Output</span><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>ssh-ed25519<span class="w"> </span>AAAAC3NzaC1lZDI1NTE5AAAAIIe4VtZB4+t8LAWPLT54qMWRI5NgwIU7/SoIMYtWl4Tu<span class="w"> </span>Haas
+</span><span id="__span-30-2"><a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>ssh-ed25519<span class="w"> </span>AAAAC3NzaC1lZDI1NTE5AAAAIBt1FUYKmKsS98KZBEjLSdg95dCTydiB54SeNAAt2V7m<span class="w"> </span>Haas-223
+</span></code></pre></div>
+<p>You will see the comment at the end of the key. It makes identifying keys easier if you manage many servers. The second key <code>Haas-223</code> is a key from another device that has an IP ending in .223. You can make up a convention if you adopt using keys.</p>
+<hr />
+<p>If you try to login now</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="hll">ssh<span class="w"> </span>-i<span class="w"> </span>/home/mhubbard/.ssh/haas<span class="w"> </span>-p<span class="w"> </span><span class="m">3333</span><span class="w"> </span><span class="s1">&#39;haas@192.168.10.127&#39;</span>
+</span></span></code></pre></div>
+<p>You will be asked for the passphrase, then logged into the appliance.</p>
+<p>I can log in without including the <code>-i /home/mhubbard/.ssh/haas</code> and the ssh client will try all of the keys in <code>~/.ssh</code> directory until it finds a match. But that will add a significant delay since I have a lot of keys. After you type the command to login once it will be in your history so you don't have to type all of it.</p>
+<h4 id="create-an-alias">create an alias</h4>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="hll">nano<span class="w"> </span>~/.bashrc
+</span></span><span id="__span-32-2"><a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a><span class="nb">alias</span><span class="w"> </span><span class="nv">haas</span><span class="o">=</span><span class="s2">&quot;ssh -i /home/mhubbard/.ssh/haas -p 3333 &#39;haas@192.168.10.127&#39;&quot;</span>
+</span></code></pre></div>
+<p>Press <code>ctrl+s</code> and <code>ctrl+x</code> to save and exit. Then run:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="hll"><span class="nb">exec</span><span class="w"> </span>bash
+</span></span></code></pre></div>
+<p>to reload the shell. Now you type <code>haas</code> and log in!</p>
+<hr />
+<h3 id="hardware-security-modules-hsm">Hardware Security Modules (HSM)</h3>
+<p>Companies like <code>Yubico</code> and <code>Google</code> offer hardware keys to store your ssh private keys on. They are out of scope for this document, but you can go to <a href="https://www.yubico.com/products/security-key/">Yubico Security Key</a> and read up. One caution, if you lose the HSM and didn't make a backup it's a bad day. Just saying...</p>
+<p>You may want to buy two HSMs and keep one locked in a safe place.</p>
+<hr />
+<h2 id="use-ipv6">Use IPv6</h2>
+<p>If you don't mind learning a little IPv6, you can SSH to the Pi over IPv6 even if it doesn't have an IPv4 address. This is only for the initial configuration of Ubuntu. Once you run the <code>haas_firewall_install.sh</code> script you are limited to IPv4. The reason is that the <code>configure_ufw_from_csv.sh</code> script doesn't support IPv6 for Administrators. As my dad used to say "Son, you ran out of talent on that one." I plan to add it in the future if there is demand for the feature.</p>
+<p>If you followed the Paulus blog, add <code>dhcp6: true</code> to the netplan yaml file</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>network:
+</span><span id="__span-34-2"><a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a><span class="w">  </span>version:<span class="w"> </span><span class="m">2</span>
+</span><span id="__span-34-3"><a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a><span class="w">  </span>ethernets:
+</span><span id="__span-34-4"><a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a><span class="w">    </span>eth0:
+</span><span id="__span-34-5"><a id="__codelineno-34-5" name="__codelineno-34-5" href="#__codelineno-34-5"></a><span class="w">      </span>dhcp4:<span class="w"> </span><span class="nb">true</span>
+</span><span id="__span-34-6"><a id="__codelineno-34-6" name="__codelineno-34-6" href="#__codelineno-34-6"></a><span class="w">      </span>optional:<span class="w"> </span><span class="nb">true</span>
+</span><span id="__span-34-7"><a id="__codelineno-34-7" name="__codelineno-34-7" href="#__codelineno-34-7"></a><span class="w">      </span>dhcp6:<span class="w"> </span><span class="nb">true</span>
+</span></code></pre></div>
+<p>Use the following to find the IPv6 address:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-35-1"><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="hll">ip<span class="w"> </span>a<span class="w"> </span>show<span class="w"> </span>dev<span class="w"> </span>eth0
+</span></span></code></pre></div>
+<div class="language-unixconfig highlight"><span class="filename">Command Output</span><pre><span></span><code><span id="__span-36-1"><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="m">2</span><span class="p">:</span> eth0<span class="p">:</span><span class="s"> &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP group default qlen 1000</span>
+</span><span id="__span-36-2"><a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a>    link<span class="s">/ether 88</span><span class="p">:</span>a2<span class="p">:</span><span class="m">9</span><span class="s">e</span><span class="p">:</span><span class="m">43</span><span class="p">:</span><span class="m">4</span><span class="s">d</span><span class="p">:</span>de brd ff<span class="p">:</span>ff<span class="p">:</span>ff<span class="p">:</span>ff<span class="p">:</span>ff<span class="p">:</span>ff
+</span><span id="__span-36-3"><a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a>    inet 192<span class="s">.168.10.137/24 metric 100 brd 192.168.10.255 scope global dynamic eth0</span>
+</span><span id="__span-36-4"><a id="__codelineno-36-4" name="__codelineno-36-4" href="#__codelineno-36-4"></a>       valid_lft 28463sec preferred_lft 28463sec
+</span><span id="__span-36-5"><a id="__codelineno-36-5" name="__codelineno-36-5" href="#__codelineno-36-5"></a><span class="hll">    inet6 fe80<span class="p">::</span><span class="m">8</span>aa2<span class="p">:</span><span class="m">9</span>eff<span class="p">:</span>fe43<span class="p">:</span><span class="m">4</span>dde<span class="s">/64 scope link</span>
+</span></span><span id="__span-36-6"><a id="__codelineno-36-6" name="__codelineno-36-6" href="#__codelineno-36-6"></a>       valid_lft forever preferred_lft forever
+</span></code></pre></div>
+<p>The <code>fe80::8aa2:9eff:fe43:4dde</code> is an IPv6 <code>link local</code> address. It's similar to an IPv4 APIPA, but it's the same every time the device starts up. It is created using the EUI-64 format, which is based on the 48-bit MAC address.</p>
+<hr />
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The EUI-64 (Extended Unique Identifier) format is a 64-bit interface identifier used in IPv6 to automatically generate host addresses from a 48-bit MAC address. This process involves splitting the MAC address, inserting FFFE in the middle, and flipping the 7th bit (universal/local bit) of the first byte.</p>
+</div>
+<p>What flipping the 7th bit looks like:</p>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-37-1">1</a></span>
+<span class="normal"><a href="#__codelineno-37-2">2</a></span>
+<span class="normal"><a href="#__codelineno-37-3">3</a></span>
+<span class="normal"><a href="#__codelineno-37-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-37-1"><a id="__codelineno-37-1" name="__codelineno-37-1"></a><span class="hll"><span class="m">10001000</span><span class="w"> </span>→<span class="w"> </span><span class="m">10001010</span>
+</span></span><span id="__span-37-2"><a id="__codelineno-37-2" name="__codelineno-37-2"></a><span class="w">                 </span>^
+</span><span id="__span-37-3"><a id="__codelineno-37-3" name="__codelineno-37-3"></a><span class="w">                </span>flipped<span class="w"> </span>b7
+</span><span id="__span-37-4"><a id="__codelineno-37-4" name="__codelineno-37-4"></a><span class="m">88</span><span class="w"> </span>→<span class="w"> </span>8A
+</span></code></pre></div></td></tr></table></div>
+<hr />
+<h3 id="how-to-ssh-to-this-ipv6-address">How to ssh to this IPv6 address</h3>
+<p><strong>macOS wireless interface en0</strong>
+Use the following command to ssh from a MacBook:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-38-1"><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>ssh<span class="w"> </span>haas@fe80::8aa2:9eff:fe43:4dde%en0
+</span></code></pre></div>
+<p><strong>Linux with wireless interface wlp61s0</strong>
+Use the following command to ssh from a Linux laptop:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-39-1"><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>ssh<span class="w"> </span>haas@fe80::8aa2:9eff:fe43:4dde%wlp61s0
+</span></code></pre></div>
+<p><strong>Windows</strong>
+Use these commands to ssh from a Windows laptop:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-40-1"><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>netsh interface ipv6 show interfaces
+</span></code></pre></div>
+<div class="language-bash highlight"><span class="filename">Command Output</span><pre><span></span><code><span id="__span-41-1"><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>Idx<span class="w">     </span>Met<span class="w">         </span>MTU<span class="w">          </span>State<span class="w">                </span>Name
+</span><span id="__span-41-2"><a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a>---<span class="w">  </span>----------<span class="w">  </span>----------<span class="w">  </span>------------<span class="w">  </span>---------------------------
+</span><span id="__span-41-3"><a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a><span class="w">  </span><span class="m">5</span><span class="w">          </span><span class="m">25</span><span class="w">        </span><span class="m">1500</span><span class="w">  </span>connected<span class="w">     </span>Ethernet
+</span><span id="__span-41-4"><a id="__codelineno-41-4" name="__codelineno-41-4" href="#__codelineno-41-4"></a><span class="w"> </span><span class="m">12</span><span class="w">          </span><span class="m">25</span><span class="w">        </span><span class="m">1500</span><span class="w">  </span>connected<span class="w">     </span>Wi-Fi
+</span></code></pre></div>
+<p>Now use:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-42-1"><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a>ssh haas@[fe80::8aa2:9eff:fe43:4dde%5]
+</span></code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Windows Wi-Fi interface don't support <code>IPv6 Neighbor Discovery</code> reliably. If you want to use this method, connect your laptop to ethernet.</p>
+</div>
+<p>You can use the following command to see if the Raspberry Pi 5 is visble from a Windows machine:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-43-1"><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a>netsh<span class="w"> </span>interface<span class="w"> </span>ipv6<span class="w"> </span>show<span class="w"> </span>neighbors<span class="w"> </span><span class="p">|</span><span class="w"> </span>Select-String<span class="w"> </span><span class="s2">&quot;4dde&quot;</span>
+</span></code></pre></div>
+<p>As always, Windows uses a non-standard method for an industry standard🙁.</p>
+<hr />
+<h3 id="ipv6-link-local-addresses">IPv6 Link Local addresses</h3>
+<p>IPv6 link‑local + EUI‑64 is the industry standard for zero‑touch provisioning.
+Switches, routers, firewalls, PDUs, storage arrays, OT gear — they all do it.</p>
+<p>And Linux handles it flawlessly.</p>
+<p>Windows is the outlier.</p>
+<p>🧩 Why IPv6 link‑local + EUI‑64 is brilliant</p>
+<ul>
+<li>Every NIC has a MAC</li>
+<li>EUI‑64 turns that MAC into a deterministic IPv6 address</li>
+<li>You can derive the link‑local address instantly</li>
+<li>No DHCP</li>
+<li>No RA (IPv6 Router Advertisement)</li>
+<li>No SLAAC (Stateless Address Autoconfiguration)</li>
+<li>No guessing</li>
+<li>No APIPA garbage</li>
+<li>No vendor‑specific discovery tools</li>
+<li>No proprietary protocols</li>
+<li>No broadcast storms</li>
+<li>No “magic IP” like 192.168.1.1</li>
+<li>It’s elegant.</li>
+<li>It’s predictable.</li>
+<li>It’s universal.</li>
+<li>It’s how IPv6 was meant to be used.</li>
+</ul>
+<hr />
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../why_pi_5_appliance/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Why build an_Appliance">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256l137.3-137.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Why build an_Appliance
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../configuring_appliance/" class="md-footer__link md-footer__link--next" aria-label="Next: Creating the Appliance">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Creating the Appliance
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M247.1 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L179.2 256 41.9 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      &copy; 2025 <a href="https://github.com/rikosintie" target="_blank" rel="noopener">Michael Hubbard</a>
+
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/rikosintie" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M202.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1M496 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2m-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3m-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/rikosintie" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://www.linkedin.com/in/mwhubbard/" target="_blank" rel="noopener" title="www.linkedin.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3M135.4 416H69V202.2h66.5V416zM102.2 96a38.5 38.5 0 1 1 0 77 38.5 38.5 0 1 1 0-77m282.1 320h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.tabs.link", "content.code.copy", "content.code.annotate", "header.autohide", "navigation.expand", "navigation.footer", "navigation.instant", "navigation.instant.progress", "navigation.path", "navigation.sections", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.share", "search.suggest", "toc.integrate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

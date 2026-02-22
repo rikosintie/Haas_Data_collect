@@ -1,0 +1,2215 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+        <meta name="author" content="Michael Hubbard (rikosintie)">
+      
+      
+        <link rel="canonical" href="https://rikosintie.github.io/Haas-data-collect/Pi_5_Appliance/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../img/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+    
+    
+      
+        <title>Raspberry Pi 5 Appliance - Haas-data-collect</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+  
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+  
+  <style>:root{--md-admonition-icon--info:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%208a8%208%200%201%201%2016%200A8%208%200%200%201%200%208m8-6.5a6.5%206.5%200%201%200%200%2013%206.5%206.5%200%200%200%200-13M6.5%207.75A.75.75%200%200%201%207.25%207h1a.75.75%200%200%201%20.75.75v2.75h.25a.75.75%200%200%201%200%201.5h-2a.75.75%200%200%201%200-1.5h.25v-2h-.25a.75.75%200%200%201-.75-.75M8%206a1%201%200%201%201%200-2%201%201%200%200%201%200%202%22/%3E%3C/svg%3E');--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M1%207.775V2.75C1%201.784%201.784%201%202.75%201h5.025c.464%200%20.91.184%201.238.513l6.25%206.25a1.75%201.75%200%200%201%200%202.474l-5.026%205.026a1.75%201.75%200%200%201-2.474%200l-6.25-6.25A1.75%201.75%200%200%201%201%207.775m1.5%200c0%20.066.026.13.073.177l6.25%206.25a.25.25%200%200%200%20.354%200l5.025-5.025a.25.25%200%200%200%200-.354l-6.25-6.25a.25.25%200%200%200-.177-.073H2.75a.25.25%200%200%200-.25.25ZM6%205a1%201%200%201%201%200%202%201%201%200%200%201%200-2%22/%3E%3C/svg%3E');--md-admonition-icon--tip:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M3.499.75a.75.75%200%200%201%201.5%200v.996C5.9%202.903%206.793%203.65%207.662%204.376l.24.202c-.036-.694.055-1.422.426-2.163C9.1.873%2010.794-.045%2012.622.26%2014.408.558%2016%201.94%2016%204.25c0%201.278-.954%202.575-2.44%202.734l.146.508.065.22c.203.701.412%201.455.476%202.226.142%201.707-.4%203.03-1.487%203.898C11.714%2014.671%2010.27%2015%208.75%2015h-6a.75.75%200%200%201%200-1.5h1.376a4.5%204.5%200%200%201-.563-1.191%203.84%203.84%200%200%201-.05-2.063%204.65%204.65%200%200%201-2.025-.293.75.75%200%200%201%20.525-1.406c1.357.507%202.376-.006%202.698-.318l.009-.01a.747.747%200%200%201%201.06%200%20.75.75%200%200%201-.012%201.074c-.912.92-.992%201.835-.768%202.586.221.74.745%201.337%201.196%201.621H8.75c1.343%200%202.398-.296%203.074-.836.635-.507%201.036-1.31.928-2.602-.05-.603-.216-1.224-.422-1.93l-.064-.221c-.12-.407-.246-.84-.353-1.29a2.4%202.4%200%200%201-.507-.441%203.1%203.1%200%200%201-.633-1.248.75.75%200%200%201%201.455-.364c.046.185.144.436.31.627.146.168.353.305.712.305.738%200%201.25-.615%201.25-1.25%200-1.47-.95-2.315-2.123-2.51-1.172-.196-2.227.387-2.706%201.345-.46.92-.27%201.774.019%203.062l.042.19.01.05c.348.443.666.949.94%201.553a.75.75%200%201%201-1.365.62c-.553-1.217-1.32-1.94-2.3-2.768L6.7%205.527c-.814-.68-1.75-1.462-2.692-2.619a3.7%203.7%200%200%200-1.023.88c-.406.495-.663%201.036-.722%201.508.116.122.306.21.591.239.388.038.797-.06%201.032-.19a.75.75%200%200%201%20.728%201.31c-.515.287-1.23.439-1.906.373-.682-.067-1.473-.38-1.879-1.193L.75%205.677V5.5c0-.984.48-1.94%201.077-2.664.46-.559%201.05-1.055%201.673-1.353z%22/%3E%3C/svg%3E');--md-admonition-icon--warning:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M6.457%201.047c.659-1.234%202.427-1.234%203.086%200l6.082%2011.378A1.75%201.75%200%200%201%2014.082%2015H1.918a1.75%201.75%200%200%201-1.543-2.575Zm1.763.707a.25.25%200%200%200-.44%200L1.698%2013.132a.25.25%200%200%200%20.22.368h12.164a.25.25%200%200%200%20.22-.368Zm.53%203.996v2.5a.75.75%200%200%201-1.5%200v-2.5a.75.75%200%200%201%201.5%200M9%2011a1%201%200%201%201-2%200%201%201%200%200%201%202%200%22/%3E%3C/svg%3E');--md-admonition-icon--success:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M13.78%204.22a.75.75%200%200%201%200%201.06l-7.25%207.25a.75.75%200%200%201-1.06%200L2.22%209.28a.75.75%200%200%201%20.018-1.042.75.75%200%200%201%201.042-.018L6%2010.94l6.72-6.72a.75.75%200%200%201%201.06%200%22/%3E%3C/svg%3E');--md-admonition-icon--question:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%208a8%208%200%201%201%2016%200A8%208%200%200%201%200%208m8-6.5a6.5%206.5%200%201%200%200%2013%206.5%206.5%200%200%200%200-13M6.92%206.085h.001a.749.749%200%201%201-1.342-.67c.169-.339.436-.701.849-.977C6.845%204.16%207.369%204%208%204a2.76%202.76%200%200%201%201.637.525c.503.377.863.965.863%201.725%200%20.448-.115.83-.329%201.15-.205.307-.47.513-.692.662-.109.072-.22.138-.313.195l-.006.004a6%206%200%200%200-.26.16%201%201%200%200%200-.276.245.75.75%200%200%201-1.248-.832c.184-.264.42-.489.692-.661q.154-.1.313-.195l.007-.004c.1-.061.182-.11.258-.161a1%201%200%200%200%20.277-.245C8.96%206.514%209%206.427%209%206.25a.61.61%200%200%200-.262-.525A1.27%201.27%200%200%200%208%205.5c-.369%200-.595.09-.74.187a1%201%200%200%200-.34.398M9%2011a1%201%200%201%201-2%200%201%201%200%200%201%202%200%22/%3E%3C/svg%3E');--md-admonition-icon--failure:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M2.344%202.343za8%208%200%200%201%2011.314%2011.314A8.002%208.002%200%200%201%20.234%2010.089a8%208%200%200%201%202.11-7.746m1.06%2010.253a6.5%206.5%200%201%200%209.108-9.275%206.5%206.5%200%200%200-9.108%209.275M6.03%204.97%208%206.94l1.97-1.97a.749.749%200%200%201%201.275.326.75.75%200%200%201-.215.734L9.06%208l1.97%201.97a.749.749%200%200%201-.326%201.275.75.75%200%200%201-.734-.215L8%209.06l-1.97%201.97a.749.749%200%200%201-1.275-.326.75.75%200%200%201%20.215-.734L6.94%208%204.97%206.03a.75.75%200%200%201%20.018-1.042.75.75%200%200%201%201.042-.018%22/%3E%3C/svg%3E');--md-admonition-icon--danger:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M9.504.43a1.516%201.516%200%200%201%202.437%201.713L10.415%205.5h2.123c1.57%200%202.346%201.909%201.22%203.004l-7.34%207.142a1.25%201.25%200%200%201-.871.354h-.302a1.25%201.25%200%200%201-1.157-1.723L5.633%2010.5H3.462c-1.57%200-2.346-1.909-1.22-3.004zm1.047%201.074L3.286%208.571A.25.25%200%200%200%203.462%209H6.75a.75.75%200%200%201%20.694%201.034l-1.713%204.188%206.982-6.793A.25.25%200%200%200%2012.538%207H9.25a.75.75%200%200%201-.683-1.06l2.008-4.418.003-.006-.004-.009-.006-.006-.008-.001q-.005%200-.009.004%22/%3E%3C/svg%3E');--md-admonition-icon--bug:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M4.72.22a.75.75%200%200%201%201.06%200l1%20.999a3.5%203.5%200%200%201%202.441%200l.999-1a.748.748%200%200%201%201.265.332.75.75%200%200%201-.205.729l-.775.776c.616.63.995%201.493.995%202.444v.327q0%20.15-.025.292c.408.14.764.392%201.029.722l1.968-.787a.75.75%200%200%201%20.556%201.392L13%207.258V9h2.25a.75.75%200%200%201%200%201.5H13v.5q-.002.615-.141%201.186l2.17.868a.75.75%200%200%201-.557%201.392l-2.184-.873A5%205%200%200%201%208%2016a5%205%200%200%201-4.288-2.427l-2.183.873a.75.75%200%200%201-.558-1.392l2.17-.868A5%205%200%200%201%203%2011v-.5H.75a.75.75%200%200%201%200-1.5H3V7.258L.971%206.446a.75.75%200%200%201%20.558-1.392l1.967.787c.265-.33.62-.583%201.03-.722a1.7%201.7%200%200%201-.026-.292V4.5c0-.951.38-1.814.995-2.444L4.72%201.28a.75.75%200%200%201%200-1.06m.53%206.28a.75.75%200%200%200-.75.75V11a3.5%203.5%200%201%200%207%200V7.25a.75.75%200%200%200-.75-.75ZM6.173%205h3.654A.17.17%200%200%200%2010%204.827V4.5a2%202%200%201%200-4%200v.327c0%20.096.077.173.173.173%22/%3E%3C/svg%3E');--md-admonition-icon--example:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M5%205.782V2.5h-.25a.75.75%200%200%201%200-1.5h6.5a.75.75%200%200%201%200%201.5H11v3.282l3.666%205.76C15.619%2013.04%2014.543%2015%2012.767%2015H3.233c-1.776%200-2.852-1.96-1.899-3.458Zm-2.4%206.565a.75.75%200%200%200%20.633%201.153h9.534a.75.75%200%200%200%20.633-1.153L12.225%2010.5h-8.45ZM9.5%202.5h-3V6c0%20.143-.04.283-.117.403L4.73%209h6.54L9.617%206.403A.75.75%200%200%201%209.5%206Z%22/%3E%3C/svg%3E');--md-admonition-icon--quote:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M1.75%202.5h10.5a.75.75%200%200%201%200%201.5H1.75a.75.75%200%200%201%200-1.5m4%205h8.5a.75.75%200%200%201%200%201.5h-8.5a.75.75%200%200%201%200-1.5m0%205h8.5a.75.75%200%200%201%200%201.5h-8.5a.75.75%200%200%201%200-1.5M2.5%207.75v6a.75.75%200%200%201-1.5%200v-6a.75.75%200%200%201%201.5%200%22/%3E%3C/svg%3E');}</style>
+
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:300,300i,400,400i,700,700i%7CRed+Hat+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Ubuntu";--md-code-font:"Red Hat Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Raspberry Pi 5 Appliance - Haas-data-collect" />
+<meta property="og:image" content="https://rikosintie.github.io/Haas-data-collect/assets/images/social/Pi_5_Appliance.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://rikosintie.github.io/Haas-data-collect/Pi_5_Appliance/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Raspberry Pi 5 Appliance - Haas-data-collect" />
+<meta property="twitter:image" content="https://rikosintie.github.io/Haas-data-collect/assets/images/social/Pi_5_Appliance.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#raspberry-pi-5-appliance" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Haas-data-collect" class="md-header__button md-logo" aria-label="Haas-data-collect" data-md-component="logo">
+      
+  <img src="../img/ubuntu_icon1.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Haas-data-collect
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Raspberry Pi 5 Appliance
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6m0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4M7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="lime"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256l137.3-137.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/rikosintie/Haas_Data_collect" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    rikosintie/Haas_Data_collect
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../Introduction/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Intro
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../installing_python/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Python
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../usage/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Usage
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../build_pi_5_appliance/why_pi_5_appliance/" class="md-tabs__link">
+          
+  
+  
+  Appliance
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../appendices/intro/" class="md-tabs__link">
+          
+  
+  
+  Appendices
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Haas-data-collect" class="md-nav__button md-logo" aria-label="Haas-data-collect" data-md-component="logo">
+      
+  <img src="../img/ubuntu_icon1.png" alt="logo">
+
+    </a>
+    Haas-data-collect
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/rikosintie/Haas_Data_collect" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    rikosintie/Haas_Data_collect
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Introduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Intro
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installing_python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Appliance
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Appliance
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../build_pi_5_appliance/why_pi_5_appliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Why build an_Appliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../build_pi_5_appliance/installing_ubuntu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installing Ubuntu
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../build_pi_5_appliance/configuring_appliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Creating the Appliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../build_pi_5_appliance/create-groups/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Create Group and File Perms
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../build_pi_5_appliance/Install_Samba/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installing Samba
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../build_pi_5_appliance/updating_appliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Updating Appliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../build_pi_5_appliance/firewall_configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Firewall Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Appendices
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Appendices
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../appendices/intro/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Appendix - Introduction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../appendices/appendix-a/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Appendix A - Securing the Appliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../appendices/appendix-b/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Appendix B - File Permissions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../appendices/appendix-c/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Appendix C - Threat Model for Auditors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../appendices/appendix-d/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Appendix D - Systemd type options
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="raspberry-pi-5-appliance">Raspberry Pi 5 Appliance</h1>
+<hr />
+<p><img alt="screenshot" src="img/Tux-Raspbery-Pi5.resized.jpeg" /></p>
+<p>Why would you want to build a Raspberry Pi 5 appliance when the Python scripts will run on Windows? A couple of reasons jump out:</p>
+<ul>
+<li>The scripts need to be running anytime the shop is working.</li>
+<li>You will need to have shares available for the files to be copied</li>
+</ul>
+<p>The first reason means that a Windows computer would have to be up and running 24/7 with a user logged in. I don't think that many IT security teams would find that acceptable. A cyber attack is most likely when a PC is powered on and a user is logged in. If the scripts are on a user's Windows desktop and they shut down in the evening or over weekends/holidays, data won't be collected.</p>
+<p>The workaround to a user being logged in is to use a tool like <code>NSSM (Non-Sucking Service Manager)</code> to install the script as a service. I researched <code>NSSM</code> and it appears to be abandoned so no security updates will be produced. My Haas scripts use standard Python libraries that will get updated anytime you update Python. There are a few other ways to run Python as a service on Windows, but you would still have to have a machine running 24/7, so the Pi is a less expensive method. The attack surface of a hardened Linux appliance is smaller than a Windows 11 desktop.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Python doesn't get updated when you run Windows Update. Use <code>winget upgrade --id Python.Python.3</code> from a PowerShell terminal if you installed using winget or Update via Microsoft Store (If installed from there).</p>
+</div>
+<p>The second reason means creating file shares on the Windows computer that the scripts are running on. I have had a lot of wasted time in small shops making their MSP understand what is needed (a user account, the shares, security groups, etc.) and getting it done while I'm onsite. Plus, creating shares on a personal workstation may violate IT security policy.</p>
+<p>A Raspberry Pi 5 appliance solves both of these problems. It can run 24/7 in the shop or in the server closet. It uses less than 20W of power so no one will be upset at the cost. It's simple to create a service that starts during boot using the systemd init system that Ubuntu is built on. You will still need to discuss the appliance with the IT security team. In the Samba section I will cover enabling the firewall and proving that SMB V1 is disabled.</p>
+<h2 id="ubuntu-pro-coverage">Ubuntu Pro coverage</h2>
+<p>If you are building the appliance for personal use, Ubuntu has a service that is free for up to five devices called <code>Ubuntu Pro</code>. Think of it as Microsoft support but for Ubuntu. The details are on the <a href="https://ubuntu.com/pricing/pro">Ubuntu Pro Pricing</a> page. For business use, the desktop version is $25/yr and the server version is $300/yr.</p>
+<p><strong>Ubuntu Pro includes:</strong></p>
+<ul>
+<li>Security updates</li>
+<li>Kernel Livepatch</li>
+<li>Advanced Active Directory policies for Ubuntu Desktop</li>
+<li>And much more</li>
+</ul>
+<hr />
+<h2 id="why-use-a-raspberry-pi-instead-of-a-cheap-sff-intel-machine">Why use a Raspberry Pi instead of a cheap SFF Intel machine</h2>
+<p>Raspberry Pis have become popular for industrial applications. They are inexpensive, reliable and have a massive community of blogs, YouTube videos, and magazine articles supporting them.</p>
+<p>If you have never seen Raspberry Pi 5s in the Industrial and Manufacturing spaces here are couple of example companies:</p>
+<ul>
+<li><a href="https://revolutionpi.com/en/products/revolution-pi-series">Revolution Pi</a> - Revolution Pi is your open-source Linux platform for future-oriented industrial solutions:<ol>
+<li>Powered by the Raspberry Pi Compute Module</li>
+<li>Raspberry Pi OS-based, industry-optimized operating system</li>
+</ol>
+</li>
+<li><a href="https://sferalabs.cc/strato-pi/">Strato Pi</a> - Industrial Raspberry Pi for Maximum Reliability<ol>
+<li>Edge Computing</li>
+<li>Industrial Automation</li>
+<li>Building &amp; Energy Management</li>
+<li>Data Acquisition</li>
+<li>Marine</li>
+<li>Fleet Management</li>
+</ol>
+</li>
+</ul>
+<p>It's worth a few minutes to look that homepages of those two companies.</p>
+<p>There is also a vibrant ecosystem of add-on hardware boards, sometimes called <code>Hats</code>. For example, Waveshare makes a $30 PoE hat that will power the RPI 5 from the Ethernet cable. Very convenient on the manufacturing floor. Here is a link to it - <a href="https://www.waveshare.com/poe-hat-h.htm">PoE hat</a>. Waveshare also produces a board with four 2.5Gbs Ethernet ports - <a href="https://www.cnx-software.com/2025/12/30/add-four-gigabit-or-2-5gbps-ethernet-ports-to-the-raspberry-pi-5-with-this-expansion-board/">Waveshare 4 port Ethernet</a></p>
+<p>Finally, Waveshare makes great <a href="https://www.waveshare.com/product/displays/e-paper/3.97inch-e-paper-hat-plus.htm">e-paper displays</a> for the Pi. I built a serial console server using a Pi Zero W and a Waveshare display. On startup:</p>
+<ul>
+<li>Shows me the ip addresses it got</li>
+<li>Shows the MFG-S/N of the USB serial adapters that are connected.</li>
+<li>If it gets internet access, it emails my <code>gmail</code> account it the address.</li>
+</ul>
+<p>The email is handy if the console is in a rack up high and you can't see the display. Waveshare provides a Python library to talk to the display and there are tons of YouTube videos and blogs on coding it..</p>
+<p>Here is a photo of my Pi Zero 2 W serial console. It has a PoE hat so that I can just plug it into a switch, and it's ready to go. It has one FTDI serial cable connected. The <code>P 2003</code> means that I telnet to port 2003 to console to the device it's connected to.</p>
+<hr />
+<p><img alt="screenshot" src="img/pi.resized.jpg" /></p>
+<p>In the future I might add one and display what machines are online. Here is the link to the Waveshare site - <a href="https://www.waveshare.com/product/displays/e-paper/epaper-2/3.97inch-e-paper-hat-plus.htm">3.97inch E-Paper Display</a></p>
+<hr />
+<p>The RPi 5 is available in several different models. The difference is the amount of RAM. To build a dedicated RPi 5 for this project I recommend the 8GB RAM model. That is overkill for just the scripts, but the difference in cost is negligible compared to the 4GB model, and I find that it's always better to have more RAM for future proofing.</p>
+<p><strong>On 12/29/2025, Amazon's site offered this cost:</strong></p>
+<ul>
+<li>Raspberry Pi 5 8GB - $93.99</li>
+<li>Raspberry Pi 5 4GB - $76.95</li>
+</ul>
+<p>You will need:</p>
+<ul>
+<li>Raspberry 5 8GB</li>
+<li>A certified power adapter</li>
+<li>An SD card of at least 32GB</li>
+<li>A case</li>
+</ul>
+<p>Amazon has a <a href="https://www.amazon.com/CanaKit-Raspberry-Starter-Kit-PRO/dp/B0CRSNCJ6Y">CanaKit Raspberry Pi 5 Starter Kit PRO - Turbine Black (128GB Edition) (8GB RAM)</a> for $169.95 that includes all of the above and:</p>
+<ul>
+<li>a fan</li>
+<li>a heat sink</li>
+<li>a 128GB SD card</li>
+<li>CanaKit 45W PD Power Supply</li>
+</ul>
+<p>To build a high performance appliance for a manufacturing plant, I think the Canakit is worth the cost. You can also purchase a Raspberry Pi 5 from Micro Center, Ameridroid and many others if you want to piece it out instead of buying the Canakit.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The Canakit isn't compatible with the Waveshare PoE hat. You need to remove the case to use the hat.</p>
+</div>
+<hr />
+<h2 id="which-version-of-ubuntu-should-you-use">Which version of Ubuntu should you use</h2>
+<p>Ubuntu comes in three versions for the Raspberry Pi 5:</p>
+<ul>
+<li>Server - No desktop.</li>
+<li>Desktop - Includes the Gnome desktop</li>
+<li>Core - A dedicated version for IoT devices. I haven't used it yet, but it's on my list of projects!</li>
+</ul>
+<h3 id="server-version-headless">Server version (Headless)</h3>
+<p>I am experienced with Ubuntu, so the headless server version is my choice. I use SSH to manage the appliance, and the scripts don't require the Gnome desktop. The server uses less RAM and resources since it doesn't run a desktop.</p>
+<p>If you are creating a headless (no desktop) version of an appliance using Ubuntu server, you will be using SSH or a serial console cable to configure the Pi.</p>
+<h3 id="desktop-version">Desktop Version</h3>
+<p>If you are new to Linux and building appliances you should pick the desktop. During the installation, select "minimal" install since you don't need a word processor, spreadsheet, etc. The desktop version of Ubuntu uses the Gnome desktop, which is similar to a Windows desktop. You can use a Keyboard, Mouse, and Monitor to configure the Pi. This allows you to use a GUI text editor and other GUI tools.</p>
+<h3 id="download-raspberry-pi-5-ubuntu-images">Download Raspberry Pi 5 Ubuntu images</h3>
+<p>Canonical, Ubuntu's publisher, has a dedicated Raspberry Pi page located here: <a href="https://ubuntu.com/download/raspberry-pi">Install Ubuntu
+on a Raspberry Pi</a>. Follow the instructions on that page to install Ubuntu onto the Raspberry Pi 5.</p>
+<hr />
+<h2 id="installation">Installation</h2>
+<p>Once you decide on a version, follow the instructions in the link above.</p>
+<h2 id="what-is-needed-to-create-the-appliance">What is needed to create the appliance</h2>
+<p>As you can imagine, there are a lot of steps required to build a functional appliance from scratch. But once you have completed it, you will have gained a lot of useful knowledge!</p>
+<ul>
+<li>Clone the repository - This is how you get the code from the repository</li>
+<li>Create the systemd service files</li>
+<li>Enable the Haas data collection service</li>
+<li>Install Samba to create Windows shares</li>
+</ul>
+<p>The next sections will cover all of these topics in detail.</p>
+<hr />
+<h3 id="clone-the-repository">Clone the repository</h3>
+<p>NOTE: Linux uses a case sensitive file system. So <code>Haas</code> is different from <code>haas</code>. Make sure you use <code>mkdir Haas</code> when you create the directory.</p>
+<p>Open a terminal on the Pi.</p>
+<ul>
+<li>Make sure you are in your home directory by running <code>cd ~</code></li>
+<li>Verify using <code>pwd</code> which is <code>print working directory</code> in Linux. You should see:</li>
+</ul>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>╭─mhubbard@ubuntu-server<span class="w"> </span>~
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>╰─$<span class="w"> </span><span class="nb">pwd</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>/home/mhubbard
+</span></code></pre></div>
+<ul>
+<li>Create a folder named <code>Haas</code> using <code>mkdir Haas</code>.</li>
+<li>Change to the Haas directory using <code>cd Haas</code></li>
+<li>Clone the repository using <code>git clone https://github.com/rikosintie/Haas_Data_collect.git</code></li>
+<li>Change to the <code>Haas_Data_collect</code> folder using <code>cd Haas_Data_collect</code></li>
+<li>List the files for reference using <code>ls -l</code></li>
+</ul>
+<hr />
+<h3 id="the-systemd-service-files">The systemd service files</h3>
+<p>Ubuntu uses an initialization (init) service named <code>systemd</code>. This service manages what services are initialized when Ubuntu starts up. We will use <code>systemd</code> to manage the Python scripts.</p>
+<p>The service files are where you define how to call the Python script when the Pi starts up. In the repository there are six files representing six different machine tools. The ports and IP addresses used are:</p>
+<table>
+<thead>
+<tr>
+<th>Machine</th>
+<th>Port#</th>
+<th style="text-align: center;">IP Address</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ST40</td>
+<td>5052</td>
+<td style="text-align: center;">192.168.10.141</td>
+</tr>
+<tr>
+<td>VF2SS</td>
+<td>5053</td>
+<td style="text-align: center;">192.168.10.142</td>
+</tr>
+<tr>
+<td>VF5SS</td>
+<td>5054</td>
+<td style="text-align: center;">192.168.10.143</td>
+</tr>
+<tr>
+<td>MINIMILL</td>
+<td>5055</td>
+<td style="text-align: center;">192.168.10.143</td>
+</tr>
+<tr>
+<td>ST30</td>
+<td>5056</td>
+<td style="text-align: center;">192.168.10.144</td>
+</tr>
+<tr>
+<td>ST30L</td>
+<td>5057</td>
+<td style="text-align: center;">192.168.10.145</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p>You will have different names and IP addresses on your machine tools. No problem, just make a table of the name you want, the port, and the IP address. Then modify the existing service files. Here is the format:</p>
+<div class="language-unixconfig highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="s">[Unit]</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>Description<span class="s">=Haas Python logger for ST40</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>After<span class="s">=network.target</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="s">[Service]</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>User<span class="s">=mhubbard</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>WorkingDirectory<span class="s">=/home/mhubbard/Haas/Haas_Data_collect</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>ExecStart<span class="s">=/usr/bin/python3 /home/mhubbard/Haas/Haas_Data_collect/haas_logger2.py -a -t 192.168.10.140  --port 5052 --name ST40</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>Type<span class="s">=idle</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="s">[Install]</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>WantedBy<span class="s">=multi-user.target</span>
+</span></code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Be extremely careful when you edit the files. Any mistake will prevent you from successfully receiving data from the machine and can be challenging to troubleshoot.</p>
+</div>
+<hr />
+<h3 id="editing-the-files">Editing the files</h3>
+<p>The systemd service files are located in <code>/etc/systemd/system/</code> so you must use sudo to edit them.</p>
+<p>As an example, let's use the included st40.service file. You should be in the <code>Haas_Data_collect</code> directory. Use the following to copy <code>st40.service</code> to the <code>/etc/systemd/system/</code> directory:</p>
+<p><code>sudo cp st40.service /etc/systemd/system/st40.service</code></p>
+<p>Use the following to edit the included st40.service file: <code>sudo nano /etc/systemd/system/st40.service</code></p>
+<p>This will open <code>st40.service</code> in the built in <code>nano</code> editor.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For whatever reason, <code>nano</code> doesn't use the normal text editor keys. If you are brand new to Linux, use this tutorial to learn nano - <a href="https://www.howtogeek.com/42980/the-beginners-guide-to-nano-the-linux-command-line-text-editor/">The beginners guide to Nano the Linux command line text editor</a></p>
+</div>
+<p>If you installed the desktop version of Ubuntu, you can use the GUI Gnome Text Editor GUI to edit the files by running:</p>
+<p><code>sudo gnome-text-editor /etc/systemd/system/st40.service</code></p>
+<h4 id="what-you-need-to-modify">What you need to modify</h4>
+<ul>
+<li>Description - The description is shown when you check the status of the service. Change to something that makes sense in your environment</li>
+<li>User - Your username probably isn't mhubbard. Change to your username</li>
+<li>WorkingDirectory - I recommend you keep this format and just change the username in the path.</li>
+<li>ExecStart - This is where the table of names, ports, IP addresses comes in handy.</li>
+</ul>
+<p>Nothing else needs to be changed in the service file.</p>
+<hr />
+<h3 id="configuring-systemd-to-use-the-service-files">Configuring systemd to use the service files</h3>
+<p>Once you have the service file modified, use the following commands to set up the service:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>daemon-reload
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>st40.service
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span>st40.service
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>st40.service
+</span></code></pre></div>
+<h4 id="what-the-commands-do">What the commands do</h4>
+<ul>
+<li>sudo systemctl daemon-reload - Forces <code>systemd</code> to read the changes</li>
+<li>sudo systemctl enable st40.service - Tells <code>systemd</code> to run the service on boot</li>
+<li>sudo systemctl start st40.service - Actually starts the <code>systemd</code> service</li>
+<li>sudo systemctl status st40.service - Displays the status of the <code>systemd</code> service</li>
+</ul>
+<div class="language-unixconfig highlight"><span class="filename">Status of the st40.service</span><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="s">╭─mhubbard@ubuntu-server ~</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="hll"><span class="s">╰─$ sudo systemctl status st40.service</span>
+</span></span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="s">● st40.service - Haas Python logger for ST40</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>     Loaded<span class="p">:</span> loaded (<span class="s">/etc/systemd/system/st40.service; enabled; preset</span><span class="p">:</span> enabled)
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>     Active<span class="p">:</span> active (running) since Mon 2025-12-29 16<span class="p">:</span><span class="m">09</span><span class="p">:</span><span class="m">45</span> PST<span class="s">; 2s ago</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>   Main PID<span class="p">:</span> 44301 (python3)
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>      Tasks<span class="p">:</span> 1 (limit<span class="p">:</span> 4601)
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>     Memory<span class="p">:</span> 6<span class="s">.9M (peak</span><span class="p">:</span> 7<span class="s">.1M)</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>        CPU<span class="p">:</span> 37ms
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>     CGroup<span class="p">:</span><span class="s"> /system.slice/st40.service</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>             <span class="s">└─44301 /usr/bin/python3 /home/mhubbard/Haas/Haas_Data_collect/haas_logger2.py -a -t 192.168.10.122 --port 5052 --name ST40</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>Dec 29 16<span class="p">:</span><span class="m">09</span><span class="p">:</span><span class="m">45</span> ubuntu-server systemd<span class="s">[1]</span><span class="p">:</span> Started st40<span class="s">.service - Haas Python logger for ST40.</span>
+</span></code></pre></div>
+<hr />
+<p>Notice the description from the service file is shown. Also, <code>Main PID</code> can be useful during troubleshooting. That is the Process ID, similar to what you would see in the <code>Windows Task Manager</code>. In this case it's 44301 and we can track it using:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="hll">ps<span class="w"> </span>-ef<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="m">5052</span>
+</span></span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>mhubbard<span class="w">   </span><span class="m">44301</span><span class="w">       </span><span class="m">1</span><span class="w">  </span><span class="m">0</span><span class="w"> </span><span class="m">16</span>:09<span class="w"> </span>?<span class="w">        </span><span class="m">00</span>:00:00<span class="w"> </span>/usr/bin/python3<span class="w"> </span>/home/mhubbard/Haas/Haas_Data_collect/haas_logger2.py<span class="w"> </span>-a<span class="w"> </span>-t<span class="w"> </span><span class="m">192</span>.168.10.122<span class="w"> </span>--port<span class="w"> </span><span class="m">5052</span><span class="w"> </span>--name<span class="w"> </span>ST40
+</span></code></pre></div>
+<h4 id="memory-usage">Memory Usage</h4>
+<p>The status command also lists the amount of RAM used by the script. You can see that the peak usage was 7.1MB. I haven't seen the script use more than that, so a Raspberry Pi 5 with 8GB of RAM could support many machine tools.</p>
+<hr />
+<h4 id="other-options-for-the-service-file">Other options for the service file</h4>
+<p>systemd has capabilities far beyond what is needed for this script. I used Gemini to research systemd for this project. Gemini has a lot of knowledge of <code>systemd</code> if you want to add more services to your appliance <img alt="😃" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f603.svg" title=":smiley:" /></p>
+<p>The <code>Type=</code> directive in a systemd service file's [Service] section defines how the service manager determines that a service has successfully started.</p>
+<p>Beyond simple, the available Type options include:</p>
+<ul>
+<li>exec: Similar to simple, but systemd considers the service started only after the main service binary has been successfully executed. This is often the preferred choice for long-running processes because it ensures errors like "missing file" are caught during startup.</li>
+<li>forking: Used for traditional UNIX daemons that "fork" into the background. Systemd considers the service started when the parent process exits. It is highly recommended to use PIDFile= with this type so systemd can track the correct child process.</li>
+<li>oneshot: Ideal for scripts that perform a task and then exit. Unlike simple, systemd waits for the process to exit before starting follow-up units. It is often paired with RemainAfterExit=yes to keep the service marked as "active" after completion.</li>
+<li>notify: Similar to exec, but the application must explicitly send a "READY=1" signal to systemd (via sd_notify) once it is fully initialized. This is the most reliable way to handle services with long internal initialization periods.</li>
+<li>notify-reload: A more recent addition that behaves like notify but also implements a standardized protocol for reloading. It expects the service to send "RELOADING=1" when it starts a configuration reload.</li>
+<li>dbus: The service is considered started once it acquires a specific name on the D-Bus bus. You must specify the expected name using the BusName= directive.</li>
+<li>idle: Similar to simple, but execution is delayed until all other active jobs are finished. This is primarily used to prevent service output from cluttering the boot console.</li>
+</ul>
+<hr />
+<h3 id="scaling-up">Scaling up</h3>
+<p>If you only have a handful of machines, editing the included service files and changing the name of the <code>systemctl</code> commands is the quickest way to create the service files and enable the services.</p>
+<p>If you have double or triple digits of machines, that gets old fast. You can use the Python script, <code>conf-gen_xlsx_v1.py</code> included in the repository, and a spreadsheet to generate the files and <code>systemd</code> commands automatically.</p>
+<p>It's probably easier to clone the repo to your laptop and run the scripts on it. The script will run on Mac/Linux/Windows and you can create the spreadsheet on the laptop. Or just create the spreadsheet on the laptop and copy it to the appliance.</p>
+<p>The spreadsheet name is <code>machines.xlsx</code>. The format of the spreadsheet is row 1 is a header with the following data:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>description,<span class="w"> </span>username,<span class="w"> </span>ip_address,<span class="w"> </span>port,<span class="w"> </span>name
+</span></code></pre></div>
+<p>Fill out as many rows as you need, save it in the root of the project folder.</p>
+<hr />
+<p>Here is a example:</p>
+<table>
+<thead>
+<tr>
+<th>description   -</th>
+<th>username</th>
+<th>ip_address</th>
+<th>name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Logger for ST40</td>
+<td>mhubbard</td>
+<td>192.168.0.140</td>
+<td>st40</td>
+</tr>
+<tr>
+<td>Logger for ST30</td>
+<td>mhubbard</td>
+<td>192.168.0.141</td>
+<td>st30</td>
+</tr>
+<tr>
+<td>Logger for ST30L</td>
+<td>mhubbard</td>
+<td>192.168.0.142</td>
+<td>st30l</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="create-the-service-files">Create the service files</h4>
+<p>Run the following:</p>
+<p><code>python3 conf-gen_xlsx_v1.py -f machines.xlsx -t service-template.txt</code></p>
+<p>This creates the service files and saves them as <code>&lt;name&gt;.service</code> to the root of the project. Note that you can name the spreadsheet anything you want. Just change the <code>machines.xlsx</code> to the new filename.</p>
+<hr />
+<h4 id="create-the-sudo-commands">Create the sudo commands</h4>
+<p>Run the following:
+<code>python3 conf-gen_xlsx_v1.py -f machines.xlsx -t systemd-template.txt</code></p>
+<p>The files are saved as <code>&lt;name&gt;.txt</code> in the root of the project directory. Here are the contents of st40.txt</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>sudo<span class="w"> </span>cp<span class="w"> </span>st40.service<span class="w"> </span>/etc/systemd/system/st40.service
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>daemon-reload
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>st40.service
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span>st40.service
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>st40.service
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="c1"># Create the directory for the share</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>mkdir<span class="w"> </span>/home/mhubbard/Haas/st40
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="c1"># Create the share configuration</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="o">[</span>st40<span class="o">]</span>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">    </span><span class="nv">comment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>Logger<span class="w"> </span><span class="k">for</span><span class="w"> </span>ST40
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">    </span><span class="nv">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>/home/mhubbard/Haas/st40
+</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">    </span><span class="nb">read</span><span class="w"> </span><span class="nv">only</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>no
+</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="w">    </span><span class="nv">browsable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>yes
+</span></code></pre></div>
+<p>It's much easier to peer review a spreadsheet than a bunch of files! If the spreadsheet is accurate, you will instantly get the service files and the commands to install them.</p>
+<h4 id="bash-aliases">bash aliases</h4>
+<p>During debugging you will find yourself typing the <code>systemctl</code> commands a lot. I recommend creating some bash aliases to cut down on the typing. Open the bashrc file on the Pi using <code>nano ~/.bashrc</code> or <code>gnome-text-editor ~/.bashrc</code>. If you are using zsh as your shell, the commands will be <code>nano ~/.zshrc</code> or <code>gnome-text-editor ~/.zshrc</code></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Notice the period in front of the bashrc filename. In Linux/Unix the period at the front of a filename means it is a hidden file. To see hidden files use <code>ls -la</code> which means show all files.</p>
+</div>
+<p>Paste the following in at the bottom of the file:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nb">alias</span><span class="w"> </span><span class="nv">gte</span><span class="o">=</span><span class="s1">&#39;gnome-text-editor</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="s1">alias dmr=&#39;</span>sudo<span class="w"> </span>systemctl<span class="w"> </span>daemon-reload<span class="s1">&#39;</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="s1">alias stop=&#39;</span><span class="o">(){</span>sudo<span class="w"> </span>systemctl<span class="w"> </span>stop<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span>.service<span class="o">}</span><span class="s1">&#39;</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="s1">alias start=&#39;</span><span class="o">(){</span>sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span>.service<span class="o">}</span><span class="s1">&#39;</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="s1">alias status=&#39;</span><span class="o">(){</span>sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span>.service<span class="o">}</span><span class="s1">&#39;</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="s1">alias servfile=&#39;</span><span class="o">(){</span>sudo<span class="w"> </span>nano<span class="w"> </span>/etc/systemd/system.<span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span>.service<span class="o">}</span><span class="err">&#39;</span>
+</span></code></pre></div>
+<p>Save the file with <code>ctrl+s</code>, close it with <code>ctrl+x</code> Update bash by typing <code>exec bash</code> and pressing enter.</p>
+<hr />
+<h4 id="what-does-the-1-do">What does the $1 do</h4>
+<p>The <code>$1</code> is a placeholder, it gets replaced with the first text on the command line after the alias name. For example <code>stop st40</code> will become <code>sudo systemctl stop st40.service</code>.</p>
+<hr />
+<h4 id="use-the-aliases">Use the aliases</h4>
+<p>Now you can type the following:</p>
+<ul>
+<li><code>gte st30l.service</code> instead of <code>gnome-text-editor st30l.service</code></li>
+<li><code>stop st40</code> to stop the st40.service</li>
+<li><code>start st40</code> to start the st40.service</li>
+<li><code>status st40</code> to show the status of the st40.service</li>
+<li><code>dmr</code> to reload the daemons</li>
+</ul>
+<hr />
+<h3 id="install-dependencies">Install Dependencies</h3>
+<p>The script requires some dependencies. Use the following to install them:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pandas
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>jinja2
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>openpyxl
+</span></code></pre></div>
+<hr />
+<h2 id="use-samba-server-for-windows-integration">Use Samba Server for Windows integration</h2>
+<hr />
+<p><img alt="screenshot" src="img/Tux-DC.resized.jpeg" /></p>
+<hr />
+<p><strong>What is a Samba Server?</strong></p>
+<p>A <a href="https://www.samba.org/">Samba server</a> is an open-source software suite that enables seamless file and printer sharing between Linux/Unix systems and Windows systems. It implements the Server Message Block (SMB) and Common Internet File System (CIFS) protocols, which are standard for Windows-based file sharing. Samba also supports integration with Active Directory (AD) environments, making it a versatile tool for mixed-OS networks.</p>
+<ul>
+<li>Active Directory Integration: It can act as an Active Directory Domain Controller or a member server, supporting protocols like LDAP and Kerberos.</li>
+</ul>
+<p>For my project I chose not to use Active Directory integration because 99% of MSPs will freak out if you say you need a Linux server connected to Active Directory. We are only dealing with one account for the machines, and a handful of accounts for the CNC Programmers, and Operations personnel that will use spreadsheets created by the scripts, so we will create local accounts on the Raspberry Pi 5. If you want use  Active Directory integration there are plenty of blogs/YouTube Videos available.</p>
+<h3 id="install-samba-server">Install Samba Server</h3>
+<p>We will need the table we created earlier for reference. The concept is to create a share on the <code>Haas</code> directory for the scripts to use and a directory/share for each Haas machine tool. This share will be used for the CNC programmer to drop programs into and the machine operator to load from.</p>
+<p>The final structure will look like this:</p>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-9-1">1</a></span>
+<span class="normal"><a href="#__codelineno-9-2">2</a></span>
+<span class="normal"><a href="#__codelineno-9-3">3</a></span>
+<span class="normal"><a href="#__codelineno-9-4">4</a></span>
+<span class="normal"><a href="#__codelineno-9-5">5</a></span>
+<span class="normal"><a href="#__codelineno-9-6">6</a></span>
+<span class="normal"><a href="#__codelineno-9-7">7</a></span>
+<span class="normal"><a href="#__codelineno-9-8">8</a></span>
+<span class="normal"><a href="#__codelineno-9-9">9</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="hll">├──<span class="w"> </span>Haas
+</span></span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2"></a>│<span class="w">   </span>├──<span class="w"> </span>Haas_Data_collect
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3"></a>│<span class="w">   </span>│<span class="w">   </span>├──<span class="w"> </span>cnc_logs
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="p">|</span><span class="w">   </span>├──<span class="w"> </span>minimill
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5"></a>│<span class="w">   </span>├──<span class="w"> </span>st30
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6"></a>│<span class="w">   </span>├──<span class="w"> </span>st30l
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7"></a>│<span class="w">   </span>├──<span class="w"> </span>st40
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8"></a>│<span class="w">   </span>├──<span class="w"> </span>vf2ss
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9"></a>│<span class="w">   </span>└──<span class="w"> </span>vf5ss
+</span></code></pre></div></td></tr></table></div>
+<p>Open a terminal on the Raspberry Pi 5 and enter</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="hll">sudo<span class="w"> </span>apt<span class="w"> </span>update<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>samba
+</span></span></code></pre></div>
+<p>This will install the Samba Server packages. The <code>-y</code> means "Don't prompt for yes". If you want to be in control during the installation don't include the <code>-y</code>.</p>
+<p>Configure the Samba Server to start on boot and start the Samba Server</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>smbd
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span>smbd
+</span></code></pre></div>
+<p>If you want to restart the Samba Server use the following:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="hll">sudo<span class="w"> </span>systemctl<span class="w"> </span>restart<span class="w"> </span>smbd
+</span></span></code></pre></div>
+<h4 id="verify-the-installation">Verify the installation</h4>
+<p>Run the following to verify the Samba Server installation and location:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="hll">whereis<span class="w"> </span>samba
+</span></span></code></pre></div>
+<div class="language-bash highlight"><span class="filename">Command Output</span><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>samba:<span class="w"> </span>/usr/sbin/samba<span class="w"> </span>/usr/lib/x86_64-linux-gnu/samba<span class="w"> </span>/etc/samba<span class="w"> </span>/usr/libexec/samba<span class="w"> </span>/usr/share/samba<span class="w"> </span>/usr/share/man/man8/samba.8.gz<span class="w"> </span>/usr/share/man/man7/samba.7.gz
+</span></code></pre></div>
+<p>Now run this to view the Samba Server version:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="hll">samba<span class="w"> </span>--version
+</span></span></code></pre></div>
+<div class="language-bash highlight"><span class="filename">Command Output</span><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>Version<span class="w"> </span><span class="m">4</span>.19.5-Ubuntu
+</span></code></pre></div>
+<p>As you can see, on January 4th, 2025 the current version is 4.19.5.</p>
+<p>Run the following to see the smb.conf file and service status</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>testparm<span class="w"> </span>-s
+</span></code></pre></div>
+<div class="language-bash highlight"><span class="filename">Command Output</span><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>Load<span class="w"> </span>smb<span class="w"> </span>config<span class="w"> </span>files<span class="w"> </span>from<span class="w"> </span>/etc/samba/smb.conf
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>Loaded<span class="w"> </span>services<span class="w"> </span>file<span class="w"> </span>OK.
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>Weak<span class="w"> </span>crypto<span class="w"> </span>is<span class="w"> </span>allowed<span class="w"> </span>by<span class="w"> </span>GnuTLS<span class="w"> </span><span class="o">(</span>e.g.<span class="w"> </span>NTLM<span class="w"> </span>as<span class="w"> </span>a<span class="w"> </span>compatibility<span class="w"> </span>fallback<span class="o">)</span>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>Server<span class="w"> </span>role:<span class="w"> </span>ROLE_STANDALONE
+</span></code></pre></div>
+<p>This is just the top of the file. The entire smb.conf file will be displayed</p>
+<p>Run the following to display the Samba Server service status:</p>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-19-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1"></a><span class="hll">sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>smbd
+</span></span></code></pre></div></td></tr></table></div>
+<div class="language-bash highlight"><span class="filename">Command Output</span><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>●<span class="w"> </span>smbd.service<span class="w"> </span>-<span class="w"> </span>Samba<span class="w"> </span>SMB<span class="w"> </span>Daemon
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">     </span>Loaded:<span class="w"> </span>loaded<span class="w"> </span><span class="o">(</span>/usr/lib/systemd/system/smbd.service<span class="p">;</span><span class="w"> </span>enabled<span class="p">;</span><span class="w"> </span>preset:<span class="w"> </span>enabled<span class="o">)</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">     </span>Active:<span class="w"> </span>active<span class="w"> </span><span class="o">(</span>running<span class="o">)</span><span class="w"> </span>since<span class="w"> </span>Fri<span class="w"> </span><span class="m">2025</span>-12-26<span class="w"> </span><span class="m">21</span>:59:34<span class="w"> </span>PST<span class="p">;</span><span class="w"> </span><span class="m">1</span><span class="w"> </span>week<span class="w"> </span><span class="m">1</span><span class="w"> </span>day<span class="w"> </span>ago
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="w">       </span>Docs:<span class="w"> </span>man:smbd<span class="o">(</span><span class="m">8</span><span class="o">)</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="w">             </span>man:samba<span class="o">(</span><span class="m">7</span><span class="o">)</span>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="w">             </span>man:smb.conf<span class="o">(</span><span class="m">5</span><span class="o">)</span>
+</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="w">   </span>Main<span class="w"> </span>PID:<span class="w"> </span><span class="m">10736</span><span class="w"> </span><span class="o">(</span>smbd<span class="o">)</span>
+</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="w">     </span>Status:<span class="w"> </span><span class="s2">&quot;smbd: ready to serve connections...&quot;</span>
+</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a><span class="w">      </span>Tasks:<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="o">(</span>limit:<span class="w"> </span><span class="m">4601</span><span class="o">)</span>
+</span><span id="__span-20-10"><a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a><span class="w">     </span>Memory:<span class="w"> </span><span class="m">24</span>.9M<span class="w"> </span><span class="o">(</span>peak:<span class="w"> </span><span class="m">48</span>.2M<span class="w"> </span>swap:<span class="w"> </span><span class="m">1</span>.4M<span class="w"> </span>swap<span class="w"> </span>peak:<span class="w"> </span><span class="m">1</span>.4M<span class="o">)</span>
+</span><span id="__span-20-11"><a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a><span class="w">        </span>CPU:<span class="w"> </span><span class="m">23</span>.914s
+</span><span id="__span-20-12"><a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a><span class="w">     </span>CGroup:<span class="w"> </span>/system.slice/smbd.service
+</span><span id="__span-20-13"><a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a><span class="w">             </span>├─10736<span class="w"> </span>/usr/sbin/smbd<span class="w"> </span>--foreground<span class="w"> </span>--no-process-group
+</span><span id="__span-20-14"><a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a><span class="w">             </span>├─10739<span class="w"> </span><span class="s2">&quot;smbd: notifyd&quot;</span><span class="w"> </span>.
+</span><span id="__span-20-15"><a id="__codelineno-20-15" name="__codelineno-20-15" href="#__codelineno-20-15"></a><span class="w">             </span>├─10740<span class="w"> </span><span class="s2">&quot;smbd: cleanupd &quot;</span>
+</span><span id="__span-20-16"><a id="__codelineno-20-16" name="__codelineno-20-16" href="#__codelineno-20-16"></a><span class="w">             </span>└─75813<span class="w"> </span><span class="s2">&quot;smbd: client [192.168.10.143]&quot;</span>
+</span><span id="__span-20-17"><a id="__codelineno-20-17" name="__codelineno-20-17" href="#__codelineno-20-17"></a>
+</span><span id="__span-20-18"><a id="__codelineno-20-18" name="__codelineno-20-18" href="#__codelineno-20-18"></a>Dec<span class="w"> </span><span class="m">27</span><span class="w"> </span><span class="m">19</span>:07:06<span class="w"> </span>ubuntu-server<span class="w"> </span>smbd<span class="o">[</span><span class="m">20940</span><span class="o">]</span>:<span class="w"> </span>pam_unix<span class="o">(</span>samba:session<span class="o">)</span>:<span class="w"> </span>session<span class="w"> </span>opened<span class="w"> </span><span class="k">for</span><span class="w"> </span>user<span class="w"> </span>mhubbard<span class="o">(</span><span class="nv">uid</span><span class="o">=</span><span class="m">1000</span><span class="o">)</span><span class="w"> </span>by<span class="w"> </span><span class="o">(</span><span class="nv">uid</span><span class="o">=</span><span class="m">0</span><span class="o">)</span>
+</span></code></pre></div>
+<hr />
+<h3 id="create-the-shares">Create the shares</h3>
+<p>First we need to create the directories. We can refer to our table for the names:</p>
+<hr />
+<table>
+<thead>
+<tr>
+<th>Machine</th>
+<th>Port#</th>
+<th style="text-align: center;">IP Address</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ST40</td>
+<td>5052</td>
+<td style="text-align: center;">192.168.10.141</td>
+</tr>
+<tr>
+<td>VF2SS</td>
+<td>5053</td>
+<td style="text-align: center;">192.168.10.142</td>
+</tr>
+<tr>
+<td>VF5SS</td>
+<td>5054</td>
+<td style="text-align: center;">192.168.10.143</td>
+</tr>
+<tr>
+<td>MINIMILL</td>
+<td>5055</td>
+<td style="text-align: center;">192.168.10.143</td>
+</tr>
+<tr>
+<td>ST30</td>
+<td>5056</td>
+<td style="text-align: center;">192.168.10.144</td>
+</tr>
+<tr>
+<td>ST30L</td>
+<td>5057</td>
+<td style="text-align: center;">192.168.10.145</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p>If you are only doing a handful of machines use:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>mkdir<span class="w"> </span>/home/mhubbard/Haas/ST40
+</span></code></pre></div>
+<p>And repeat for each machine. If you used the Python script under <a href="./#scaling-up">Scaling up</a> with the <code>systemd-template.txt</code> it creates the 'mkdir' command along with the aliases.</p>
+<p><strong>Open the <code>smb.conf</code> file</strong></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>sudo<span class="w"> </span>nano<span class="w"> </span>/etc/samba/smb.conf
+</span></code></pre></div>
+<p>Go to the bottom of the file and paste this code in:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="c1"># Share for Haas CNC Programs</span>
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="o">[</span>Haas<span class="o">]</span>
+</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="w">    </span><span class="nv">comment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>Haas
+</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="w">    </span><span class="nv">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>/home/mhubbard/Haas
+</span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a><span class="w">    </span><span class="nb">read</span><span class="w"> </span><span class="nv">only</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>no
+</span><span id="__span-23-7"><a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a><span class="w">    </span><span class="nv">browsable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>yes
+</span></code></pre></div>
+<p>This is the root directory. All other shares with be appended to the end of <code>/home/mhubbard/Haas</code>. For example:</p>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-24-1">1</a></span>
+<span class="normal"><a href="#__codelineno-24-2">2</a></span>
+<span class="normal"><a href="#__codelineno-24-3">3</a></span>
+<span class="normal"><a href="#__codelineno-24-4">4</a></span>
+<span class="normal"><a href="#__codelineno-24-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1"></a><span class="hll"><span class="o">[</span>ST40<span class="o">]</span>
+</span></span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2"></a><span class="w">    </span><span class="nv">comment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>st40
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3"></a><span class="w">    </span><span class="nv">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>/home/mhubbard/Haas/st40
+</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4"></a><span class="w">    </span><span class="nb">read</span><span class="w"> </span><span class="nv">only</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>no
+</span><span id="__span-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5"></a><span class="w">    </span><span class="nv">browsable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>yes
+</span></code></pre></div></td></tr></table></div>
+<p>If you used the Python script with the <code>systemd-template.txt</code>, it creates all of the smb.conf share commands. Open each file and copy the code after <code>Create the share configuration</code>.</p>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-25-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-25-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-25-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-25-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-25-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-25-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-25-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-25-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-25-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-25-10">10</a></span>
+<span class="normal"><a href="#__codelineno-25-11">11</a></span>
+<span class="normal"><a href="#__codelineno-25-12">12</a></span>
+<span class="normal"><a href="#__codelineno-25-13">13</a></span>
+<span class="normal"><a href="#__codelineno-25-14">14</a></span>
+<span class="normal"><a href="#__codelineno-25-15">15</a></span>
+<span class="normal"><a href="#__codelineno-25-16">16</a></span>
+<span class="normal"><a href="#__codelineno-25-17">17</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1"></a>sudo<span class="w"> </span>cp<span class="w"> </span>st1.service<span class="w"> </span>/etc/systemd/system/st1.service
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>daemon-reload
+</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>st1.service
+</span><span id="__span-25-4"><a id="__codelineno-25-4" name="__codelineno-25-4"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span>st1.service
+</span><span id="__span-25-5"><a id="__codelineno-25-5" name="__codelineno-25-5"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>st1.service
+</span><span id="__span-25-6"><a id="__codelineno-25-6" name="__codelineno-25-6"></a>
+</span><span id="__span-25-7"><a id="__codelineno-25-7" name="__codelineno-25-7"></a><span class="c1"># Create the directory for the share</span>
+</span><span id="__span-25-8"><a id="__codelineno-25-8" name="__codelineno-25-8"></a>
+</span><span id="__span-25-9"><a id="__codelineno-25-9" name="__codelineno-25-9"></a>mkdir<span class="w"> </span>/home/mhubbard/Haas/st1
+</span><span id="__span-25-10"><a id="__codelineno-25-10" name="__codelineno-25-10"></a>
+</span><span id="__span-25-11"><a id="__codelineno-25-11" name="__codelineno-25-11"></a>Create<span class="w"> </span>the<span class="w"> </span>share<span class="w"> </span>configuration
+</span><span id="__span-25-12"><a id="__codelineno-25-12" name="__codelineno-25-12"></a>
+</span><span id="__span-25-13"><a id="__codelineno-25-13" name="__codelineno-25-13"></a><span class="hll"><span class="o">[</span>st1<span class="o">]</span>
+</span></span><span id="__span-25-14"><a id="__codelineno-25-14" name="__codelineno-25-14"></a><span class="hll"><span class="w">    </span><span class="nv">comment</span><span class="w"> </span><span class="o">=</span>
+</span></span><span id="__span-25-15"><a id="__codelineno-25-15" name="__codelineno-25-15"></a><span class="hll"><span class="w">    </span><span class="nv">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>/home/mhubbard/Haas/st1
+</span></span><span id="__span-25-16"><a id="__codelineno-25-16" name="__codelineno-25-16"></a><span class="hll"><span class="w">    </span><span class="nb">read</span><span class="w"> </span><span class="nv">only</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>no
+</span></span><span id="__span-25-17"><a id="__codelineno-25-17" name="__codelineno-25-17"></a><span class="hll"><span class="w">    </span><span class="nv">browsable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>yes
+</span></span></code></pre></div></td></tr></table></div>
+<p>After you add all the share configurations, save <code>/etc/samba/smb.conf</code> and exit nano.</p>
+<p>Based on the <a href="./#create-the-shares">table</a> above this is what the share section will look like:</p>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-26-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-26-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-26-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-26-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-26-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-26-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-26-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-26-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-26-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-26-10">10</a></span>
+<span class="normal"><a href="#__codelineno-26-11">11</a></span>
+<span class="normal"><a href="#__codelineno-26-12">12</a></span>
+<span class="normal"><a href="#__codelineno-26-13">13</a></span>
+<span class="normal"><a href="#__codelineno-26-14">14</a></span>
+<span class="normal"><a href="#__codelineno-26-15">15</a></span>
+<span class="normal"><a href="#__codelineno-26-16">16</a></span>
+<span class="normal"><a href="#__codelineno-26-17">17</a></span>
+<span class="normal"><a href="#__codelineno-26-18">18</a></span>
+<span class="normal"><a href="#__codelineno-26-19">19</a></span>
+<span class="normal"><a href="#__codelineno-26-20">20</a></span>
+<span class="normal"><a href="#__codelineno-26-21">21</a></span>
+<span class="normal"><a href="#__codelineno-26-22">22</a></span>
+<span class="normal"><a href="#__codelineno-26-23">23</a></span>
+<span class="normal"><a href="#__codelineno-26-24">24</a></span>
+<span class="normal"><a href="#__codelineno-26-25">25</a></span>
+<span class="normal"><a href="#__codelineno-26-26">26</a></span>
+<span class="normal"><a href="#__codelineno-26-27">27</a></span>
+<span class="normal"><a href="#__codelineno-26-28">28</a></span>
+<span class="normal"><a href="#__codelineno-26-29">29</a></span>
+<span class="normal"><a href="#__codelineno-26-30">30</a></span>
+<span class="normal"><a href="#__codelineno-26-31">31</a></span>
+<span class="normal"><a href="#__codelineno-26-32">32</a></span>
+<span class="normal"><a href="#__codelineno-26-33">33</a></span>
+<span class="normal"><a href="#__codelineno-26-34">34</a></span>
+<span class="normal"><a href="#__codelineno-26-35">35</a></span>
+<span class="normal"><a href="#__codelineno-26-36">36</a></span>
+<span class="normal"><a href="#__codelineno-26-37">37</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1"></a><span class="c1"># Share for Haas CNC Programs</span>
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2"></a>
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3"></a><span class="o">[</span>Haas<span class="o">]</span>
+</span><span id="__span-26-4"><a id="__codelineno-26-4" name="__codelineno-26-4"></a><span class="w">    </span><span class="nv">comment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>Haas
+</span><span id="__span-26-5"><a id="__codelineno-26-5" name="__codelineno-26-5"></a><span class="w">    </span><span class="nv">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>/home/mhubbard/Haas
+</span><span id="__span-26-6"><a id="__codelineno-26-6" name="__codelineno-26-6"></a><span class="w">    </span><span class="nb">read</span><span class="w"> </span><span class="nv">only</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>no
+</span><span id="__span-26-7"><a id="__codelineno-26-7" name="__codelineno-26-7"></a><span class="w">    </span><span class="nv">browsable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>yes
+</span><span id="__span-26-8"><a id="__codelineno-26-8" name="__codelineno-26-8"></a><span class="o">[</span>ST40<span class="o">]</span>
+</span><span id="__span-26-9"><a id="__codelineno-26-9" name="__codelineno-26-9"></a><span class="w">    </span><span class="nv">comment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>ST40
+</span><span id="__span-26-10"><a id="__codelineno-26-10" name="__codelineno-26-10"></a><span class="w">    </span><span class="nv">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>/home/mhubbard/Haas/st40
+</span><span id="__span-26-11"><a id="__codelineno-26-11" name="__codelineno-26-11"></a><span class="w">    </span><span class="nb">read</span><span class="w"> </span><span class="nv">only</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>no
+</span><span id="__span-26-12"><a id="__codelineno-26-12" name="__codelineno-26-12"></a><span class="w">    </span><span class="nv">browsable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>yes
+</span><span id="__span-26-13"><a id="__codelineno-26-13" name="__codelineno-26-13"></a><span class="o">[</span>minimill<span class="o">]</span>
+</span><span id="__span-26-14"><a id="__codelineno-26-14" name="__codelineno-26-14"></a><span class="w">    </span><span class="nv">comment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>minimill
+</span><span id="__span-26-15"><a id="__codelineno-26-15" name="__codelineno-26-15"></a><span class="w">    </span><span class="nv">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>/home/mhubbard/Haas/minimill
+</span><span id="__span-26-16"><a id="__codelineno-26-16" name="__codelineno-26-16"></a><span class="w">    </span><span class="nb">read</span><span class="w"> </span><span class="nv">only</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>no
+</span><span id="__span-26-17"><a id="__codelineno-26-17" name="__codelineno-26-17"></a><span class="w">    </span><span class="nv">browsable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>yes
+</span><span id="__span-26-18"><a id="__codelineno-26-18" name="__codelineno-26-18"></a><span class="o">[</span>VF2SS<span class="o">]</span>
+</span><span id="__span-26-19"><a id="__codelineno-26-19" name="__codelineno-26-19"></a><span class="w">    </span><span class="nv">comment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>vf2ss
+</span><span id="__span-26-20"><a id="__codelineno-26-20" name="__codelineno-26-20"></a><span class="w">    </span><span class="nv">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>/home/mhubbard/Haas/vf2ss
+</span><span id="__span-26-21"><a id="__codelineno-26-21" name="__codelineno-26-21"></a><span class="w">    </span><span class="nb">read</span><span class="w"> </span><span class="nv">only</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>no
+</span><span id="__span-26-22"><a id="__codelineno-26-22" name="__codelineno-26-22"></a><span class="w">    </span><span class="nv">browsable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>yes
+</span><span id="__span-26-23"><a id="__codelineno-26-23" name="__codelineno-26-23"></a><span class="o">[</span>VF5SS<span class="o">]</span>
+</span><span id="__span-26-24"><a id="__codelineno-26-24" name="__codelineno-26-24"></a><span class="w">    </span><span class="nv">comment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>vf5ss
+</span><span id="__span-26-25"><a id="__codelineno-26-25" name="__codelineno-26-25"></a><span class="w">    </span><span class="nv">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>/home/mhubbard/Haas/vf5ss
+</span><span id="__span-26-26"><a id="__codelineno-26-26" name="__codelineno-26-26"></a><span class="w">    </span><span class="nb">read</span><span class="w"> </span><span class="nv">only</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>no
+</span><span id="__span-26-27"><a id="__codelineno-26-27" name="__codelineno-26-27"></a><span class="w">    </span><span class="nv">browsable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>yes
+</span><span id="__span-26-28"><a id="__codelineno-26-28" name="__codelineno-26-28"></a><span class="o">[</span>ST30<span class="o">]</span>
+</span><span id="__span-26-29"><a id="__codelineno-26-29" name="__codelineno-26-29"></a><span class="w">    </span><span class="nv">comment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>st30
+</span><span id="__span-26-30"><a id="__codelineno-26-30" name="__codelineno-26-30"></a><span class="w">    </span><span class="nv">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>/home/mhubbard/Haas/st30
+</span><span id="__span-26-31"><a id="__codelineno-26-31" name="__codelineno-26-31"></a><span class="w">    </span><span class="nb">read</span><span class="w"> </span><span class="nv">only</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>no
+</span><span id="__span-26-32"><a id="__codelineno-26-32" name="__codelineno-26-32"></a><span class="w">    </span><span class="nv">browsable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>yes
+</span><span id="__span-26-33"><a id="__codelineno-26-33" name="__codelineno-26-33"></a><span class="o">[</span>ST30L<span class="o">]</span>
+</span><span id="__span-26-34"><a id="__codelineno-26-34" name="__codelineno-26-34"></a><span class="w">    </span><span class="nv">comment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>st30l
+</span><span id="__span-26-35"><a id="__codelineno-26-35" name="__codelineno-26-35"></a><span class="w">    </span><span class="nv">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>/home/mhubbard/Haas/st30l
+</span><span id="__span-26-36"><a id="__codelineno-26-36" name="__codelineno-26-36"></a><span class="w">    </span><span class="nb">read</span><span class="w"> </span><span class="nv">only</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>no
+</span><span id="__span-26-37"><a id="__codelineno-26-37" name="__codelineno-26-37"></a><span class="w">    </span><span class="nv">browsable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>yes
+</span></code></pre></div></td></tr></table></div>
+<hr />
+<h3 id="restart-the-samba-server">Restart the Samba Server</h3>
+<p>This command restarts the samba service. You will need to run it any time you modify the <code>/etc/samba/smb.conf</code> file.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>restart<span class="w"> </span>smbd
+</span></code></pre></div>
+<p>There is no output from this command.</p>
+<hr />
+<h4 id="local-group-management">Local Group Management</h4>
+<p>Linux uses groups to manage permissions for users. For this project, all users will be in the same group. That isn't a security best practice since a disgruntled employee could delete everything. If you have compliance requirements or other concerns, just repeat this process to create multiple groups. For example, create a user and group for each machine. Then add the user to the machine's share and use it as the username when setting up the account on the machine.</p>
+<p>Does this seem like a lot of extra work? Yes, but I actually had a disgruntled employee delete the configuration for the DNC system for a neighboring cell one time. Of course, he was a night shift employee, and did it at midnight on Friday. I got called on Saturday morning and had to drive an hour to the plant and restore it. So it depends on your valuation of the risk in your shop.</p>
+<hr />
+<h3 id="create-the-haasgroup-group">Create the HaasGroup group</h3>
+<p><div class="language-bash highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>sudo<span class="w"> </span>groupadd<span class="w"> </span>HaasGroup
+</span></code></pre></div>
+There is no output from this command.</p>
+<h3 id="set-permissions-on-the-folders">Set permissions on the folders</h3>
+<p>You need to be in the root of your home director to review the current permissions. Use the following to verify that you are in the correct location:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="nb">cd</span><span class="w"> </span>~
+</span><span id="__span-29-2"><a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="nb">pwd</span>
+</span><span id="__span-29-3"><a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>ls<span class="w"> </span>-l
+</span></code></pre></div>
+<div class="language-bash highlight"><span class="filename">Command Output</span><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>/home/mhubbard
+</span><span id="__span-30-2"><a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>drw-rw-r--<span class="w"> </span><span class="m">9</span><span class="w"> </span>mhubbard<span class="w"> </span>mhubbard<span class="w">  </span><span class="m">4096</span><span class="w"> </span>Jan<span class="w">  </span><span class="m">4</span><span class="w"> </span><span class="m">20</span>:26<span class="w"> </span>Haas_Data_collect
+</span></code></pre></div>
+<p>We can see the <code>Haas_Data_collect</code> folder, so we are in the correct location. Note that the <code>Haas_Data_collect</code> directory has <code>mhubbard mhubbard</code> listed. We need to change that to <code>mhubbard HaasGroup</code></p>
+<p>Now run:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="c1"># Allow traversal into /home/mhubbard (needed to reach Haas subdirectory)</span>
+</span><span id="__span-31-2"><a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a><span class="hll">sudo<span class="w"> </span>chmod<span class="w"> </span><span class="m">774</span><span class="w"> </span>/home/mhubbard
+</span></span><span id="__span-31-3"><a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a>
+</span><span id="__span-31-4"><a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a><span class="c1"># Set ownership for everything under Haas</span>
+</span><span id="__span-31-5"><a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a><span class="hll">sudo<span class="w"> </span>chown<span class="w"> </span>-R<span class="w"> </span>mhubbard:HaasGroup<span class="w"> </span>/home/mhubbard/Haas
+</span></span><span id="__span-31-6"><a id="__codelineno-31-6" name="__codelineno-31-6" href="#__codelineno-31-6"></a>
+</span><span id="__span-31-7"><a id="__codelineno-31-7" name="__codelineno-31-7" href="#__codelineno-31-7"></a><span class="c1"># View the changes</span>
+</span><span id="__span-31-8"><a id="__codelineno-31-8" name="__codelineno-31-8" href="#__codelineno-31-8"></a><span class="hll">ls<span class="w"> </span>-l
+</span></span></code></pre></div>
+<div class="language-bash highlight"><span class="filename">Command Output</span><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>drwxrwxr-x<span class="w"> </span><span class="m">9</span><span class="w"> </span>mhubbard<span class="w"> </span>HaasGroup<span class="w">  </span><span class="m">4096</span><span class="w"> </span>Jan<span class="w">  </span><span class="m">4</span><span class="w"> </span><span class="m">20</span>:26<span class="w"> </span>Haas_Data_collect
+</span></code></pre></div>
+<p>Note the <code>Haas_Data_collect</code> directory had changed from <code>mhubbard mhubbard</code> to <code>mhubbard HaasGroup</code>. That means mhubbard is the owner and HaasGroup is the group that will be applied.</p>
+<h3 id="set-the-file-permissions">Set the file permissions</h3>
+<p>Run the following:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="c1"># Set permissions: directories get execute, files don&#39;t</span>
+</span><span id="__span-33-2"><a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a>sudo<span class="w"> </span>find<span class="w"> </span>/home/mhubbard/Haas<span class="w"> </span>-type<span class="w"> </span>d<span class="w"> </span>-exec<span class="w"> </span>chmod<span class="w"> </span><span class="m">775</span><span class="w"> </span><span class="o">{}</span><span class="w"> </span>+
+</span><span id="__span-33-3"><a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a>sudo<span class="w"> </span>find<span class="w"> </span>/home/mhubbard/Haas<span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span>-exec<span class="w"> </span>chmod<span class="w"> </span><span class="m">664</span><span class="w"> </span><span class="o">{}</span><span class="w"> </span>+
+</span><span id="__span-33-4"><a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a>chmod<span class="w"> </span>+x<span class="w"> </span>/home/<span class="nv">$USER</span>/Haas/Haas_Data_collect/lshare.sh
+</span><span id="__span-33-5"><a id="__codelineno-33-5" name="__codelineno-33-5" href="#__codelineno-33-5"></a>chmod<span class="w"> </span>+x<span class="w"> </span>/home/<span class="nv">$USER</span>/Haas/Haas_Data_collect/smb_verify.sh
+</span><span id="__span-33-6"><a id="__codelineno-33-6" name="__codelineno-33-6" href="#__codelineno-33-6"></a>chmod<span class="w"> </span>+x<span class="w"> </span>/home/<span class="nv">$USER</span>/Haas/Haas_Data_collect/setup_user.sh
+</span></code></pre></div>
+<p>There is no output from this command. Run a directory listing to see the results:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="nb">cd</span><span class="w"> </span>~
+</span><span id="__span-34-2"><a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a>ls<span class="w"> </span>-l
+</span></code></pre></div>
+<div class="language-bash highlight"><span class="filename">Command Output</span><pre><span></span><code><span id="__span-35-1"><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>ls<span class="w"> </span>-l
+</span><span id="__span-35-2"><a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a>total<span class="w"> </span><span class="m">52</span>
+</span><span id="__span-35-3"><a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a>drwxrwxr--<span class="w"> </span><span class="m">6</span><span class="w"> </span>mhubbard<span class="w"> </span>HaasGroup<span class="w"> </span><span class="m">4096</span><span class="w"> </span>Jan<span class="w">  </span><span class="m">5</span><span class="w"> </span><span class="m">12</span>:05<span class="w"> </span>Haas_Data_collect
+</span><span id="__span-35-4"><a id="__codelineno-35-4" name="__codelineno-35-4" href="#__codelineno-35-4"></a>drwxrwxr--<span class="w"> </span><span class="m">2</span><span class="w"> </span>mhubbard<span class="w"> </span>HaasGroup<span class="w"> </span><span class="m">4096</span><span class="w"> </span>Dec<span class="w"> </span><span class="m">25</span><span class="w"> </span><span class="m">22</span>:43<span class="w"> </span>minimill
+</span><span id="__span-35-5"><a id="__codelineno-35-5" name="__codelineno-35-5" href="#__codelineno-35-5"></a>drwxrwxr--<span class="w"> </span><span class="m">2</span><span class="w"> </span>mhubbard<span class="w"> </span>HaasGroup<span class="w"> </span><span class="m">4096</span><span class="w"> </span>Dec<span class="w"> </span><span class="m">26</span><span class="w"> </span><span class="m">21</span>:37<span class="w"> </span>st30
+</span><span id="__span-35-6"><a id="__codelineno-35-6" name="__codelineno-35-6" href="#__codelineno-35-6"></a>drwxrwxr--<span class="w"> </span><span class="m">2</span><span class="w"> </span>mhubbard<span class="w"> </span>HaasGroup<span class="w"> </span><span class="m">4096</span><span class="w"> </span>Dec<span class="w"> </span><span class="m">26</span><span class="w"> </span><span class="m">21</span>:37<span class="w"> </span>st30l
+</span><span id="__span-35-7"><a id="__codelineno-35-7" name="__codelineno-35-7" href="#__codelineno-35-7"></a>drwxrwxr--<span class="w"> </span><span class="m">2</span><span class="w"> </span>mhubbard<span class="w"> </span>HaasGroup<span class="w"> </span><span class="m">4096</span><span class="w"> </span>Jan<span class="w">  </span><span class="m">4</span><span class="w"> </span><span class="m">15</span>:18<span class="w"> </span>st40
+</span><span id="__span-35-8"><a id="__codelineno-35-8" name="__codelineno-35-8" href="#__codelineno-35-8"></a>drwxrwxr--<span class="w"> </span><span class="m">2</span><span class="w"> </span>mhubbard<span class="w"> </span>HaasGroup<span class="w"> </span><span class="m">4096</span><span class="w"> </span>Dec<span class="w"> </span><span class="m">26</span><span class="w"> </span><span class="m">21</span>:37<span class="w"> </span>vf2ss
+</span><span id="__span-35-9"><a id="__codelineno-35-9" name="__codelineno-35-9" href="#__codelineno-35-9"></a>drwxrwxr--<span class="w"> </span><span class="m">2</span><span class="w"> </span>mhubbard<span class="w"> </span>HaasGroup<span class="w"> </span><span class="m">4096</span><span class="w"> </span>Dec<span class="w"> </span><span class="m">26</span><span class="w"> </span><span class="m">21</span>:37<span class="w"> </span>vf5ss
+</span></code></pre></div>
+<p>Now the account <code>mhubbard</code> and the group <code>HaasGroup</code> have <code>rwx</code> (read/write/execute) to directories. The <code>other</code> group has <code>r--</code> (read only). Files will have rw-, read/write.</p>
+<p>The three bash scripts:</p>
+<ul>
+<li>lshare.sh</li>
+<li>setup_users.sh</li>
+<li>smb_verify.sh</li>
+</ul>
+<p>Have eXecute so that you can run them.</p>
+<hr />
+<h3 id="create-the-users">Create the users</h3>
+<p>You will need to build a list of users that will need to access the shares. In this example I have:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-36-1"><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>|     Username    | Role and Responsibility                                                                                     |
+</span><span id="__span-36-2"><a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a>|:---------------:|-------------------------------------------------------------------------------------------------------------|
+</span><span id="__span-36-3"><a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a>|     haassvc     | The limited permission account used on the Haas CNC control                                                 |
+</span><span id="__span-36-4"><a id="__codelineno-36-4" name="__codelineno-36-4" href="#__codelineno-36-4"></a>|     haassvc2    | An account for the customer to manage the Raspberry Pi 5                                                    |
+</span><span id="__span-36-5"><a id="__codelineno-36-5" name="__codelineno-36-5" href="#__codelineno-36-5"></a>| Michael Hubbard | The administrator for the Raspberry Pi 5                                                                    |
+</span><span id="__span-36-6"><a id="__codelineno-36-6" name="__codelineno-36-6" href="#__codelineno-36-6"></a>|  Manuel Chavez  | CNC Setup technician. Needs to review the CNC Programs from his Windows desktop and review the spreadsheets |
+</span><span id="__span-36-7"><a id="__codelineno-36-7" name="__codelineno-36-7" href="#__codelineno-36-7"></a>| Robert Goodwin  | Operations. Needs access to the `cnc_logs` directory to move files                                          |
+</span></code></pre></div>
+<hr />
+<p><strong>Run these command for each user:</strong></p>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-37-1">1</a></span>
+<span class="normal"><a href="#__codelineno-37-2">2</a></span>
+<span class="normal"><a href="#__codelineno-37-3">3</a></span>
+<span class="normal"><a href="#__codelineno-37-4">4</a></span>
+<span class="normal"><a href="#__codelineno-37-5">5</a></span>
+<span class="normal"><a href="#__codelineno-37-6">6</a></span>
+<span class="normal"><a href="#__codelineno-37-7">7</a></span>
+<span class="normal"><a href="#__codelineno-37-8">8</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-37-1"><a id="__codelineno-37-1" name="__codelineno-37-1"></a><span class="c1"># Create user without shell access</span>
+</span><span id="__span-37-2"><a id="__codelineno-37-2" name="__codelineno-37-2"></a><span class="hll">sudo<span class="w"> </span>useradd<span class="w"> </span>-M<span class="w"> </span>-s<span class="w"> </span>/usr/sbin/nologin<span class="w"> </span>haassvc
+</span></span><span id="__span-37-3"><a id="__codelineno-37-3" name="__codelineno-37-3"></a>
+</span><span id="__span-37-4"><a id="__codelineno-37-4" name="__codelineno-37-4"></a><span class="c1"># Add to Samba</span>
+</span><span id="__span-37-5"><a id="__codelineno-37-5" name="__codelineno-37-5"></a><span class="hll">sudo<span class="w"> </span>smbpasswd<span class="w"> </span>-a<span class="w"> </span>haassvc
+</span></span><span id="__span-37-6"><a id="__codelineno-37-6" name="__codelineno-37-6"></a>
+</span><span id="__span-37-7"><a id="__codelineno-37-7" name="__codelineno-37-7"></a><span class="c1"># Enable the Samba user</span>
+</span><span id="__span-37-8"><a id="__codelineno-37-8" name="__codelineno-37-8"></a><span class="hll">sudo<span class="w"> </span>smbpasswd<span class="w"> </span>-e<span class="w"> </span>haassvc
+</span></span></code></pre></div></td></tr></table></div>
+<p>The first command creates the user <code>haassvc</code>.</p>
+<ul>
+<li>The <code>-M</code> skips creating a user <code>home</code> directory..</li>
+<li>The <code>-s /usr/sbin/nologin</code> disables shell login (good for service accounts that only need SMB access)</li>
+</ul>
+<p>The second command creates the Samba Server user. You will be prompted to enter and confirm a password. Here is the output for the <code>haassvc</code> user:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-38-1"><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a><span class="hll">sudo<span class="w"> </span>smbpasswd<span class="w"> </span>-a<span class="w"> </span>haassvc
+</span></span><span id="__span-38-2"><a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a>New<span class="w"> </span>SMB<span class="w"> </span>password:
+</span><span id="__span-38-3"><a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a>Retype<span class="w"> </span>new<span class="w"> </span>SMB<span class="w"> </span>password:
+</span><span id="__span-38-4"><a id="__codelineno-38-4" name="__codelineno-38-4" href="#__codelineno-38-4"></a>Added<span class="w"> </span>user<span class="w"> </span>haassvc.
+</span></code></pre></div>
+<p>Finally, <code>sudo smbpasswd -e haassvc</code> enables the smb username.</p>
+<p><strong>Add the haassvc User account to the group:</strong></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-39-1"><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span>HaasGroup<span class="w"> </span>haassvc
+</span></code></pre></div>
+<h4 id="list-all-users-in-the-haasgroup">List all users in the HaasGroup</h4>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-40-1"><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a><span class="hll">cat<span class="w"> </span>/etc/group<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>Haas
+</span></span><span id="__span-40-2"><a id="__codelineno-40-2" name="__codelineno-40-2" href="#__codelineno-40-2"></a>HaasGroup:x:1002:haassvc,mhubbard
+</span></code></pre></div>
+<h4 id="verify-the-haassvc-user-settings">Verify the <code>haassvc</code> user settings</h4>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-41-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-41-1"><a id="__codelineno-41-1" name="__codelineno-41-1"></a><span class="hll">id<span class="w"> </span>haassvc
+</span></span></code></pre></div></td></tr></table></div>
+<p><code>uid=1001(haassvc) gid=1001(haassvc) groups=1001(haassvc),1002(HaasGroup)</code></p>
+<h3 id="create-users-the-easy-way">Create users the easy way</h3>
+<p>It's fairly simple create a user but it's a lot of individual commands which leaves room for errors. There is bash script to do the heavy lifting included in the repository. It gets installed when you clone the repository. To use it, first run the following command:</p>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-42-1">1</a></span>
+<span class="normal"><a href="#__codelineno-42-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-42-1"><a id="__codelineno-42-1" name="__codelineno-42-1"></a><span class="hll"><span class="nb">cd</span><span class="w"> </span>/home/mhubbard/Haas/Haas_Data_collect
+</span></span><span id="__span-42-2"><a id="__codelineno-42-2" name="__codelineno-42-2"></a>chmod<span class="w"> </span>+x<span class="w"> </span>setup_user.sh
+</span></code></pre></div></td></tr></table></div>
+<p>There is no output from the <code>chmod</code> commmand. Now you can create new users by running the following. Here I am creating the <code>haassvc2</code> user. Replace <code>haassvc2</code> with the username you need to create:</p>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-43-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-43-1"><a id="__codelineno-43-1" name="__codelineno-43-1"></a><span class="hll">sudo<span class="w"> </span>./setup_user.sh<span class="w"> </span>haassvc
+</span></span></code></pre></div></td></tr></table></div>
+<p><em>How the script works</em>*</p>
+<ul>
+<li>You will be asked for your password to activate <code>sudo</code>.</li>
+<li>You will be  asked for the password to use for the username.</li>
+<li>You will be  asked for the smbuser password. It MUST be the same as the Linux user!</li>
+<li>It will then create and enable the smb user, add it to the group and display the result.</li>
+</ul>
+<hr />
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-44-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-44-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-44-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-44-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-44-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-44-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-44-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-44-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-44-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-44-10">10</a></span>
+<span class="normal"><a href="#__codelineno-44-11">11</a></span>
+<span class="normal"><a href="#__codelineno-44-12">12</a></span>
+<span class="normal"><a href="#__codelineno-44-13">13</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-44-1"><a id="__codelineno-44-1" name="__codelineno-44-1"></a><span class="hll"><span class="o">[</span>sudo<span class="o">]</span><span class="w"> </span>password<span class="w"> </span><span class="k">for</span><span class="w"> </span>mhubbard:
+</span></span><span id="__span-44-2"><a id="__codelineno-44-2" name="__codelineno-44-2"></a>Attempting<span class="w"> </span>to<span class="w"> </span>create<span class="w"> </span>and<span class="w"> </span>configure<span class="w"> </span>user:<span class="w"> </span>haassvc2
+</span><span id="__span-44-3"><a id="__codelineno-44-3" name="__codelineno-44-3"></a>System<span class="w"> </span>user<span class="w"> </span>haassvc2<span class="w"> </span>created.
+</span><span id="__span-44-4"><a id="__codelineno-44-4" name="__codelineno-44-4"></a>New<span class="w"> </span>password:
+</span><span id="__span-44-5"><a id="__codelineno-44-5" name="__codelineno-44-5"></a>Retype<span class="w"> </span>new<span class="w"> </span>password:
+</span><span id="__span-44-6"><a id="__codelineno-44-6" name="__codelineno-44-6"></a>passwd:<span class="w"> </span>password<span class="w"> </span>updated<span class="w"> </span>successfully
+</span><span id="__span-44-7"><a id="__codelineno-44-7" name="__codelineno-44-7"></a>New<span class="w"> </span>SMB<span class="w"> </span>password:
+</span><span id="__span-44-8"><a id="__codelineno-44-8" name="__codelineno-44-8"></a>Retype<span class="w"> </span>new<span class="w"> </span>SMB<span class="w"> </span>password:
+</span><span id="__span-44-9"><a id="__codelineno-44-9" name="__codelineno-44-9"></a>Added<span class="w"> </span>user<span class="w"> </span>haassvc2.
+</span><span id="__span-44-10"><a id="__codelineno-44-10" name="__codelineno-44-10"></a>Enabled<span class="w"> </span>user<span class="w"> </span>haassvc2.
+</span><span id="__span-44-11"><a id="__codelineno-44-11" name="__codelineno-44-11"></a>Configuration<span class="w"> </span><span class="nb">complete</span><span class="w"> </span><span class="k">for</span><span class="w"> </span>haassvc2.
+</span><span id="__span-44-12"><a id="__codelineno-44-12" name="__codelineno-44-12"></a>Verifying<span class="w"> </span>user<span class="w"> </span>configuration:
+</span><span id="__span-44-13"><a id="__codelineno-44-13" name="__codelineno-44-13"></a><span class="nv">uid</span><span class="o">=</span><span class="m">1004</span><span class="o">(</span>haassvc2<span class="o">)</span><span class="w"> </span><span class="nv">gid</span><span class="o">=</span><span class="m">1005</span><span class="o">(</span>haassvc2<span class="o">)</span><span class="w"> </span><span class="nv">groups</span><span class="o">=</span><span class="m">1005</span><span class="o">(</span>haassvc2<span class="o">)</span>,1002<span class="o">(</span>HaasGroup<span class="o">)</span>
+</span></code></pre></div></td></tr></table></div>
+<hr />
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-45-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-45-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-45-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-45-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-45-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-45-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-45-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-45-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-45-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-45-10">10</a></span>
+<span class="normal"><a href="#__codelineno-45-11">11</a></span>
+<span class="normal"><a href="#__codelineno-45-12">12</a></span>
+<span class="normal"><a href="#__codelineno-45-13">13</a></span>
+<span class="normal"><a href="#__codelineno-45-14">14</a></span>
+<span class="normal"><a href="#__codelineno-45-15">15</a></span>
+<span class="normal"><a href="#__codelineno-45-16">16</a></span>
+<span class="normal"><a href="#__codelineno-45-17">17</a></span>
+<span class="normal"><a href="#__codelineno-45-18">18</a></span>
+<span class="normal"><a href="#__codelineno-45-19">19</a></span>
+<span class="normal"><a href="#__codelineno-45-20">20</a></span>
+<span class="normal"><a href="#__codelineno-45-21">21</a></span>
+<span class="normal"><a href="#__codelineno-45-22">22</a></span>
+<span class="normal"><a href="#__codelineno-45-23">23</a></span>
+<span class="normal"><a href="#__codelineno-45-24">24</a></span>
+<span class="normal"><a href="#__codelineno-45-25">25</a></span>
+<span class="normal"><a href="#__codelineno-45-26">26</a></span>
+<span class="normal"><a href="#__codelineno-45-27">27</a></span>
+<span class="normal"><a href="#__codelineno-45-28">28</a></span>
+<span class="normal"><a href="#__codelineno-45-29">29</a></span>
+<span class="normal"><a href="#__codelineno-45-30">30</a></span>
+<span class="normal"><a href="#__codelineno-45-31">31</a></span>
+<span class="normal"><a href="#__codelineno-45-32">32</a></span>
+<span class="normal"><a href="#__codelineno-45-33">33</a></span>
+<span class="normal"><a href="#__codelineno-45-34">34</a></span>
+<span class="normal"><a href="#__codelineno-45-35">35</a></span>
+<span class="normal"><a href="#__codelineno-45-36">36</a></span>
+<span class="normal"><a href="#__codelineno-45-37">37</a></span>
+<span class="normal"><a href="#__codelineno-45-38">38</a></span>
+<span class="normal"><a href="#__codelineno-45-39">39</a></span>
+<span class="normal"><a href="#__codelineno-45-40">40</a></span>
+<span class="normal"><a href="#__codelineno-45-41">41</a></span>
+<span class="normal"><a href="#__codelineno-45-42">42</a></span>
+<span class="normal"><a href="#__codelineno-45-43">43</a></span>
+<span class="normal"><a href="#__codelineno-45-44">44</a></span>
+<span class="normal"><a href="#__codelineno-45-45">45</a></span>
+<span class="normal"><a href="#__codelineno-45-46">46</a></span>
+<span class="normal"><a href="#__codelineno-45-47">47</a></span>
+<span class="normal"><a href="#__codelineno-45-48">48</a></span>
+<span class="normal"><a href="#__codelineno-45-49">49</a></span>
+<span class="normal"><a href="#__codelineno-45-50">50</a></span>
+<span class="normal"><a href="#__codelineno-45-51">51</a></span>
+<span class="normal"><a href="#__codelineno-45-52">52</a></span>
+<span class="normal"><a href="#__codelineno-45-53">53</a></span>
+<span class="normal"><a href="#__codelineno-45-54">54</a></span>
+<span class="normal"><a href="#__codelineno-45-55">55</a></span>
+<span class="normal"><a href="#__codelineno-45-56">56</a></span>
+<span class="normal"><a href="#__codelineno-45-57">57</a></span>
+<span class="normal"><a href="#__codelineno-45-58">58</a></span>
+<span class="normal"><a href="#__codelineno-45-59">59</a></span>
+<span class="normal"><a href="#__codelineno-45-60">60</a></span>
+<span class="normal"><a href="#__codelineno-45-61">61</a></span>
+<span class="normal"><a href="#__codelineno-45-62">62</a></span>
+<span class="normal"><a href="#__codelineno-45-63">63</a></span>
+<span class="normal"><a href="#__codelineno-45-64">64</a></span>
+<span class="normal"><a href="#__codelineno-45-65">65</a></span>
+<span class="normal"><a href="#__codelineno-45-66">66</a></span>
+<span class="normal"><a href="#__codelineno-45-67">67</a></span>
+<span class="normal"><a href="#__codelineno-45-68">68</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-45-1"><a id="__codelineno-45-1" name="__codelineno-45-1"></a><span class="hll"><span class="ch">#!/bin/bash</span>
+</span></span><span id="__span-45-2"><a id="__codelineno-45-2" name="__codelineno-45-2"></a>
+</span><span id="__span-45-3"><a id="__codelineno-45-3" name="__codelineno-45-3"></a><span class="c1"># Function to create a new system user with specific configurations (e.g., Samba, group membership)</span>
+</span><span id="__span-45-4"><a id="__codelineno-45-4" name="__codelineno-45-4"></a><span class="c1"># Usage: create_samba_user &lt;username&gt;</span>
+</span><span id="__span-45-5"><a id="__codelineno-45-5" name="__codelineno-45-5"></a>create_samba_user<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+</span><span id="__span-45-6"><a id="__codelineno-45-6" name="__codelineno-45-6"></a><span class="w">    </span><span class="c1"># Check if exactly one argument (the username) was provided</span>
+</span><span id="__span-45-7"><a id="__codelineno-45-7" name="__codelineno-45-7"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$#</span><span class="s2">&quot;</span><span class="w"> </span>-ne<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+</span><span id="__span-45-8"><a id="__codelineno-45-8" name="__codelineno-45-8"></a><span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Error: Usage requires exactly one argument: create_samba_user &lt;username&gt;&quot;</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+</span><span id="__span-45-9"><a id="__codelineno-45-9" name="__codelineno-45-9"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="m">1</span>
+</span><span id="__span-45-10"><a id="__codelineno-45-10" name="__codelineno-45-10"></a><span class="w">    </span><span class="k">fi</span>
+</span><span id="__span-45-11"><a id="__codelineno-45-11" name="__codelineno-45-11"></a>
+</span><span id="__span-45-12"><a id="__codelineno-45-12" name="__codelineno-45-12"></a><span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="nv">USERNAME</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span>
+</span><span id="__span-45-13"><a id="__codelineno-45-13" name="__codelineno-45-13"></a><span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="nv">GROUP_NAME</span><span class="o">=</span><span class="s2">&quot;HaasGroup&quot;</span>
+</span><span id="__span-45-14"><a id="__codelineno-45-14" name="__codelineno-45-14"></a>
+</span><span id="__span-45-15"><a id="__codelineno-45-15" name="__codelineno-45-15"></a><span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Attempting to create and configure user: </span><span class="nv">$USERNAME</span><span class="s2">&quot;</span>
+</span><span id="__span-45-16"><a id="__codelineno-45-16" name="__codelineno-45-16"></a>
+</span><span id="__span-45-17"><a id="__codelineno-45-17" name="__codelineno-45-17"></a><span class="w">    </span><span class="c1"># 1. Create the system user without a home directory and a nologin shell</span>
+</span><span id="__span-45-18"><a id="__codelineno-45-18" name="__codelineno-45-18"></a><span class="w">    </span><span class="c1"># Error trapping: &#39;|| { ...; return 1; }&#39; stops execution if a command fails</span>
+</span><span id="__span-45-19"><a id="__codelineno-45-19" name="__codelineno-45-19"></a><span class="w">    </span>sudo<span class="w"> </span>useradd<span class="w"> </span>-M<span class="w"> </span>-s<span class="w"> </span>/usr/sbin/nologin<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$USERNAME</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">{</span>
+</span><span id="__span-45-20"><a id="__codelineno-45-20" name="__codelineno-45-20"></a><span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Error creating system user </span><span class="nv">$USERNAME</span><span class="s2">. User may already exist or permissions issue.&quot;</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+</span><span id="__span-45-21"><a id="__codelineno-45-21" name="__codelineno-45-21"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="m">1</span>
+</span><span id="__span-45-22"><a id="__codelineno-45-22" name="__codelineno-45-22"></a><span class="w">    </span><span class="o">}</span>
+</span><span id="__span-45-23"><a id="__codelineno-45-23" name="__codelineno-45-23"></a><span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;System user </span><span class="nv">$USERNAME</span><span class="s2"> created.&quot;</span>
+</span><span id="__span-45-24"><a id="__codelineno-45-24" name="__codelineno-45-24"></a>
+</span><span id="__span-45-25"><a id="__codelineno-45-25" name="__codelineno-45-25"></a><span class="w">    </span><span class="c1"># 2. Set the system password (will prompt for a new password interactively)</span>
+</span><span id="__span-45-26"><a id="__codelineno-45-26" name="__codelineno-45-26"></a><span class="w">    </span><span class="c1"># The user running this script will be prompted by &#39;passwd&#39; to set the password.</span>
+</span><span id="__span-45-27"><a id="__codelineno-45-27" name="__codelineno-45-27"></a><span class="w">    </span>sudo<span class="w"> </span>passwd<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$USERNAME</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">{</span>
+</span><span id="__span-45-28"><a id="__codelineno-45-28" name="__codelineno-45-28"></a><span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Error setting system password for </span><span class="nv">$USERNAME</span><span class="s2">.&quot;</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+</span><span id="__span-45-29"><a id="__codelineno-45-29" name="__codelineno-45-29"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="m">1</span>
+</span><span id="__span-45-30"><a id="__codelineno-45-30" name="__codelineno-45-30"></a><span class="w">    </span><span class="o">}</span>
+</span><span id="__span-45-31"><a id="__codelineno-45-31" name="__codelineno-45-31"></a>
+</span><span id="__span-45-32"><a id="__codelineno-45-32" name="__codelineno-45-32"></a><span class="w">    </span><span class="c1"># 3. Add user to Samba database and set the Samba password</span>
+</span><span id="__span-45-33"><a id="__codelineno-45-33" name="__codelineno-45-33"></a><span class="w">    </span><span class="c1"># The user running this script will be prompted by &#39;smbpasswd&#39; to set the Samba password.</span>
+</span><span id="__span-45-34"><a id="__codelineno-45-34" name="__codelineno-45-34"></a><span class="w">    </span>sudo<span class="w"> </span>smbpasswd<span class="w"> </span>-a<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$USERNAME</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">{</span>
+</span><span id="__span-45-35"><a id="__codelineno-45-35" name="__codelineno-45-35"></a><span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Error adding user to Samba database </span><span class="nv">$USERNAME</span><span class="s2">.&quot;</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+</span><span id="__span-45-36"><a id="__codelineno-45-36" name="__codelineno-45-36"></a><span class="w">        </span><span class="c1"># Clean up the system user if Samba setup fails</span>
+</span><span id="__span-45-37"><a id="__codelineno-45-37" name="__codelineno-45-37"></a><span class="w">        </span>sudo<span class="w"> </span>userdel<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$USERNAME</span><span class="s2">&quot;</span>
+</span><span id="__span-45-38"><a id="__codelineno-45-38" name="__codelineno-45-38"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="m">1</span>
+</span><span id="__span-45-39"><a id="__codelineno-45-39" name="__codelineno-45-39"></a><span class="w">    </span><span class="o">}</span>
+</span><span id="__span-45-40"><a id="__codelineno-45-40" name="__codelineno-45-40"></a>
+</span><span id="__span-45-41"><a id="__codelineno-45-41" name="__codelineno-45-41"></a><span class="w">    </span><span class="c1"># 4. Enable the Samba account</span>
+</span><span id="__span-45-42"><a id="__codelineno-45-42" name="__codelineno-45-42"></a><span class="w">    </span>sudo<span class="w"> </span>smbpasswd<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$USERNAME</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">{</span>
+</span><span id="__span-45-43"><a id="__codelineno-45-43" name="__codelineno-45-43"></a><span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Error enabling Samba account for </span><span class="nv">$USERNAME</span><span class="s2">.&quot;</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+</span><span id="__span-45-44"><a id="__codelineno-45-44" name="__codelineno-45-44"></a><span class="w">        </span>sudo<span class="w"> </span>userdel<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$USERNAME</span><span class="s2">&quot;</span>
+</span><span id="__span-45-45"><a id="__codelineno-45-45" name="__codelineno-45-45"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="m">1</span>
+</span><span id="__span-45-46"><a id="__codelineno-45-46" name="__codelineno-45-46"></a><span class="w">    </span><span class="o">}</span>
+</span><span id="__span-45-47"><a id="__codelineno-45-47" name="__codelineno-45-47"></a>
+</span><span id="__span-45-48"><a id="__codelineno-45-48" name="__codelineno-45-48"></a><span class="w">    </span><span class="c1"># 5. Add the user to the specified group (e.g., HaasGroup)</span>
+</span><span id="__span-45-49"><a id="__codelineno-45-49" name="__codelineno-45-49"></a><span class="w">    </span><span class="c1"># Note: Ensure &#39;HaasGroup&#39; exists on your system beforehand.</span>
+</span><span id="__span-45-50"><a id="__codelineno-45-50" name="__codelineno-45-50"></a><span class="w">    </span>sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$GROUP_NAME</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$USERNAME</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">{</span>
+</span><span id="__span-45-51"><a id="__codelineno-45-51" name="__codelineno-45-51"></a><span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Warning: Failed to add </span><span class="nv">$USERNAME</span><span class="s2"> to the group </span><span class="nv">$GROUP_NAME</span><span class="s2">. Proceeding anyway.&quot;</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+</span><span id="__span-45-52"><a id="__codelineno-45-52" name="__codelineno-45-52"></a><span class="w">    </span><span class="o">}</span>
+</span><span id="__span-45-53"><a id="__codelineno-45-53" name="__codelineno-45-53"></a>
+</span><span id="__span-45-54"><a id="__codelineno-45-54" name="__codelineno-45-54"></a><span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Configuration complete for </span><span class="nv">$USERNAME</span><span class="s2">.&quot;</span>
+</span><span id="__span-45-55"><a id="__codelineno-45-55" name="__codelineno-45-55"></a>
+</span><span id="__span-45-56"><a id="__codelineno-45-56" name="__codelineno-45-56"></a><span class="w">    </span><span class="c1"># 6. Display the final user ID/group information for verification</span>
+</span><span id="__span-45-57"><a id="__codelineno-45-57" name="__codelineno-45-57"></a><span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Verifying user configuration:&quot;</span>
+</span><span id="__span-45-58"><a id="__codelineno-45-58" name="__codelineno-45-58"></a><span class="w">    </span>id<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$USERNAME</span><span class="s2">&quot;</span>
+</span><span id="__span-45-59"><a id="__codelineno-45-59" name="__codelineno-45-59"></a><span class="o">}</span>
+</span><span id="__span-45-60"><a id="__codelineno-45-60" name="__codelineno-45-60"></a>
+</span><span id="__span-45-61"><a id="__codelineno-45-61" name="__codelineno-45-61"></a>create_samba_user<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span>
+</span><span id="__span-45-62"><a id="__codelineno-45-62" name="__codelineno-45-62"></a>
+</span><span id="__span-45-63"><a id="__codelineno-45-63" name="__codelineno-45-63"></a><span class="c1"># --- Example Usage ---</span>
+</span><span id="__span-45-64"><a id="__codelineno-45-64" name="__codelineno-45-64"></a><span class="c1"># To run this function, save the script (e.g., as setup_user.sh),</span>
+</span><span id="__span-45-65"><a id="__codelineno-45-65" name="__codelineno-45-65"></a><span class="c1"># make it executable (chmod +x setup_user.sh), and run it.</span>
+</span><span id="__span-45-66"><a id="__codelineno-45-66" name="__codelineno-45-66"></a>
+</span><span id="__span-45-67"><a id="__codelineno-45-67" name="__codelineno-45-67"></a><span class="c1"># Example 1: Create user &#39;jdoe&#39;</span>
+</span><span id="__span-45-68"><a id="__codelineno-45-68" name="__codelineno-45-68"></a><span class="c1"># create_samba_user jdoe</span>
+</span></code></pre></div></td></tr></table></div>
+<hr />
+<h3 id="verify-the-samba-server">Verify the Samba Server</h3>
+<p>testparm -s
+smbclient -L //192.168.10.223 -U mhubbard</p>
+<p>Here is a function that you can add to your ~/.zshrc file to display the paths to each share. use the following to open your ~./bashrc (or ~/.zshrc) file:</p>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-46-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-46-1"><a id="__codelineno-46-1" name="__codelineno-46-1"></a><span class="hll">nano<span class="w"> </span>~/.bashrc
+</span></span></code></pre></div></td></tr></table></div>
+<p>Then paste this at the bottom of the file, save and exit.</p>
+<hr />
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-47-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-47-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-47-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-47-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-47-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-47-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-47-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-47-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-47-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-47-10">10</a></span>
+<span class="normal"><a href="#__codelineno-47-11">11</a></span>
+<span class="normal"><a href="#__codelineno-47-12">12</a></span>
+<span class="normal"><a href="#__codelineno-47-13">13</a></span>
+<span class="normal"><a href="#__codelineno-47-14">14</a></span>
+<span class="normal"><a href="#__codelineno-47-15">15</a></span>
+<span class="normal"><a href="#__codelineno-47-16">16</a></span>
+<span class="normal"><a href="#__codelineno-47-17">17</a></span>
+<span class="normal"><a href="#__codelineno-47-18">18</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-47-1"><a id="__codelineno-47-1" name="__codelineno-47-1"></a><span class="hll">smb-shares<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+</span></span><span id="__span-47-2"><a id="__codelineno-47-2" name="__codelineno-47-2"></a><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="nv">IFS</span><span class="o">=</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>-r<span class="w"> </span>line<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-47-3"><a id="__codelineno-47-3" name="__codelineno-47-3"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$line</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="se">\[</span>*<span class="se">\]</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+</span><span id="__span-47-4"><a id="__codelineno-47-4" name="__codelineno-47-4"></a><span class="w">            </span><span class="c1"># Extract share name without brackets</span>
+</span><span id="__span-47-5"><a id="__codelineno-47-5" name="__codelineno-47-5"></a><span class="w">            </span><span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">line</span><span class="p">#</span><span class="se">\[</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-47-6"><a id="__codelineno-47-6" name="__codelineno-47-6"></a><span class="w">            </span><span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">name</span><span class="p">%</span><span class="se">\]</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-47-7"><a id="__codelineno-47-7" name="__codelineno-47-7"></a><span class="w">        </span><span class="k">fi</span>
+</span><span id="__span-47-8"><a id="__codelineno-47-8" name="__codelineno-47-8"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$line</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span>*path<span class="se">\ </span><span class="o">=</span>*<span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+</span><span id="__span-47-9"><a id="__codelineno-47-9" name="__codelineno-47-9"></a><span class="w">            </span><span class="c1"># Skip global, printers, and print$ shares</span>
+</span><span id="__span-47-10"><a id="__codelineno-47-10" name="__codelineno-47-10"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$name</span><span class="s2">&quot;</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span><span class="s2">&quot;global&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$name</span><span class="s2">&quot;</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span><span class="s2">&quot;printers&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$name</span><span class="s2">&quot;</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span><span class="s2">&quot;print</span>$<span class="s2">&quot;</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+</span><span id="__span-47-11"><a id="__codelineno-47-11" name="__codelineno-47-11"></a><span class="w">                </span><span class="c1"># Extract path after &quot;path = &quot;</span>
+</span><span id="__span-47-12"><a id="__codelineno-47-12" name="__codelineno-47-12"></a><span class="w">                </span><span class="nv">sharepath</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">line</span><span class="p">#*path = </span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-47-13"><a id="__codelineno-47-13" name="__codelineno-47-13"></a><span class="w">                </span><span class="c1"># Print formatted output</span>
+</span><span id="__span-47-14"><a id="__codelineno-47-14" name="__codelineno-47-14"></a><span class="w">                </span><span class="nb">printf</span><span class="w"> </span><span class="s2">&quot;%-12s %s\n&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$name</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$sharepath</span><span class="s2">&quot;</span>
+</span><span id="__span-47-15"><a id="__codelineno-47-15" name="__codelineno-47-15"></a><span class="w">            </span><span class="k">fi</span>
+</span><span id="__span-47-16"><a id="__codelineno-47-16" name="__codelineno-47-16"></a><span class="w">        </span><span class="k">fi</span>
+</span><span id="__span-47-17"><a id="__codelineno-47-17" name="__codelineno-47-17"></a><span class="w">    </span><span class="k">done</span><span class="w"> </span>&lt;<span class="w"> </span>/etc/samba/smb.conf
+</span><span id="__span-47-18"><a id="__codelineno-47-18" name="__codelineno-47-18"></a><span class="o">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p>If you don't want to add the function to your .bashrc file you can use the <code>lshares.sh</code> file that is included with the repository. You have to make it executable using:</p>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-48-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-48-1"><a id="__codelineno-48-1" name="__codelineno-48-1"></a><span class="hll">chmod<span class="w"> </span>+x<span class="w"> </span>lshare.sh
+</span></span></code></pre></div></td></tr></table></div>
+<p>Then run the script from the <code>/home/mhubbard/Haas/Haas_Data_collect</code> direcory using:</p>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-49-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-49-1"><a id="__codelineno-49-1" name="__codelineno-49-1"></a><span class="hll">./lshare.sh
+</span></span></code></pre></div></td></tr></table></div>
+<hr />
+<p>Here is the output of the function:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-50-1"><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a>smb-shares
+</span><span id="__span-50-2"><a id="__codelineno-50-2" name="__codelineno-50-2" href="#__codelineno-50-2"></a>Haas<span class="w">         </span>/home/mhubbard/Haas
+</span><span id="__span-50-3"><a id="__codelineno-50-3" name="__codelineno-50-3" href="#__codelineno-50-3"></a>ST40<span class="w">         </span>/home/mhubbard/Haas/st40
+</span><span id="__span-50-4"><a id="__codelineno-50-4" name="__codelineno-50-4" href="#__codelineno-50-4"></a>minimill<span class="w">     </span>/home/mhubbard/Haas/minimill
+</span><span id="__span-50-5"><a id="__codelineno-50-5" name="__codelineno-50-5" href="#__codelineno-50-5"></a>VF2SS<span class="w">        </span>/home/mhubbard/Haas/vf2ss
+</span><span id="__span-50-6"><a id="__codelineno-50-6" name="__codelineno-50-6" href="#__codelineno-50-6"></a>VF5SS<span class="w">        </span>/home/mhubbard/Haas/vf5ss
+</span><span id="__span-50-7"><a id="__codelineno-50-7" name="__codelineno-50-7" href="#__codelineno-50-7"></a>ST30<span class="w">         </span>/home/mhubbard/Haas/st30
+</span><span id="__span-50-8"><a id="__codelineno-50-8" name="__codelineno-50-8" href="#__codelineno-50-8"></a>ST30L<span class="w">        </span>/home/mhubbard/Haas/st30l
+</span></code></pre></div>
+<hr />
+<h2 id="troubleshooting">Troubleshooting</h2>
+<div class="language-bash highlight"><span class="filename">Review the Jounal for user haassvc</span><pre><span></span><code><span id="__span-51-1"><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a><span class="hll">id<span class="w"> </span>haassvc
+</span></span><span id="__span-51-2"><a id="__codelineno-51-2" name="__codelineno-51-2" href="#__codelineno-51-2"></a>sudo<span class="w"> </span>journalctl<span class="w"> </span>-u<span class="w"> </span>smbd.service<span class="w"> </span>-n<span class="w"> </span><span class="m">50</span><span class="w"> </span>--no-pager
+</span></code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-52-1"><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a><span class="nv">uid</span><span class="o">=</span><span class="m">1001</span><span class="o">(</span>haassvc<span class="o">)</span><span class="w"> </span><span class="nv">gid</span><span class="o">=</span><span class="m">1001</span><span class="o">(</span>haassvc<span class="o">)</span><span class="w"> </span><span class="nv">groups</span><span class="o">=</span><span class="m">1001</span><span class="o">(</span>haassvc<span class="o">)</span>,1002<span class="o">(</span>HaasGroup<span class="o">)</span>
+</span><span id="__span-52-2"><a id="__codelineno-52-2" name="__codelineno-52-2" href="#__codelineno-52-2"></a>Jan<span class="w"> </span><span class="m">05</span><span class="w"> </span><span class="m">11</span>:05:55<span class="w"> </span>ubuntu-server<span class="w"> </span>smbd<span class="o">[</span><span class="m">96113</span><span class="o">]</span>:<span class="w"> </span>pam_unix<span class="o">(</span>samba:session<span class="o">)</span>:<span class="w"> </span>session<span class="w"> </span>opened<span class="w"> </span><span class="k">for</span><span class="w"> </span>user<span class="w"> </span>haassvc<span class="o">(</span><span class="nv">uid</span><span class="o">=</span><span class="m">1001</span><span class="o">)</span><span class="w"> </span>by<span class="w"> </span><span class="o">(</span><span class="nv">uid</span><span class="o">=</span><span class="m">0</span><span class="o">)</span>
+</span></code></pre></div>
+<h2 id="-smbclient-localhostst40-u-haassvc">- smbclient //localhost/st40 -U haassvc</h2>
+<hr />
+<h3 id="brief-introduction-to-linux-file-permissions">Brief introduction to Linux file permissions.</h3>
+<p>You don't need to learn any of this to build an appliance. I am covering it for general knowledge. If you aren't interested please skip it. Claude and ChatGPT have extensive knowledge of the Linux file permissions if you run into a problem.</p>
+<p><strong>Linux doesn't have the "Effective Permission" concept that Windows does.</strong></p>
+<p>From Gemini:
+Effective file permissions in Windows 11 combine direct assignments, inheritance from parent folders, and group memberships, allowing you to control who can read, write, or execute files/folders through the Security tab in Properties.</p>
+<p>In Linux there is only <code>owner</code>, <code>group</code>, and <code>other</code>. Each user has a user ID, <code>UID</code>, each group has a group ID, <code>GID</code>. When you run <code>ls -l</code> you will get a listing of the directories and files with the user, group and other permissions along with the owner and the group associated with each entry.</p>
+<p>For example:</p>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-53-1">1</a></span>
+<span class="normal"><a href="#__codelineno-53-2">2</a></span>
+<span class="normal"><a href="#__codelineno-53-3">3</a></span>
+<span class="normal"><a href="#__codelineno-53-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-53-1"><a id="__codelineno-53-1" name="__codelineno-53-1"></a><span class="hll">ls<span class="w"> </span>-l
+</span></span><span id="__span-53-2"><a id="__codelineno-53-2" name="__codelineno-53-2"></a>drwxrwxr-x<span class="w"> </span><span class="m">6</span><span class="w"> </span>mhubbard<span class="w"> </span>HaasGroup<span class="w"> </span><span class="m">4096</span><span class="w"> </span>Jan<span class="w">  </span><span class="m">5</span><span class="w"> </span><span class="m">12</span>:05<span class="w"> </span>Haas_Data_collect
+</span><span id="__span-53-3"><a id="__codelineno-53-3" name="__codelineno-53-3"></a>-rwxrwxr-x<span class="w"> </span><span class="m">1</span><span class="w"> </span>mhubbard<span class="w"> </span>HaasGroup<span class="w">  </span><span class="m">646</span><span class="w"> </span>Jan<span class="w">  </span><span class="m">4</span><span class="w"> </span><span class="m">20</span>:26<span class="w"> </span>lshare.sh
+</span><span id="__span-53-4"><a id="__codelineno-53-4" name="__codelineno-53-4"></a>drwxrwxr-x<span class="w"> </span><span class="m">2</span><span class="w"> </span>mhubbard<span class="w"> </span>HaasGroup<span class="w"> </span><span class="m">4096</span><span class="w"> </span>Dec<span class="w"> </span><span class="m">25</span><span class="w"> </span><span class="m">22</span>:43<span class="w"> </span>minimill
+</span></code></pre></div></td></tr></table></div>
+<p>The letters break down like this. If the line starts with a <code>d</code> that is a directory.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-54-1"><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a><span class="w"> </span>usr<span class="p">|</span>grp<span class="p">|</span>other
+</span><span id="__span-54-2"><a id="__codelineno-54-2" name="__codelineno-54-2" href="#__codelineno-54-2"></a><span class="w"> </span>rwx<span class="p">|</span>rwx<span class="p">|</span>r-x
+</span><span id="__span-54-3"><a id="__codelineno-54-3" name="__codelineno-54-3" href="#__codelineno-54-3"></a><span class="w"> </span><span class="m">421</span><span class="p">|</span><span class="m">421</span><span class="p">|</span><span class="m">421</span>
+</span></code></pre></div>
+<p>The permissions use three binary digits (1 or 0) to make up the permissions. In the example, mhubbard has <code>rwx</code> which is 7 when you convert the binary <code>111</code> to decimal. The <code>HaasGroup</code> also has <code>rwx</code>. But <code>other</code> has <code>r-x</code> (101) which is 5 in decimal.  So this file has the equivalent of 775 permissions. That's 7 for <code>user</code>, 7 for <code>group</code> and 5 for <code>other</code>.</p>
+<p>If I logged in as mhubbard, I would have read, write, eXecute permission on the directories and files. Same if I logged in as haassvc and it was a member of the HaasGroup. But anyone else would only have read and eXecute.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The eXecute permission can be confusing. If a file is a program it means the program can be execute. But if it's a directory it means you have permission to cd into the directory, or use the directory in a pathname. For example, if the <code>haassvc</code> user attempts to execute <code>cd /home/mhubbard/</code>Haas, the haassvc user needs eXecute permission on the <code>/</code> directory, the <code>home</code> directory, the <code>mhubbard</code> directory, and the <code>Haas</code> directory.</p>
+</div>
+<hr />
+<h2 id="securing-the-appliance">Securing the Appliance</h2>
+<hr />
+<p><img alt="screenshot" src="img/Tux_firewall1.resized.png" /></p>
+<hr />
+<p>The appliance is runnng on Ubuntu 24.04 which has many security features that Canonical has learned from being a very popular Internet Web server OS. Since the Raspberry Pi 5 appliance is only meant to transfer files to/from the Haas CNC control and the programmers, and connect to the Haas CNC controls using a redefined port and IP address to collect data, we can lock it down using local user accounts, file permissions, share permissions and the Uncomplicated Firewall (UFW).</p>
+<p>In addition to the Haas CNC ports we define, the Raspberry Pi 5 appliance needs to have SSH exposed to the customer user that is repsonsible for management of the appliance. Ubuntu 24.04 ships with OpenSSH 9.6 which has removed ssh-dss and made many other legacy protocols optional.You can verify the version using:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-55-1"><a id="__codelineno-55-1" name="__codelineno-55-1" href="#__codelineno-55-1"></a><span class="hll">ssh<span class="w"> </span>-V
+</span></span></code></pre></div>
+<div class="language-bash highlight"><span class="filename">Command Output</span><pre><span></span><code><span id="__span-56-1"><a id="__codelineno-56-1" name="__codelineno-56-1" href="#__codelineno-56-1"></a>OpenSSH_9.6p1<span class="w"> </span>Ubuntu-3ubuntu13.14,<span class="w"> </span>OpenSSL<span class="w"> </span><span class="m">3</span>.0.13<span class="w"> </span><span class="m">30</span><span class="w"> </span>Jan<span class="w"> </span><span class="m">2024</span>
+</span></code></pre></div></p>
+<p>title='Command Output'</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      &copy; 2025 <a href="https://github.com/rikosintie" target="_blank" rel="noopener">Michael Hubbard</a>
+
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/rikosintie" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M202.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1M496 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2m-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3m-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/rikosintie" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M459.4 151.7c.3 4.5.3 9.1.3 13.6 0 138.7-105.6 298.6-298.6 298.6-59.5 0-114.7-17.2-161.1-47.1 8.4 1 16.6 1.3 25.3 1.3 49.1 0 94.2-16.6 130.3-44.8-46.1-1-84.8-31.2-98.1-72.8 6.5 1 13 1.6 19.8 1.6 9.4 0 18.8-1.3 27.6-3.6-48.1-9.7-84.1-52-84.1-103v-1.3c14 7.8 30.2 12.7 47.4 13.3-28.3-18.8-46.8-51-46.8-87.4 0-19.5 5.2-37.4 14.3-53C87.4 130.8 165 172.4 252.1 176.9c-1.6-7.8-2.6-15.9-2.6-24C249.5 95.1 296.3 48 354.4 48c30.2 0 57.5 12.7 76.7 33.1 23.7-4.5 46.5-13.3 66.6-25.3-7.8 24.4-24.4 44.8-46.1 57.8 21.1-2.3 41.6-8.1 60.4-16.2-14.3 20.8-32.2 39.3-52.6 54.3"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://www.linkedin.com/in/mwhubbard/" target="_blank" rel="noopener" title="www.linkedin.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3M135.4 416H69V202.2h66.5V416zM102.2 96a38.5 38.5 0 1 1 0 77 38.5 38.5 0 1 1 0-77m282.1 320h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.tabs.link", "content.code.copy", "content.code.annotate", "header.autohide", "navigation.expand", "navigation.footer", "navigation.instant", "navigation.instant.progress", "navigation.path", "navigation.sections", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.share", "search.suggest", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
