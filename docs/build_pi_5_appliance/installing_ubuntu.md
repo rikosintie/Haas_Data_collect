@@ -128,8 +128,10 @@ Select `Install Ubuntu` and click `next`.
 Nano is a terminal text editor built into most Linux distributions and you will need to use it initially, so it's worth spending a couple minutes customizing it. From the terminal run:
 
 ```bash  hl_lines='1'
-nano ~/nanorc
+nano ~/.nanorc
 ```
+
+Note hte `dot` in front of the file. In Mac/Linux that means it's a hidden file. You must include the do or nano won't read it.
 
 Paste the following into the file:
 
@@ -697,7 +699,7 @@ You may want to buy two HSMs and keep one locked in a safe place.
 
 ## Use IPv6
 
-If you don't mind learning a little IPv6, you can SSH to the Pi over IPv6 even if it doesn't have an IPv4 address. This is only for the initial configuration of Ubuntu. Once you run the `haas_firewall_install.sh` script you are limited to IPv4. The reason is that the `configure_ufw_from_csv.sh` script doesn't support IPv6 for Administrators. I plan to add it in the future if there is demand for the feature.
+If you don't mind learning a little IPv6, you can SSH to the Pi over IPv6 even if it doesn't have an IPv4 address. This is only for the initial configuration of Ubuntu. Once you run the `haas_firewall_install.sh` script you are limited to IPv4. The reason is that the `configure_ufw_from_csv.sh` script doesn't support IPv6 for Administrators. As my dad used to say "Son, you ran out of talent on that one." I plan to add it in the future if there is demand for the feature.
 
 If you followed the Paulus blog, add `dhcp6: true` to the netplan yaml file
 
