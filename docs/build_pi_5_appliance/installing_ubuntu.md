@@ -289,51 +289,6 @@ ip addr show eth0
 ip route show
 ```
 
-#### YAML Validation script
-
-If you are doing a lot of changes to the yaml file you can use this script to automate the testing. It's in the root of the `Haas_Data_collect` directory:
-
-```bash linenums='1' hl_lines='1'
-cd ~/Haas_Data_collect
-./netplan-try.sh
-```
-
-If you receive an error `zsh: permission denied: ./netplan-try.sh
-` the script isn't executable. Run this to correct it:
-
-```bash hl_lines='1'
-chmod -x netplan-try.sh
-```
-
-----------------------------------------------------------------
-
-**Here are the contents of the script:**
-
-```bash
-#!/usr/bin/env bash
-#
-# Validate the configuration
-echo "Validating network configuration..."
-if sudo netplan generate; then
-    echo "Configuration is valid!"
-    echo ""
-    echo "Testing network configuration with auto-revert..."
-    echo "If the network configuration works, you'll be prompted to confirm."
-    echo "If you don't confirm within 120 seconds, it will auto-revert."
-    echo ""
-
-    # Use netplan try for safe testing with auto-revert
-    sudo netplan try
-
-    echo "Network configuration completed!"
-else
-    echo "ERROR: Invalid netplan configuration!"
-    echo "Restoring backup..."
-    sudo cp "$BACKUP_FILE" "$NETPLAN_FILE"
-    exit 1
-fi
-```
-
 ----------------------------------------------------------------
 
 ## Show the processor
@@ -494,18 +449,6 @@ This key is not known by any other names.
 Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
 Warning: Permanently added '[192.168.10.127]:3333' (ED25519) to the list of known hosts.
 
-
-                 Haas Data Collection Server
-
-╔═════════════════════════════════════════════════════════════════╗
-║                                                                 ║
-║ UNAUTHORIZED ACCESS TO THIS NETWORK DEVICE IS PROHIBITED.       ║
-║ You must have explicit permission to access or configure this   ║
-║ device.  All activities performed on this device are logged and ║
-║ violations of this policy may result in disciplinary action.    ║
-║                                                                 ║
-╚═════════════════════════════════════════════════════════════════╝
-
 haas@192.168.10.127's password:
 ```
 
@@ -601,18 +544,6 @@ ssh-copy-id -i ~/.ssh/haas.pub -p 3333 haas@192.168.10.127
 /usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/home/mhubbard/.ssh/haas.pub"
 /usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
 /usr/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
-
-
-                 Haas Data Collection Server
-
-╔═════════════════════════════════════════════════════════════════╗
-║                                                                 ║
-║ UNAUTHORIZED ACCESS TO THIS NETWORK DEVICE IS PROHIBITED.       ║
-║ You must have explicit permission to access or configure this   ║
-║ device.  All activities performed on this device are logged and ║
-║ violations of this policy may result in disciplinary action.    ║
-║                                                                 ║
-╚═════════════════════════════════════════════════════════════════╝
 
 
 haas@192.168.10.127's password:
