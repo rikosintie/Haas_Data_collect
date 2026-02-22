@@ -36,6 +36,8 @@ During the installation:
 
 The code in the rest of the setup expects the username to be haas, which creates a home directory at /home/haas, used in all the examples in the guide. When the appliance is ready for production, change the password to a long and complex password. Save it in a password manager so that you don't forget it.
 
+For ease of logging into the appliance, create ssh keys as shown here - [Use SSH Keys](../build_pi_5_appliance/installing_ubuntu.md/#use-ssh-keys).
+
 Once you have decided on a version, follow these instructions to complete the installation. The instructions are from the Wolf Paulus blog, he does a great job, and I didn't see that I could do any better!
 
 Regardless of which version you want for production, install the desktop version of Raspberry Pi OS for the first step.
@@ -73,9 +75,13 @@ Below are updated links to `wget` 24.04.3.
 Change to the home directory using `cd ~` before you run:
 
 **Server installer**
-`wget https://cdimage.ubuntu.com/releases/24.04.3/release/ubuntu-24.04.3-preinstalled-server-arm64+raspi.img.xz`.
+
+```bash hl_lines="1"
+wget https://cdimage.ubuntu.com/releases/24.04.3/release/ubuntu-24.04.3-preinstalled-server-arm64+raspi.img.xz`.
 
 **Desktop installer**
+
+```bash hl+lines="1"
 `wget https://cdimage.ubuntu.com/releases/24.04.3/release/ubuntu-24.04.3-preinstalled-desktop-arm64+raspi.img.xz`
 
 ----------------------------------------------------------------
@@ -137,7 +143,9 @@ When the Ubuntu installation is complete and you have rebooted, follow these [in
 
 ### Static IP address
 
-If you need to use a static IP address instead of DHCP, replace `/etc/netplan/91-nw-init.yaml` with this yaml file:
+Ubuntu server doesn't have a GUI to change IP addresses. You have to modify a `yaml` file in the `/etc/netplan` directory. The desktop version uses a GUI to change IP addresses configuration. CLick the "settigs" area in the top right of the screen, the gear icon, then network.
+
+On the server version to use a static IP address instead of DHCP, replace `/etc/netplan/91-nw-init.yaml` with this yaml file:
 
 ```bash linenums='1' hl_lines='1'
 network:
