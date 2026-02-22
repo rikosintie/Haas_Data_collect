@@ -5,10 +5,12 @@ echo "Validating network configuration..."
 if sudo netplan generate; then
     echo "Configuration is valid!"
     echo ""
-    echo "Testing network configuration with auto-revert..."
-    echo "If the network configuration works, you'll be prompted to confirm."
-    echo "If you don't confirm within 120 seconds, it will auto-revert."
-    echo ""
+#    echo "Testing network configuration with auto-revert..."
+#    echo ""
+#    echo "If the network configuration works, you'll be prompted to confirm."
+#    echo ""
+#    echo "If you don't confirm within 120 seconds, it will auto-revert."
+#    echo ""
 
     # Use netplan try for safe testing with auto-revert
     sudo netplan try
