@@ -116,10 +116,10 @@ This approach ensures:
 ### Security Rationale
 
 - **LogLevel VERBOSE** - adds the following information:
-  1. Which public keys a client offers during authentication
-  1. Fingerprint of each key the client tries
-  1. Why a key was rejected (e.g., not authorized, wrong type, permissions issue)
-  1. More detailed connection negotiation messages
+    1. Which public keys a client offers during authentication
+    2. Fingerprint of each key the client tries
+    3. Why a key was rejected (e.g., not authorized, wrong type, permissions issue)
+    4. More detailed connection negotiation messages
 - **PermitRootLogin no**
 Prevents direct root authentication, enforcing user accountability and privilege escalation via sudo.
 - **PasswordAuthentication yes**
