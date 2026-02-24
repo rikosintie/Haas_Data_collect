@@ -170,11 +170,12 @@ PermitEmptyPasswords no
 PermitRootLogin no
 PubkeyAuthentication yes
 X11Forwarding no
+Port 22
 EOF
 
 sudo systemctl restart ssh
 
-# Update the banner setting in sshd_config
+# Verify the banner setting in sshd_config
 if [ -f /etc/issue.net ] && grep -q "^Banner" /etc/ssh/sshd_config && sudo sshd -t; then
     echo "✅ Success: /etc/issue.net exists and SSH config is valid."
 else
@@ -185,6 +186,7 @@ else
     exit 1
 fi
 sleep 3
+
 #########################################
 # Add execute permission to scripts
 #########################################
