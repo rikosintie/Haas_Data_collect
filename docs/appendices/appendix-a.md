@@ -131,10 +131,10 @@ Disables legacy interactive authentication mechanisms not required for appliance
 - **PermitEmptyPasswords** no -
 Prevents authentication with blank credentials.
 - **X11Forwarding no** - X11 forwarding is convenient but has security implications:
-  - X11 is an old protocol with weak isolation
-  - A compromised remote host could potentially interact with your local display
-  - It increases the complexity of the SSH session
-  - Turning `X11Forwarding` off removes that entire class of risk.
+   1. X11 is an old protocol with weak isolation
+   1. A compromised remote host could potentially interact with your local display
+   1. It increases the complexity of the SSH session
+   1. Turning `X11Forwarding` off removes that entire class of risk.
 
 ----------------------------------------------------------------
 
