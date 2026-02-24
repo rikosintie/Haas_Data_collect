@@ -115,20 +115,20 @@ This approach ensures:
 
 ### Security Rationale
 
-- **LogLevel VERBOSE** - adds the following information:
-    1. Which public keys a client offers during authentication
-    2. Fingerprint of each key the client tries
-    3. Why a key was rejected (e.g., not authorized, wrong type, permissions issue)
-    4. More detailed connection negotiation messages
-- **PermitRootLogin no**
+- **LogLevel** VERBOSE - adds the following information to the event log:
+   1. Which public keys a client offers during authentication
+   1. Fingerprint of each key the client tries
+   1. Why a key was rejected (e.g., not authorized, wrong type, permissions issue)
+   1. More detailed connection negotiation messages
+- **PermitRootLogin** no -
 Prevents direct root authentication, enforcing user accountability and privilege escalation via sudo.
-- **PasswordAuthentication yes**
+- **PasswordAuthentication** yes -
 Eliminates exposure to password brute-force attempts. SSH access requires key-based authentication.
-- **PubkeyAuthentication yes**
+- **PubkeyAuthentication** yes -
 Ensures modern cryptographic authentication is enabled.
-- **ChallengeResponseAuthentication no**
+- **ChallengeResponseAuthentication** no -
 Disables legacy interactive authentication mechanisms not required for appliance operation.
-- **PermitEmptyPasswords no**
+- **PermitEmptyPasswords** no -
 Prevents authentication with blank credentials.
 - **X11Forwarding no** - X11 forwarding is convenient but has security implications:
   - X11 is an old protocol with weak isolation
