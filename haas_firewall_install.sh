@@ -261,7 +261,7 @@ fi
 # 2. Cleanup (the -f ensures this won't error if the file was never made)
 rm -f fresh-editor.deb
 echo ""
-sleep 5
+sleep 3
 echo [OK] Fresh Editor installation attempted.
 
 ########################################
@@ -283,7 +283,7 @@ fi
 echo "installing inetutils-traceroute"
 if sudo nala install inetutils-traceroute -y; then
 echo "[OK] inetutils-traceroute installed."
-sleep3
+sleep 3
 else
     echo "Failed to install inetutils-traceroute"
     exit 1
@@ -298,7 +298,7 @@ echo ""
 # VERSION=$(nmap --version | head -n1 | awk '{print $3}')
 # echo "nmap version $VERSION was successfully installed."
 # echo ""
-# sleep 5
+# sleep 3
 
 ########################################
 # Install Samba Server
@@ -477,7 +477,7 @@ else
     echo "Failed to install Cockpit"
     exit 1
 fi
-sleep 5
+sleep 3
 
 ########################################
 # INSTALL COCKPIT EXTENSION
@@ -493,7 +493,7 @@ sudo cp "$COCKPIT_SRC"/* "$COCKPIT_DST"/
 echo "[*] Restarting Cockpit..."
 sudo systemctl restart cockpit
 echo "[OK] Cockpit extension installed and Cockpit restarted."
-sleep 5
+sleep 3
 
 ########################################
 # ENSURE BACKUP DIRECTORY EXISTS
@@ -503,7 +503,7 @@ echo "[*] Ensuring backup directory exists in repo: $BACKUP_DIR"
 mkdir -p "$BACKUP_DIR"
 
 echo "[OK] Backup directory ready."
-sleep 5
+sleep 3
 
 ########################################
 # RUN INITIAL FIREWALL CONFIG VIA SYSTEMD
