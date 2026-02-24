@@ -17,7 +17,7 @@ Since the appliance has a very limited role it can be hardened against typical a
         1. TCP 22 (SSH)
         1. TCP 445 (SMB)
         1. TCP 9090 (Cockpit)
-    1. No outbound restrictions are required; the appliance only initiates connections to the Haas controls.
+    1. No outbound restrictions are required; the appliance only initiates connections to the Haas controls on user defined ports.
     1. No outbound control signals, no CNC commands, no remote execution.
 1. SSH Hardening
     1. OpenSSH 9.9p1 with modern cryptography only.
@@ -28,11 +28,12 @@ Since the appliance has a very limited role it can be hardened against typical a
     1. See [MSP/MSSP Guidance for SSH](#mspmssp-guidance-for-ssh) for even stronger ssh hardening guidance.
 
 1. Samba Hardening
-    1. Minimum of SMBv2 enforced.
-    2. Printer sharing disabled.
-    3. Shares are exposed to authorized IP addresses with only R/W permissions.
-    4. Samba users are Linux system users; no guest access.
-    5. No NetBIOS name service or legacy SMB1 traffic.
+    1. Samba Version 4.19.5-Ubuntu, SMBv1 has removed and cannot be enabled by mistake.
+    2. Minimum of SMBv2 enforced.
+    3. Printer sharing disabled.
+    4. Shares are exposed to authorized IP addresses with only R/W permissions.
+    5. Samba users are Linux system users; no guest access.
+    6. No NetBIOS name service or legacy SMB1 traffic.
 
 1. Cockpit Hardening
     1. Cockpit is only reachable from authorized IPs.
@@ -50,7 +51,7 @@ Since the appliance has a very limited role it can be hardened against typical a
         1. Ubuntu security patches
         2. Kernel updates
         3. OpenSSH/Samba/Cockpit updates
-    2. Reboots are not automatic; the appliance notifies the operator when a reboot is required.
+    2. Reboots are not automatic; the appliance notifies the operator at login when a reboot is required.
 
 1. No External Dependencies
     1. The appliance does not rely on cloud services, APIs, or external authentication.
@@ -79,7 +80,7 @@ Since the appliance has a very limited role it can be hardened against typical a
 ----------------------------------------------------------------
 
 !!! Note
-        The IPv6 capability is for future proofing. I don't believe that the Haas CNC control currently supports IPv6
+    The IPv6 capability is for future proofing. I don't believe that the Haas CNC control currently supports IPv6
 
 ----------------------------------------------------------------
 
@@ -97,7 +98,7 @@ If the environment uses SSH keys for logins, the following additional steps can 
 
 Ubuntu 24.04 supports modular SSH configuration using the Include directive in the primary sshd_config file. Drop-in files located in /etc/ssh/sshd_config.d/ are automatically loaded
 
-You can create:
+The installation script creates:
 
 `/etc/ssh/sshd_config.d/99-haas-hardening.conf`
 
@@ -114,9 +115,14 @@ This approach ensures:
 
 ### Security Rationale
 
+- **LogLevel VERBOSE** - adds the following information:
+  1. Which public keys a client offers during authentication
+  1. Fingerprint of each key the client tries
+  1. Why a key was rejected (e.g., not authorized, wrong type, permissions issue)
+  1. More detailed connection negotiation messages
 - **PermitRootLogin no**
 Prevents direct root authentication, enforcing user accountability and privilege escalation via sudo.
-- **PasswordAuthentication no**
+- **PasswordAuthentication yes**
 Eliminates exposure to password brute-force attempts. SSH access requires key-based authentication.
 - **PubkeyAuthentication yes**
 Ensures modern cryptographic authentication is enabled.
@@ -124,6 +130,19 @@ Ensures modern cryptographic authentication is enabled.
 Disables legacy interactive authentication mechanisms not required for appliance operation.
 - **PermitEmptyPasswords no**
 Prevents authentication with blank credentials.
+- **X11Forwarding no** - X11 forwarding is convenient but has security implications:
+  - X11 is an old protocol with weak isolation
+  - A compromised remote host could potentially interact with your local display
+  - It increases the complexity of the SSH session
+  - Turning `X11Forwarding` off removes that entire class of risk.
+
+----------------------------------------------------------------
+
+!!! Note
+    The loglevel verbose setting will increase the disk space used for the log. But the appliance shouldn't have users logging in very often. Here is an example message, The value of `verbose` is obvious:
+    ```bash
+    Accepted publickey for haas from 192.168.10.143 port 46604 ssh2: ED25519 SHA256:OzzMu5XQjcXeG5Rks2hV2tSZ/jFq8QoPeTJy/w9QkgI
+    ```
 
 These controls align with common MSP/MSSP baseline requirements and typical CIS Level 1 guidance.
 
@@ -131,7 +150,7 @@ These controls align with common MSP/MSSP baseline requirements and typical CIS 
 
 ### Implementation
 
-You can create the drop-in file using the following commands:
+If you decide to use only ssh keys, you can update the drop-in file using the following commands:
 
 ```bash hl_lines='1'
 sudo tee /etc/ssh/sshd_config.d/99-haas-hardening.conf > /dev/null << 'EOF'
@@ -149,7 +168,7 @@ sudo systemctl restart ssh
 ```
 
 !!! Warning
-    Make sure that you have created the SSH keys on your laptop and copied the public key to the appliance before running this code. Otherwise you will be locked out and have to use a monitor/keyboard or serial cable to recover.
+    Create the SSH keys on your laptop, copy the public key to the appliance, and verify the key works before running this code. Otherwise you will be locked out and have to use a monitor/keyboard or serial cable to recover. Run `t-ssh` and look for `Accepted publickey for haas from`.
 
 I have detailed instructions on setting up SSH for network devices that covers creating ssh keys here: [Creating SSH Keys](https://rikosintie.github.io/Ubuntu4NetworkEngineers/SSH/#creating-ssh-keys).
 
