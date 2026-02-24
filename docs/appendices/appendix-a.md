@@ -116,10 +116,10 @@ This approach ensures:
 ### Security Rationale
 
 - **LogLevel** VERBOSE - adds the following information to the event log:
-   1. Which public keys a client offers during authentication
-   1. Fingerprint of each key the client tries
-   1. Why a key was rejected (e.g., not authorized, wrong type, permissions issue)
-   1. More detailed connection negotiation messages
+    1. Which public keys a client offers during authentication
+    1. Fingerprint of each key the client tries
+    1. Why a key was rejected (e.g., not authorized, wrong type, permissions issue)
+    1. More detailed connection negotiation messages
 - **PermitRootLogin** no -
 Prevents direct root authentication, enforcing user accountability and privilege escalation via sudo.
 - **PasswordAuthentication** yes -
@@ -131,10 +131,10 @@ Disables legacy interactive authentication mechanisms not required for appliance
 - **PermitEmptyPasswords** no -
 Prevents authentication with blank credentials.
 - **X11Forwarding no** - X11 forwarding is convenient but has security implications:
-   1. X11 is an old protocol with weak isolation
-   1. A compromised remote host could potentially interact with your local display
-   1. It increases the complexity of the SSH session
-   1. Turning `X11Forwarding` off removes that entire class of risk.
+    1. X11 is an old protocol with weak isolation
+    1. A compromised remote host could potentially interact with your local display
+    1. It increases the complexity of the SSH session
+    1. Turning `X11Forwarding` off removes that entire class of risk.
 
 ----------------------------------------------------------------
 
