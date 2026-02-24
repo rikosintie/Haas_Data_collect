@@ -191,7 +191,7 @@ If you skip this step, not recommended, replace `.zshrc` with `.bashrc` where yo
 
 ### Static IP address
 
-The desktop version uses a GUI to change IP address configuration. Go to the **system menu**, which is accessible from the top-right screen corner, click the gear icon, then network. The network settings dialog is very similar to Windows 11. Here is a screenshot:
+The desktop version uses a GUI to change IP address configuration. Go to the **system menu** which is accessible from the top-right screen corner, or by prssing `windows_key+s`, click the gear icon, then network. The network settings dialog is very similar to Windows 11. Here is a screenshot:
 
 ----------------------------------------------------------------
 
