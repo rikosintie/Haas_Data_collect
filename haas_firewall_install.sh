@@ -765,7 +765,7 @@ echo ""
 
 sudo systemctl restart cockpit
 
-if [[ -f "$COCKPIT_DST" ]]; then
+if [[ -f "$COCKPIT_DST/index.html" ]]; then
 
 echo ""
 echo "###########################################################"
