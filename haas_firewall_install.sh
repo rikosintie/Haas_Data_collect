@@ -34,9 +34,17 @@ set -euo pipefail
 
 echo "[*] Starting Haas Firewall installation..."
 
-########################################
-# DETECT REPO DIRECTORY
-########################################
+# Ensure noble-updates is in sources (may be missing on Raspberry Pi Ubuntu images)
+if ! grep -q "noble-updates" /etc/apt/sources.list.d/ubuntu.sources; then
+    echo "noble-updates not found, adding to sources..."
+    sudo sed -i 's/Suites: noble$/Suites: noble noble-updates/' /etc/apt/sources.list.d/ubuntu.sources
+fi
+
+eho ""
+
+echo "#########################################"
+echo "#         DETECT REPO DIRECTORY         #"
+echo "#########################################"
 
 REPO_DIR="$(pwd)"
 REPO_NAME="$(basename "$REPO_DIR")"
@@ -47,7 +55,9 @@ if [[ "$REPO_NAME" != "Haas_Data_collect" ]]; then
 fi
 
 echo ""
-echo "[*] Repo directory detected as: $REPO_DIR"
+echo "###################################################"
+echo "     [*] Repo directory detected as: $REPO_DIR"
+echo "###################################################"
 echo ""
 sleep 3
 
@@ -55,9 +65,11 @@ BACKUP_DIR="$REPO_DIR/backups"
 COCKPIT_SRC="$REPO_DIR/cockpit"
 CSV_PATH="$REPO_DIR/users.csv"
 
-########################################
-# VERIFY REQUIRED FILES
-########################################
+echo "###################################################"
+echo "#                                                 #"
+echo "#              VERIFY REQUIRED FILES              #"
+echo "#                                                 #"
+echo "###################################################"
 
 REQUIRED_FILES=(
   "configure_ufw_from_csv.sh"
@@ -70,7 +82,12 @@ REQUIRED_FILES=(
   "issue.net"
 )
 
-echo "[*] Verifying required files in repo..."
+echo "###################################################"
+echo "#                                                 #"
+echo "#     [*] Verifying required files in repo...     #"
+echo "#                                                 #"
+echo "###################################################"
+echo ""
 
 for f in "${REQUIRED_FILES[@]}"; do
   if [[ ! -f "$REPO_DIR/$f" ]]; then
@@ -83,35 +100,54 @@ for f in "${REQUIRED_FILES[@]}"; do
 done
 
 if [[ ! -f "$CSV_PATH" ]]; then
-  echo "[ERROR] CSV file not found at: $CSV_PATH"
-  echo "        Create users.csv with header: username,ip_address,role"
-  sleep 2
+  echo "##########################################################"
+  echo "#                                                        #"
+  echo "#       [ERROR] CSV file not found at: $CSV_PATH         #"
+  echo "# Create users.csv with header: username,ip_address,role #"
+  echo "#                                                        #"
+  echo "##########################################################"
+  sleep 3
   exit 1
 fi
 
 if [[ ! -d "$COCKPIT_SRC" ]]; then
-  echo "[ERROR] Cockpit directory missing: $COCKPIT_SRC"
+  echo "###########################################################"
+  echo "#                                                         #"
+  echo "#     [ERROR] Cockpit directory missing: $COCKPIT_SRC     #"
+  echo "#                                                         #"
+  echo "###########################################################"
   exit 1
 fi
 
 for f in manifest.json index.html haas-firewall.js haas-firewall.css icon.png; do
   if [[ ! -f "$COCKPIT_SRC/$f" ]]; then
-    echo "[ERROR] Missing Cockpit file: $COCKPIT_SRC/$f"
+    echo "###########################################################"
+    echo "#                                                         #"
+    echo "#      [ERROR] Missing Cockpit file: $COCKPIT_SRC/$f      #"
+    echo "#                                                         #"
+    echo "###########################################################"
     exit 1
   fi
 done
-
-echo "#########################################"
-echo "[OK] All required repo files are present."
-echo "#########################################"
+echo ""
+echo "#################################################"
+echo "#                                               #"
+echo "#   [OK] All required repo files are present.   #"
+echo "#                                               #"
+echo "#################################################"
 sleep 2
+echo ""
 ########################################
 # WRITE CONFIG FILE
 ########################################
 
 CONFIG_FILE="/etc/haas-firewall.conf"
 
-echo "[*] Writing config file: $CONFIG_FILE"
+echo "#########################################################"
+echo "#                                                       #"
+echo "#         [*] Writing config file: $CONFIG_FILE         #"
+echo "#                                                       #"
+echo "#########################################################"
 
 sudo bash -c "cat > '$CONFIG_FILE'" <<EOF
 # Haas Firewall Appliance Configuration
@@ -139,13 +175,25 @@ EOF
 
 sudo chmod 644 "$CONFIG_FILE"
 
-echo "[OK] Config file written."
+echo ""
+echo "####################################################"
+echo "#                                                  #"
+echo "#       [OK] Firewall Config file written.         #"
+echo "#                                                  #"
+echo "####################################################"
+echo ""
 
 ########################################
 # INSTALL SCRIPTS
 ########################################
 
-echo "[*] Installing firewall scripts into /usr/local/sbin..."
+echo ""
+echo "############################################################"
+echo "#                                                          #"
+echo "# [*] Installing firewall scripts into /usr/local/sbin...  #"
+echo "#                                                          #"
+echo "############################################################"
+echo ""
 
 sudo cp "$REPO_DIR/configure_ufw_from_csv.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/validate_users_csv.sh" /usr/local/sbin/
@@ -155,7 +203,7 @@ sudo cp "$REPO_DIR/csvlens" /usr/local/sbin/
 sudo cp "$REPO_DIR/ssh_port.sh" /usr/local/sbin
 sudo cp "$REPO_DIR/issue.net" /etc/issue.net
 
-# change the prelogin banner in /etc/ssh/sshd_config to point to /etc/issue.net
+# change the pre-login banner in /etc/ssh/sshd_config to point to /etc/issue.net
 #sudo sed -i 's|^#Banner none|Banner /etc/issue.net|' /etc/ssh/sshd_config
 # Disable direct root SSH login
 #sudo sed -i 's|^[[:space:]]*#\?PermitRootLogin .*|PermitRootLogin no|' /etc/ssh/sshd_config
@@ -176,10 +224,24 @@ EOF
 sudo systemctl restart ssh
 
 # Verify the banner setting in sshd_config
-if [ -f /etc/issue.net ] && grep -q "^Banner" /etc/ssh/sshd_config && sudo sshd -t; then
-    echo "✅ Success: /etc/issue.net exists and SSH config is valid."
+# if [ -f /etc/issue.net ] && grep -q "^Banner" /etc/ssh/sshd_config && sudo sshd -t; then
+if [ -f /etc/issue.net ] && grep -q "^Banner" /etc/ssh/sshd_config.d/99-haas-hardening.conf && sudo sshd -t; then
+    echo ""
+    echo "################################################################"
+    echo "#                                                              #"
+    echo "#  ✅ Success: /etc/issue.net exists and SSH config is valid.  #"
+    echo "#                                                              #"
+    echo "################################################################"
+    echo ""
 else
-    echo "❌ Error: Missing file or invalid SSH config!"
+    echo ""
+    echo "#################################################################"
+    echo "#                                                               #"
+    echo "#         ❌ Error: Missing file or invalid SSH config!         #"
+    echo "#                                                               #"
+    echo "#################################################################"
+    echo ""
+
     [ ! -f /etc/issue.net ] && echo "   -> /etc/issue.net is missing."
     ! grep -q "^Banner" /etc/ssh/sshd_config && echo "   -> Banner line not found in config."
     ! sudo sshd -t && echo "   -> sshd syntax error detected."
@@ -197,22 +259,46 @@ sudo chmod +x /usr/local/sbin/build-nmap.sh
 sudo chmod +x /usr/local/sbin/csvlens
 
 if [[ ! -x /usr/local/sbin/configure_ufw_from_csv.sh ]]; then
-  echo "[ERROR] Failed to install configure_ufw_from_csv.sh"
+  echo ""
+  echo "#################################################################"
+  echo "#                                                               #"
+  echo "#        ⚠️ Failed to install configure_ufw_from_csv.sh         #"
+  echo "#                                                               #"
+  echo "#################################################################"
+  echo ""
   exit 1
 fi
 
 if [[ ! -x /usr/local/sbin/validate_users_csv.sh ]]; then
-  echo "[ERROR] Failed to install validate_users_csv.sh"
+
+  echo ""
+  echo "#################################################################"
+  echo "#                                                               #"
+  echo "#          ⚠️ Failed to install validate_users_csv.sh           #"
+  echo "#                                                               #"
+  echo "#################################################################"
+  echo ""
   exit 1
 fi
 sleep 3
-echo "[OK] Firewall scripts installed."
+echo ""
+echo "####################################################"
+echo "#                                                  #"
+echo "#         [OK] Firewall scripts installed.         #"
+echo "#                                                  #"
+echo "####################################################"
+echo ""
 
 ########################################
 # INSTALL SYSTEMD Firewall UNITS
 ########################################
-
-echo "[*] Installing systemd service and timer..."
+echo ""
+echo "#####################################################"
+echo "#                                                   #"
+echo "#    [*] Installing systemd service and timer...    #"
+echo "#                                                   #"
+echo "#####################################################"
+echo ""
 
 sudo cp "$REPO_DIR/haas-firewall.service" /etc/systemd/system/
 sudo cp "$REPO_DIR/haas-firewall.timer" /etc/systemd/system/
@@ -221,74 +307,155 @@ sudo systemctl daemon-reload
 
 sudo systemctl enable haas-firewall.service
 sudo systemctl enable --now haas-firewall.timer
-
-echo "[OK] Systemd service and timer installed and enabled."
+echo ""
+echo "###########################################################"
+echo "#                                                         #"
+echo "#  [OK] Systemd service and timer installed and enabled.  #"
+echo "#                                                         #"
+echo "###########################################################"
+echo ""
 sleep 3
 
 ########################################
 # Install Nala
 ########################################
-echo "Installing the Nala Package Manager"
+echo ""
+echo "####################################################"
+echo "#                                                  #"
+echo "#      Installing the Nala Package Manager...      #"
+echo "#                                                  #"
+echo "####################################################"
+echo ""
+
 if sudo apt install nala -y; then
     NALA_VERSION=_VERSION=$(nala --version)
     echo "[OK] Nala $NALA_VERSION installed."
     echo ""
     sleep 3
 else
-    echo "Failed to install Nala package manager"
-    exit 1
+    echo ""
+    echo "###########################################################"
+    echo "#                                                         #"
+    echo "#   ⚠️ Failed to install Nala package manager. Skipping   #"
+    echo "#                                                         #"
+    echo "###########################################################"
+    echo ""
+    exit 0
 fi
 sleep 3
 
 ########################################
 # Install Fresh Editor
 ########################################
-echo "Installing Fresh Editor..."
+echo ""
+echo "#################################################"
+echo "#                                               #"
+echo "#      Installing Fresh CLI Text Editor...      #"
+echo "#                                               #"
+echo "#################################################"
+echo ""
 
 # 1. Attempt to get the download URL and install in one safe block
 if ARCH_URL=$(curl -s https://api.github.com/repos/sinelaw/fresh/releases/latest | grep "browser_download_url.*_$(dpkg --print-architecture)\.deb" | cut -d '"' -f 4) && [ -n "$ARCH_URL" ]; then
 
     if curl -sL "$ARCH_URL" -o fresh-editor.deb && sudo dpkg -i fresh-editor.deb; then
-        echo "✅ Fresh Editor installed successfully."
+        echo ""
+        echo "###########################################################"
+        echo "#                                                         #"
+        echo "#         ✅ Fresh Editor installed successfully.         #"
+        echo "#                                                         #"
+        echo "###########################################################"
+        echo ""
     else
-        echo "⚠️ Failed to install Fresh Editor .deb package. Continuing script..."
+        echo ""
+        echo "##########################################################################"
+        echo "#                                                                        #"
+        echo "#  ⚠️ Failed to install Fresh Editor .deb package. Continuing script...  #"
+        echo "#                                                                        #"
+        echo "##########################################################################"
+        echo ""
+        exit 0
     fi
 
 else
-    echo "⚠️ Could not find a Fresh Editor release for $(dpkg --print-architecture). Skipping..."
+    echo ""
+    echo "###############################################################################################"
+    echo "#                                                                                             #"
+    echo "#  ⚠️ Could not find a Fresh Editor release for $(dpkg --print-architecture). Skipping...     #"
+    echo "#                                                                                             #"
+    echo "###############################################################################################"
+    echo ""
+    exit 0
 fi
 
 # 2. Cleanup (the -f ensures this won't error if the file was never made)
 rm -f fresh-editor.deb
 echo ""
 sleep 3
-echo [OK] Fresh Editor installation attempted.
+# echo [OK] Fresh Editor installation attempted.
 
 ########################################
 # Install micro text editor
 ########################################
-echo "Installing the micro cli text editor"
+echo ""
+echo "#################################################"
+echo "#                                               #"
+echo "#     Installing the Micro cli text editor      #"
+echo "#                                               #"
+echo "#################################################"
+echo ""
+
 if sudo apt install micro -y; then
     MICRO_VERSION=$(micro --version)
-    echo "[OK] micro text editor $MICRO_VERSION installed."
+    echo ""
+    echo "##########################################################"
+    echo "#                                                        #"
+    echo "#      ✅ micro text editor $MICRO_VERSION installed     #"
+    echo "#                                                        #"
+    echo "##########################################################"
+    echo ""
+
     echo ""
 else
-    echo "Failed to install micro cli text editor"
-    exit 1
+    echo ""
+    echo "####################################################################"
+    echo "#                                                                  #"
+    echo "# ⚠️ Failed to install micro cli text editor. Continuing Script... #"
+    echo "#                                                                  #"
+    echo "####################################################################"
+    echo ""
+    exit 0
 fi
 
 ########################################
 # Install inetutils-traceroute
 ########################################
-echo "installing inetutils-traceroute"
+echo ""
+echo "#################################################"
+echo "#                                               #"
+echo "#        Installing inetutils-traceroute        #"
+echo "#                                               #"
+echo "#################################################"
+echo ""
 if sudo nala install inetutils-traceroute -y; then
-echo "[OK] inetutils-traceroute installed."
+    echo ""
+    echo "#################################################"
+    echo "#                                               #"
+    echo "#       ✅ inetutils-traceroute installed       #"
+    echo "#                                               #"
+    echo "#################################################"
+    echo ""
 sleep 3
 else
-    echo "Failed to install inetutils-traceroute"
-    exit 1
+    echo ""
+    echo "#######################################################"
+    echo "#                                                     #"
+    echo "#  ⚠️ Failed to install inetutils. Continuing script  #"
+    echo "#                                                     #"
+    echo "#######################################################"
+    echo ""
+    exit 0
 fi
-echo ""
 
 ########################################
 # Install nmap
@@ -303,21 +470,47 @@ echo ""
 ########################################
 # Install Samba Server
 ########################################
-
+echo ""
+echo "#################################################"
+echo "#                                               #"
+echo "#            Installing Samba Server            #"
+echo "#                                               #"
+echo "#################################################"
+echo ""
 # Update package lists
 sudo apt update
 
 # Install Samba
 if sudo apt install samba -y; then
-    echo "Samba installed successfully"
+    echo ""
+    echo "#######################################################"
+    echo "#                                                     #"
+    echo "#        ✅ Samba Server installed successfully       #"
+    echo "#                                                     #"
+    echo "#######################################################"
+    echo ""
 
     # Enable and start Samba services
     sudo systemctl enable --now smbd
 
     # Create the HaasGroup
+    echo ""
+    echo "#######################################################"
+    echo "#                                                     #"
+    echo "#             Creating the Linux HaasGroup            #"
+    echo "#                                                     #"
+    echo "#######################################################"
+    echo ""
     sudo groupadd HaasGroup 2>/dev/null || echo "HaasGroup already exists"
 
     # Create the haas user and add to HaasGroup
+    echo ""
+    echo "#######################################################"
+    echo "#                                                     #"
+    echo "#  Creating the Linux haas user and adding HaasGroup  #"
+    echo "#                                                     #"
+    echo "#######################################################"
+    echo ""
     sudo useradd -m -G HaasGroup haas 2>/dev/null || echo "User haas already exists"
 
     # Read users from initial_users.csv and create them
@@ -333,8 +526,12 @@ if sudo apt install samba -y; then
             password=$(echo "$password" | xargs)
 
             if [ -n "$username" ] && [ -n "$password" ]; then
-                echo "Creating user: $username"
-
+                echo ""
+                echo "#######################################"
+                echo "                                      #"
+                echo "#      Creating user: $username       #"
+                echo "                                      #"
+                echo ""
                 # Create system user and add to HaasGroup. -M don't create home directory.
                 # -s /usr/sbin/nologin" No login shell, user is just for Samaba access.
                 sudo useradd -M -G HaasGroup -s /usr/sbin/nologin "$username" 2>/dev/null || echo "User $username already exists"
@@ -344,20 +541,34 @@ if sudo apt install samba -y; then
 
                 # Set Samba password non-interactively
                 echo -e "$password\n$password" | sudo smbpasswd -a "$username" -s
-
-                echo "User $username created with Samba access"
+                echo ""
+                echo "##############################################"
+                echo "                                             #"
+                echo "#  User $username created with Samba access  #"
+                echo "                                             #"
+                echo ""
             fi
         done
 
         echo ""
-        echo =========================================
-        echo "All users from initial_users.csv have been processed"
-        echo "IMPORTANT: Delete $USER_FILE now for security!"
-        echo =========================================
+        echo "##########################################################"
+        echo "#                                                        #"
+        echo "#  All users from initial_users.csv have been processed  #"
+        echo "#--------------------------------------------------------#"
+        echo "#     IMPORTANT: Delete $USER_FILE now for security!     #"
+        echo "#                                                        #"
+        echo "##########################################################"
         echo ""
     else
-        echo "Warning: initial_users.csv not found at $USER_FILE"
-        echo "Skipping initial user creation"
+        echo ""
+        echo "##########################################################"
+        echo "#                                                        #"
+        echo "#   Warning: initial_users.csv not found at $USER_FILE   #"
+        echo "#--------------------------------------------------------#"
+        echo "#             Skipping initial user creation             #"
+        echo "#                                                        #"
+        echo "##########################################################"
+        echo ""
     fi
 
     # Create the share directory
@@ -431,10 +642,23 @@ EOF
 
     # Test the configuration
     if sudo testparm -s /etc/samba/smb.conf > /dev/null 2>&1; then
-        echo "Samba configuration is valid"
+        echo ""
+        echo "##########################################################"
+        echo "#                                                        #"
+        echo "#            Samba configuration is valid                #"
+        echo "#                                                        #"
+        echo "##########################################################"
+        echo ""
     else
-        echo "Warning: Samba configuration may have issues"
-        echo "Running testparm for details:"
+        echo ""
+        echo "##########################################################"
+        echo "#                                                        #"
+        echo "#      Warning: Samba configuration may have issues      #"
+        echo "#--------------------------------------------------------#"
+        echo "#             Running testparm for details:              #"
+        echo "#                                                        #"
+        echo "##########################################################"
+        echo ""
         sudo testparm -s /etc/samba/smb.conf
     fi
 
@@ -442,40 +666,79 @@ EOF
     sudo systemctl restart smbd
 
     echo ""
-    echo =========================================
-    echo "Samba configured with security hardening:"
+    echo "###############################################"
+    echo "#                                             #"
+    echo "#  Samba configured with security hardening:  #"
+    echo "#---------------------------------------------#"
     echo "  - SMBv2/SMBv3 only, no SMBv1"
+    echo "#---------------------------------------------#"
     echo "  - NetBIOS disabled"
+    echo "#---------------------------------------------#"
     echo "  - Printing disabled"
-    echo =========================================
+    echo "#                                             #"
+    echo "###############################################"
     echo ""
-    echo "Samba share 'Haas' configured successfully"
+
     IP_ADDR=$(hostname -I | awk '{print $1}')
+    echo "########################################################"
+    echo "#                                                      #"
+    echo "#      Samba share 'Haas' configured successfully      #"
     printf "Share available at: \\\\%s\\Haas\n" "$IP_ADDR"
+    echo "#                                                      #"
+    echo "########################################################"
+    echo ""
+
 else
-    echo "Failed to install Samba"
+    echo ""
+    echo "##########################################################"
+    echo "#                                                        #"
+    echo "#           ⚠️ Failed to install Samba Server            #"
+    echo "#                                                        #"
+    echo "##########################################################"
+    echo ""
     exit 1
 fi
 echo ""
 sleep 5
 
-########################################
-# Install Redhat Cockpit for management
-########################################
-
+echo ""
+echo "##############################################"
+echo "#---------------   --------------------------#"
+echo "#  Installing Redhat Cockpit for management  #"
+echo "#------------------   -----------------------#"
+echo "##############################################"
+echo ""
 # Update package lists
-sudo apt update
+sudo nala upgrade -y
 
 # Install Cockpit from backports
-if sudo apt install -t noble-backports cockpit -y; then
-    echo "Cockpit installed successfully"
+if sudo nala install -t cockpit cockpit-pcp -y; then
 
     # Enable and start Cockpit
     sudo systemctl enable --now cockpit.socket
+    sudo systemctl enable --now cockpit.socket
+    sudo systemctl restart cockpit
+    echo "Cockpit installation complete. Access at https://$(hostname -I | awk '{print $1}'):9090"
     echo "Cockpit is running on https://$(hostname -I | awk '{print $1}'):9090"
+    echo ""
+    echo "#########################################################################"
+    echo "#                                                                       #"
+    echo "#                   ✅ Cockpit installed successfully                   #"
+    echo "#                                                                       #"
+    echo "#  Cockpit is running on https://$(hostname -I | awk '{print $1}'):9090 #"
+    echo "#                                                                       #"
+    echo "#########################################################################"
+    echo ""
 else
-    echo "Failed to install Cockpit"
-    exit 1
+    echo ""
+    echo "##############################################################################"
+    echo "#                                                                            #"
+    echo "#                    ⚠️ Failed to install Cockpit                            #"
+    echo "#         Review the messages on screen and troubleshoot with chatGPT        #"
+    echo "#  The script will continue, Cockpit is not needed for script functionality  #"
+    echo "#                                                                            #"
+    echo "##############################################################################"
+    echo ""
 fi
 sleep 3
 
@@ -485,23 +748,56 @@ sleep 3
 
 COCKPIT_DST="/usr/share/cockpit/haas-firewall"
 
-echo "[*] Installing Cockpit extension to $COCKPIT_DST..."
+echo ""
+echo "#####################################################"
+echo "#----------------  ------------------------        -#"
+echo "#  Installing Cockpit extension to $COCKPIT_DST...  #"
+echo "#--------------  --------------------------        -#"
+echo "#####################################################"
+echo ""
 
 sudo mkdir -p "$COCKPIT_DST"
 sudo cp "$COCKPIT_SRC"/* "$COCKPIT_DST"/
 
-echo "[*] Restarting Cockpit..."
+echo ""
+echo "#####################################################"
+echo "#----------------  ------------------------        -#"
+echo "#            [*] Restarting Cockpit...              #"
+echo "#--------------  --------------------------        -#"
+echo "#####################################################"
+echo ""
+
 sudo systemctl restart cockpit
-echo "[OK] Cockpit extension installed and Cockpit restarted."
+
+if [[ -f "$COCKPIT_DST" ]]; then
+
+echo ""
+echo "###########################################################"
+echo "#----------------  ------------------------              -#"
+echo "#  ✅ Cockpit extension installed and Cockpit restarted.  #"
+echo "#--------------  --------------------------              -#"
+echo "###########################################################"
+echo ""
+
+else
+echo ""
+echo "###########################################################"
+echo "#----------------  ------------------------              -#"
+echo "#           ⚠️ Cockpit extension not installed.           #"
+echo "#--------------  --------------------------              -#"
+echo "###########################################################"
+echo ""
+fi
 sleep 3
 
 ########################################
 # ENSURE BACKUP DIRECTORY EXISTS
 ########################################
-
+echo ""
 echo "[*] Ensuring backup directory exists in repo: $BACKUP_DIR"
 mkdir -p "$BACKUP_DIR"
 
+echo ""
 echo "[OK] Backup directory ready."
 sleep 3
 
@@ -509,13 +805,30 @@ sleep 3
 # RUN INITIAL FIREWALL CONFIG VIA SYSTEMD
 ########################################
 
-echo "[*] Running initial firewall configuration via haas-firewall.service..."
+echo ""
+echo "#############################################################################"
+echo "#----------------  ------------------------                                -#"
+echo "#  [*] Running initial firewall configuration via haas-firewall.service...  #"
+echo "#--------------  --------------------------                                -#"
+echo "#############################################################################"
+echo ""
+
 sudo systemctl start haas-firewall.service || true
 
 echo ""
-echo "=============================================="
-echo "[SUCCESS] Haas Firewall installation complete."
-echo "=============================================="
+echo "####################################################"
+echo "#                                                  #"
+echo "#  [SUCCESS] Haas Firewall installation complete.  #"
+echo "#                                                  #"
+echo "####################################################"
+echo ""
+
+echo ""
+echo "#####################################################"
+echo "#                                                   #"
+echo "#      Save the following output for reference      #"
+echo "#                                                   #"
+echo "#####################################################"
 echo ""
 echo "Repo root:     $REPO_DIR"
 echo "CSV Path:      $CSV_PATH"
@@ -527,14 +840,19 @@ echo "Systemd:       /etc/systemd/system/haas-firewall.service"
 echo "               /etc/systemd/system/haas-firewall.timer"
 echo "Cockpit UI:    /usr/share/cockpit/haas-firewall/"
 echo ""
-echo "To enable a Haas subnet later, edit:"
-echo "$CONFIG_FILE"
-echo ""
-echo "set HAAS_MACHINES_SUBNET_V4="" to your CNC machines' IPv4 subnet"
-echo "set HAAS_MACHINES_SUBNET_V6="" to your CNC machines' IPv6 subnet (if applicable)"
+echo "#####################################################################################"
+echo "#----------------  ------------------------                                        -#"
+echo "#  To enable a Haas subnet later, edit:                                             #"
+echo "# $CONFIG_FILE  "
+echo "#---------------------------------------------------------------------------        #"
+echo "#  set HAAS_MACHINES_SUBNET_V4="" to your CNC machines' IPv4 subnet                 #"
+echo "#--------------  --------------------------                                -        #"
+echo "#  set HAAS_MACHINES_SUBNET_V6="" to your CNC machines' IPv6 subnet (if applicable) #"
+echo "#--------------  --------------------------                                -        #"
+echo "#####################################################################################"
 echo ""
 echo "Check firewall status with:"
-echo "  sudo ufw status numbered"
+echo "sudo ufw status numbered"
 echo ""
 echo "Current UFW rules:"
 sudo ufw status numbered
