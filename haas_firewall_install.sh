@@ -40,7 +40,7 @@ if ! grep -q "noble-updates" /etc/apt/sources.list.d/ubuntu.sources; then
     sudo sed -i 's/Suites: noble$/Suites: noble noble-updates/' /etc/apt/sources.list.d/ubuntu.sources
 fi
 
-eho ""
+echo ""
 
 echo "#########################################"
 echo "#         DETECT REPO DIRECTORY         #"
@@ -55,9 +55,11 @@ if [[ "$REPO_NAME" != "Haas_Data_collect" ]]; then
 fi
 
 echo ""
-echo "###################################################"
-echo "     [*] Repo directory detected as: $REPO_DIR"
-echo "###################################################"
+echo "################################################################"
+echo "                                                               #"
+echo "#     [*] Repo directory detected as: $REPO_DIR                #"
+echo "                                                               #"
+echo "################################################################"
 echo ""
 sleep 3
 
@@ -65,11 +67,6 @@ BACKUP_DIR="$REPO_DIR/backups"
 COCKPIT_SRC="$REPO_DIR/cockpit"
 CSV_PATH="$REPO_DIR/users.csv"
 
-echo "###################################################"
-echo "#                                                 #"
-echo "#              VERIFY REQUIRED FILES              #"
-echo "#                                                 #"
-echo "###################################################"
 
 REQUIRED_FILES=(
   "configure_ufw_from_csv.sh"
@@ -82,6 +79,7 @@ REQUIRED_FILES=(
   "issue.net"
 )
 
+echo ""
 echo "###################################################"
 echo "#                                                 #"
 echo "#     [*] Verifying required files in repo...     #"
@@ -528,10 +526,10 @@ if sudo apt install samba -y; then
             if [ -n "$username" ] && [ -n "$password" ]; then
                 echo ""
                 echo "#######################################"
-                echo "                                      #"
-                echo "#      Creating user: $username       #"
-                echo "                                      #"
                 echo ""
+                echo "Creating user: $username       "
+                echo ""
+                echo "#######################################"
                 # Create system user and add to HaasGroup. -M don't create home directory.
                 # -s /usr/sbin/nologin" No login shell, user is just for Samaba access.
                 sudo useradd -M -G HaasGroup -s /usr/sbin/nologin "$username" 2>/dev/null || echo "User $username already exists"
@@ -543,9 +541,10 @@ if sudo apt install samba -y; then
                 echo -e "$password\n$password" | sudo smbpasswd -a "$username" -s
                 echo ""
                 echo "##############################################"
-                echo "                                             #"
-                echo "#  User $username created with Samba access  #"
-                echo "                                             #"
+                echo ""
+                echo "User $username created with Samba access  #"
+                echo ""
+                echo "##############################################"
                 echo ""
             fi
         done
@@ -670,20 +669,21 @@ EOF
     echo "#                                             #"
     echo "#  Samba configured with security hardening:  #"
     echo "#---------------------------------------------#"
-    echo "  - SMBv2/SMBv3 only, no SMBv1"
+    echo "#  - SMBv2/SMBv3 only, no SMBv1               #"
     echo "#---------------------------------------------#"
-    echo "  - NetBIOS disabled"
+    echo "#  - NetBIOS disabled                         #"
     echo "#---------------------------------------------#"
-    echo "  - Printing disabled"
+    echo "#  - Printing disabled                        #"
     echo "#                                             #"
     echo "###############################################"
     echo ""
 
     IP_ADDR=$(hostname -I | awk '{print $1}')
+    echo ""
     echo "########################################################"
     echo "#                                                      #"
     echo "#      Samba share 'Haas' configured successfully      #"
-    printf "Share available at: \\\\%s\\Haas\n" "$IP_ADDR"
+    printf "#    Share available at: \\\\%s\\Haas\n" "$IP_ADDR"
     echo "#                                                      #"
     echo "########################################################"
     echo ""
@@ -698,7 +698,6 @@ else
     echo ""
     exit 1
 fi
-echo ""
 sleep 5
 
 echo ""
@@ -712,7 +711,7 @@ echo ""
 sudo nala upgrade -y
 
 # Install Cockpit from backports
-if sudo nala install -t cockpit cockpit-pcp -y; then
+if sudo nala install cockpit cockpit-pcp -y; then
 
     # Enable and start Cockpit
     sudo systemctl enable --now cockpit.socket
