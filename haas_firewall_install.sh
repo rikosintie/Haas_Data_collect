@@ -284,7 +284,7 @@ sleep 3
 echo ""
 echo "####################################################"
 echo "#                                                  #"
-echo "#         [OK] Firewall scripts installed.         #"
+echo "#         ✅ Firewall scripts installed.           #"
 echo "#                                                  #"
 echo "####################################################"
 echo ""
@@ -295,7 +295,7 @@ echo ""
 echo ""
 echo "#####################################################"
 echo "#                                                   #"
-echo "#    [*] Installing systemd service and timer...    #"
+echo "#      Installing systemd service and timer...      #"
 echo "#                                                   #"
 echo "#####################################################"
 echo ""
@@ -310,7 +310,7 @@ sudo systemctl enable --now haas-firewall.timer
 echo ""
 echo "###########################################################"
 echo "#                                                         #"
-echo "#  [OK] Systemd service and timer installed and enabled.  #"
+echo "#   ✅ Systemd service and timer installed and enabled.   #"
 echo "#                                                         #"
 echo "###########################################################"
 echo ""
@@ -379,11 +379,11 @@ if ARCH_URL=$(curl -s https://api.github.com/repos/sinelaw/fresh/releases/latest
 
 else
     echo ""
-    echo "###############################################################################################"
-    echo "#                                                                                             #"
-    echo "#  ⚠️ Could not find a Fresh Editor release for $(dpkg --print-architecture). Skipping...     #"
-    echo "#                                                                                             #"
-    echo "###############################################################################################"
+    echo "################################################################################################"
+    echo "#                                                                                              #"
+    echo "#    ⚠️ Could not find a Fresh Editor release for $(dpkg --print-architecture). Skipping...    #"
+    echo "#                                                                                              #"
+    echo "################################################################################################"
     echo ""
     exit 0
 fi
@@ -716,16 +716,13 @@ if sudo nala install -t cockpit cockpit-pcp -y; then
 
     # Enable and start Cockpit
     sudo systemctl enable --now cockpit.socket
-    sudo systemctl enable --now cockpit.socket
     sudo systemctl restart cockpit
-    echo "Cockpit installation complete. Access at https://$(hostname -I | awk '{print $1}'):9090"
-    echo "Cockpit is running on https://$(hostname -I | awk '{print $1}'):9090"
     echo ""
     echo "#########################################################################"
     echo "#                                                                       #"
     echo "#                   ✅ Cockpit installed successfully                   #"
     echo "#                                                                       #"
-    echo "#  Cockpit is running on https://$(hostname -I | awk '{print $1}'):9090 #"
+    echo "#  Cockpit is running at https://$(hostname -I | awk '{print $1}'):9090 #"
     echo "#                                                                       #"
     echo "#########################################################################"
     echo ""
