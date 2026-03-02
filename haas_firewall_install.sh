@@ -55,11 +55,11 @@ if [[ "$REPO_NAME" != "Haas_Data_collect" ]]; then
 fi
 
 echo ""
-echo "################################################################"
-echo "                                                               #"
-echo "#     [*] Repo directory detected as: $REPO_DIR                #"
-echo "                                                               #"
-echo "################################################################"
+echo "#################################################################"
+echo "                                                                #"
+echo "#  [*] Repo directory detected as: $REPO_DIR                    #"
+echo "                                                                #"
+echo "#################################################################"
 echo ""
 sleep 3
 
@@ -130,7 +130,7 @@ done
 echo ""
 echo "#################################################"
 echo "#                                               #"
-echo "#   [OK] All required repo files are present.   #"
+echo "#    ✅ All required repo files are present.    #"
 echo "#                                               #"
 echo "#################################################"
 sleep 2
@@ -143,7 +143,7 @@ CONFIG_FILE="/etc/haas-firewall.conf"
 
 echo "#########################################################"
 echo "#                                                       #"
-echo "#         [*] Writing config file: $CONFIG_FILE         #"
+echo "#  [*] Writing config file: $CONFIG_FILE                #"
 echo "#                                                       #"
 echo "#########################################################"
 
@@ -176,7 +176,7 @@ sudo chmod 644 "$CONFIG_FILE"
 echo ""
 echo "####################################################"
 echo "#                                                  #"
-echo "#       [OK] Firewall Config file written.         #"
+echo "#       ✅ Firewall Config file written.           #"
 echo "#                                                  #"
 echo "####################################################"
 echo ""
@@ -326,8 +326,15 @@ echo "####################################################"
 echo ""
 
 if sudo apt install nala -y; then
-    NALA_VERSION=_VERSION=$(nala --version)
-    echo "[OK] Nala $NALA_VERSION installed."
+    NALA_VERSION=$(nala --version)
+    sudo nala upgrade -y
+    echo ""
+    echo "####################################################"
+    echo "#                                                  #"
+    echo "#      ✅ $NALA_VERSION installed...      "
+    echo "#                                                  #"
+    echo "####################################################"
+    echo ""
     echo ""
     sleep 3
 else
@@ -408,11 +415,9 @@ if sudo apt install micro -y; then
     echo ""
     echo "##########################################################"
     echo "#                                                        #"
-    echo "#      ✅ micro text editor $MICRO_VERSION installed     #"
+    echo "#      ✅ micro text editor $MICRO_VERSION installed    #"
     echo "#                                                        #"
     echo "##########################################################"
-    echo ""
-
     echo ""
 else
     echo ""
@@ -475,8 +480,6 @@ echo "#            Installing Samba Server            #"
 echo "#                                               #"
 echo "#################################################"
 echo ""
-# Update package lists
-sudo apt update
 
 # Install Samba
 if sudo apt install samba -y; then
@@ -542,7 +545,7 @@ if sudo apt install samba -y; then
                 echo ""
                 echo "##############################################"
                 echo ""
-                echo "User $username created with Samba access  #"
+                echo "User $username created with Samba access  "
                 echo ""
                 echo "##############################################"
                 echo ""
@@ -550,13 +553,13 @@ if sudo apt install samba -y; then
         done
 
         echo ""
-        echo "##########################################################"
-        echo "#                                                        #"
-        echo "#  All users from initial_users.csv have been processed  #"
-        echo "#--------------------------------------------------------#"
-        echo "#     IMPORTANT: Delete $USER_FILE now for security!     #"
-        echo "#                                                        #"
-        echo "##########################################################"
+        echo "########################################################################################"
+        echo "#                                                                                      #"
+        echo "#  All users from initial_users.csv have been processed                                #"
+        echo "#--------------------------------------------------------                              #"
+        echo "#     IMPORTANT: Delete $USER_FILE now for security!                                   #"
+        echo "#                                                                                      #"
+        echo "########################################################################################"
         echo ""
     else
         echo ""
@@ -708,7 +711,6 @@ echo "#------------------   -----------------------#"
 echo "##############################################"
 echo ""
 # Update package lists
-sudo nala upgrade -y
 
 # Install Cockpit from backports
 if sudo nala install cockpit cockpit-pcp -y; then
