@@ -853,5 +853,5 @@ echo "Check firewall status with:"
 echo "sudo ufw status numbered"
 echo ""
 echo "Current UFW rules:"
-sudo ufw status numbered
+sudo ufw status numbered | sort -k5
 echo ""
