@@ -12,15 +12,20 @@ A [Samba server](https://www.samba.org/) is an open-source software suite that e
 
 - Active Directory Integration: It can act as an Active Directory Domain Controller or a member server, supporting protocols like LDAP and Kerberos.
 
+!!! Note
+    If the appliance isn't added to Active Directory as a member server it will only offer `NTLMv2` authentication to Windows. If your company's security policy doesn't allow NTLMV2, then you must join the appliance to the domain. Microsoft plans to disable `NTLMv2` in 2028 so you will have to Active Directory integrate it then or re-enable NTLMv2 on the desktops connecting to it!
+
 ----------------------------------------------------------------
 
 For my project I chose not to use Active Directory integration because 99% of MSPs will freak out if you say you need a Linux server connected to Active Directory. We are only dealing with:
 
-- One account for the machines
+- One account for the machines (haassvc)
 - A handful of accounts for the CNC Programmers
 - A handful of accounts for Operations personnel that will use the spreadsheets created by the scripts
 
 Creating local accounts on the Raspberry Pi 5 is straight forward and we can script it if needed. If you want use Active Directory integration there are plenty of blogs/YouTube Videos available.
+
+See [There are two trains of thoughts on usernames](../build_pi_5_appliance/configuring_appliance.md/#there-are-two-trains-of-thoughts-on-usernames) before deciding to what accounts to use.
 
 ----------------------------------------------------------------
 
