@@ -152,32 +152,36 @@ If you are in the Desktop version of Ubuntu you can open the `Files` application
 
 This is a comma-separated value (csv) file that contains usernames and passwords. These are users authorized to map drives to the appliance. Every user who needs to work with the appliance should be listed in this file. The installation script will create a Linux user account and Samba account for each user in `initial_users.csv`. This would include:
 
-- Haas CNC controls - Use `haassvc` on all machine tools when enabling file sharing. Their role is `user`.
-- CNC Programmers - You can map a drive using a Windows user name or use `haassvc` since the programmers only need to access the shares. Their role in `users.csv` would be `user`.
-- Operations employees - These are users that will be copying log files for data analysis. You can map a drive using a Windows user name or use `haassvc` since the programmers only need to access the shares. Their role in `users.csv` would be `user`.
-- Administrators - These are users that can add users, modify the firewall, and, monitor the appliance with the Cockpit extension. Use their Windows user name. Since the appliance isn't integrated into Active Directory, you will have to make up a password for them. Their role in `users.csv` would be `administrator`. The only administrator account that is mandatory is the `haas` account used to build the appliance,
+- **Haas CNC controls** - Use `haassvc` on all machine tools when enabling file sharing. Their role in `users.csv` would be `user`.
+- **CNC Programmers** - You can map a drive using a Windows user name or use `haassvc` since the programmers only need to access the shares. Their role in `users.csv` would be `user`.
+- **Operations employees** - These are users that will be copying log files for data analysis. You can map a drive using a Windows user name or use `haassvc` since the programmers only need to access the shares. Their role in `users.csv` would be `user`.
 
 #### There are two trains of thoughts on usernames
 
-Use `haassvc` for all CNC controls, programmers, and operations people. They only get r/w access to shares. They cannot manage the appliance.
-Use `haassvc` for all CNC controls, use the Windows username for all other users. They only get r/w access to shares. They cannot manage the appliance.
+- Use `haassvc` for all CNC controls, programmers, and operations people. They only get r/w access to shares. They cannot manage the appliance.
+- Use `haassvc` for all CNC controls, use the Windows username for all other users. They only get r/w access to shares. They cannot manage the appliance.
 
-The first method is easier to deploy and maintain, but you lose the ability to track who has been logging in. Verify your company's security policy before deciding on a method to use.
+The first method is easier to deploy and maintain, but you lose the ability to track who has been logging in. The first method fits what Microsoft calls `Tiered Administration`:
 
-By default, the only user who can run Linux commands with superuser rights is `haas`, the user who installed Ubuntu.
+**How the Tier Model Segregates Accounts and Devices:**
+
+- **Tier 0** (Control Plane): This tier contains "crown jewel" assets like Domain Controllers and Identity Management Systems. Administrators must use a dedicated Tier 0 account and a hardened Privileged Access Workstation (PAW) to manage these systems.
+- **Tier 1** (Management Plane): This tier consists of enterprise servers (e.g., SQL, Exchange, file servers). Admins use a separate Tier 1 account to manage these servers; this account is explicitly denied the right to log on to Tier 2 workstations.
+- **Tier 2** (User Plane): This is the lowest tier, encompassing end-user workstations and ***devices***. Users and Tier 2 admins use standard accounts here, which have no administrative rights on Tier 1 or Tier 0 systems.
+
+The appliance can be considered a `device`, if you only use the Linux `haassvc` account then even if the appliance was compromised, the attacker couldn't use the account to move laterally.
+
+By default, the only user who can run Linux commands with superuser rights is `haas`, the user who installed Ubuntu. Verify your company's security policy before deciding on a method to use.
 
 ----------------------------------------------------------------
 
-I used `xxxxxxxxx` for all users. This is because GitHub is scanned thousands of times per day by attackers looking for secrets. If I used anything resembling a password, attackers would be publishing my repository all over the dark web. I attended a `Crowdstrike` conference in Las Vegas in 2024. In one of the classes I got to enter `rikosintie` into their `Dark Web` tool. I was stunned that my repositories were listed as having `ssh keys` and passwords in the clear. None of the `ssh keys` or passwords were valid, I had changed several characters in the keys and the passwords were nonsense, but the Dark Web as very excited about them!
+I used `xxxxxxxxx` for the password in the `initial_users` file. This is because GitHub is scanned thousands of times per day by attackers looking for secrets. If I used anything resembling a password, attackers would be publishing my repository all over the dark web. I attended a `Crowdstrike` conference in Las Vegas in 2024. In one of the classes I got to enter `rikosintie` into their `Dark Web` tool. I was stunned that my repositories were listed as having `ssh keys` and passwords in the clear. None of the `ssh keys` or passwords were valid, I had changed several characters in the keys and the passwords were nonsense, but the Dark Web as very excited about them!
 
 Here is the included sample file. Modify it to fit your environment:
 
 ```text
 username, password
-mhubbard, xxxxxxxxx
 haassvc, xxxxxxxxx
-mchavez, xxxxxxxxx
-thubbard, xxxxxxxxx
 ```
 
 I know it's odd that there are `users.csv` and `initial_users.csv` but there is no secure way to leave passwords lying around in plain text files.
