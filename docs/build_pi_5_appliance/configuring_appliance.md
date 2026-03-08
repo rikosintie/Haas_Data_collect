@@ -562,7 +562,7 @@ The `haas` is the User ID (UID) that owns the process, 115518 is the Process ID 
 
 #### Memory Usage
 
-The status command also lists the amount of RAM used by the script. You can see that the peak usage was 7.1MB. I haven't seen the script use more than that, so a Raspberry Pi 5 with 8GB of RAM could support many machine tools.
+The status command also lists the amount of RAM used by the script. You can see that the peak usage was 7.1MB. I haven't seen the script use more than that, so a Raspberry Pi 5 with 8GB of RAM could support many machine tools. For an Intel physical or Virtual appliance 8GB RAM should also be sufficient.
 
 ----------------------------------------------------------------
 
