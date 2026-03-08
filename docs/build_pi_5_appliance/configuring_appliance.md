@@ -128,6 +128,36 @@ minimill,192.168.10.115,user
     1. Administrator - Users that can manage the appliance. They can access ssh, smb shares, Cockpit.
     1. User - This role is configured on the Haas CNC and any users that only needs to map drives. Only file share access through the firewall
 
+----------------------------------------------------------------
+
+!!! Note
+    The `username` is used as a label in the firewall. Most users will map drives using the `haassvc` account. Below is an example of the firewall rules.
+
+----------------------------------------------------------------
+
+```unixconfig hl_lines='1'
+sudo ufw status numbered | sort -k5
+
+     --                         ------      ----
+     To                         Action      From
+Status: active
+[10] 445                        ALLOW IN    192.168.10.100             # thubbard-user-smb
+[13] 9090                       ALLOW IN    192.168.10.223             # rgoodwin-admin-cockpit
+[12] 445                        ALLOW IN    192.168.10.223             # rgoodwin-admin-smb
+[11] 22                         ALLOW IN    192.168.10.223             # rgoodwin-admin-ssh
+[ 6] 9090                       ALLOW IN    192.168.10.104             # toolroom-admin-cockpit
+[ 5] 445                        ALLOW IN    192.168.10.104             # toolroom-admin-smb
+[ 4] 22                         ALLOW IN    192.168.10.104             # toolroom-admin-ssh
+[ 9] 9090                       ALLOW IN    192.168.10.113             # msp_admin-admin-cockpit
+[ 8] 445                        ALLOW IN    192.168.10.113             # msp_admin-admin-smb
+[ 7] 22                         ALLOW IN    192.168.10.113             # msp_admin-admin-ssh
+[ 3] 9090                       ALLOW IN    192.168.10.143             # haas-admin-cockpit
+[ 2] 445                        ALLOW IN    192.168.10.143             # haas-admin-smb
+[ 1] 22                         ALLOW IN    192.168.10.143             # haas-admin-ssh
+```
+
+----------------------------------------------------------------
+
 The `users.csv` file will remain in the `Haas_Data_collection` folder after the appliance is in production. Anytime the firewall needs to be modified you will update the `users.csv` file.
 
 Use the following to edit the file if you are connected over ssh:
@@ -144,7 +174,25 @@ ctrl+s
 ctrl+x
 ```
 
-If you are in the Desktop version of Ubuntu you can open the `Files` application and double click on `users.csv`. That will open the file in LibreOffice Calc. Make sure you save the file as a `csv` file and not an `odf` or excel format.
+----------------------------------------------------------------
+
+Or use the `micro text editor`:
+
+```bash linenums='1' hl_lines='1'
+cd ~/haas/Haas_Data_collect
+micro users.csv
+```
+
+When you are finished use the following to `save` and `close` the file:
+
+```bash
+ctrl+s
+ctrl+q
+```
+
+----------------------------------------------------------------
+
+If you are in the Desktop version of Ubuntu you can open the `Files` application and double click on `users.csv`. That will open the file in LibreOffice Calc. Make sure you save the file as a `csv` file and not an `odf` or `excel` format.
 
 ----------------------------------------------------------------
 
@@ -158,10 +206,10 @@ This is a comma-separated value (csv) file that contains usernames and passwords
 
 #### There are two trains of thoughts on usernames
 
-- Use `haassvc` for all CNC controls, programmers, and operations people. They only get r/w access to shares. They cannot manage the appliance.
-- Use `haassvc` for all CNC controls, use the Windows username for all other users. They only get r/w access to shares. They cannot manage the appliance.
+1. Use `haassvc` for all CNC controls, programmers, and operations people. They only get r/w access to shares. They cannot manage the appliance.
+2. Use `haassvc` for all CNC controls, use the Windows username for all other users. They only get r/w access to shares. They cannot manage the appliance.
 
-The first method is easier to deploy and maintain, but you lose the ability to track who has been logging in. The first method fits what Microsoft calls `Tiered Administration`:
+The first method is easier to deploy and maintain, but you lose the ability to track who has been logging in. The first method fits what Microsoft calls [Tiered Administration](https://learn.microsoft.com/en-us/security/privileged-access-workstations/privileged-access-access-model).
 
 **How the Tier Model Segregates Accounts and Devices:**
 
@@ -170,6 +218,18 @@ The first method is easier to deploy and maintain, but you lose the ability to t
 - **Tier 2** (User Plane): This is the lowest tier, encompassing end-user workstations and ***devices***. Users and Tier 2 admins use standard accounts here, which have no administrative rights on Tier 1 or Tier 0 systems.
 
 The appliance can be considered a `device`, if you only use the Linux `haassvc` account then even if the appliance was compromised, the attacker couldn't use the account to move laterally.
+
+----------------------------------------------------------------
+
+Key Principles
+
+1. **Privilege Isolation:** High-privileged credentials are never exposed to lower-tier systems, preventing attackers from moving laterally from Tier 2 to Tier 0.
+
+2. **Clean Source Principle:** All security dependencies must be as trustworthy as the object being secured, ensuring that administrative accounts are only used in appropriate contexts.
+
+3. **Logon Restrictions:** Interactive logons are restricted to the tier of the system being managed. For example, a Tier 0 admin should never log in interactively to a Tier 2 workstation.
+
+----------------------------------------------------------------
 
 By default, the only user who can run Linux commands with superuser rights is `haas`, the user who installed Ubuntu. Verify your company's security policy before deciding on a method to use.
 
@@ -188,6 +248,42 @@ I know it's odd that there are `users.csv` and `initial_users.csv` but there is 
 
 !!! Warning
     This file contains usernames/passwords that the installation script will use to create the Samba shares. You should delete this file as soon as the script finishes the installation.
+
+----------------------------------------------------------------
+
+Use the following to edit the file if you are connected over ssh:
+
+```bash
+cd ~/haas/Haas_Data_collect
+nano initial_users.csv
+```
+
+When you are finished use the following to `save` and `close` the file:
+
+```bash
+ctrl+s
+ctrl+x
+```
+
+----------------------------------------------------------------
+
+Or use the `micro text editor`:
+
+```bash linenums='1' hl_lines='1'
+cd ~/haas/Haas_Data_collect
+micro initial_users.csv
+```
+
+When you are finished use the following to `save` and `close` the file:
+
+```bash
+ctrl+s
+ctrl+q
+```
+
+----------------------------------------------------------------
+
+If you are in the Desktop version of Ubuntu you can open the `Files` application and double click on `users.csv`. That will open the file in LibreOffice Calc. Make sure you save the file as a `csv` file and not an `odf` or `excel` format.
 
 ----------------------------------------------------------------
 
