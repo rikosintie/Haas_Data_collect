@@ -25,7 +25,7 @@ For my project I chose not to use Active Directory integration because 99% of MS
 
 Creating local accounts on the Raspberry Pi 5 is straight forward and we can script it if needed. If you want use Active Directory integration there are plenty of blogs/YouTube Videos available.
 
-See [There are two trains of thoughts on usernames](../build_pi_5_appliance/configuring_appliance.md/#there-are-two-trains-of-thoughts-on-usernames) before deciding to what accounts to use.
+See the section [There are two trains of thoughts on usernames](../build_pi_5_appliance/configuring_appliance.md/#there-are-two-trains-of-thoughts-on-usernames) before deciding to what accounts to use.
 
 ----------------------------------------------------------------
 
