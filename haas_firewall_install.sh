@@ -59,7 +59,7 @@ fi
 echo ""
 echo "####################################################################"
 echo "                                                                   #"
-echo "#  [*] Repo directory detected as: $REPO_DIR                       #"
+echo "#  [*] Repo directory detected as: $REPO_DIR    #"
 echo "                                                                   #"
 echo "####################################################################"
 echo ""
@@ -143,11 +143,11 @@ echo ""
 
 CONFIG_FILE="/etc/haas-firewall.conf"
 
-echo "#####################################################"
-echo "#                                                   #"
+echo "######################################################"
+echo "#                                                    #"
 echo "#  [*] Writing config file: $CONFIG_FILE   #"
-echo "#                                                   #"
-echo "#####################################################"
+echo "#                                                    #"
+echo "######################################################"
 
 sudo bash -c "cat > '$CONFIG_FILE'" <<EOF
 # Haas Firewall Appliance Configuration
@@ -333,7 +333,7 @@ if sudo apt install nala -y; then
     echo ""
     echo "####################################################"
     echo "#                                                  #"
-    echo "#      ✅ $NALA_VERSION installed...      "
+    echo "#      ✅ $NALA_VERSION installed...                 #"
     echo "#                                                  #"
     echo "####################################################"
     echo ""
@@ -545,13 +545,13 @@ if sudo apt install samba -y; then
         done
 
         echo ""
-        echo "###########################################################################"
-        echo "#                                                                         #"
-        echo "#     All users from initial_users.csv have been processed                #"
-        echo "#--------------------------------------------------------                 #"
+        echo "############################################################################################"
+        echo "#                                                                                          #"
+        echo "#     All users from initial_users.csv have been processed                                 #"
+        echo "#--------------------------------------------------------                                  #"
         echo "#     IMPORTANT: Delete $USER_FILE now for security!   #"
-        echo "#                                                                         #"
-        echo "###########################################################################"
+        echo "#                                                                                           #"
+        echo "#############################################################################################"
         echo ""
     else
         echo ""
@@ -734,13 +734,13 @@ if sudo nala install cockpit cockpit-pcp -y; then
     sudo systemctl enable --now cockpit.socket
     sudo systemctl restart cockpit
     echo ""
-    echo "#########################################################################"
-    echo "#                                                                       #"
-    echo "#                   ✅ Cockpit installed successfully                   #"
-    echo "#                                                                       #"
-    echo "#  Cockpit is running at https://$(hostname -I | awk '{print $1}'):9090 #"
-    echo "#                                                                       #"
-    echo "#########################################################################"
+    echo "#########################################################"
+    echo "#                                                       #"
+    echo "#          ✅ Cockpit installed successfully            #"
+    echo "#                                                       #"
+    echo "#  Cockpit is running at https://$(hostname -I | awk '{print $1}'):9090  #"
+    echo "#                                                       #"
+    echo "#########################################################"
     echo ""
 else
     echo ""
@@ -762,11 +762,11 @@ sleep 3
 COCKPIT_DST="/usr/share/cockpit/haas-firewall"
 
 echo ""
-echo "#####################################################"
-echo "#----------------  ------------------------        -#"
+echo "#########################################################################"
+echo "#----------------  ------------------------                             #"
 echo "#  Installing Cockpit extension to $COCKPIT_DST...  #"
-echo "#--------------  --------------------------        -#"
-echo "#####################################################"
+echo "#--------------  --------------------------                            -#"
+echo "#########################################################################"
 echo ""
 
 sudo mkdir -p "$COCKPIT_DST"
@@ -807,11 +807,25 @@ sleep 3
 # ENSURE BACKUP DIRECTORY EXISTS
 ########################################
 echo ""
-echo "[*] Ensuring backup directory exists in repo: $BACKUP_DIR"
+echo ""
+echo "########################################################################################"
+echo "#----  --------------------------------------------------------------------------------#"
+echo "#  [*] Ensuring backup directory exists in repo: $BACKUP_DIR"  #
+echo "#------  ------------------------------------------------------------------------------#"
+echo "########################################################################################"
+echo ""
+echo ""
 mkdir -p "$BACKUP_DIR"
 
 echo ""
-echo "[OK] Backup directory ready."
+echo ""
+echo "##################################"
+echo "#  [OK] Backup directory ready.  #"
+echo "#  ------------------------------#"
+echo "##################################"
+echo ""
+echo ""
+
 sleep 3
 
 ########################################
