@@ -805,7 +805,7 @@ if sudo nala install cockpit cockpit-pcp -y; then
     echo "#                                                       #"
     echo "#          ✅ Cockpit installed successfully            #"
     echo "#                                                       #"
-    echo "#  Cockpit is running at https://$(hostname -I | awk '{print $1}'):9090  #"
+    echo "#  Cockpit is running at https://$(hostname -I | awk '{print $1}'):9090    #"
     echo "#                                                       #"
     echo "#########################################################"
     echo ""
@@ -968,7 +968,6 @@ echo "#----------------  ------------------------                               
 echo "#  To enable a Haas subnet later, edit:                                             #"
 echo "#---------------------------------------------------------------------------------- #"
 echo "# $CONFIG_FILE                                                           #"
-echo "# /etc/haas-firewall.conf                                                           #
 echo "#---------------------------------------------------------------------------        #"
 echo "#  set HAAS_MACHINES_SUBNET_V4="" to your CNC machines' IPv4 subnet                 #"
 echo "#--------------  --------------------------                                -        #"
