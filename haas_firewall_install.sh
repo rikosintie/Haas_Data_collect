@@ -678,7 +678,7 @@ EOF
     echo "########################################################"
     echo "#                                                      #"
     echo "#      Samba share 'Haas' configured successfully      #"
-    printf "#    Share available at: \\\\%s\\Haas\n" "$IP_ADDR"
+    printf "#      Share available at: \\\\%s\\Haas\n" "$IP_ADDR"
     echo "#                                                      #"
     echo "########################################################"
     echo ""
@@ -694,6 +694,16 @@ else
     exit 1
 fi
 sleep 5
+
+echo ""
+echo ""
+echo ""
+echo "#######################################################"
+echo "#                                                     #"
+echo "#              Installing Samba Client                #"
+echo "#                                                     #"
+echo "#######################################################"
+echo ""
 echo ""
 echo ""
 if sudo apt install smbclient -y; then
