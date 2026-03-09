@@ -21,7 +21,9 @@
 #   - Installs systemd firewall service + timer
 #   - Installs Samba server and updates /etc/samba/smb.conf
 #       sets security and creates the "[Haas]" share
-#   - Installs Cockpit extension
+#   - Reads initial_users.csv and creates the Linux/Samba users
+#   - Installs custom Haas_firewall Cockpit extension
+#   - Installs the nala package manager
 #   - Installs the "micro" cli text editor
 #   - Installs the "fresh" cli text editor
 #   - Creates the backup directory in the repo
@@ -461,16 +463,6 @@ else
 fi
 
 ########################################
-# Install nmap
-########################################
-# to install nmap, remove the # on the next 5 lines
-# sudo /usr/local/sbin/build-nmap.sh
-# VERSION=$(nmap --version | head -n1 | awk '{print $3}')
-# echo "nmap version $VERSION was successfully installed."
-# echo ""
-# sleep 3
-
-########################################
 # Install Samba Server
 ########################################
 echo ""
@@ -702,6 +694,19 @@ else
     exit 1
 fi
 sleep 5
+echo ""
+echo ""
+if sudo apt install smbclient -y; then
+    echo ""
+    echo "#######################################################"
+    echo "#                                                     #"
+    echo "#        ✅ Samba Client installed successfully       #"
+    echo "#                                                     #"
+    echo "#######################################################"
+    echo ""
+fi
+echo ""
+echo ""
 
 echo ""
 echo "##############################################"
@@ -802,7 +807,7 @@ sleep 3
 ########################################
 # RUN INITIAL FIREWALL CONFIG VIA SYSTEMD
 ########################################
-
+echo ""
 echo ""
 echo "#############################################################################"
 echo "#----------------  ------------------------                                -#"
@@ -810,9 +815,11 @@ echo "#  [*] Running initial firewall configuration via haas-firewall.service...
 echo "#--------------  --------------------------                                -#"
 echo "#############################################################################"
 echo ""
+echo ""
 
 sudo systemctl start haas-firewall.service || true
 
+echo ""
 echo ""
 echo "####################################################"
 echo "#                                                  #"
@@ -820,7 +827,18 @@ echo "#  [SUCCESS] Haas Firewall installation complete.  #"
 echo "#                                                  #"
 echo "####################################################"
 echo ""
+echo ""
+########################################
+# Install nmap
+########################################
+# to install nmap, remove the # on the next 5 lines
+# sudo /usr/local/sbin/build-nmap.sh
+# VERSION=$(nmap --version | head -n1 | awk '{print $3}')
+# echo "nmap version $VERSION was successfully installed."
+# echo ""
+# sleep 3
 
+echo ""
 echo ""
 echo "#####################################################"
 echo "#                                                   #"
@@ -828,15 +846,20 @@ echo "#      Save the following output for reference      #"
 echo "#                                                   #"
 echo "#####################################################"
 echo ""
+echo ""
 echo "Repo root:     $REPO_DIR"
 echo "CSV Path:      $CSV_PATH"
 echo "Backup Dir:    $BACKUP_DIR"
 echo "Config File:   $CONFIG_FILE"
 echo "Scripts:       /usr/local/sbin/configure_ufw_from_csv.sh"
 echo "               /usr/local/sbin/validate_users_csv.sh"
+echo "               /usr/local/sbin/rollback_csv.sh"
+echo "               /usr/local/sbin/ssh_port.sh"
+echo "               /usr/local/sbin/build-nmap.sh"
 echo "Systemd:       /etc/systemd/system/haas-firewall.service"
 echo "               /etc/systemd/system/haas-firewall.timer"
 echo "Cockpit UI:    /usr/share/cockpit/haas-firewall/"
+echo ""
 echo ""
 echo "#####################################################################################"
 echo "#----------------  ------------------------                                        -#"
@@ -848,6 +871,7 @@ echo "#--------------  --------------------------                               
 echo "#  set HAAS_MACHINES_SUBNET_V6="" to your CNC machines' IPv6 subnet (if applicable) #"
 echo "#--------------  --------------------------                                -        #"
 echo "#####################################################################################"
+echo ""
 echo ""
 echo "Check firewall status with:"
 echo "sudo ufw status numbered"
