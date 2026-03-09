@@ -57,11 +57,11 @@ if [[ "$REPO_NAME" != "Haas_Data_collect" ]]; then
 fi
 
 echo ""
-echo "#################################################################"
-echo "                                                                #"
-echo "#  [*] Repo directory detected as: $REPO_DIR                    #"
-echo "                                                                #"
-echo "#################################################################"
+echo "#############################################################################"
+echo "                                                                            #"
+echo "#  [*] Repo directory detected as: $REPO_DIR                                #"
+echo "                                                                            #"
+echo "#############################################################################"
 echo ""
 sleep 3
 
@@ -143,11 +143,11 @@ echo ""
 
 CONFIG_FILE="/etc/haas-firewall.conf"
 
-echo "#########################################################"
-echo "#                                                       #"
-echo "#  [*] Writing config file: $CONFIG_FILE                #"
-echo "#                                                       #"
-echo "#########################################################"
+echo "#####################################################"
+echo "#                                                   #"
+echo "#  [*] Writing config file: $CONFIG_FILE   #"
+echo "#                                                   #"
+echo "#####################################################"
 
 sudo bash -c "cat > '$CONFIG_FILE'" <<EOF
 # Haas Firewall Appliance Configuration
@@ -545,13 +545,13 @@ if sudo apt install samba -y; then
         done
 
         echo ""
-        echo "########################################################################################"
-        echo "#                                                                                      #"
-        echo "#  All users from initial_users.csv have been processed                                #"
-        echo "#--------------------------------------------------------                              #"
-        echo "#     IMPORTANT: Delete $USER_FILE now for security!                                   #"
-        echo "#                                                                                      #"
-        echo "########################################################################################"
+        echo "###########################################################################"
+        echo "#                                                                         #"
+        echo "#     All users from initial_users.csv have been processed                #"
+        echo "#--------------------------------------------------------                 #"
+        echo "#     IMPORTANT: Delete $USER_FILE now for security!   #"
+        echo "#                                                                         #"
+        echo "###########################################################################"
         echo ""
     else
         echo ""
@@ -678,7 +678,7 @@ EOF
     echo "########################################################"
     echo "#                                                      #"
     echo "#      Samba share 'Haas' configured successfully      #"
-    printf "#      Share available at: \\\\%s\\Haas\n" "$IP_ADDR"
+    printf "#    Share available at: \\\\%s\\Haas\n" "$IP_ADDR"
     echo "#                                                      #"
     echo "########################################################"
     echo ""
