@@ -1,14 +1,18 @@
+# Create the directory for the share
+mkdir /home/haas
+mkdir /home/haas/{{name}}
+
 sudo cp {{name}}.service /etc/systemd/system/{{name}}.service
 sudo systemctl daemon-reload
 sudo systemctl enable {{name}}.service
 sudo systemctl start {{name}}.service
 sudo systemctl status {{name}}.service
 
-# Create the directory for the share
 
-mkdir /home/haas/{{name}}
-
-# Create the share configuration
+# Create the share configuration in /etc/samba/smb.conf
+# use sudo micro /etc/samba/smb.conf
+or
+# sudo nano /etc/samba/smb.conf
 
 [{{name}}]
     comment = {{description}}
