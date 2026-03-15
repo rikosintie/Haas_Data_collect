@@ -4,8 +4,8 @@ After=network.target
 
 [Service]
 User=haas
-WorkingDirectory=/home/haas/Haas_Data_collect
-ExecStart=/usr/bin/python3 /home/haas/Haas_Data_collect/haas_logger2.py -a -t 192.168.0.142  --port 5054 --name st30l
+WorkingDirectory=/home/haas
+ExecStart=/usr/bin/python3 /home/haas/Haas_Data_collect/haas_logger2.py -a -t 192.168.10.133  --port 5052 --name st30l
 Type=idle
 
 [Install]
