@@ -111,30 +111,7 @@ This approach ensures:
 - Clean survivability across package updates
 - Simple identification of appliance-specific security controls
 
-----------------------------------------------------------------
-
-### Security Rationale
-
-- **LogLevel** VERBOSE - adds the following information to the event log:
-    1. Which public keys a client offers during authentication
-    1. Fingerprint of each key the client tries
-    1. Why a key was rejected (e.g., not authorized, wrong type, permissions issue)
-    1. More detailed connection negotiation messages
-- **PermitRootLogin** no -
-Prevents direct root authentication, enforcing user accountability and privilege escalation via sudo.
-- **PasswordAuthentication** yes -
-Eliminates exposure to password brute-force attempts. SSH access requires key-based authentication.
-- **PubkeyAuthentication** yes -
-Ensures modern cryptographic authentication is enabled.
-- **ChallengeResponseAuthentication** no -
-Disables legacy interactive authentication mechanisms not required for appliance operation.
-- **PermitEmptyPasswords** no -
-Prevents authentication with blank credentials.
-- **X11Forwarding no** - X11 forwarding is convenient but has security implications:
-    1. X11 is an old protocol with weak isolation
-    1. A compromised remote host could potentially interact with your local display
-    1. It increases the complexity of the SSH session
-    1. Turning `X11Forwarding` off removes that entire class of risk.
+See [Appendix E - SSH Hardening Profile](../appendices/appendix-e.md) for the ssh hardening details of the appliance.
 
 ----------------------------------------------------------------
 
@@ -153,17 +130,14 @@ These controls align with common MSP/MSSP baseline requirements and typical CIS 
 If you decide to use only ssh keys, you can update the drop-in file using the following commands:
 
 ```bash hl_lines='1'
-sudo tee /etc/ssh/sshd_config.d/99-haas-hardening.conf > /dev/null << 'EOF'
-Banner /etc/issue.net
-ChallengeResponseAuthentication no
-LogLevel VERBOSE
-PasswordAuthentication no
-PermitEmptyPasswords no
-PermitRootLogin no
-PubkeyAuthentication yes
-X11Forwarding no
-EOF
+sudo nano /etc/ssh/sshd_config.d/99-haas-hardening.conf
+```
 
+Change `PasswordAuthentication` to no
+
+Restart the ssh service
+
+```bash
 sudo systemctl restart ssh
 ```
 
@@ -179,16 +153,31 @@ I have detailed instructions on setting up SSH for network devices that covers c
 To confirm effective configuration, run:
 
 ```bash linenums='1' hl_lines='1'
-sudo sshd -T | grep -E 'permitrootlogin|passwordauthentication|pubkeyauthentication|challengeresponseauthentication|permitemptypasswords|^banner|x11f'
+sudo sshd -T | grep -E 'permitrootlogin|passwordauthentication|pubkeyauthentication|challengeresponseauthentication|permitemptypasswords|^banner|x11f|macs|^kexalgorithms|hostkey|pubbkeyauth|^port|^maxa|^maxse|grace|allowt|allowa|lastlog|strictm'
 ```
 
 ```bash title='Command Output'
+port 22
+logingracetime 30
+maxauthtries 3
+maxsessions 2
 permitrootlogin no
 pubkeyauthentication yes
 passwordauthentication yes
+printlastlog yes
 x11forwarding no
+strictmodes yes
 permitemptypasswords no
+allowtcpforwarding no
+allowagentforwarding no
+macs hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,umac-128-etm@openssh.com
 banner /etc/issue.net
+hostkeyagent none
+kexalgorithms curve25519-sha256,curve25519-sha256@libssh.org
+hostkeyalgorithms ssh-ed25519,ssh-ed25519-cert-v01@openssh.com
+hostkey /etc/ssh/ssh_host_rsa_key
+hostkey /etc/ssh/ssh_host_ecdsa_key
+hostkey /etc/ssh/ssh_host_ed25519_key
 ```
 
 The output should reflect the enforced values.
