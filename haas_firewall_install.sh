@@ -212,7 +212,15 @@ sudo cp "$REPO_DIR/issue.net" /etc/issue.net
 #sudo sed -i 's|^#Banner none|Banner /etc/issue.net|' /etc/ssh/sshd_config
 # Disable direct root SSH login
 #sudo sed -i 's|^[[:space:]]*#\?PermitRootLogin .*|PermitRootLogin no|' /etc/ssh/sshd_config
-
+echo ""
+echo ""
+echo "############################################################"
+echo "#                                                          #"
+echo "#  Updating /etc/ssh/sshd_config.d/99-haas-hardening.conf  #"
+echo "#                                                          #"
+echo "############################################################"
+echo ""
+echo ""
 # Create a custom ssh options file for hardening
 sudo tee /etc/ssh/sshd_config.d/99-haas-hardening.conf > /dev/null << 'EOF'
 #pre-authentication login banner
@@ -232,6 +240,8 @@ MACs hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,umac-128-etm@op
 KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
 HostKeyAlgorithms ssh-ed25519,ssh-ed25519-cert-v01@openssh.com
 PubkeyAcceptedAlgorithms ssh-ed25519,ssh-ed25519-cert-v01@openssh.com
+GSSAPIKexAlgorithms none
+GSSAPIAuthentication no
 
 # Attack surface reduction
 AllowAgentForwarding no
