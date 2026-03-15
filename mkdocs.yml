@@ -24,6 +24,7 @@ nav:
     - Appendix B - File Permissions: 'appendices/appendix-b.md'
     - Appendix C - Threat Model for Auditors: 'appendices/appendix-c.md'
     - Appendix D - Systemd type options: 'appendices/appendix-d.md'
+    - Appendix E - SSH Hardening: 'appendices/appendix-e.md'
 
 
 theme:
