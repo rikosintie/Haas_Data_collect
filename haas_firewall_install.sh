@@ -213,7 +213,7 @@ sudo cp "$REPO_DIR/issue.net" /etc/issue.net
 # Disable direct root SSH login
 #sudo sed -i 's|^[[:space:]]*#\?PermitRootLogin .*|PermitRootLogin no|' /etc/ssh/sshd_config
 
-# Create a custom ssh options file
+# Create a custom ssh options file for hardening
 sudo tee /etc/ssh/sshd_config.d/99-haas-hardening.conf > /dev/null << 'EOF'
 #pre-authentication login banner
 Banner /etc/issue.net
