@@ -240,7 +240,6 @@ MACs hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,umac-128-etm@op
 KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
 HostKeyAlgorithms ssh-ed25519,ssh-ed25519-cert-v01@openssh.com
 PubkeyAcceptedAlgorithms ssh-ed25519,ssh-ed25519-cert-v01@openssh.com
-GSSAPIKexAlgorithms none
 GSSAPIAuthentication no
 
 # Attack surface reduction
