@@ -1,14 +1,17 @@
+# Create the directory for the share
+mkdir /home/haas/st30
+
 sudo cp st30.service /etc/systemd/system/st30.service
 sudo systemctl daemon-reload
 sudo systemctl enable st30.service
 sudo systemctl start st30.service
 sudo systemctl status st30.service
 
-# Create the directory for the share
 
-mkdir /home/haas/st30
-
-# Create the share configuration
+# Create the share configuration in /etc/samba/smb.conf
+# use sudo micro /etc/samba/smb.conf
+or
+# sudo nano /etc/samba/smb.conf
 
 [st30]
     comment = Logger for ST30
