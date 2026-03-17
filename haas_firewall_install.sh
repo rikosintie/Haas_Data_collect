@@ -419,7 +419,7 @@ sleep 5
 
 
 if sudo nala install tree -y; then
-    TREE_VERSION=$$(tree --version | head -n1 | awk '{print $2}')
+    TREE_VERSION=$(tree --version | head -n1 | awk '{print $2}')
     sudo nala upgrade -y
     echo ""
     echo ""
