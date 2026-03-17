@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 User={{username}}
-WorkingDirectory=/home/{{username}}/Haas_Data_collect
+WorkingDirectory=/home/{{username}}/Haas_Data_collect/machines/{{name}}
 ExecStart=/usr/bin/python3 /home/haas/Haas_Data_collect/haas_logger2.py -a -t {{ip_address}}  --port {{port}} --name {{name}}
 Type=idle
 
