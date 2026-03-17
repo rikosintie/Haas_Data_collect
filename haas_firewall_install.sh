@@ -453,9 +453,34 @@ echo "#                                                      #"
 echo "########################################################"
 echo ""
 echo ""
-python3 -m pip install pandas
-python3 -m pip install jinja2
-python3 -m pip install openpyxl
+
+if sudo nala install python3-pip -y; then
+    PIP_VERSION=$(python3 -m pip --version | head -n1 | awk '{print $2}')
+    python3 -m pip install pandas
+    python3 -m pip install jinja2
+    python3 -m pip install openpyxl
+    echo ""
+    echo ""
+    echo "####################################################"
+    echo "#                                                  #"
+    echo "#      ✅ $PIP_VERSION installed...                #"
+    echo "#                                                  #"
+    echo "####################################################"
+    echo ""
+    echo ""
+    sleep 3
+else
+    echo ""
+    echo ""
+    echo "###############################################################"
+    echo "#                                                             #"
+    echo "#   ⚠️ Failed to install the Python Libraries. Skipping...    #"
+    echo "#                                                             #"
+    echo "###############################################################"
+    echo ""
+    echo ""
+    exit 0
+fi
 
 
 echo ""
