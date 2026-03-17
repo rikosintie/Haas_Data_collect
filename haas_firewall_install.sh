@@ -425,7 +425,7 @@ if sudo nala install tree -y; then
     echo ""
     echo "####################################################"
     echo "#                                                  #"
-    echo "#      ✅ $TREE_VERSION installed...                 #"
+    echo "#     ✅ Tree $TREE_VERSION installed...           #"
     echo "#                                                  #"
     echo "####################################################"
     echo ""
@@ -448,7 +448,7 @@ echo ""
 echo ""
 echo "########################################################"
 echo "#                                                      #"
-echo "#  Installing Python libraries for the scaling script  #"
+echo "#             Installing Python pip package            #"
 echo "#                                                      #"
 echo "########################################################"
 echo ""
@@ -456,9 +456,6 @@ echo ""
 
 if sudo nala install python3-pip -y; then
     PIP_VERSION=$(python3 -m pip --version | head -n1 | awk '{print $2}')
-    python3 -m pip install pandas
-    python3 -m pip install jinja2
-    python3 -m pip install openpyxl
     echo ""
     echo ""
     echo "####################################################"
@@ -474,7 +471,7 @@ else
     echo ""
     echo "###############################################################"
     echo "#                                                             #"
-    echo "#   ⚠️ Failed to install the Python Libraries. Skipping...    #"
+    echo "#       ⚠️ Failed to install Python pip. Skipping...          #"
     echo "#                                                             #"
     echo "###############################################################"
     echo ""
