@@ -1043,7 +1043,11 @@ echo ""
 # echo "nmap version $VERSION was successfully installed."
 # echo ""
 # sleep 3
-
+# Ensure the underlying Linux directory permissions are correct:
+sudo chown -R haas:HaasGroup /home/haas/Haas_Data_collect
+sudo chmod -R 2775 /home/haas/Haas_Data_collect
+# The 2 in 2775 sets the setgid bit, which ensures that all locally created
+# files also inherit the HaasGroup.
 echo ""
 echo ""
 echo "#####################################################"
