@@ -145,14 +145,14 @@ The final structure will look like this:
 
 ```bash
 ├── haas
-    ├── Haas_Data_collect
-       ├── cnc_logs
-       ├── minimill
-       ├── st30
-       ├── st30l
-       ├── st40
-       ├── vf2ss
-       └── vf5ss
+     └── Haas_Data_collect
+         ├── machines
+             ├── st30
+             │   └── cnc_logs
+             ├── st30l
+             │   └── cnc_logs
+             └── st40
+                 └── cnc_logs
 ```
 
 ----------------------------------------------------------------
@@ -166,18 +166,18 @@ First we need to create the directories. We can refer to our table for the names
 | Machine  | Port# |   IP Address   |
 |----------|-------|:--------------:|
 | ST40     | 5052  | 192.168.10.141 |
-| VF2SS    | 5053  | 192.168.10.142 |
-| VF5SS    | 5054  | 192.168.10.143 |
-| MINIMILL | 5055  | 192.168.10.143 |
-| ST30     | 5056  | 192.168.10.144 |
-| ST30L    | 5057  | 192.168.10.145 |
+| VF2SS    | 5052  | 192.168.10.142 |
+| VF5SS    | 5052  | 192.168.10.143 |
+| MINIMILL | 5052  | 192.168.10.143 |
+| ST30     | 5052  | 192.168.10.144 |
+| ST30L    | 5052  | 192.168.10.145 |
 
 ----------------------------------------------------------------
 
 If you are only doing a handful of machines use:
 
 ```bash
-mkdir /home/haas/Haas_Data_collect/st40
+mkdir /home/haas/st40
 ```
 
 And repeat for each machine. If you used the Python script under [Scaling up](configuring_appliance.md/#scaling-up) with the `systemd-template.txt` it creates the 'mkdir' command along with the aliases.
@@ -210,12 +210,12 @@ Go to the bottom of the file and paste this code in:
     force directory mode = 0775
 ```
 
-This is the root directory. All other paths will be appended to the end of `/home/haas/Haas_Data_collect`. For example:
+This is the root directory. All other paths will be appended to the end of `/home/haas/Haas_Data_collect/machines`. For example:
 
 ```bash linenums='1' hl_lines='1'
 [ST40]
     comment = st40
-    path = /home/haas/Haas_Data_collect/st40
+    path = /home/haas/Haas_Data_collect/machines/st40
     read only = no
     browsable = yes
     writable = yes
@@ -235,21 +235,21 @@ This is the root directory. All other paths will be appended to the end of `/hom
 If you used the Python script with the `systemd-template.txt`, it creates all of the smb.conf share commands. Open each file and copy the code after `Create the share configuration`.
 
 ```bash linenums='1' hl_lines='13-17'
-sudo cp st1.service /etc/systemd/system/st1.service
+# Create the directory for the share
+mkdir -p /home/haas/Haas_Data_collect/machines/st30
+
+sudo cp st30.service /etc/systemd/system/st30.service
 sudo systemctl daemon-reload
 sudo systemctl enable st1.service
 sudo systemctl start st1.service
 sudo systemctl status st1.service
 
-# Create the directory for the share
-
-mkdir /home/haas/Haas_Data_collect/st1
 
 Create the share configuration
 
-[st1]
+[st30]
     comment =
-    path = /home/haas/Haas_Data_collect/st1
+    path = /home/haas/Haas_Data_collect/machines/st30
     read only = no
     browsable = yes
     writable = yes
@@ -296,7 +296,7 @@ drwxrwxr-x 7 haas HaasGroup 4096 Feb 15 21:22 Haas_Data_collect
 
 ----------------------------------------------------------------
 
-After you add all the share configurations, save `/etc/samba/smb.conf` and exit nano.
+After you add all the share configurations, save `/etc/samba/smb.conf` and exit nano using `ctrl_s` to save and `ctrl+x` to exit.
 
 ----------------------------------------------------------------
 
@@ -307,7 +307,7 @@ Based on the [table](Install_Samba.md/#create-the-shares) above this is what the
 
 [Haas]
     comment = Haas Directory Share
-    path = /home/haas/Haas
+    path = /home/haas/Haas_Data_collect
     browseable = yes
     writable = yes
     guest ok = no
@@ -320,7 +320,7 @@ Based on the [table](Install_Samba.md/#create-the-shares) above this is what the
     force directory mode = 0775
 [ST40]
     comment = ST40
-    path = /home/haas/Haas_Data_collect/st40
+    path = /home/haas/Haas_Data_collect/machines/st40
     read only = no
     browsable = yes
     public = no
@@ -333,7 +333,7 @@ Based on the [table](Install_Samba.md/#create-the-shares) above this is what the
     force directory mode = 0775
 [minimill]
     comment = minimill
-    path = /home/haas/Haas_Data_collect/minimill
+    path = /home/haas/Haas_Data_collect/machines/minimill
     read only = no
     browsable = yes
     public = no
@@ -346,7 +346,7 @@ Based on the [table](Install_Samba.md/#create-the-shares) above this is what the
     force directory mode = 0775
 [VF2SS]
     comment = vf2ss
-    path = /home/haas/Haas_Data_collect/vf2ss
+    path = /home/haas/Haas_Data_collect/machines/vf2ss
     valid users = @HaasGroup
     read only = no
     public = no
@@ -359,7 +359,7 @@ Based on the [table](Install_Samba.md/#create-the-shares) above this is what the
     force directory mode = 0775
   [VF5SS]
     comment = vf5ss
-    path = /home/haas/Haas_Data_collect/vf5ss
+    path = /home/haas/Haas_Data_collect/machines/vf5ss
     read only = no
     browsable = yes
     public = no
@@ -372,7 +372,7 @@ Based on the [table](Install_Samba.md/#create-the-shares) above this is what the
     force directory mode = 0775
 [ST30]
     comment = st30
-    path = /home/haas/Haas_Data_collect/st30
+    path = /home/haas/Haas_Data_collect/machines/st30
     read only = no
     browsable = yes
     public = no
@@ -385,7 +385,7 @@ Based on the [table](Install_Samba.md/#create-the-shares) above this is what the
     force directory mode = 0775
 [ST30L]
     comment = st30l
-    path = /home/haas/Haas_Data_collect/st30l
+    path = /home/haas/Haas_Data_collect/machines/st30l
     read only = no
     browsable = yes
     public = no
