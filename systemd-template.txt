@@ -1,6 +1,5 @@
 # Create the directory for the share
-mkdir /home/haas
-mkdir /home/haas/{{name}}
+mkdir -p /home/haas/Haas_Data_collect/machines/{{name}}
 
 sudo cp {{name}}.service /etc/systemd/system/{{name}}.service
 sudo systemctl daemon-reload
@@ -16,7 +15,7 @@ or
 
 [{{name}}]
     comment = {{description}}
-    path = /home/haas/{{name}}
+    path = /home/haas/Haas_Data_collect/machines/{{name}}
     read only = no
     browsable = yes
     writable = yes
