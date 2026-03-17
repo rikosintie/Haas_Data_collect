@@ -1,18 +1,17 @@
+# Create the directory for the share
+mkdir -p /home/haas/Haas_Data_collect/machines/st30l
+
 sudo cp st30l.service /etc/systemd/system/st30l.service
 sudo systemctl daemon-reload
 sudo systemctl enable st30l.service
 sudo systemctl start st30l.service
 sudo systemctl status st30l.service
 
-# Create the directory for the share
-
-mkdir /home/haas/Haas/st30l
-
 # Create the share configuration
 
 [st30l]
     comment = Logger for ST30L
-    path = /home/haas/Haas/st30l
+    path = /home/haas/Haas_Data_collect/machines/st30l
     read only = no
     browsable = yes
     writable = yes
