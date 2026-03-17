@@ -32,6 +32,12 @@
 # It does NOT modify or delete anything inside the repo.
 #
 
+# Check for root FIRST
+if [[ $EUID -ne 0 ]]; then
+  echo "[ERROR] This script must be run as root" >&2
+  exit 1
+fi
+
 set -euo pipefail
 
 echo "[*] Starting Haas Firewall installation..."
@@ -221,6 +227,8 @@ echo "#                                                          #"
 echo "############################################################"
 echo ""
 echo ""
+# remove existing file if it exists.
+sudo rm -f /etc/ssh/sshd_config.d/99-haas-hardening.conf
 # Create a custom ssh options file for hardening
 sudo tee /etc/ssh/sshd_config.d/99-haas-hardening.conf > /dev/null << 'EOF'
 #pre-authentication login banner
@@ -407,11 +415,49 @@ else
     echo ""
     exit 1
 fi
-sleep 3
+sleep 5
 
-########################################
-# Install Fresh Editor
-########################################
+
+if sudo nala install tree -y; then
+    TREE_VERSION=$$(tree --version | head -n1 | awk '{print $2}')
+    sudo nala upgrade -y
+    echo ""
+    echo ""
+    echo "####################################################"
+    echo "#                                                  #"
+    echo "#      ✅ $TREE_VERSION installed...                 #"
+    echo "#                                                  #"
+    echo "####################################################"
+    echo ""
+    echo ""
+    sleep 3
+else
+    echo ""
+    echo ""
+    echo "###########################################################"
+    echo "#                                                         #"
+    echo "#   ⚠️ Failed to install the tree command. Skipping...    #"
+    echo "#                                                         #"
+    echo "###########################################################"
+    echo ""
+    echo ""
+    exit 0
+fi
+
+echo ""
+echo ""
+echo "########################################################"
+echo "#                                                      #"
+echo "#  Installing Python libraries for the scaling script  #"
+echo "#                                                      #"
+echo "########################################################"
+echo ""
+echo ""
+python3 -m pip install pandas
+python3 -m pip install jinja2
+python3 -m pip install openpyxl
+
+
 echo ""
 echo ""
 echo "#################################################"
