@@ -15,7 +15,6 @@
 #        rollback_csv.sh
 #        build-nmap.sh
 #     Install csvlens binary to /usr/local/sbin
-#        csvlens
 #   - Copies build-nmap.sh to /usr/local/sbin
 #   - Installs the latest nmap
 #   - Installs systemd firewall service + timer
@@ -24,6 +23,8 @@
 #   - Reads initial_users.csv and creates the Linux/Samba users
 #   - Installs custom Haas_firewall Cockpit extension
 #   - Installs the nala package manager
+#   - Installs the linux tree command
+#   - Installs pip
 #   - Installs the "micro" cli text editor
 #   - Installs the "fresh" cli text editor
 #   - Creates the backup directory in the repo
@@ -423,11 +424,11 @@ if sudo nala install tree -y; then
     sudo nala upgrade -y
     echo ""
     echo ""
-    echo "####################################################"
-    echo "#                                                  #"
-    echo "#     ✅ Tree $TREE_VERSION installed...           #"
-    echo "#                                                  #"
-    echo "####################################################"
+    echo "#############################################"
+    echo "#                                           #"
+    echo "#     ✅ Tree $TREE_VERSION installed...    #"
+    echo "#                                           #"
+    echo "#############################################"
     echo ""
     echo ""
     sleep 3
