@@ -10,15 +10,19 @@
 #       CSV_PATH, BACKUP_DIR, HAAS_MACHINES_SUBNET_V4, HAAS_MACHINES_SUBNET_V6, SSH_PORT
 #   - Copies issue.net to /etc/issue.net (Pre-logon banner)
 #   - Installs firewall scripts into /usr/local/sbin
-#        configure_ufw_from_csv.sh
-#        validate_users_csv.sh
-#        rollback_csv.sh
 #        build-nmap.sh
-#     Install csvlens binary to /usr/local/sbin
-#   - Copies build-nmap.sh to /usr/local/sbin
+#        configure_ufw_from_csv.sh
+#        rollback_csv.sh
+#        ssh_port.sh
+#        validate_users_csv.sh
+#   - Copies the service files to  /etc/systemd/system/
+#      - haas-firewall.service
+#      - haas-firewall.timer
+#     Copies csvlens binary to /usr/local/sbin
 #   - Installs the latest nmap
 #   - Installs systemd firewall service + timer
 #   - Installs Samba server and updates /etc/samba/smb.conf
+#   - Adds the "haas" user to Samba, and creates a "HaasGroup"
 #       sets security and creates the "[Haas]" share
 #   - Reads initial_users.csv and creates the Linux/Samba users
 #   - Installs custom Haas_firewall Cockpit extension
@@ -42,49 +46,6 @@ fi
 set -euo pipefail
 
 echo "[*] Starting Haas Firewall installation..."
-
-# Check if Samba user exists
-echo ""
-echo ""
-echo "#########################################"
-echo "#         Add haas user to Samba        #"
-echo "#########################################"
-echo ""
-if pdbedit -L | cut -d: -f1 | grep -qx "haas"; then
-    echo "Samba user haas already exists."
-
-    # if $SET_PASSWORD; then
-    #     echo "Updating Samba password for haas"
-    #     sudo smbpasswd "haas" || {
-    #         echo "Error updating Samba password for haas." >&2
-    #         return 1
-    #     }
-    # fi
-else
-    echo "Creating Samba user haas"
-    sudo smbpasswd -a "haas" || {
-        echo "Error adding user to Samba database haas." >&2
-        return 1
-    }
-fi
-
-# Ensure Samba account is enabled
-sudo smbpasswd -e "haas" || {
-    echo "Error enabling Samba account for haas." >&2
-    return 1
-}
-
-# Add user to group (if it exists)
-if getent group "HaasGroup" > /dev/null; then
-    sudo usermod -aG "HaasGroup" "haas" || {
-        echo "Warning: Failed to add haas to HaasGroup" >&2
-    }
-else
-    echo "Warning: Group HaasGroup does not exist. Skipping group assignment."
-fi
-echo "Configuration complete for haas"
-echo "User info:"
-id "haas"
 
 # Ensure noble-updates is in sources (may be missing on Raspberry Pi Ubuntu images)
 if ! grep -q "noble-updates" /etc/apt/sources.list.d/ubuntu.sources; then
@@ -703,6 +664,42 @@ if sudo apt install samba -y; then
     echo ""
     echo ""
     sudo useradd -m -G HaasGroup haas 2>/dev/null || echo "User haas already exists"
+
+# Add hass user to Samba HaasGroup
+echo ""
+echo ""
+echo "#########################################"
+echo "#         Add haas user to Samba        #"
+echo "#########################################"
+echo ""
+if pdbedit -L | cut -d: -f1 | grep -qx "haas"; then
+    echo "Samba user haas already exists."
+
+else
+    echo "Creating Samba user haas"
+    sudo smbpasswd -a "haas" || {
+        echo "Error adding user to Samba database haas." >&2
+        return 1
+    }
+fi
+
+# Ensure Samba account is enabled
+sudo smbpasswd -e "haas" || {
+    echo "Error enabling Samba account for haas." >&2
+    return 1
+}
+
+# Add user to HaasGroup
+if getent group "HaasGroup" > /dev/null; then
+    sudo usermod -aG "HaasGroup" "haas" || {
+        echo "Warning: Failed to add haas to HaasGroup" >&2
+    }
+else
+    echo "Warning: Group HaasGroup does not exist. Skipping group assignment."
+fi
+echo "Configuration complete for haas"
+echo "User info:"
+id "haas"
 
     # Read users from initial_users.csv and create them
     USER_FILE="$REPO_DIR/initial_users.csv"
