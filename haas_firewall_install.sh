@@ -75,12 +75,12 @@ sudo smbpasswd -e "haas" || {
 }
 
 # Add user to group (if it exists)
-if getent group "$GROUP_NAME" > /dev/null; then
-    sudo usermod -aG "$GROUP_NAME" "haas" || {
-        echo "Warning: Failed to add haas to $GROUP_NAME" >&2
+if getent group "HaasGroup" > /dev/null; then
+    sudo usermod -aG "HaasGroup" "haas" || {
+        echo "Warning: Failed to add haas to HaasGroup" >&2
     }
 else
-    echo "Warning: Group $GROUP_NAME does not exist. Skipping group assignment."
+    echo "Warning: Group HaasGroup does not exist. Skipping group assignment."
 fi
 echo "Configuration complete for haas"
 echo "User info:"
