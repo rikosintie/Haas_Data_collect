@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Usage:
-#   ./script.sh <username> [--set-password]
+#   ./create_user.sh <username> [--set-password]
 
 create_samba_user() {
     if [ "$#" -lt 1 ]; then
