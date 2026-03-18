@@ -149,7 +149,7 @@ Then create a directory/share for each Haas machine tool. The Haas machine tool 
 - The machine operator to load programs from.
 - A subdirectory, cnc_logs, will hold the data collected from DPRNT.
 
-This share is used when setting up the Ethernet on the CNC control. The format will be \\<appliance_ip>\st30 for a share named st30.
+This share is used when setting up the Ethernet on the CNC control. The format will be `\\<appliance_ip>\st30` for a share named st30.
 
 The Haas data collection script creates the spreadsheets in the `cnc_logs` directory under the machine directory.
 
@@ -222,7 +222,7 @@ Go to the bottom of the file and paste this code in:
     force directory mode = 0775
 ```
 
-This is the root directory. All other paths will be appended to the end of `/home/haas/Haas_Data_collect/machines`. For example:
+This is the root directory for the project. The share names will be appended to the end of `/home/haas/Haas_Data_collect/machines`. For example:
 
 ```bash linenums='1' hl_lines='1'
 [ST40]
@@ -246,7 +246,7 @@ This is the root directory. All other paths will be appended to the end of `/hom
 
 If you used the Python script with the `systemd-template.txt`, it creates all of the smb.conf share commands. Open each file and copy the code after `Create the share configuration`.
 
-```bash linenums='1' hl_lines='13-17'
+```bash hl_lines='13-27'
 # Create the directory for the share
 mkdir -p /home/haas/Haas_Data_collect/machines/st30
 
