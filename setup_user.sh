@@ -16,11 +16,21 @@ create_samba_user() {
 
     # 1. Create the system user without a home directory and a nologin shell
     # Error trapping: '|| { ...; return 1; }' stops execution if a command fails
-    sudo useradd -M -s /usr/sbin/nologin "$USERNAME" || {
-        echo "Error creating system user $USERNAME. User may already exist or permissions issue." >&2
-        return 0
-    }
-    echo "System user $USERNAME created."
+    if id "$USERNAME" &>/dev/null; then
+        echo "User $USERNAME already exists. Skipping creation."
+    else
+        sudo useradd -M -s /usr/sbin/nologin "$USERNAME" || {
+            echo "Error creating system user $USERNAME." >&2
+            return 1
+        }
+        echo "System user $USERNAME created."
+
+        # Only set password if we just created the user
+        sudo passwd "$USERNAME" || {
+            echo "Error setting system password for $USERNAME." >&2
+            return 1
+        }
+    fi
 
     # 2. Set the system password (will prompt for a new password interactively)
     # The user running this script will be prompted by 'passwd' to set the password.
