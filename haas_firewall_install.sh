@@ -53,13 +53,13 @@ echo ""
 if pdbedit -L | cut -d: -f1 | grep -qx "haas"; then
     echo "Samba user haas already exists."
 
-    if $SET_PASSWORD; then
-        echo "Updating Samba password for haas"
-        sudo smbpasswd "haas" || {
-            echo "Error updating Samba password for haas." >&2
-            return 1
-        }
-    fi
+    # if $SET_PASSWORD; then
+    #     echo "Updating Samba password for haas"
+    #     sudo smbpasswd "haas" || {
+    #         echo "Error updating Samba password for haas." >&2
+    #         return 1
+    #     }
+    # fi
 else
     echo "Creating Samba user haas"
     sudo smbpasswd -a "haas" || {
