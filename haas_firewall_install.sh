@@ -50,7 +50,7 @@ echo "#########################################"
 echo "#         Add haas user to Samba        #"
 echo "#########################################"
 echo ""
-if pdbedit -L | cut -d: -f1 | grep -qx "$USERNAME"; then
+if pdbedit -L | cut -d: -f1 | grep -qx "haas"; then
     echo "Samba user $USERNAME already exists."
 
     if $SET_PASSWORD; then
@@ -61,30 +61,30 @@ if pdbedit -L | cut -d: -f1 | grep -qx "$USERNAME"; then
         }
     fi
 else
-    echo "Creating Samba user $USERNAME"
-    sudo smbpasswd -a "$USERNAME" || {
-        echo "Error adding user to Samba database $USERNAME." >&2
+    echo "Creating Samba user haas"
+    sudo smbpasswd -a "haas" || {
+        echo "Error adding user to Samba database haas." >&2
         return 1
     }
 fi
 
 # Ensure Samba account is enabled
-sudo smbpasswd -e "$USERNAME" || {
-    echo "Error enabling Samba account for $USERNAME." >&2
+sudo smbpasswd -e "haas" || {
+    echo "Error enabling Samba account for haas." >&2
     return 1
 }
 
 # Add user to group (if it exists)
 if getent group "$GROUP_NAME" > /dev/null; then
-    sudo usermod -aG "$GROUP_NAME" "$USERNAME" || {
-        echo "Warning: Failed to add $USERNAME to $GROUP_NAME" >&2
+    sudo usermod -aG "$GROUP_NAME" "haas" || {
+        echo "Warning: Failed to add haas to $GROUP_NAME" >&2
     }
 else
     echo "Warning: Group $GROUP_NAME does not exist. Skipping group assignment."
 fi
-echo "Configuration complete for $USERNAME"
+echo "Configuration complete for haas"
 echo "User info:"
-id "$USERNAME"
+id "haas"
 
 # Ensure noble-updates is in sources (may be missing on Raspberry Pi Ubuntu images)
 if ! grep -q "noble-updates" /etc/apt/sources.list.d/ubuntu.sources; then
