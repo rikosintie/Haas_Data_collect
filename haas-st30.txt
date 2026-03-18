@@ -1,11 +1,11 @@
 # Create the directory for the share
 mkdir -p /home/haas/Haas_Data_collect/machines/st30
 
-sudo cp st30.service /etc/systemd/system/st30.service
+sudo cp haas-st30.service /etc/systemd/system/haas-st30.service
 sudo systemctl daemon-reload
-sudo systemctl enable st30.service
-sudo systemctl start st30.service
-sudo systemctl status st30.service
+sudo systemctl enable haas-st30.service
+sudo systemctl start haas-st30.service
+sudo systemctl status haas-st30.service
 
 
 # Create the share configuration in /etc/samba/smb.conf

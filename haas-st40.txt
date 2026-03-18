@@ -1,8 +1,8 @@
-sudo cp st40.service /etc/systemd/system/st40.service
+sudo cp haas-st40.service /etc/systemd/system/haas-st40.service
 sudo systemctl daemon-reload
-sudo systemctl enable st40.service
-sudo systemctl start st40.service
-sudo systemctl status st40.service
+sudo systemctl enable haas-st40.service
+sudo systemctl start haas-st40.service
+sudo systemctl status haas-st40.service
 
 # Create the directory for the share
 

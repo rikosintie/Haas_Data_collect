@@ -1,11 +1,11 @@
 # Create the directory for the share
 mkdir -p /home/haas/Haas_Data_collect/machines/st30l
 
-sudo cp st30l.service /etc/systemd/system/st30l.service
+sudo cp haas-st30l.service /etc/systemd/system/haas-st30l.service
 sudo systemctl daemon-reload
-sudo systemctl enable st30l.service
-sudo systemctl start st30l.service
-sudo systemctl status st30l.service
+sudo systemctl enable haas-st30l.service
+sudo systemctl start haas-st30l.service
+sudo systemctl status haas-st30l.service
 
 # Create the share configuration
 
