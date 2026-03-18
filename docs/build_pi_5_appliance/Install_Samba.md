@@ -141,15 +141,15 @@ Dec 27 19:07:06 ubuntu-server smbd[20940]: pam_unix(samba:session): session open
 
 ## The directory structure
 
-We will need the table we created earlier for reference. The concept is to create a share on the `Haas_Data_collect` directory named `Haas`. This top level share will be able so see the entire directory structure when it's mapped to a Windows network drive.
+We will need the table we created earlier for reference. The concept is to create a share on the `Haas_Data_collect` directory named `Haas`. This top level share will be able so see the entire directory structure when it's mapped to a Windows network drive. Operations personnel will map to this share so that they can pull spreadsheets from every machine.
 
 Then create a directory/share for each Haas machine tool. The Haas machine tool share will be used:
 
 - By for the CNC programmer to drop programs into
-- The machine operator to load from.
-- A subdirectory, cnc_logs, will  hold the data collected from DPRNT.
+- The machine operator to load programs from.
+- A subdirectory, cnc_logs, will hold the data collected from DPRNT.
 
-This share is used when setting up the Ethernet on the CNC control.
+This share is used when setting up the Ethernet on the CNC control. The format will be \\<appliance_ip>\st30 for a share named st30.
 
 The Haas data collection script creates the spreadsheets in the `cnc_logs` directory under the machine directory.
 
