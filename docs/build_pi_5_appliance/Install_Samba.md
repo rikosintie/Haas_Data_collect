@@ -23,17 +23,17 @@ For my project I chose not to use Active Directory integration because most smal
 - A handful of accounts for the CNC Programmers
 - A handful of accounts for Operations personnel that will use the spreadsheets created by the scripts
 
-Creating local Linux accounts on the appliance is straight forward and we can script it if needed. If you want use Active Directory integration there are plenty of blogs/YouTube Videos available.
+Creating local Linux accounts on the appliance is straight forward and the project includes a script to create users. See the section [There are two trains of thoughts on usernames](../build_pi_5_appliance/configuring_appliance.md/#there-are-two-trains-of-thoughts-on-usernames) before deciding what accounts to use.
 
-See the section [There are two trains of thoughts on usernames](../build_pi_5_appliance/configuring_appliance.md/#there-are-two-trains-of-thoughts-on-usernames) before deciding what accounts to use.
+If you want use Active Directory integration there are plenty of blogs/YouTube Videos available.
 
 ----------------------------------------------------------------
 
 ## Install Samba Server
 
-The installation script, `haas_firewall_install.sh`, completes all of the steps needed to install Samba Service on the appliance. These instructions are provided for reference if you want to understand what installation script does.
+The installation script, `haas_firewall_install.sh`, completes all of the steps needed to install Samba Server on the appliance. These instructions are provided for reference if you want to understand what installation script does.
 
-If you plan to use the installation script and don't want to read the details of installing Samba Server [jump to The Directory Structure](../build_pi_5_appliance/Install_Samba.md/#the-directory-structure) to learn about the directory structure that is needed.
+If you plan to use the installation script and don't want to read the details of installing Samba Server jump to [The Directory Structure](../build_pi_5_appliance/Install_Samba.md/#the-directory-structure) to learn about the directory structure that is needed.
 
 ----------------------------------------------------------------
 
