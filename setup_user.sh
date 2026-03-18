@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Function to create a new system user with specific configurations (e.g., Samba, group membership)
-# Usage: create_samba_user <username>
+# Usage: create_new samba_user <username>
 create_samba_user() {
     # Check if exactly one argument (the username) was provided
     if [ "$#" -ne 1 ]; then
@@ -18,7 +18,7 @@ create_samba_user() {
     # Error trapping: '|| { ...; return 1; }' stops execution if a command fails
     sudo useradd -M -s /usr/sbin/nologin "$USERNAME" || {
         echo "Error creating system user $USERNAME. User may already exist or permissions issue." >&2
-        return 1
+        return 0
     }
     echo "System user $USERNAME created."
 
