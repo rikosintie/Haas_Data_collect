@@ -62,4 +62,5 @@ sudo systemctl enable --now cockpit-container.service
 
 echo "==> Installation complete!"
 echo "Cockpit is now running at: https://<appliance-ip>:9090"
-echo "Your extension is mounted at: $EXTENSION_DIR"
+    IP_ADDR=$(hostname -I | awk '{print $1}')
+    printf "Cockpit is available at: https://%s:9090\n" "$IP_ADDR"

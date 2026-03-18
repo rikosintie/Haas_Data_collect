@@ -287,8 +287,12 @@ The following options are needed so that files created from Windows, Mac, Linux 
 
 ----------------------------------------------------------------
 
+After you add all the share configurations, save `/etc/samba/smb.conf` and exit nano using `ctrl_s` to save and `ctrl+x` to exit.
+
+----------------------------------------------------------------
+
 Ensure the underlying Linux directory permissions are correct:
-On the server's filesystem, make sure the shared directory (/home/haas/Haas_Data_collect) in this example) is owned by haas:HaasGroup.
+On the server's filesystem, make sure the shared directory (/home/haas/Haas_Data_collect) in this example is owned by haas:HaasGroup.
 
 ```bash
 sudo chown -R haas:HaasGroup /home/haas/Haas_Data_collect
@@ -305,10 +309,6 @@ ls -l
 ```unixconfig title='Command Output'
 drwxrwxr-x 7 haas HaasGroup 4096 Feb 15 21:22 Haas_Data_collect
 ```
-
-----------------------------------------------------------------
-
-After you add all the share configurations, save `/etc/samba/smb.conf` and exit nano using `ctrl_s` to save and `ctrl+x` to exit.
 
 ----------------------------------------------------------------
 
@@ -421,7 +421,7 @@ Now that the /etc/samba/smb.conf file has been updated you need to test for erro
 testparm -s
 ```
 
-If there are no errors reported, restart the Samba Server service using:.
+If there are no errors reported, you will need to scroll to the top, restart the Samba Server service using:.
 
 ```bash
 sudo systemctl restart smbd

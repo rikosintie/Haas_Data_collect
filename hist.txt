@@ -1,0 +1,415 @@
+   23  touch bash-to-zsh-hist.py
+   24  nano bash-to-zsh-hist.py
+   25  cd ~/ && cp .bash_history .bash_history.bak && cat ~/.bash_history | python3 bash-to-zsh-hist.py >> ~/.zsh_history
+   28  cd /boot/firmware/
+   29  ls -l
+   30  sudo nano config.txt
+   31  ls -l
+   32  cat /etc/os-release
+   34  sudo apt update && sudo apt upgrade
+   35  sudo apt install nala
+   36  sudo reboot now
+   38  sudo nala install inetutils-traceroute
+   40  sudo nala install lldp
+   41  sudo nala install lldpd
+   42  lldpd
+   43  lldpcli
+   44  sudo nala arpping
+   45  sudo nala arping
+   46  sudo apt install arping
+   47  sudo nala install arping
+   48  tcpdump -h
+   49  dig -x 192.168.10.222
+   50  ss -tlun
+   51  nslookup
+   52  curl
+   53  curl --help
+   54  ethtool
+   55  ethtool -h
+   56  ip a
+   57  ethtool eth0
+   58  jq -h
+   59  curl --insecure -k https://192.168.10.133/haas-firewall/index.html
+   60  curl --insecure -k https://192.168.10.133:9090/haas-firewall/index.html
+   61  ip neighbor
+   62  ntpdate
+   63  sudo nala install ntpsec-ntpdate
+   64  ntpdate
+   65  ntpdate -h
+   66  ntpdate -q 192.168.10.222
+   67  sudo ufw status
+   68  history | grep trace
+   69  sudo touch /usr/local/sbin/build-nmap.sh
+   70  sudo nano /usr/local/sbin/build-nmap.sh
+   71  sudo  /usr/local/sbin/build-nmap.sh
+   72  cd /usr/local/sbin/
+   73  ls -l
+   74  chmod +x build-nmap.sh
+   75  sudo chmod +x build-nmap.sh
+   76  ls -l
+   77  ./build-nmap.sh
+   78  sudo ./build-nmap.sh
+   79  rm build-nmap.sh
+   80  sudo rm build-nmap.sh
+   81  sudo touch build-nmap.sh
+   82  sudo nano build-nmap.sh
+   83  sudo chmod +x build-nmap.sh
+   84  sudo ./build-nmap.sh
+   85  sudo apt update
+   86  sudo apt full-upgrade -y
+   87  sudo reboot now
+   88  sudo nala install -y     build-essential     checkinstall     libssl-dev     libpcap-dev     liblua5.4-dev     liblinear-dev     libssh2-1-dev     libzstd-dev     python3     wget     git
+   89  sudo nala install build-essentials
+   90  sudo nala install build-essential
+   91  sudo nala install checkinstall
+   92  sudo nala install -y     build-essential     checkinstall     libssl-dev     libpcap-dev     liblua5.4-dev     liblinear-dev     libssh2-1-dev     libzstd-dev     python3     wget     git
+   93  sudo nala install libssl-dev
+   94  sudo nala install libpcap-dev -y
+   95  sudo nala install libpcap-dev
+   96  sudo apt install libpcap-dev
+   97  apt-mark showhold
+   98  sudo dpkg --configure -a
+   99  sudo apt --fix-broken install -y
+  100  sudo apt full-upgrade -y
+  101  sudo nala install -y     build-essential     checkinstall     libssl-dev     libpcap-dev     liblua5.4-dev     python3     wget     git
+  102  sudo nala install -y libssl-dev libpcap-dev liblua5.4-dev
+  103  sudo apt install -y libssl-dev libpcap-dev liblua5.4-dev
+  104  sudo nala install -y     build-essential     checkinstall     libssl-dev     libpcap-dev     python3     wget     git
+  105  history
+  106  cd /usr/local/sbin/
+  107  sudo rm build-nmap.sh
+  108  sudo touch build-nmap.sh
+  109  sudo nano build-nmap.sh
+  110  sudo chmod +x build-nmap.sh
+  111  ./build-nmap.sh
+  112  sudo ./build-nmap.sh
+  113  sudo apt nala -y --no-install-recommends     build-essential     checkinstall     libssl-dev     libpcap-dev     python3     wget     git
+  114  sudo apt install -y --no-install-recommends     build-essential     checkinstall     libssl-dev     libpcap-dev     python3     wget     git
+  115  apt-cache depends libpcap-dev
+  116  sudo rm build-nmap.sh
+  117  sudo touch build-nmap.sh
+  118  sudo nano build-nmap.sh
+  119  chmod +x build-nmap.sh
+  120  suo chmod +x build-nmap.sh
+  121  sudo chmod +x build-nmap.sh
+  122  sudo ./build-nmap.sh
+  123  ls -l
+  124  sudo rm build-nmap.sh
+  125  sudo touch build-nmap.sh
+  126  sudo nano build-nmap.sh
+  127  sudo chmod +x build-nmap.sh
+  128  sudo ./build-nmap.sh
+  129  sudo rm build-nmap.sh
+  130  sudo touch build-nmap.sh
+  131  sudo nano build-nmap.sh
+  132  sudo chmod +x build-nmap.sh
+  133  sudo ./build-nmap.sh
+  134  cat build-nmap.sh
+  135  sudo rm build-nmap.sh
+  136  sudo touch build-nmap.sh
+  137  sudo nano build-nmap.sh
+  138  cat build-nmap.sh
+  139  sudo rm build-nmap.sh
+  140  sudo touch build-nmap.sh
+  141  sudo nano build-nmap.sh
+  142  cat build-nmap.sh
+  143  sudo chmod +x  build-nmap.sh
+  144  top
+  145  touch ~/.inputrc
+  146  sudo ./build-nmap.sh
+  147  sudo rm build-nmap.sh
+  148  sudo touch build-nmap.sh
+  149  sudo nano build-nmap.sh
+  150  cat build-nmap.sh
+  151  sudo rm build-nmap.sh
+  152  sudo touch build-nmap.sh
+  153  sudo nano build-nmap.sh
+  154  sudo chmod +x  build-nmap.sh
+  155  sudo ./build-nmap.sh
+  156  nmap
+  157  ls -ld /usr/local/src/nmap-*
+  158  cd /usr/local/src
+  159  sudo rm -f nmap-latest.tar.bz2
+  160  sudo wget https://nmap.org/dist/nmap-latest.tar.bz2
+  161  ls -lh nmap-latest.tar.bz2
+  162  sudo wget https://nmap.org/dist/nmap-latest.tar.bz2
+  163  nano ~/.inputrc
+  164  nano ~/.bashrc
+  165  exec bash
+  166  ls -l
+  167  log "Building libpcap ${LIBPCAP_VERSION} from source..."
+  168  mkdir -p "${SRC_ROOT}"
+  169  cd "${SRC_ROOT}"
+  170  rm -rf "libpcap-${LIBPCAP_VERSION}" "${LIBPCAP_TARBALL}" || true
+  171  wget -q "${LIBPCAP_URL}" -O "${LIBPCAP_TARBALL}"
+  172  if [[ ! -s "${LIBPCAP_TARBALL}" ]]; then     fail "libpcap tarball download failed or is empty: ${LIBPCAP_TARBALL}"; fi
+  173  tar xzf "${LIBPCAP_TARBALL}"
+  174  cd "libpcap-${LIBPCAP_VERSION}"
+  175  ./configure
+  176  make -j"$(nproc)"
+  177  make install
+  178  if ! grep -q "/usr/local/lib" /etc/ld.so.conf.d/*.conf 2>/dev/null; then     echo "/usr/local/lib" >/etc/ld.so.conf.d/usr-local-lib.conf; fi
+  179  ldconfig
+  180  log "libpcap installed successfully."
+  181  log "Detecting latest Nmap version from ${NMAP_DIST_URLsudo tee /usr/local/sbin/build-nmap.sh >/dev/null <<'EOF'
+  182
+  183  set -euo pipefail
+  184
+  185  SRC_ROOT="/usr/local/src"
+  186
+  187  LIBPCAP_VERSION="1.10.4"
+  188  LIBPCAP_TARBALL="libpcap-${LIBPCAP_VERSION}.tar.gz"
+  189  LIBPCAP_URL="https://www.tcpdump.org/release/${LIBPCAP_TARBALL}"
+  190
+  191  NMAP_DIST_URL="https://nmap.org/dist/"
+  192
+  193  USE_CHECKINSTALL=true
+  194
+  195  log() {
+  196      echo "[+] $(date '+%Y-%m-%d %H:%M:%S') — $*"
+  197  }
+  198
+  199  fail() {
+  200      echo "[!] ERROR: $*" >&2
+  201      exit 1
+  202  }
+  203
+  204  if [[ $EUID -ne 0 ]]; then
+  205      fail "This script must be run as root."
+  206  fi
+  207
+  208  log "Starting Nmap + libpcap build..."
+  209
+  210  log "Installing base build dependencies..."
+  211  apt update -y
+  212  apt install -y \n: 1769575080.9314756:0;    build-essential \n: 1769575080.931477:0;    checkinstall \n: 1769575080.931478:0;}..."
+  213  cd "${SRC_ROOT}"
+  214  HTML="$(curl -fsSL "${NMAP_DIST_URL}")" || fail "Failed to fetch Nmap dist index."
+  215  LATEST_TARBALL="$(printf '%s\n' "${HTML}" | grep -o 'nmap-[0-9.]*\.tar\.bz2' | sort -V | tail -1)"
+  216  if [[ -z "${LATEST_TARBALL}" ]]; then     fail "Could not determine latest Nmap tarball from ${NMAP_DIST_URL}"; fi
+  217  NMAP_TARBALL="${LATEST_TARBALL}"
+  218  NMAP_URL="${NMAP_DIST_URL}${NMAP_TARBALL}"
+  219  log "Latest Nmap tarball detected: ${NMAP_TARBALL}"
+  220  rm -rf nmap-* "${NMAP_TARBALL}" || true
+  221  log "Downloading ${NMAP_URL}..."
+  222  wget -q --tries=3 --timeout=15 "${NMAP_URL}" -O "${NMAP_TARBALL}"
+  223  if [[ ! -s "${NMAP_TARBALL}" ]]; then     fail "Nmap tarball download failed or is empty: ${NMAP_TARBALL}"; fi
+  224  tar xjf "${NMAP_TARBALL}"
+  225  NMAP_DIR="$(echo nmap-* | awk '{print $1}')"
+  226  if [[ ! -d "${NMAP_DIR}" ]]; then     fail "Nmap source directory not found after extraction."; fi
+  227  cd "${NMAP_DIR}"
+  228  log "Configuring Nmap (bundled Lua, minimal features)..."
+  229  ./configure     --with-openssl     --with-libpcap     --without-zenmap     --without-ncat     --without-nping
+  230  log "Building Nmap..."
+  231  make -j"$(nproc)"
+  232  if [[ "${USE_CHECKINSTALL}" == true ]]; then     log "Packaging Nmap with checkinstall...";     checkinstall --pkgname=nmap --pkgversion="latest" --backup=no --deldoc=yes --fstrans=no -y; else     log "Installing Nmap via make install...";     make install; fi
+  233  log "Verifying Nmap installation..."
+  234  command -v nmap >/dev/null || fail "Nmap binary not found in PATH."
+  235  nmap --version
+  236  log "Nmap + libpcap build completed successfully."
+  237  EOF
+  238  ls -l
+  239  sudo tee /usr/local/sbin/build-nmap.sh >/dev/null <<'EOF'
+  240
+  241  set -euo pipefail
+  242
+  243  SRC_ROOT="/usr/local/src"
+  244
+  245  LIBPCAP_VERSION="1.10.4"
+  246  LIBPCAP_TARBALL="libpcap-${LIBPCAP_VERSION}.tar.gz"
+  247  LIBPCAP_URL="https://www.tcpdump.org/release/${LIBPCAP_TARBALL}"
+  248
+  249  NMAP_DIST_URL="https://nmap.org/dist/"
+  250
+  251  USE_CHECKINSTALL=true
+  252
+  253  log() {
+  254      echo "[+] $(date '+%Y-%m-%d %H:%M:%S') — $*"
+  255  }
+  256
+  257  fail() {
+  258      echo "[!] ERROR: $*" >&2
+  259      exit 1
+  260  }
+  261
+  262  if [[ $EUID -ne 0 ]]; then
+  263      fail "This script must be run as root."
+  264  fi
+  265
+  266  log "Starting Nmap + libpcap build..."
+  267
+  268  log "Installing base build dependencies..."
+  269  apt update -y
+  270  apt install -y \n: 1769575080.9315538:0;    build-essential \n: 1769575080.931555:0;    checkinstall \n: 1769575080.9315565:0;    libssl-dev \n: 1769575080.9315574:0;    python3 \n: 1769575080.9315586:0;    wget \n: 1769575080.93156:0;    curl \n: 1769575080.931561:0;    git \n: 1769575080.9315622:0;    flex \n: 1769575080.9315636:0;    bison
+  271
+  272  log "Building libpcap ${LIBPCAP_VERSION} from source..."
+  273  mkdir -p "${SRC_ROOT}"
+  274  cd "${SRC_ROOT}"
+  275
+  276  rm -rf "libpcap-${LIBPCAP_VERSION}" "${LIBPCAP_TARBALL}" || true
+  277
+  278  wget -q "${LIBPCAP_URL}" -O "${LIBPCAP_TARBALL}"
+  279  if [[ ! -s "${LIBPCAP_TARBALL}" ]]; then
+  280      fail "libpcap tarball download failed or is empty: ${LIBPCAP_TARBALL}"
+  281  fi
+  282
+  283  tar xzf "${LIBPCAP_TARBALL}"
+  284  cd "libpcap-${LIBPCAP_VERSION}"
+  285
+  286  ./configure
+  287  make -j"$(nproc)"
+  288  make install
+  289
+  290  if ! grep -q "/usr/local/lib" /etc/ld.so.conf.d/*.conf 2>/dev/null; then
+  291      echo "/usr/local/lib" >/etc/ld.so.conf.d/usr-local-lib.conf
+  292  fi
+  293  ldconfig
+  294
+  295  log "libpcap installed successfully."
+  296
+  297  log "Detecting latest Nmap version from ${NMAP_DIST_URL}..."
+  298  cd "${SRC_ROOT}"
+  299
+  300  HTML="$(curl -fsSL "${NMAP_DIST_URL}")" || fail "Failed to fetch Nmap dist index."
+  301  LATEST_TARBALL="$(printf '%s\n' "${HTML}" | grep -o 'nmap-[0-9.]*\.tar\.bz2' | sort -V | tail -1)"
+  302
+  303  if [[ -z "${LATEST_TARBALL}" ]]; then
+  304      fail "Could not determine latest Nmap tarball from ${NMAP_DIST_URL}"
+  305  fi
+  306
+  307  NMAP_TARBALL="${LATEST_TARBALL}"
+  308  NMAP_URL="${NMAP_DIST_URL}${NMAP_TARBALL}"
+  309
+  310  log "Latest Nmap tarball detected: ${NMAP_TARBALL}"
+  311  rm -rf nmap-* "${NMAP_TARBALL}" || true
+  312
+  313  log "Downloading ${NMAP_URL}..."
+  314  wget -q --tries=3 --timeout=15 "${NMAP_URL}" -O "${NMAP_TARBALL}"
+  315  if [[ ! -s "${NMAP_TARBALL}" ]]; then
+  316      fail "Nmap tarball download failed or is empty: ${NMAP_TARBALL}"
+  317  fi
+  318
+  319  tar xjf "${NMAP_TARBALL}"
+  320  NMAP_DIR="$(echo nmap-* | awk '{print $1}')"
+  321
+  322  if [[ ! -d "${NMAP_DIR}" ]]; then
+  323      fail "Nmap source directory not found after extraction."
+  324  fi
+  325
+  326  cd "${NMAP_DIR}"
+  327
+  328  log "Configuring Nmap (bundled Lua, minimal features)..."
+  329  ./configure \n: 1769575080.9316578:0;    --with-openssl \n: 1769575080.9316592:0;    --with-libpcap \n: 1769575080.9316602:0;    --without-zenmap \n: 1769575080.9316616:0;    --without-ncat \n: 1769575080.9316628:0;    --without-nping
+  330
+  331  log "Building Nmap..."
+  332  make -j"$(nproc)"
+  333
+  334  if [[ "${USE_CHECKINSTALL}" == true ]]; then
+  335      log "Packaging Nmap with checkinstall..."
+  336      checkinstall --pkgname=nmap --pkgversion="latest" --backup=no --deldoc=yes --fstrans=no -y
+  337  else
+  338      log "Installing Nmap via make install..."
+  339      make install
+  340  fi
+  341
+  342  log "Verifying Nmap installation..."
+  343  command -v nmap >/dev/null || fail "Nmap binary not found in PATH."
+  344  nmap --version
+  345
+  346  log "Nmap + libpcap build completed successfully."
+  347
+  348
+  349
+  350  ls -l
+  351  sudo touch build-nmap.sh
+  352  sudo nano build-nmap.sh
+  353  sudo chmod +x  build-nmap.sh
+  354  sudo ./build-nmap.sh
+  355  sudo rm -f nmap-latest.tar.bz2
+  356  sudo rm build-nmap.sh
+  357  sudo nano build-nmap.sh
+  358  sudo chmod +x  build-nmap.sh
+  359  sudo ./build-nmap.sh
+  360  nmap
+  361  nmap -sV 192.168.10.222
+  362  ncat
+  363  sudo rm build-nmap.sh
+  364  sudo nano build-nmap.sh
+  365  sudo chmod +x  build-nmap.sh
+  366  sudo ./build-nmap.sh
+  367  ncat
+  368  ncat -h
+  369  socat
+  370  sudo apt list
+  371  sudo nala upgrade
+  372  sudo apt install curl git -y
+  373  sudo apt install zsh
+  374  zsh --version`
+  375  zsh --version
+  376  echo $SHELL
+  377  chsh -s $(which zsh)
+  378  grep zsh /etc/passwd
+  379  ls -l ~/.*rc
+  380  sudo reboot now
+  381  history
+  382  zsh --version
+  383  ec
+  384  sc
+  385  smb-shares
+  386  pwd
+  387  ls -l
+  388  mkd Downloads
+  389  curl -k https://github.com/YS-L/csvlens/releases/download/v0.15.1/csvlens-aarch64-unknown-linux-gnu.tar.xz
+  390  ls -l
+  391  curl -k https://github.com/YS-L/csvlens/releases/download/v0.15.1/csvlens-aarch64-unknown-linux-gnu.tar.xz
+  392  curl -h
+  393  man curl
+  394  curl -O https://github.com/YS-L/csvlens/releases/download/v0.15.1/csvlens-aarch64-unknown-linux-gnu.tar.xz
+  395  ls -l
+  396  tar -xvz csvlens-aarch64-unknown-linux-gnu.tar.xz
+  397  tar -xvzf csvlens-aarch64-unknown-linux-gnu.tar.xz
+  398  curl -L -O https://github.com/YS-L/csvlens/releases/download/v0.15.1/csvlens-aarch64-unknown-linux-gnu.tar.xz
+  399  ls -l
+  400  tar -xvzf csvlens-aarch64-unknown-linux-gnu.tar.xz
+  401  tar -xvf csvlens-aarch64-unknown-linux-gnu.tar.xz
+  402  ls -l
+  403  cd csvlens-aarch64-unknown-linux-gnu
+  404  ls -l
+  405  path
+  406  cp csvlens /usr/local/sbin
+  407  sudo cp csvlens /usr/local/sbin
+  408  csvlens
+  409  csvlens -h
+  410  history
+  411  alias
+  412  df
+  413  du
+  414  4
+  415  22440
+  416  df -h
+  417  df
+  418  df -h
+  419  cat /etc/shells
+  420  es
+  421  cat /etc/ssh/ssh_config
+  422  cat /etc/ssh/sshd_config
+  423  sudo nano /etc/issue.net
+  424  sudo nano /etc/ssh/sshd_config
+  425  sudo systemctl restart ssh.service\n
+  426  exit
+  427  sudo nano /etc/issue.net
+  428  exit
+  429  sudo nano /etc/issue.net
+  430  exit
+  431  sudo nano /etc/issue.net
+  432  exit
+  433  sudo nano /etc/issue.net
+  434  exit
+  435  ls -l /etc/update-motd.d
+  436  cat /etc/update-motd.d/fwupd
+  437  cat /etc/update-motd.d/85-fwupd
+  438  cat /run/motd.d/85-fwupd
+  439  ls -l /run/motd.d/
+  440  cat /etc/update-motd.d/00-header
+  441  history
+  442  pwd

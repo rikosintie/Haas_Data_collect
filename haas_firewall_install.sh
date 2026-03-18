@@ -43,6 +43,49 @@ set -euo pipefail
 
 echo "[*] Starting Haas Firewall installation..."
 
+# Check if Samba user exists
+echo ""
+echo ""
+echo "#########################################"
+echo "#         Add haas user to Samba        #"
+echo "#########################################"
+echo ""
+if pdbedit -L | cut -d: -f1 | grep -qx "$USERNAME"; then
+    echo "Samba user $USERNAME already exists."
+
+    if $SET_PASSWORD; then
+        echo "Updating Samba password for $USERNAME"
+        sudo smbpasswd "$USERNAME" || {
+            echo "Error updating Samba password for $USERNAME." >&2
+            return 1
+        }
+    fi
+else
+    echo "Creating Samba user $USERNAME"
+    sudo smbpasswd -a "$USERNAME" || {
+        echo "Error adding user to Samba database $USERNAME." >&2
+        return 1
+    }
+fi
+
+# Ensure Samba account is enabled
+sudo smbpasswd -e "$USERNAME" || {
+    echo "Error enabling Samba account for $USERNAME." >&2
+    return 1
+}
+
+# Add user to group (if it exists)
+if getent group "$GROUP_NAME" > /dev/null; then
+    sudo usermod -aG "$GROUP_NAME" "$USERNAME" || {
+        echo "Warning: Failed to add $USERNAME to $GROUP_NAME" >&2
+    }
+else
+    echo "Warning: Group $GROUP_NAME does not exist. Skipping group assignment."
+fi
+echo "Configuration complete for $USERNAME"
+echo "User info:"
+id "$USERNAME"
+
 # Ensure noble-updates is in sources (may be missing on Raspberry Pi Ubuntu images)
 if ! grep -q "noble-updates" /etc/apt/sources.list.d/ubuntu.sources; then
     echo "noble-updates not found, adding to sources..."
