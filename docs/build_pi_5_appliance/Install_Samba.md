@@ -10,28 +10,34 @@
 
 A [Samba server](https://www.samba.org/) is an open-source software suite that enables seamless file and printer sharing between Linux/Unix systems and Windows systems. It implements the Server Message Block (SMB) and Common Internet File System (CIFS) protocols, which are standard for Windows-based file sharing. Samba also supports integration with Active Directory (AD) environments, making it a versatile tool for mixed-OS networks.
 
-- Active Directory Integration: It can act as an Active Directory Domain Controller or a member server, supporting protocols like LDAP and Kerberos.
+- Active Directory Integration: Samba can act as an Active Directory Domain Controller or a member server, supporting protocols like LDAP and Kerberos.
 
 !!! Note
     If the appliance isn't added to Active Directory as a member server it will only offer `NTLMv2` authentication to Windows. If your company's security policy doesn't allow NTLMV2, then you must join the appliance to the domain. Microsoft plans to disable `NTLMv2` in 2028 so you will have to Active Directory integrate it then or re-enable NTLMv2 on the desktops connecting to it!
 
 ----------------------------------------------------------------
 
-For my project I chose not to use Active Directory integration because 99% of MSPs will freak out if you say you need a Linux server connected to Active Directory. We are only dealing with:
+For my project I chose not to use Active Directory integration because most small/medium manufacturing companies use Managed Service Providers (MSP) to support their IT operations. MSP don't normally run Linux servers and push back if you say you need a Linux server connected to Active Directory. We are only dealing with:
 
 - One account for the machines (haassvc)
 - A handful of accounts for the CNC Programmers
 - A handful of accounts for Operations personnel that will use the spreadsheets created by the scripts
 
-Creating local accounts on the Raspberry Pi 5 is straight forward and we can script it if needed. If you want use Active Directory integration there are plenty of blogs/YouTube Videos available.
+Creating local Linux accounts on the appliance is straight forward and we can script it if needed. If you want use Active Directory integration there are plenty of blogs/YouTube Videos available.
 
-See the section [There are two trains of thoughts on usernames](../build_pi_5_appliance/configuring_appliance.md/#there-are-two-trains-of-thoughts-on-usernames) before deciding to what accounts to use.
+See the section [There are two trains of thoughts on usernames](../build_pi_5_appliance/configuring_appliance.md/#there-are-two-trains-of-thoughts-on-usernames) before deciding what accounts to use.
 
 ----------------------------------------------------------------
 
 ## Install Samba Server
 
-Open a terminal on the Raspberry Pi 5 and enter
+The installation script, `haas_firewall_install.sh`, completes all of the steps needed to install Samba Service on the appliance. These instructions are provided for reference if you want to understand what installation script does.
+
+If you plan to use the installation script and don't want to read the details of installing Samba Server [jump to The Directory Structure](../build_pi_5_appliance/Install_Samba.md/#the-directory-structure) to learn about the directory structure that is needed.
+
+----------------------------------------------------------------
+
+Open a terminal on the appliance and enter
 
 ```bash
 sudo apt update && sudo apt install -y samba
@@ -82,7 +88,7 @@ samba --version
 Version 4.19.5-Ubuntu
 ```
 
-As you can see, on January 4th, 2025 the current version is 4.19.5.
+As you can see, on January 4th, 2026 the current version is 4.19.5.
 
 ----------------------------------------------------------------
 
@@ -135,11 +141,17 @@ Dec 27 19:07:06 ubuntu-server smbd[20940]: pam_unix(samba:session): session open
 
 ## The directory structure
 
-We will need the table we created earlier for reference. The concept is to create a share on the `Haas_Data_collect` directory named `Haas`. This top level share will will be able so see the entire directory structure when it's mapped to a Windows network drive.
+We will need the table we created earlier for reference. The concept is to create a share on the `Haas_Data_collect` directory named `Haas`. This top level share will be able so see the entire directory structure when it's mapped to a Windows network drive.
 
-Then create a directory/share for each Haas machine tool. The Haas machine tool share will be used for the CNC programmer to drop programs into and the machine operator to load from. This share is used when setting up the Ethernet on the CNC control.
+Then create a directory/share for each Haas machine tool. The Haas machine tool share will be used:
 
-The Haas data collection scripts create the spreadsheets in the `cnc_logs` directory.
+- By for the CNC programmer to drop programs into
+- The machine operator to load from.
+- A subdirectory, cnc_logs, will  hold the data collected from DPRNT.
+
+This share is used when setting up the Ethernet on the CNC control.
+
+The Haas data collection script creates the spreadsheets in the `cnc_logs` directory under the machine directory.
 
 The final structure will look like this:
 
