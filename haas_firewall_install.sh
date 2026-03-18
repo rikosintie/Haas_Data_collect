@@ -736,20 +736,17 @@ if sudo apt install samba -y; then
     sudo tee /etc/samba/smb.conf > /dev/null <<EOF
 [global]
     workgroup = WORKGROUP
-    server string = %h server (Samba, Ubuntu)
+    server string = Haas Data Collector (Samba, Ubuntu)
+    server role = standalone server
+
+    # Logging
     log file = /var/log/samba/log.%m
     max log size = 10000
     logging = file
     panic action = /usr/share/samba/panic-action %d
 
     # Authentication
-    server role = standalone server
-    obey pam restrictions = Yes
-    unix password sync = Yes
-    passwd program = /usr/bin/passwd %u
-    passwd chat = *Enter\snew\s*\spassword:* %n\n *Retype\snew\s*\spassword:* %n\n *password\supdated\ssuccessfully* .
-    pam password change = Yes
-    map to guest = Bad User
+    map to guest = Never
 
     # Protocol Security - Force SMB2/SMB3 only
     client min protocol = SMB2
@@ -757,33 +754,24 @@ if sudo apt install samba -y; then
     server min protocol = SMB2
     server max protocol = SMB3
 
-    # Disable legacy protocols and services
+    # Network
+    # interfaces = eth0
+    # bind interfaces only = Yes
+    socket options = TCP_NODELAY IPTOS_LOWDELAY
+
+    # Disable unused services
     disable netbios = Yes
     disable spoolss = Yes
-
-    # Disable printing
     load printers = No
     printing = bsd
     printcap name = /dev/null
 
-    [printers]
-    available = No
-    browseable = No
-    printable = Yes
-
-[print$]
-    available = No
-
-    # Performance
-    socket options = TCP_NODELAY IPTOS_LOWDELAY
-
 [Haas]
-    comment = Haas Directory Share
+    comment = Haas Data Collection Share
     path = /home/haas/Haas_Data_collect
-    read only = no
-    browsable = yes
-    writable = yes
-    public = no
+    browseable = Yes
+    writable = Yes
+    public = No
     valid users = @HaasGroup, haas
     force user = haas
     force group = HaasGroup
