@@ -1,5 +1,5 @@
 # Create the directory for the share
-mkdir /home/haas/st30
+mkdir -p /home/haas/Haas_Data_collect/machines/st30
 
 sudo cp st30.service /etc/systemd/system/st30.service
 sudo systemctl daemon-reload
@@ -15,7 +15,7 @@ or
 
 [st30]
     comment = Logger for ST30
-    path = /home/Haas/st30
+    path = /home/haas/Haas_Data_collect/machines/st30
     read only = no
     browsable = yes
     writable = yes
