@@ -337,8 +337,6 @@ The final structure will look like this:
 
 ----------------------------------------------------------------
 
-### Create the shares
-
 First we need to create the directories. We can refer to our table for the names:
 
 ----------------------------------------------------------------
@@ -357,22 +355,98 @@ First we need to create the directories. We can refer to our table for the names
 If you are only doing a handful of machines use:
 
 ```bash
-mkdir /home/haas/st40
+mkdir /home/haas/Haas_Data_collect/st40
 ```
 
 And repeat for each machine. If you used the Python script under [Scaling up](configuring_appliance.md/#scaling-up) with the `systemd-template.txt` it creates the 'mkdir' command along with the aliases.
 
-**Open the `smb.conf` file**
+### The tree command
+
+The installation script installs the Linux `tree` command. It's very useful to verify files and directories on linux system.
+
+#### View directories and files
+
+```bash linenums='1' hl_lines='1'
+cd /home/haas/Haas_Data_collect/machines
+tree
+```
+
+```bash title='Command Output'
+.
+├── minimill
+├── st30
+│   └── cnc_logs
+│       └── st30_265-4183.csv
+├── st30l
+│   └── cnc_logs
+│       └── st30l_265-4183.csv
+└── st40
+    └── cnc_logs
+        └── st40_265-4183.csv
+```
+
+----------------------------------------------------------------
+
+#### View directories and files with file size
+
+```bash linenums='1' hl_lines='1'
+cd /home/haas/Haas_Data_collect/machines
+tree -h
+```
+
+```bash title='Command Output'
+[4.0K]  .
+├── [4.0K]  minimill
+├── [4.0K]  st30
+│   └── [4.0K]  cnc_logs
+│       └── [ 232]  st30_265-4183.csv
+├── [4.0K]  st30l
+│   └── [4.0K]  cnc_logs
+│       └── [ 233]  st30l_265-4183.csv
+└── [4.0K]  st40
+    └── [4.0K]  cnc_logs
+        └── [ 232]  st40_265-4183.csv
+
+```
+
+----------------------------------------------------------------
+
+#### View just directories
+
+```bash linenums='1' hl_lines='1'
+cd /home/haas/Haas_Data_collect/machines
+tree -d
+```
+
+```bash title='Command Output'
+.
+├── minimill
+├── st30
+│   └── cnc_logs
+├── st30l
+│   └── cnc_logs
+└── st40
+    └── cnc_logs
+```
+
+----------------------------------------------------------------
+
+## Create the shares
+
+Each share is created by updating the file `/etc/samba/smb.conf` with the information defining the share
+
+### Update the smb.conf file
+
+Open the file using:
 
 ```bash
 sudo nano /etc/samba/smb.conf
 ```
 
-Go to the bottom of the file and paste this code in:
+Go to the bottom of the file and paste this code in (Note, the installation script creates this share):
 
 ```bash
-# Share for Haas CNC Programs
-
+# Share for Haas Data Collection files
 [Haas]
     comment = Haas
     path = /home/haas/Haas_Data_collect
@@ -479,10 +553,12 @@ drwxrwsr-x 9 haas HaasGroup 4096 Mar 18 19:32 Haas_Data_collect
 
 ----------------------------------------------------------------
 
+### The smb.conf Share section
+
 Based on the [table](Install_Samba.md/#create-the-shares) above this is what the share section will look like:
 
 ```bash linenums='1'
-# Share for Haas CNC Programs
+# Share for Haas Data Collection files
 
 [Haas]
     comment = Haas Directory Share
@@ -580,15 +656,15 @@ Based on the [table](Install_Samba.md/#create-the-shares) above this is what the
 
 ----------------------------------------------------------------
 
-## Restart the Samba Server
+### Restart the Samba Server
 
-Now that the /etc/samba/smb.conf file has been updated you need to test for errors. Use the following:
+Now that the `/etc/samba/smb.conf` file has been updated you need to test for errors. Use the following:
 
 ```bash
 testparm -s
 ```
 
-If there are no errors reported, you will need to scroll to the top, restart the Samba Server service using:.
+The entire `smb.conf` file will be displayed. You will need to scroll up to see any error messages since the conf file is longer than one screen. Restart the Samba Server service using:.
 
 ```bash
 sudo systemctl restart smbd
