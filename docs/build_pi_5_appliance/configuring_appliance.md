@@ -437,7 +437,7 @@ After=network.target
 
 [Service]
 User=haas
-WorkingDirectory=/home/haas/Haas_Data_collect
+WorkingDirectory=/home/haas/Haas_Data_collect/machines/st40
 ExecStart=/usr/bin/python3 /home/haas/Haas_Data_collect/haas_logger2.py -a -t 192.168.10.140  --port 5052 --name ST40
 Type=idle
 
@@ -454,37 +454,30 @@ WantedBy=multi-user.target
 
 The systemd service files are located in `/etc/systemd/system/` so you must use sudo to edit them. Think of `sudo` as `UAC` in Windows. The advantage is that you can proactively use `sudo` and not have to deal with pop up dialogs asking for permission!
 
-As an example, let's use the included st40.service file. You should be in the `Haas_Data_collect` directory. You can rename it using `mv st40.service new_name.service`. Use the following to copy `st40.service` to the `/etc/systemd/system/` directory:
+As an example, let's use the included haas-st40.service file. You should be in the `Haas_Data_collect` directory. You can rename it using `mv haas-st40.service new_name.service`. Use the following to copy `haas-st40.service` to the `/etc/systemd/system/` directory:
 
-`sudo cp st40.service /etc/systemd/system/st40.service`
+`sudo cp haas-st40.service /etc/systemd/system/haas-st40.service`
 or
 `sudo cp new_name.service /etc/systemd/system/new_name.service`
 
-Use the following to edit the st40.service file after you copy it:
+Use the following to edit the haas-st40.service file after you copy it:
 
 ```bash
-sudo nano /etc/systemd/system/st40.service
+sudo nano /etc/systemd/system/haas-st40.service
 ```
 
-This will open `st40.service` in the built in `nano` editor.
+This will open `haas-st40.service` in the built in `nano` editor.
 
 !!! Note
     For whatever reason, `nano` doesn't use the normal text editor keys. If you are brand new to Linux, use this tutorial to learn nano - [The beginners guide to Nano the Linux command line text editor](https://www.howtogeek.com/42980/the-beginners-guide-to-nano-the-linux-command-line-text-editor/)
 
-You can install the [Fresh Editor](https://github.com/Nsoro-Allan/fresh-editor?tab=readme-ov-file#installation) using the command below. The site for the Fresh Editor is [Fresh](https://sinelaw.github.io/fresh/). I find it easier to use than `nano` because it uses the same key bindings as most GUI editors.
-
-```bash hl_lines='1'
-https://raw.githubusercontent.com/sinelaw/fresh/refs/heads/master/scripts/install.sh | sh
-```
-
-!!! Note
-    In the Linux/Unix world it is considered bad security practice to pipe a command to the shell that you found on the Internet. Feel free to go to the Fresh webpage and copy the command from there.
+The [Fresh Editor](https://github.com/Nsoro-Allan/fresh-editor?tab=readme-ov-file#installation) is installed if you used the installation script. The homepage for the Fresh Editor is [Fresh](https://sinelaw.github.io/fresh/). I find it easier to use than `nano` because it uses the same key bindings as most GUI editors.
 
 ----------------------------------------------------------------
 
 **If you installed the desktop version of Ubuntu**, you can use the GUI Gnome Text Editor GUI to edit the files by running:
 
-`sudo gnome-text-editor /etc/systemd/system/st40.service`
+`sudo gnome-text-editor /etc/systemd/system/haas-st40.service`
 
 ----------------------------------------------------------------
 
@@ -503,8 +496,8 @@ Once you have the service file modified, use the following commands to set up th
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable st40.service
-sudo systemctl start st40.service
+sudo systemctl enable haas-st40.service
+sudo systemctl start haas-st40.service
 ```
 
 There is no output from these commands.
@@ -514,33 +507,33 @@ There is no output from these commands.
 ### What the commands do
 
 - sudo systemctl daemon-reload - Forces `systemd` to read the changes in the systemd files
-- sudo systemctl enable st40.service - Tells `systemd` to run the service on boot
-- sudo systemctl start st40.service - Actually starts the `systemd` service
+- sudo systemctl enable haas-st40.service - Tells `systemd` to run the service on boot
+- sudo systemctl start haas-st40.service - Actually starts the `systemd` service
 
-Once these commands are run the `st40.service` should be active.
+Once these commands are run the `haas-st40.service` should be active.
 
 ----------------------------------------------------------------
 
-**Run this command to check the status of the `st40.service`:**
+**Run this command to check the status of the `haas-st40.service`:**
 
 ```bash
-sudo systemctl status st40.service
+sudo systemctl status haas-st40.service
 ```
 
-```unixconfig hl_lines="2" title="Status of the st40.service"
+```unixconfig hl_lines="2" title="Status of the haas-st40.service"
 ╭─haas@haas ~
-╰─$ sudo systemctl status st40.service
-● st40.service - Haas Python logger for ST40
-     Loaded: loaded (/etc/systemd/system/st40.service; enabled; preset: enabled)
+╰─$ sudo systemctl status haas-st40.service
+● haas-st40.service - Haas Python logger for ST40
+     Loaded: loaded (/etc/systemd/system/haas-st40.service; enabled; preset: enabled)
      Active: active (running) since Mon 2025-12-29 16:09:45 PST; 2s ago
    Main PID: 115518 (python3)
       Tasks: 1 (limit: 4601)
      Memory: 6.9M (peak: 7.1M)
         CPU: 37ms
-     CGroup: /system.slice/st40.service
+     CGroup: /system.slice/haas-st40.service
              └─115518 /usr/bin/python3 /home/haas/Haas_Data_collect/haas_logger2.py -a -t 192.168.10.122 --port 5052 --name ST40
 
-Dec 29 16:09:45 ubuntu-server systemd[1]: Started st40.service - Haas Python logger for ST40.
+Dec 29 16:09:45 ubuntu-server systemd[1]: Started haas-st40.service - Haas Python logger for ST40.
 ```
 
 ----------------------------------------------------------------
@@ -563,6 +556,21 @@ The `haas` is the User ID (UID) that owns the process, 115518 is the Process ID 
 #### Memory Usage
 
 The status command also lists the amount of RAM used by the script. You can see that the peak usage was 7.1MB. I haven't seen the script use more than that, so a Raspberry Pi 5 with 8GB of RAM could support many machine tools. For an Intel physical or Virtual appliance 8GB RAM should also be sufficient.
+
+----------------------------------------------------------------
+### Display the services
+
+It's useful during troubleshooting to see a list of the services that `systemd` has running. Use the following to display themL
+
+```bash linenums='1' hl_lines='1'
+systemctl list-unit-files --type=service | grep enabled
+```
+
+That will return a long list of services. If you named your files starting with `haas` you can get a short list using:
+
+```bash linenums='1' hl_lines='1'
+systemctl list-unit-files --type=service | grep haas
+```
 
 ----------------------------------------------------------------
 
@@ -599,9 +607,9 @@ Here is a example:
 The script requires some dependencies. Use the following to install them:
 
 ```bash
-python -m pip install pandas
-python -m pip install jinja2
-python -m pip install openpyxl
+python3 -m pip install pandas
+python3 -m pip install jinja2
+python3 -m pip install openpyxl
 ```
 
 ----------------------------------------------------------------
@@ -624,11 +632,11 @@ Run the following:
 The files are saved as `<name>.txt` in the root of the project directory. Here are the contents of st40.txt
 
 ```bash
-sudo cp st40.service /etc/systemd/system/st40.service
+sudo cp haas-st40.service /etc/systemd/system/haas-st40.service
 sudo systemctl daemon-reload
-sudo systemctl enable st40.service
-sudo systemctl start st40.service
-sudo systemctl status st40.service
+sudo systemctl enable haas-st40.service
+sudo systemctl start haas-st40.service
+sudo systemctl status haas-st40.service
 
 # Create the directory for the share
 
@@ -685,7 +693,7 @@ Save the file with `ctrl+s`, close it with `ctrl+x` Update bash by typing `exec 
 
 #### What does the $1 do
 
-The `$1` is a placeholder, it gets replaced with the first text on the command line after the alias name. For example `stop st40` will become `sudo systemctl stop st40.service`.
+The `$1` is a placeholder, it gets replaced with the first text on the command line after the alias name. For example `stop st40` will become `sudo systemctl stop haas-st40.service`.
 
 ----------------------------------------------------------------
 
@@ -694,9 +702,9 @@ The `$1` is a placeholder, it gets replaced with the first text on the command l
 Now you can type the following:
 
 - `gte st30l.service` instead of `gnome-text-editor st30l.service`
-- `stop st40` to stop the st40.service
-- `start st40` to start the st40.service
-- `status st40` to show the status of the st40.service
+- `stop st40` to stop the haas-st40.service
+- `start st40` to start the haas-st40.service
+- `status st40` to show the status of the haas-st40.service
 - `dmr` to reload the daemons
 
 ----------------------------------------------------------------
