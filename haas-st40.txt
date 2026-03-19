@@ -12,7 +12,7 @@ mkdir /home/haas/st40
 
 [st40]
     comment = Logger for ST40
-    path = /home/haas/st40
+    path = /home/haas/Haas_Data_collect/machines/st40
     read only = no
     browsable = yes
     writable = yes
