@@ -73,7 +73,7 @@ chmod +x /home/$USER/Haas_Data_collect/setup_user.sh
 There is no output from these commands.
 
 !!! Note
-    The 2 in 2775 sets the `setgid` bit, basically set group ID, which ensures that all locally created files also inherit the HaasGroup. Without this bit set, files created locally on the Raspberry Pi 5 appliance would get owner and group IDs of the user that created the file. The `setgid` bit is located in the fourth character of the permissions string (the execute position of the group permissions).
+    The 2 in 2775 sets the `setgid` bit, basically set group ID, which ensures that all locally created files also inherit the HaasGroup. Without this bit set, files created locally on the appliance would get owner and group IDs of the user that created the file. The `setgid` bit is located in the fourth character of the permissions string (the execute position of the group permissions).
 
 Run a directory listing to see the results:
 
