@@ -88,11 +88,11 @@ samba --version
 Version 4.19.5-Ubuntu
 ```
 
-As you can see, on January 4th, 2026 the current version is 4.19.5.
+As you can see, on January 4th, 2026 the current version is 4.19.5. Samba removed SMBv1 at version 4.16 so there is no chance of it getting enabled by mistake.
 
 ----------------------------------------------------------------
 
-Run the this to see the smb.conf file and service status
+Run this to verify that there are no errors in smb.conf file.
 
 ```bash
 testparm -s
@@ -106,7 +106,7 @@ Weak crypto is allowed by GnuTLS (e.g. NTLM as a compatibility fallback)
 Server role: ROLE_STANDALONE
 ```
 
-This is just the top of the file. The entire smb.conf file will be displayed
+This is just the top of the file. The entire smb.conf file will be displayed. You will need to scroll up to see any error messages since the conf file is longer than one screen.
 
 ----------------------------------------------------------------
 
@@ -455,12 +455,11 @@ The following options are needed so that files created from Windows, Mac, Linux 
 
 ----------------------------------------------------------------
 
-After you add all the share configurations, save `/etc/samba/smb.conf` and exit nano using `ctrl_s` to save and `ctrl+x` to exit.
+After you add all the share configurations, save `/etc/samba/smb.conf` and exit nano using `ctrl+s` to save and `ctrl+x` to exit.
 
 ----------------------------------------------------------------
 
-Ensure the underlying Linux directory permissions are correct:
-On the server's filesystem, make sure the shared directory (/home/haas/Haas_Data_collect) in this example is owned by haas:HaasGroup.
+Run the following commands to set the permissions correctly.
 
 ```bash
 sudo chown -R haas:HaasGroup /home/haas/Haas_Data_collect
@@ -475,7 +474,7 @@ ls -l
 ```
 
 ```unixconfig title='Command Output'
-drwxrwxr-x 7 haas HaasGroup 4096 Feb 15 21:22 Haas_Data_collect
+drwxrwsr-x 9 haas HaasGroup 4096 Mar 18 19:32 Haas_Data_collect
 ```
 
 ----------------------------------------------------------------
