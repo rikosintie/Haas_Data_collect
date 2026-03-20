@@ -17,7 +17,7 @@ Does this seem like a lot of extra work? Yes, but I actually had a disgruntled e
 sudo groupadd HaasGroup
 ```
 
-There is no output from this command.
+**There is no output from this command.**
 
 ### Set permissions on the folders
 
@@ -112,7 +112,11 @@ Have eXecute so that you can run them.
 
 ## Create the users
 
-You will need to build a list of users that will need to access the shares. In this example I have:
+All users, whether they are a machine tool, a CNC programmer, or the Operations personnel, need a Linux and a Samba account. The installation script reads the file `initial_users.csv` and creates both the Linux and Samba users during the installation.
+
+To add users later you can follow these instructions or run the `manage_users.sh` script that is in the `Haas_Data_collect` directory. See [Manage users by script](../build_pi_5_appliance/create-groups.md/#manage-users-by-script) for instructions for the Manager Users script.
+
+In this example I have:
 
 ```text
 |     Username    | Role and Responsibility                                                                                     |
@@ -126,7 +130,7 @@ You will need to build a list of users that will need to access the shares. In t
 
 ----------------------------------------------------------------
 
-**Run these command for each user:**
+**Run for each user:**
 
 ```bash linenums='1' hl_lines='2 5 8'
 # Create user without shell access
@@ -176,7 +180,7 @@ Enabled user haassvc.
 sudo usermod -aG HaasGroup haassvc
 ```
 
-There is no output from this command.
+**There is no output from this command.**
 
 ----------------------------------------------------------------
 
@@ -204,16 +208,28 @@ uid=1001(haassvc) gid=1001(haassvc) groups=1001(haassvc),1002(HaasGroup)
 
 ----------------------------------------------------------------
 
-### Create users the easy way
+### Manage users by script
 
-It's fairly simple to create a user but it's a lot of individual commands which leaves room for errors. There is bash script to do the heavy lifting included in the repository. It gets installed when you clone the repository. To use it, first run the following command:
+It's fairly simple to create a user but it's a lot of individual commands which leaves room for errors. If you need to add or remove users after the initial installation, use the `manage_users.sh` script that is located in the `Haas_Data_collect` directory. The script creates users that can map drives. The script DOES NOT add a user to the `sudoers` file so they cannot run Linux commands or log in over SSH.
+
+The script has the following optional arguments:
+
+- --set-password
+- --delete-user
+- --delete-user --force
+- --delete-user --dry-run
+- --dry-run
+
+----------------------------------------------------------------
+
+To use the scrit, first run the following command to make it executable:
 
 ```bash linenums='1' hl_lines='1'
 cd /home/haas/Haas_Data_Collect
-chmod +x setup_user.sh
+chmod +x manage_users.sh
 ```
 
-There is no output from this command.
+****There is no output from this command.****
 
 Now you can create new users by running the following. Here I am creating the `rgoodwin` user. Replace `rgoodwin` with the username you need to create:
 
@@ -221,36 +237,176 @@ Now you can create new users by running the following. Here I am creating the `r
 sudo ./setup_user.sh rgoodwin
 ```
 
-*How the script works**
+#### How the script works
 
-- You will be asked for your password to activate `sudo`.
-- You will be  asked for the password to use for the username.
-- You will be  asked for the smbuser password. It MUST be the same as the Linux user!
-- It will then create and enable the smb user, add it to the group and display the result.
-
-Here is the output of the script for the rgoodwin user:
+- You will be asked for your password to activate `sudo` (the haas user password).
+- You will be asked for the password to use for the new Linux username.
+- You will be asked for the smbuser password. It MUST be the same as the Linux user!
+- It will then create and enable the smb user, add it to the `HaasGroup` and display the result.
 
 ----------------------------------------------------------------
 
-```bash linenums='1' hl_lines='1'
-[sudo] password for haas:
-Attempting to create and configure user: rgoodwin
-System user rgoodwin created.
+#### Examples
+
+```bash hl_lines='2 5 8 11 14 17'
+# To add a user
+sudo ./manage_users.sh bob
+
+# Reset passwords
+sudo ./manage_users.sh bob --set-password
+
+# Delete user (with prompt)
+sudo ./manage_users.sh bob --delete-user
+
+# Combine for safe automation testing
+sudo ./manage_users.sh bob --delete-user --dry-run
+
+# Delete user silently (automation safe)
+sudo ./manage_users.sh bob --delete-user --force
+
+# Show what would happen (no changes made)
+sudo ./manage_users.sh bob --dry-run
+```
+
+### Script outputs
+
+Before adding a new user, list the existing users in case it already exists:
+
+#### Linux users
+
+```bash hl_lines='1'
+awk -F: '$3 >= 1000 {print $1}' /etc/passwd
+```
+
+```bash title='Command Output'
+nobody
+haas
+mhubbard
+haassvc
+mchavez
+thubbard
+test
+```
+
+#### Display the Samba users
+
+```bash hl_lines='1'
+sudo pdbedit -L
+```
+
+```bash title='Command Output'
+mhubbard:1001:
+mchavez:1003:
+haassvc:1002:
+thubbard:1004:
+test:1005:
+haas:1000:
+```
+
+----------------------------------------------------------------
+
+#### Add a user
+
+```bash hl_lines='1 3 5 6 7 10 11 12 13 15'
+sudo ./manage_users.sh bob
+==== Wed Mar 18 14:19:45 PDT 2026 ====
+Log file: /var/log/user_mgmt_20260318_141945.log
+Processing user: bob
+Creating system user
 New password:
 Retype new password:
 passwd: password updated successfully
+Creating Samba user
 New SMB password:
 Retype new SMB password:
-Added user rgoodwin.
-Enabled user rgoodwin.
-Configuration complete for rgoodwin.
-Verifying user configuration:
-uid=1004(rgoodwin) gid=1005(rgoodwin) groups=1005(rgoodwin),1002(HaasGroup)
+Added user bob.
+Enabled user bob.
+Final user info:
+uid=1006(bob) gid=1010(bob) groups=1010(bob),1004(HaasGroup)
+Done.
+```
+
+----------------------------------------------------------------
+
+#### Update user's password on Linux and Samba
+
+```bash hl_lines='1 3 7 8 12 13 19'
+sudo ./manage_users.sh bob --set-password
+==== Wed Mar 18 14:29:20 PDT 2026 ====
+Log file: /var/log/user_mgmt_20260318_142920.log
+Processing user: bob
+User bob already exists.
+Updating system password
+New password:
+Retype new password:
+passwd: password updated successfully
+Samba user exists
+Updating Samba password
+New SMB password:
+Retype new SMB password:
+Enabled user bob.
+Final user info:
+uid=1006(bob) gid=1010(bob) groups=1010(bob),1004(HaasGroup)
+Done.
+
+```
+
+#### Delete a User with prompts
+
+```bash hl_lines='1 3 5'
+sudo ./manage_users.sh bob --delete-user --dry-run
+==== Wed Mar 18 14:25:53 PDT 2026 ====
+Log file: /var/log/user_mgmt_20260318_142553.log
+Processing user: bob
+DELETE MODE ENABLED for bob
+Are you sure you want to delete user 'bob'? (y/N): N
+Aborting.
+```
+
+#### Silently delete a user
+
+Use the `--force` in a script to delete users without being prompted
+
+```bash hl_lines='1 3 6 7-10'
+sudo ./manage_users.sh bob --delete-user --force
+==== Wed Mar 18 14:42:23 PDT 2026 ====
+Log file: /var/log/user_mgmt_20260318_144223.log
+Processing user: bob
+DELETE MODE ENABLED for bob
+[FORCE] Skipping confirmation
+Deleting Samba user bob
+Deleted user bob.
+Deleting Linux user bob
+Deletion complete for bob
 
 ```
 
 ----------------------------------------------------------------
-Here is the code for the setup_user.sh script:
+
+#### Add a user with dry run
+
+These arguments don't create the user, they show you what commands would be used.
+
+```bash linenums='1' hl_lines='1'
+sudo ./manage_users.sh bob --dry-run
+==== Wed Mar 18 14:44:50 PDT 2026 ====
+Log file: /var/log/user_mgmt_20260318_144450.log
+Processing user: bob
+Creating system user
+[DRY-RUN] sudo [DRY-RUN] useradd [DRY-RUN] -M [DRY-RUN] -s [DRY-RUN] /usr/sbin/nologin [DRY-RUN] bob
+[DRY-RUN] sudo [DRY-RUN] passwd [DRY-RUN] bob
+Creating Samba user
+[DRY-RUN] sudo [DRY-RUN] smbpasswd [DRY-RUN] -a [DRY-RUN] bob
+[DRY-RUN] sudo [DRY-RUN] smbpasswd [DRY-RUN] -e [DRY-RUN] bob
+[DRY-RUN] sudo [DRY-RUN] usermod [DRY-RUN] -aG [DRY-RUN] HaasGroup [DRY-RUN] bob
+Final user info:
+[DRY-RUN] id [DRY-RUN] bob
+Done.
+```
+
+----------------------------------------------------------------
+
+Here is the code for the manage_users.sh script:
 
 ```bash linenums='1' hl_lines='1'
 #!/bin/bash
