@@ -20,6 +20,12 @@
 # Combine for safe automation testing
 # ./manage_users.sh jdoe --delete-user --dry-run
 
+# Check for root FIRST
+if [[ $EUID -ne 0 ]]; then
+  echo "[ERROR] This script must be run as root" >&2
+  exit 1
+fi
+
 create_samba_user() {
     if [ "$#" -lt 1 ]; then
         echo "Usage: $0 <username> [--set-password | --delete-user] [--force] [--dry-run]" >&2
@@ -149,7 +155,11 @@ create_samba_user() {
 
     echo "Final user info:"
     run_cmd id "$USERNAME"
-
+    echo ""
+    echo ""
+    sudo pdbedit -l
+    echo ""
+    echo ""
     echo "Done."
 }
 
