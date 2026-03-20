@@ -210,7 +210,11 @@ uid=1001(haassvc) gid=1001(haassvc) groups=1001(haassvc),1002(HaasGroup)
 
 ### Manage users by script
 
-It's fairly simple to create a user but it's a lot of individual commands which leaves room for errors. If you need to add or remove users after the initial installation, use the `manage_users.sh` script that is located in the `Haas_Data_collect` directory. The script creates users that can map drives. The script DOES NOT add a user to the `sudoers` file so they cannot run Linux commands or log in over SSH.
+All users, whether they are a machine tool, a CNC programmer, or the Operations personnel, need a Linux and a Samba account. The installation script reads the file `initial_users.csv` and creates both the Linux and Samba users during the installation.
+
+If you need to add or remove users after the initial installation use the `manage_users.sh` script that is located in the `Haas_Data_collect` directory. The script creates users that can map drives. The script DOES NOT add a user to the `sudoers` file so they cannot run Linux commands or log in over SSH.
+
+It's fairly simple to create a user manually but it's a lot of individual commands which leaves room for errors. If you need to add or remove users after the initial installation, use the `manage_users.sh` script that is located in the `Haas_Data_collect` directory. The script creates users that can map drives. The script DOES NOT add a user to the `sudoers` file so they cannot run Linux commands or log in over SSH.
 
 The script has the following optional arguments:
 
@@ -222,19 +226,28 @@ The script has the following optional arguments:
 
 ----------------------------------------------------------------
 
-To use the scrit, first run the following command to make it executable:
+To use the script, first run the following command to make it executable:
 
 ```bash linenums='1' hl_lines='1'
 cd /home/haas/Haas_Data_Collect
 chmod +x manage_users.sh
+sudo chmod 2775 manage_users.sh
+ls -l manage_users.sh
+
+```
+
+```bash title='Command Output'
+-rwxrwsr-x 1 haas HaasGroup 4183 Mar 18 14:13 manage_users.sh
 ```
 
 ****There is no output from this command.****
 
+----------------------------------------------------------------
+
 Now you can create new users by running the following. Here I am creating the `rgoodwin` user. Replace `rgoodwin` with the username you need to create:
 
 ```bash linenums='1' hl_lines='1'
-sudo ./setup_user.sh rgoodwin
+sudo ./manage_users.sh rgoodwin
 ```
 
 #### How the script works
@@ -268,7 +281,7 @@ sudo ./manage_users.sh bob --delete-user --force
 sudo ./manage_users.sh bob --dry-run
 ```
 
-### Script outputs
+#### Script outputs
 
 Before adding a new user, list the existing users in case it already exists:
 
@@ -406,77 +419,11 @@ Done.
 
 ----------------------------------------------------------------
 
-Here is the code for the manage_users.sh script:
+To view the code in the manage_users.sh script:
 
-```bash linenums='1' hl_lines='1'
-#!/bin/bash
-
-# Function to create a new system user with specific configurations (e.g., Samba, group membership)
-# Usage: create_samba_user <username>
-create_samba_user() {
-    # Check if exactly one argument (the username) was provided
-    if [ "$#" -ne 1 ]; then
-        echo "Error: Usage requires exactly one argument: create_samba_user <username>" >&2
-        return 1
-    fi
-
-    local USERNAME="$1"
-    local GROUP_NAME="HaasGroup"
-
-    echo "Attempting to create and configure user: $USERNAME"
-
-    # 1. Create the system user without a home directory and a nologin shell
-    # Error trapping: '|| { ...; return 1; }' stops execution if a command fails
-    sudo useradd -M -s /usr/sbin/nologin "$USERNAME" || {
-        echo "Error creating system user $USERNAME. User may already exist or permissions issue." >&2
-        return 1
-    }
-    echo "System user $USERNAME created."
-
-    # 2. Set the system password (will prompt for a new password interactively)
-    # The user running this script will be prompted by 'passwd' to set the password.
-    sudo passwd "$USERNAME" || {
-        echo "Error setting system password for $USERNAME." >&2
-        return 1
-    }
-
-    # 3. Add user to Samba database and set the Samba password
-    # The user running this script will be prompted by 'smbpasswd' to set the Samba password.
-    sudo smbpasswd -a "$USERNAME" || {
-        echo "Error adding user to Samba database $USERNAME." >&2
-        # Clean up the system user if Samba setup fails
-        sudo userdel "$USERNAME"
-        return 1
-    }
-
-    # 4. Enable the Samba account
-    sudo smbpasswd -e "$USERNAME" || {
-        echo "Error enabling Samba account for $USERNAME." >&2
-        sudo userdel "$USERNAME"
-        return 1
-    }
-
-    # 5. Add the user to the specified group (e.g., HaasGroup)
-    # Note: Ensure 'HaasGroup' exists on your system beforehand.
-    sudo usermod -aG "$GROUP_NAME" "$USERNAME" || {
-        echo "Warning: Failed to add $USERNAME to the group $GROUP_NAME. Proceeding anyway." >&2
-    }
-
-    echo "Configuration complete for $USERNAME."
-
-    # 6. Display the final user ID/group information for verification
-    echo "Verifying user configuration:"
-    id "$USERNAME"
-}
-
-create_samba_user "$@"
-
-# --- Example Usage ---
-# To run this function, save the script (e.g., as setup_user.sh),
-# make it executable (chmod +x setup_user.sh), and run it.
-
-# Example 1: Create user 'jdoe'
-# create_samba_user jdoe
+```bash hl_lines='1'
+cd ~/Haas_Data_collect
+cat manage_users.sh
 ```
 
 ----------------------------------------------------------------
