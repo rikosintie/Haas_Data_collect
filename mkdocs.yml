@@ -15,8 +15,8 @@ nav:
       - Installing Ubuntu: 'build_pi_5_appliance/installing_ubuntu.md'
       - Creating the Appliance: 'build_pi_5_appliance/configuring_appliance.md'
       - Create Group and File Perms: 'build_pi_5_appliance/create-groups.md'
-      - Installing Samba: 'build_pi_5_appliance/Install_Samba.md'
-      - Updating Appliance: 'build_pi_5_appliance/updating_appliance.md'
+      - Install Samba: 'build_pi_5_appliance/Install_Samba.md'
+      - Update the Appliance: 'build_pi_5_appliance/updating_appliance.md'
       - Firewall Configuration: 'build_pi_5_appliance/firewall_configuration.md'
   - Appendices:
     - Appendix - Introduction: 'appendices/intro.md'
