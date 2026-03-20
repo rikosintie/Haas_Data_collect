@@ -12,7 +12,7 @@ Does this seem like a lot of extra work? Yes, but I actually had a disgruntled e
 sudo groupadd HaasGroup
 ```
 
-There is no output from this command.
+**There is no output from this command.**
 
 ### Set permissions on the folders
 
@@ -96,7 +96,7 @@ drwxrwsr-x 6 haas HaasGroup 4096 Jan  6 20:05 Haas_Data_collect
 The three bash scripts:
 
 - lshare.sh
-- setup_users.sh
+- manage_users.sh
 - smb_verify.sh
 
 Have eXecute so that you can run them.
@@ -167,7 +167,7 @@ Enabled user haassvc.
 sudo usermod -aG HaasGroup haassvc
 ```
 
-There is no output from this command.
+**There is no output from this command.**
 
 ----------------------------------------------------------------
 
@@ -204,7 +204,7 @@ cd /home/haas/Haas_Data_collect
 chmod +x setup_user.sh
 ```
 
-There is no output from this command.
+**There is no output from this command.**
 
 Now you can create new users by running the following. Here I am creating the `rgoodwin` user. Replace `rgoodwin` with the username you need to create:
 
