@@ -294,7 +294,7 @@ If the file exits in `/usr/local/sbin`, then delete the copy in the `Haas_Data_c
 rm /home/haas/Haas_Data_collect/configure_ufw_from_csv.sh
 ```
 
-There is no output from this command.
+**There is no output from this command.**
 
 ----------------------------------------------------------------
 
@@ -304,7 +304,7 @@ There is no output from this command.
 sudo systemctl daemon-reload
 ```
 
-There is no output from this command.
+**There is no output from this command.**
 
 ----------------------------------------------------------------
 
@@ -324,7 +324,7 @@ systemctl status haas-firewall.service
 sudo systemctl enable --now haas-firewall.timer
 ```
 
-There is no output from this command.
+**There is no output from this command.**
 
 ----------------------------------------------------------------
 
