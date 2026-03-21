@@ -13,7 +13,7 @@ You can connect a monitor and keyboard, but you still use terminal-only tools si
 
 ### Serial Console cable
 
-If you are building your appliance on a Raspberry Pi 5, I recommend purchasing the [serial console cable](../build_pi_5_appliance/why_pi_5_appliance.md/#usb-serial-cable-for-the-raspberry-pi-5). It allows you to configure the Pi from your laptop if the Pi doesn't have an IP Address or you have locked yourself out with the firewall.
+If you are building your appliance on a Raspberry Pi 5, I recommend purchasing the [serial console cable](../build_pi_5_appliance/build_an_appliance.md/#usb-serial-cable-for-the-raspberry-pi-5). It allows you to configure the Pi from your laptop if the Pi doesn't have an IP Address or you have locked yourself out with the firewall.
 
 ----------------------------------------------------------------
 
