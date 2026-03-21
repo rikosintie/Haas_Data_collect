@@ -155,24 +155,33 @@ The script has the following optional arguments:
 
 ----------------------------------------------------------------
 
+### How the script works
+
+- You will be asked for your password to activate `sudo`.
+- You will be asked for the password to use for the username.
+- You will be asked for the smbuser password. It MUST be the same as the Linux user!
+- It will then create and enable the smb user, add it to the `HaasGroup` and display the result.
+
+----------------------------------------------------------------
+
 ```bash hl_lines='2 5 8 11 14 17'
 # To add a user
-sudo ./manage_users.sh jdoe
+sudo ./manage_users.sh bob
 
 # Reset passwords
-sudo ./manage_users.sh jdoe --set-password
+sudo ./manage_users.sh bob --set-password
 
 # Delete user (with prompt)
-sudo ./manage_users.sh jdoe --delete-user
+sudo ./manage_users.sh bob --delete-user
 
 # Combine for safe automation testing
-sudo ./manage_users.sh jdoe --delete-user --dry-run
+sudo ./manage_users.sh bob --delete-user --dry-run
 
 # Delete user silently (automation safe)
-sudo ./manage_users.sh jdoe --delete-user --force
+sudo ./manage_users.sh bob --delete-user --force
 
 # Show what would happen (no changes made)
-sudo ./manage_users.sh jdoe --dry-run
+sudo ./manage_users.sh bob --dry-run
 ```
 
 ### Script outputs
@@ -670,7 +679,7 @@ The entire `smb.conf` file will be displayed. You will need to scroll up to see 
 sudo systemctl restart smbd
 ```
 
-There is no output from this command.
+**There is no output from this command.**
 
 ----------------------------------------------------------------
 
@@ -792,7 +801,7 @@ If there are no errors reported, restart the Samba Server service using:.
 sudo systemctl restart smbd
 ```
 
-There is no output from this command.
+**There is no output from this command.**
 
 ----------------------------------------------------------------
 
