@@ -1,4 +1,4 @@
-# Create the HaasGroup and set file permissions
+# Create the HaasGroup and users
 
 ----------------------------------------------------------------
 ![screenshot](img/Tux_groups1.resized.png)
@@ -214,7 +214,7 @@ All users, whether they are a machine tool, a CNC programmer, or the Operations 
 
 If you need to add or remove users after the initial installation use the `manage_users.sh` script that is located in the `Haas_Data_collect` directory. The script creates users that can map drives. The script DOES NOT add a user to the `sudoers` file so they cannot run Linux commands or log in over SSH.
 
-It's fairly simple to create a user manually but it's a lot of individual commands which leaves room for errors. If you need to add or remove users after the initial installation, use the `manage_users.sh` script that is located in the `Haas_Data_collect` directory. The script creates users that can map drives. The script DOES NOT add a user to the `sudoers` file so they cannot run Linux commands or log in over SSH.
+It's fairly simple to create a user manually from the instructions above, but it's a lot of individual commands which leaves room for errors. If you need to add or remove users after the initial installation, use the `manage_users.sh` script that is located in the `Haas_Data_collect` directory instead. The script creates users that can map drives. The script **DOES NOT** add a user to the `sudoers` file so they cannot run Linux commands or log in over SSH.
 
 The script has the following optional arguments:
 
@@ -226,29 +226,27 @@ The script has the following optional arguments:
 
 ----------------------------------------------------------------
 
-To use the script, first run the following command to make it executable:
+To use the script, first run the following commands to make it executable:
 
 ```bash linenums='1' hl_lines='1'
 cd /home/haas/Haas_Data_Collect
 chmod +x manage_users.sh
 sudo chmod 2775 manage_users.sh
-ls -l manage_users.sh
+```
 
+**There is no output from these commands.**
+
+Verify the script permissions:
+
+```bash hl_lines='1'
+ls -l manage_users.sh
 ```
 
 ```bash title='Command Output'
 -rwxrwsr-x 1 haas HaasGroup 4183 Mar 18 14:13 manage_users.sh
 ```
 
-****There is no output from this command.****
-
 ----------------------------------------------------------------
-
-Now you can create new users by running the following. Here I am creating the `rgoodwin` user. Replace `rgoodwin` with the username you need to create:
-
-```bash linenums='1' hl_lines='1'
-sudo ./manage_users.sh rgoodwin
-```
 
 #### How the script works
 
@@ -391,7 +389,6 @@ Deleting Samba user bob
 Deleted user bob.
 Deleting Linux user bob
 Deletion complete for bob
-
 ```
 
 ----------------------------------------------------------------
