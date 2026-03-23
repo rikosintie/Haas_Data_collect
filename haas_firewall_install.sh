@@ -896,12 +896,15 @@ EOF
 
     IP_ADDR=$(hostname -I | awk '{print $1}')
     share="\\\\$IP_ADDR\\Haas"
+    sharenix='smb://"$IP_ADDR"/Haas'
     echo ""
     echo ""
     echo "########################################################"
     echo "#                                                      #"
     echo "#      Samba share 'Haas' configured successfully      #"
-    printf "#  Share is available at %s\n" "$share"
+    printf "#  Share for Windows is available at %s\n" "$share"
+    echo "#                                                      "
+    printf "#  Share for Mac/Linux is available at %s\n" "$sharenix"
     echo "#                                                      #"
     echo "########################################################"
     echo ""
