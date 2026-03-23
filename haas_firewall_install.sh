@@ -341,6 +341,12 @@ sudo chmod +x /usr/local/sbin/configure_ufw_from_csv.sh
 sudo chmod +x /usr/local/sbin/validate_users_csv.sh
 sudo chmod +x /usr/local/sbin/build-nmap.sh
 sudo chmod +x /usr/local/sbin/csvlens
+sudo chmod +x "$REPO_DIR/manage_users.sh"
+sudo chmod +x "$REPO_DIR/ssh_validate.sh"
+sudo chmod +x "$REPO_DIR/lshares"
+sudo chmod +x "$REPO_DIR/tspin_alias.sh"
+sudo chmod +x "$REPO_DIR/tspin_setup.sh"
+
 
 if [[ ! -x /usr/local/sbin/configure_ufw_from_csv.sh ]]; then
   echo ""
@@ -901,7 +907,7 @@ EOF
     echo ""
     echo "#########################################################################"
     echo "#                                                                       #"
-    echo "#               Samba share 'Haas' configured successfully              #"
+    echo "#          Samba share 'Haas' configured successfully                   #"
     echo "#                                                                       #"
     printf "#  Share for Windows is available at %s\n" "$share"
     echo "#                                                                       #"
@@ -1136,7 +1142,7 @@ echo "##########################################################################
 echo "#-----------------------------------------------------------------------------------#"
 echo "#  To enable a Haas subnet later, edit:                                             #"
 echo "#---------------------------------------------------------------------------------- #"
-echo "# $CONFIG_FILE                                                           #"
+echo "# sudo nano $CONFIG_FILE                                                  #"
 echo "#---------------------------------------------------------------------------------- #"
 echo "#  set HAAS_MACHINES_SUBNET_V4="" to your CNC machines' IPv4 subnet                   #"
 echo "#-----------------------------------------------------------------------------------#"
