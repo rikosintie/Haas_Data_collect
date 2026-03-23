@@ -343,7 +343,7 @@ sudo chmod +x /usr/local/sbin/build-nmap.sh
 sudo chmod +x /usr/local/sbin/csvlens
 sudo chmod +x "$REPO_DIR/manage_users.sh"
 sudo chmod +x "$REPO_DIR/ssh_validate.sh"
-sudo chmod +x "$REPO_DIR/lshares"
+sudo chmod +x "$REPO_DIR/lshares.sh"
 sudo chmod +x "$REPO_DIR/tspin_alias.sh"
 sudo chmod +x "$REPO_DIR/tspin_setup.sh"
 
