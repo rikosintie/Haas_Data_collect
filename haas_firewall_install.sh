@@ -220,7 +220,7 @@ sudo cp "$REPO_DIR/rollback_csv.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/build-nmap.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/csvlens" /usr/local/sbin/
 sudo cp "$REPO_DIR/ssh_port.sh" /usr/local/sbin
-sudo cp "$REPO_PATH/appliance" /etc/logrotate.d/
+sudo cp "$REPO_DIR/appliance" /etc/logrotate.d/
 sudo cp "$REPO_DIR/issue.net" /etc/issue.net
 
 # Set permissions for logrotate
