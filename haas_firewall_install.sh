@@ -895,12 +895,13 @@ EOF
     echo ""
 
     IP_ADDR=$(hostname -I | awk '{print $1}')
+    share="\\\\$IP_ADDR\\Haas"
     echo ""
     echo ""
     echo "########################################################"
     echo "#                                                      #"
     echo "#      Samba share 'Haas' configured successfully      #"
-    printf "#  Share is available at \\\\%s\\Haas\n" "$IP_ADDR"
+    printf "#  Share is available at %s\n" "$share"
     echo "#                                                      #"
     echo "########################################################"
     echo ""
