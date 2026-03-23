@@ -40,6 +40,19 @@
 # It does NOT modify or delete anything inside the repo.
 #
 
+fix_var_log_perms() {
+    perms=$(stat -c "%a" /var/log)
+    owner=$(stat -c "%U" /var/log)
+
+    if [[ "$perms" != "755" || "$owner" != "root" ]]; then
+        echo "WARNING: /var/log ownership/perms are $owner:$perms (expected root:755)"
+        echo "Fixing..."
+        sudo chown root:syslog /var/log
+        sudo chmod 755 /var/log
+    fi
+}
+
+
 # Check for root FIRST
 if [[ $EUID -ne 0 ]]; then
   echo "[ERROR] This script must be run as root" >&2
@@ -213,6 +226,9 @@ echo "#                                                          #"
 echo "############################################################"
 echo ""
 echo ""
+
+# check /var/log permissions and fix if needed (prevents issues with logging from scripts)
+fix_var_log_perms
 
 sudo cp "$REPO_DIR/configure_ufw_from_csv.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/validate_users_csv.sh" /usr/local/sbin/
