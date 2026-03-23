@@ -43,12 +43,14 @@
 fix_var_log_perms() {
     perms=$(stat -c "%a" /var/log)
     owner=$(stat -c "%U" /var/log)
+    group=$(stat -c "%G" /var/log)
 
-    if [[ "$perms" != "755" || "$owner" != "root" ]]; then
-        echo "WARNING: /var/log ownership/perms are $owner:$perms (expected root:755)"
-        echo "Fixing..."
+    if [[ "$perms" != "755" || "$owner" != "root" || "$group" != "syslog" ]]; then
+        echo "[FIX] /var/log was $owner:$group $perms → correcting to root:syslog 755"
         sudo chown root:syslog /var/log
         sudo chmod 755 /var/log
+    else
+        echo "[OK] /var/log permissions correct"
     fi
 }
 
@@ -896,7 +898,7 @@ EOF
     echo "########################################################"
     echo "#                                                      #"
     echo "#      Samba share 'Haas' configured successfully      #"
-    printf "#    Share available at: \\\\%s\\Haas\n" "$IP_ADDR"
+    printf "#    Share available at: \\\\%s\\\Haas\n" "$IP_ADDR"
     echo "#                                                      #"
     echo "########################################################"
     echo ""
@@ -1043,7 +1045,7 @@ echo ""
 echo ""
 echo "########################################################################################"
 echo "#                                                                                      #"
-echo "#  [*] Ensuring backup directory exists in repo: $BACKUP_DIR"  #
+echo "#  [*] Ensuring backup directory exists in repo: $BACKUP_DIR  #"
 echo "#                                                                                      #"
 echo "########################################################################################"
 echo ""
@@ -1129,9 +1131,9 @@ echo "#  To enable a Haas subnet later, edit:                                   
 echo "#---------------------------------------------------------------------------------- #"
 echo "# $CONFIG_FILE                                                           #"
 echo "#---------------------------------------------------------------------------------- #"
-echo "#  set HAAS_MACHINES_SUBNET_V4="" to your CNC machines' IPv4 subnet                  #"
-echo "#--------------  --------------------------                                -        #"
-echo "#  set HAAS_MACHINES_SUBNET_V6="" to your CNC machines' IPv6 subnet (if applicable)  #"
+echo "#  set HAAS_MACHINES_SUBNET_V4="" to your CNC machines' IPv4 subnet                   #"
+echo "#-----------------------------------------------------------------------------------#"
+echo "#  set HAAS_MACHINES_SUBNET_V6="" to your CNC machines' IPv6 subnet (if applicable)   #"
 echo "#---------------------------------------------------------------------------------- #"
 echo "#####################################################################################"
 echo ""
