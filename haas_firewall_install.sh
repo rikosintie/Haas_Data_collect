@@ -40,11 +40,17 @@
 # It does NOT modify or delete anything inside the repo.
 #
 
+    # color scheme
+    # Import Message text → red
+    # Header text → bold cyan
+    # Share paths → bold green
+    # Everything else → normal
+
 # Colors
-RED="\e[31m"
-GREEN="\e[1;32m"
-CYAN="\e[1;36m"
-RESET="\e[0m"
+RED="\e[31m" # ${RED}
+GREEN="\e[1;32m" # ${GREEN}
+CYAN="\e[1;36m" # ${CYAN}
+RESET="\e[0m" # ${RESET}
 
 fix_var_log_perms() {
     perms=$(stat -c "%a" /var/log)
@@ -81,7 +87,7 @@ echo ""
 echo ""
 echo "#################################################"
 echo "#                                               #"
-echo "#       [*]   DETECT REPO DIRECTORY             #"
+echo "#      ${CYAN}[*]   DETECT REPO DIRECTORY ${RESET}             #"
 echo "#                                               #"
 echo "#################################################"
 echo ""
@@ -96,7 +102,7 @@ fi
 echo ""
 echo "####################################################################"
 echo "                                                                   #"
-echo "#  [*] Repo directory detected as: $REPO_DIR    #"
+echo "#  ${CYAN}[*] Repo directory detected as: $REPO_DIR ${RESET}   #"
 echo "                                                                   #"
 echo "####################################################################"
 echo ""
@@ -910,10 +916,6 @@ EOF
     IP_ADDR=$(hostname -I | awk '{print $1}')
     share="\\\\$IP_ADDR\\Haas"
     sharenix="smb://$IP_ADDR/Haas"
-    # color scheme
-    # Header text → bold cyan
-    # Share paths → bold green
-    # Everything else → normal
 
 
 echo "#########################################################################"
