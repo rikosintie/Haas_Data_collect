@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # SMB Security Verification Script
-# Demonstrates that the Raspberry Pi 5 appliance is configured securely
+# Demonstrates that the appliance is configured securely
 # with modern SMB protocols only (no SMB1)
 
-TARGET_IP="192.168.10.223"
-SMB_USER="mhubbard"
+TARGET_IP="192.168.10.127"
+SMB_USER="haas"
 
 echo "=============================================="
 echo "  SMB SECURITY VERIFICATION REPORT"
