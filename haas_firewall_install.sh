@@ -197,6 +197,7 @@ echo "#################################################"
 sleep 2
 echo ""
 echo ""
+sleep 3
 ########################################
 # WRITE CONFIG FILE
 ########################################
@@ -1168,13 +1169,13 @@ echo ""
 echo ""
 echo "##########################################################################################################"
 echo "#--------------------------------------------------------------------------------------------------------#"
-echo -e  "#  ${CYAN}To enable a Haas subnet later, run:${RESET}                                                #"
-echo "#--------------------------------------------------------------------------------------------------------#"
-echo -e  "# ${GREEN}sudo nano $CONFIG_FILE${RESET}                                                  #"
-echo "#---------------------------------------------------------------------------------- #"
-echo -e  "#  ${CYAN}set HAAS_MACHINES_SUBNET_V4=\"<your_ipv4_subnet>\" to your CNC machines' IPv4 subnet${RESET}                                       #"
+echo -e  "#  ${CYAN}To enable a Haas subnet later, run:${RESET}                                                                   #"
+echo "#-------------------------------------------------------------------------------------------------------#"
+echo -e  "# ${GREEN} sudo nano $CONFIG_FILE${RESET}                                                                     #"
+echo "#-------------------------------------------------------------------------------------------------------#"
+echo -e  "#  ${CYAN}set HAAS_MACHINES_SUBNET_V4=\"<your_ipv4_subnet>\" to your CNC machines' IPv4 subnet${RESET}                    #"
 echo "#-----------------------------------------------------------------------------------#"
-echo -e  "#  ${CYAN}set HAAS_MACHINES_SUBNET_V6=\"<your_ipv6_subnet>\" to your CNC machines' IPv6 subnet (if applicable)${RESET}   #"
+echo -e  "#  ${CYAN}set HAAS_MACHINES_SUBNET_V6=\"<your_ipv6_subnet>\" to your CNC machines' IPv6 subnet (if applicable)${RESET}    #"
 echo "#--------------------------------------------------------------------------------------------------------#"
 echo "##########################################################################################################"
 echo ""
