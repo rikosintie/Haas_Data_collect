@@ -41,13 +41,14 @@
 #
 
     # color scheme
-    # Import Message text → red
+    # Import Message text → bold red
     # Header text → bold cyan
     # Share paths → bold green
     # Everything else → normal
 
 # Colors
-RED="\e[31m" # ${RED}
+# RED="\e[31m" # ${RED}
+RED="\e[1;31m" # ${RED}
 GREEN="\e[1;32m" # ${GREEN}
 CYAN="\e[1;36m" # ${CYAN}
 RESET="\e[0m" # ${RESET}
@@ -87,7 +88,7 @@ echo ""
 echo ""
 echo "#################################################"
 echo "#                                               #"
-printf "#      ${CYAN}[*]   DETECT REPO DIRECTORY ${RESET}             #"
+printf "#      ${CYAN}[*]   DETECT REPO DIRECTORY ${RESET}             #\n"
 echo "#                                               #"
 echo "#################################################"
 echo ""
@@ -102,7 +103,7 @@ fi
 echo ""
 echo "####################################################################"
 echo "                                                                   #"
-printf "#  ${CYAN}[*] Repo directory detected as: $REPO_DIR ${RESET}   #"
+printf "#  ${CYAN}[*] Repo directory detected as: $REPO_DIR ${RESET}   #\n"
 echo "                                                                   #"
 echo "####################################################################"
 echo ""
