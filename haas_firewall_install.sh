@@ -779,6 +779,7 @@ id "haas"
         echo "#                                                                                          #"
         echo "#     All users from initial_users.csv have been processed                                 #"
         echo "#--------------------------------------------------------                                  #"
+        printf "#     ${RED}IMPORTANT${RESET}: Delete %s now for security!   #\n" "$USER_FILE"
         printf "#     \e[1;31mIMPORTANT\e[0m: Delete %s now for security!   #\n" "$USER_FILE"
         echo "#                                                                                          #"
         echo "############################################################################################"
@@ -903,19 +904,40 @@ EOF
     IP_ADDR=$(hostname -I | awk '{print $1}')
     share="\\\\$IP_ADDR\\Haas"
     sharenix="smb://$IP_ADDR/Haas"
-    echo ""
-    echo ""
-    echo "#########################################################################"
-    echo "#                                                                       #"
-    echo "#          Samba share 'Haas' configured successfully                   #"
-    echo "#                                                                       #"
-    printf "#  Share for Windows is available at %s\n" "$share"
-    echo "#                                                                       #"
-    printf "#  Share for Mac/Linux is available at %s\n" "$sharenix"
-    echo "#                                                                       #"
-    echo "#########################################################################"
-    echo ""
-    echo ""
+    # color scheme
+    # Header text → bold cyan
+    # Share paths → bold green
+    # Everything else → normal
+
+# Colors
+RED="\e[31m"
+GREEN="\e[1;32m"
+CYAN="\e[1;36m"
+RESET="\e[0m"
+
+echo "#########################################################################"
+echo "#                                                                       #"
+printf "#          ${CYAN}Samba share 'Haas' configured successfully${RESET}           #\n"
+echo "#                                                                       #"
+printf "#  Share for Windows is available at ${GREEN}%s${RESET}\n" "$share"
+echo "#                                                                       #"
+printf "#  Share for Mac/Linux is available at ${GREEN}%s${RESET}\n" "$sharenix"
+echo "#                                                                       #"
+echo "#########################################################################"
+
+    # echo ""
+    # echo ""
+    # echo "#########################################################################"
+    # echo "#                                                                       #"
+    # echo "#          Samba share 'Haas' configured successfully                   #"
+    # echo "#                                                                       #"
+    # printf "#  Share for Windows is available at %s\n" "$share"
+    # echo "#                                                                       #"
+    # printf "#  Share for Mac/Linux is available at %s\n" "$sharenix"
+    # echo "#                                                                       #"
+    # echo "#########################################################################"
+    # echo ""
+    # echo ""
 
 else
     echo ""
