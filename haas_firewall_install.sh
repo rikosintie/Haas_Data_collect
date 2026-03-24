@@ -40,6 +40,12 @@
 # It does NOT modify or delete anything inside the repo.
 #
 
+# Colors
+RED="\e[31m"
+GREEN="\e[1;32m"
+CYAN="\e[1;36m"
+RESET="\e[0m"
+
 fix_var_log_perms() {
     perms=$(stat -c "%a" /var/log)
     owner=$(stat -c "%U" /var/log)
@@ -909,11 +915,6 @@ EOF
     # Share paths → bold green
     # Everything else → normal
 
-# Colors
-RED="\e[31m"
-GREEN="\e[1;32m"
-CYAN="\e[1;36m"
-RESET="\e[0m"
 
 echo "#########################################################################"
 echo "#                                                                       #"
