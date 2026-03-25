@@ -592,7 +592,7 @@ Look for the packets that are protocol `SMB` and info `Negotiate Protocol Respon
 
 ----------------------------------------------------------------
 
-![screenshot](../build_pi_5_appliance/img/Ubuntu-Install.resized.png)
+![screenshot](../build_pi_5_appliance/img/Wireshark2.resized.png)
 
 ----------------------------------------------------------------
 
