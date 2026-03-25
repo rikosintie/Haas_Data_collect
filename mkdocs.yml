@@ -16,6 +16,7 @@ nav:
       - Creating the Appliance: 'build_pi_5_appliance/configuring_appliance.md'
       - Create HaasGroup and Users: 'build_pi_5_appliance/create-groups.md'
       - Install Samba: 'build_pi_5_appliance/Install_Samba.md'
+      - Create Directories-Shares: 'build_pi_5_appliance/create_directories.md'
       - Update the Appliance: 'build_pi_5_appliance/updating_appliance.md'
       - Firewall Configuration: 'build_pi_5_appliance/firewall_configuration.md'
   - Appendices:
