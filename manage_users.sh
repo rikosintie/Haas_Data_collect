@@ -32,13 +32,6 @@ if [[ $EUID -ne 0 ]]; then
   exit 1
 fi
 
-#!/bin/bash
-
-# Usage:
-#   ./manage_users.sh <username> [--set-password] [--delete-user] [--admin-user]
-#                     [--ssh-key="..."] [--ssh-key-file=file]
-#                     [--force] [--dry-run]
-
 create_samba_user() {
     if [ "$#" -lt 1 ]; then
         echo "Usage: $0 <username> [options]" >&2
