@@ -34,7 +34,7 @@ OpenSSH_9.6p1 Ubuntu-3ubuntu13.14, OpenSSL 3.0.13 30 Jan 2024
 ----------------------------------------------------------------
 
 !!! Note Enabling the firewall is optional
-    The instructions will walk you through step by step, but if you make a mistake, you could lock yourself out unless you have a keyboard and monitor connected or purchased the [Serial cable](why_pi_5_appliance.md/#usb-serial-cable-for-the-raspberry-pi-5)
+    The instructions will walk you through step by step, but if you make a mistake, you could lock yourself out unless you have a keyboard and monitor connected or purchased the [Serial cable](../build_pi_5_appliance/build_an_appliance.md/#usb-serial-cable-for-the-raspberry-pi-5)
 
 ----------------------------------------------------------------
 
