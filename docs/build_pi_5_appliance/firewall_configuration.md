@@ -88,7 +88,7 @@ The project includes a script, `configure_ufw_firewall.sh` that reads a `csv` fi
 username,desktop_ip_address,role
 haas,192.168.10.143,Administrator
 haassvc,192.168.10.104,user
-haassvc2,192.168.10.120,Administrator
+mspadmin,192.168.10.120,Administrator
 rgoodwin,192.168.10.120,Administrator
 mchavez,192.168.10.133,Administrator
 ```
@@ -398,10 +398,10 @@ Here is what the output of the `dry-run` option looks like:
 [DRY-RUN] ufw allow from 192.168.10.143 to any port 9090 proto tcp comment 'Admin haas -> Cockpit'
 [*] Adding USER 'haassvc' from 192.168.10.104
 [DRY-RUN] ufw allow from 192.168.10.104 to any port 445 proto tcp comment 'User haassvc -> Samba'
-[*] Adding ADMIN 'haassvc2' from 192.168.10.120
-[DRY-RUN] ufw allow from 192.168.10.120 to any port 445 proto tcp comment 'Admin haassvc2 -> Samba'
-[DRY-RUN] ufw allow from 192.168.10.120 to any port 22 proto tcp comment 'Admin haassvc2 -> SSH'
-[DRY-RUN] ufw allow from 192.168.10.120 to any port 9090 proto tcp comment 'Admin haassvc2 -> Cockpit'
+[*] Adding ADMIN 'mspadmin' from 192.168.10.120
+[DRY-RUN] ufw allow from 192.168.10.120 to any port 445 proto tcp comment 'Admin mspadmin -> Samba'
+[DRY-RUN] ufw allow from 192.168.10.120 to any port 22 proto tcp comment 'Admin mspadmin -> SSH'
+[DRY-RUN] ufw allow from 192.168.10.120 to any port 9090 proto tcp comment 'Admin mspadmin -> Cockpit'
 [*] Adding ADMIN 'rgoodwin' from 192.168.10.120
 [DRY-RUN] ufw allow from 192.168.10.120 to any port 445 proto tcp comment 'Admin rgoodwin -> Samba'
 [DRY-RUN] ufw allow from 192.168.10.120 to any port 22 proto tcp comment 'Admin rgoodwin -> SSH'
