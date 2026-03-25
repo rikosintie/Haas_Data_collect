@@ -6,7 +6,7 @@ To share files between the CNC programmer and the machine control we have to cre
 
 ## The directory structure
 
-We will need the table we created earlier for reference. The concept is to create a share on the `Haas_Data_collect` directory named `Haas`. This top level share will be able so see the entire directory structure when it's mapped to a Windows network drive. Operations personnel will map to this share so that they can pull spreadsheets from every machine.
+We will need the [table](../build_pi_5_appliance/directories_shares.md/#table-of-machines) we created earlier for reference. It's listed below for reference. The concept is to create a share on the `Haas_Data_collect` directory named `Haas`. This top level share will be able so see the entire directory structure when it's mapped to a Windows network drive. Operations personnel will map to this share so that they can pull spreadsheets from every machine.
 
 Then create a directory/share for each Haas machine tool. The Haas machine tool share will be used:
 
@@ -33,6 +33,8 @@ The final structure will look like this:
 ```
 
 ----------------------------------------------------------------
+
+### Table of machines
 
 First we need to create the directories. We can refer to our table for the names:
 
@@ -252,7 +254,7 @@ drwxrwsr-- 9 haas HaasGroup 4096 Mar 18 19:32 Haas_Data_collect
 
 ### The smb.conf Share section
 
-Based on the [table](Install_Samba.md/#create-the-shares) above this is what the share section will look like:
+Based on the [table](directories_shares.md/#table-of-machines) above this is what the share section will look like:
 
 ```bash linenums='1'
 # Share for Haas Data Collection files
