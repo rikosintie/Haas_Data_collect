@@ -75,10 +75,12 @@ The repository includes a script named: `haas_firewall_install.sh`. The script d
 - Installs the Cockpit extension for managing/monitoring the firewall
 - Installs the "micro" cli text editor
 - Installs the "fresh" cli text editor
+- Installs Python PIP
+- Installs the Linux "tree" command for listing directories and files.
 - Copies `issue.net` to `/etc/issue.net` (This is the Pre-logon banner)
 - Copies csvlens binary to /usr/local/sbin - csvlens is a cli tool for viewing csv files. Example `csvlens users.csv`
 - Creates the backup directory in the repo
-- Triggers an initial firewall configuration via systemd
+- Triggers an initial firewall configuration via systemd using the `users.csv` file.
 
 It does NOT modify or delete anything inside the repo.
 
@@ -198,7 +200,11 @@ If you are in the Desktop version of Ubuntu you can open the `Files` application
 
 ### The initial_users.csv file
 
-This is a comma-separated value (csv) file that contains usernames and passwords. These are users authorized to map drives to the appliance. Every user who needs to work with the appliance should be listed in this file. The installation script will create a Linux user account and Samba account for each user in `initial_users.csv`. This would include:
+This is a comma-separated value (csv) file that contains usernames and passwords. These are users authorized to map drives to the appliance. Every user who needs to work with the appliance should be listed in this file. The installation script will create a Linux user account and Samba account for each user in `initial_users.csv`.
+
+To create administrative users, say an admin for an MSP, use the [Manage users by script](../build_pi_5_appliance/create-groups.md/#manage-users-by-script){target="_blank"} to create the user.
+
+User with only drive mapping permissions would include:
 
 - **Haas CNC controls** - Use `haassvc` on all machine tools when enabling file sharing. Their role in `users.csv` would be `user`.
 - **CNC Programmers** - You can map a drive using a Windows user name or use `haassvc` since the programmers only need to access the shares. Their role in `users.csv` would be `user`.
