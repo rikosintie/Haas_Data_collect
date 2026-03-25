@@ -5,6 +5,10 @@
 
 ----------------------------------------------------------------
 
+The Installation script creates the `HaasGroup` and users that are in the `users.csv` and `initial_users.csv` files. The instructions are included here to clarify how the installation script works.
+
+----------------------------------------------------------------
+
 Linux uses groups to manage permissions for users. For this project, all users will be in the same group. That isn't a security best practice since a disgruntled employee could delete everything. If you have compliance requirements or other concerns, just repeat this process to create multiple groups. For example, create a user and group for each machine. Then add the user to the machine's share and use it as the username when setting up the account on the machine.
 
 Does this seem like a lot of extra work? Yes, but I actually had a disgruntled employee delete the configuration for the DNC system for a neighboring cell one time. Of course, he was a night shift employee, and did it at midnight on Friday. I got called on Saturday morning and had to drive an hour to the plant and restore it. So it depends on your determination of the risk in your shop.
@@ -67,7 +71,13 @@ sudo find /home/haas/Haas_Data_Collect -type d -exec chmod 2775 {} +
 sudo find /home/haas/Haas_Data_Collect -type f -exec chmod 664 {} +
 chmod +x /home/$USER/Haas_Data_collect/lshare.sh
 chmod +x /home/$USER/Haas_Data_collect/smb_verify.sh
-chmod +x /home/$USER/Haas_Data_collect/setup_user.sh
+chmod +x /home/$USER/Haas_Data_collect/manage_users.sh
+chmod +x /home/$USER/Haas_Data_collect/tspin_setup.sh
+chmod +x /home/$USER/Haas_Data_collect/tspin_alias.sh
+chmod +x /home/$USER/Haas_Data_collect/rollback_csv.sh
+chmod +x /home/$USER/Haas_Data_collect/ssh_port.sh
+chmod +x /home/$USER/Haas_Data_collect/ssh_validate.sh
+chmod +x /home/$USER/Haas_Data_collect/haas_firewall_install.sh
 ```
 
 There is no output from these commands.
@@ -84,26 +94,30 @@ ls -l
 
 ```unixconfig title='Command Output'
 ls -l
-total 44
-drwxrwsr-x 6 haas HaasGroup 4096 Jan  6 20:05 Haas_Data_collect
-drwxrwsr-x 2 haas HaasGroup 4096 Jan  9 22:43 minimill
-drwxrwsr-x 2 haas HaasGroup 4096 Jan  6 12:39 st30
-drwxrwsr-x 2 haas HaasGroup 4096 Jan  9 22:11 st30l
-drwxrwsr-x 2 haas HaasGroup 4096 Jan  9 20:32 st40
-drwxrwsr-x 2 haas HaasGroup 4096 Dec 26 21:37 vf2ss
-drwxrwsr-x 2 haas HaasGroup 4096 Dec 26 21:37 vf5ss
+total 4
+drwxrwsr-- 9 haas HaasGroup 4096 Mar 24 15:30 Haas_Data_collect
+
 ```
 
 Now the account `haas` has `rwx` (read/write/execute) and and the group `HaasGroup` has `rws` (read\write\setgid) to directories. The `other` group has `r--` (read only). Files will have rw-, read/write.
 
-The three bash scripts in Haas_Data_collect:
+The bash scripts in Haas_Data_collect:
 
 ```bash
 ~/Haas_Data_collect ‹main●›
 ╰─$ ls -l *.sh
--rwxrwsr-x 1 haas HaasGroup  646 Jan  4 20:26 lshare.sh
--rwxrwsr-x 1 haas haas  2441 Jan  6 12:38 setup_user.sh
--rwxrwsr-x 1 haas HaasGroup 2620 Dec 26 23:01 smb_verify.sh
+-rwxrwsr-- 1 haas HaasGroup 45830 Mar 24 15:19 haas_firewall_install.sh
+-rwxrwsr-- 1 haas HaasGroup  2679 Feb 15 20:50 haas_firewall_uninstall.sh
+-rwxrwsr-- 1 haas HaasGroup   582 Feb 15 20:50 lshares.sh
+-rwxrwsr-- 1 haas HaasGroup  4366 Mar 22 18:36 manage_users.sh
+-rwxrwsr-- 1 haas HaasGroup  1897 Feb 15 20:50 rollback_csv.sh
+-rwxrwsr-- 1 haas HaasGroup  2732 Mar 17 18:19 setup_user.sh
+-rwxrwsr-- 1 haas HaasGroup  2620 Feb 15 20:50 smb_verify.sh
+-rwxrwsr-- 1 haas HaasGroup  3467 Feb 21 21:19 ssh_port.sh
+-rwxrwsr-- 1 haas HaasGroup   860 Mar 22 18:36 ssh_validate.sh
+-rwxrwsr-- 1 haas HaasGroup  1000 Feb 21 21:19 tspin_alias.sh
+-rwxrwsr-- 1 haas HaasGroup  1863 Feb 21 21:19 tspin_setup.sh
+-rwxrwsr-- 1 haas HaasGroup  4540 Feb 15 20:50 validate_users_csv.sh
 ```
 
 Have eXecute so that you can run them.
@@ -196,7 +210,7 @@ HaasGroup:x:1002:haassvc,haas
 
 ----------------------------------------------------------------
 
-#### Verify the `haassvc` user settings
+### Verify the `haassvc` user settings
 
 ```bash linenums='1' hl_lines='1'
 id haassvc
@@ -243,7 +257,7 @@ ls -l manage_users.sh
 ```
 
 ```bash title='Command Output'
--rwxrwsr-x 1 haas HaasGroup 4183 Mar 18 14:13 manage_users.sh
+-rwxrwsr-- 1 haas HaasGroup 4183 Mar 18 14:13 manage_users.sh
 ```
 
 ----------------------------------------------------------------
@@ -425,85 +439,71 @@ cat manage_users.sh
 
 ----------------------------------------------------------------
 
-### Verify the Samba Server
-
-Here is a function that you can add to your `~/.bashrc` or `~/.zshrc` file to display the paths to each share. Use the following to open your ~./bashrc (or ~/.zshrc) file:
-
-```bash linenums='1' hl_lines='1'
-nano ~/.bashrc
-```
-
-Then paste this at the bottom of the file, save and exit.
-
-----------------------------------------------------------------
-
-```bash linenums='1' hl_lines='1'
-smb-shares() {
-    while IFS= read -r line; do
-        if [[ "$line" == \[*\] ]]; then
-            # Extract share name without brackets
-            name="${line#\[}"
-            name="${name%\]}"
-        fi
-        if [[ "$line" == *path\ =* ]]; then
-            # Skip global, printers, and print$ shares
-            if [[ "$name" != "global" && "$name" != "printers" && "$name" != "print$" ]]; then
-                # Extract path after "path = "
-                sharepath="${line#*path = }"
-                # Print formatted output
-                printf "%-12s %s\n" "$name" "$sharepath"
-            fi
-        fi
-    done < /etc/samba/smb.conf
-}
-```
-
-If you don't want to add the function to your .bashrc file you can use the `lshares.sh` file that is included with the repository. You have to make it executable using:
-
-```bash linenums='1' hl_lines='1'
-chmod +x lshare.sh
-```
-
-Then run the script from the `/home/Haas_Data_collect` directory using:
-
-```bash linenums='1' hl_lines='1'
-./lshare.sh
-```
-
-----------------------------------------------------------------
-
-Here is the output of the function:
-
-```bash
-smb-shares
-Haas         /home/haas/Haas
-ST40         /home/haas/Haas/st40
-minimill     /home/haas/Haas/minimill
-VF2SS        /home/haas/Haas/vf2ss
-VF5SS        /home/haas/Haas/vf5ss
-ST30         /home/haas/Haas/st30
-ST30L        /home/haas/Haas/st30l
-```
-
-----------------------------------------------------------------
-
 ## Troubleshooting
 
+Samba includes a utility called `testparm` that reads the `/etc/samba/smb.conf` file. The `-s` argument reads the file  and reports any errors at the top of the output. It displays the entire smb/conf file so you will have to scroll up to see any errors.
+
+```bash hl_lines='1'
+testparm -s
+```
+
+```bash title='Command Output'
+Load smb config files from /etc/samba/smb.conf
+Loaded services file OK.
+Weak crypto is allowed by GnuTLS (e.g. NTLM as a compatibility fallback)
+
+Server role: ROLE_STANDALONE
+
+# Global parameters
+[global]
+    client max protocol = SMB3
+    client min protocol = SMB2
+    disable netbios = Yes
+    disable spoolss = Yes
+    load printers = No
+    log file = /var/log/samba/log.%m
+    logging = file
+    max log size = 10000
+    panic action = /usr/share/samba/panic-action %d
+    printcap name = /dev/null
+    server min protocol = SMB2
+    server role = standalone server
+    server string = Haas Data Collector (Samba, Ubuntu)
+    socket options = TCP_NODELAY IPTOS_LOWDELAY
+    idmap config * : backend = tdb
+    printing = bsd
+
+
+[Haas]
+    comment = Haas Data Collection Share
+    create mask = 0664
+```
+
 ```bash title='Review the Journal for user haassvc' hl_lines='1'
-id haassvc
+id haas
 sudo journalctl -u smbd.service -n 50 --no-pager
 ```
 
 ```bash
-uid=1001(haassvc) gid=1001(haassvc) groups=1001(haassvc),1002(HaasGroup)
-Jan 05 11:05:55 ubuntu-server smbd[96113]: pam_unix(samba:session): session opened for user haassvc(uid=1001) by (uid=0)
+uid=1000(haas) gid=1003(haas) groups=1003(haas),4(adm),20(dialout),24(cdrom),27(sudo),29(audio),44(video),46(plugdev),60(games),100(users),995(input),992(render),107(netdev),1000(gpio),1001(spi),1002(i2c),1004(HaasGroup)
 ```
 
-- smbclient //localhost/st40 -U haassvc
--
+```bash
+smbclient -L //localhost/Haas -U haas
+```
 
-testparm -s
-smbclient -L //192.168.10.223 -U haas
+```bash title='Command Output'
+Password for [WORKGROUP\haas]:
+
+    Sharename       Type      Comment
+    ---------       ----      -------
+    Haas            Disk      Haas Data Collection Share
+    st40            Disk      Logger for ST40
+    st30            Disk      Logger for ST30
+    st30l           Disk      Logger for ST30L
+    IPC$            IPC       IPC Service (Haas Data Collector (Samba, Ubuntu))
+SMB1 disabled -- no workgroup available
+```
 
 List only shares:
 
@@ -511,7 +511,27 @@ List only shares:
 sudo smbstatus -S
 ```
 
+```bash title='Command Output'
+Service      pid     Machine       Connected at                     Encryption   Signing
+---------------------------------------------------------------------------------------------
+Haas         531619  192.168.10.113 Tue Mar 24 16:38:21 2026 PDT
+```
+
+List `locked files`
+
+```bash
 sudo smbstatus -L -b
+```
+
+```bash title='Command Output'
+Locked files:
+Pid          User(ID)   DenyMode   Access      R/W        Oplock           SharePath   Name   Time
+--------------------------------------------------------------------------------------------------
+531619       1000       DENY_NONE  0x20081     RDONLY     LEASE(RH)        /home/haas/Haas_Data_collect   ._.DS_Store   Tue Mar 24 16:38:27 2026
+531619       1000       DENY_NONE  0x20081     RDONLY     LEASE()          /home/haas/Haas_Data_collect   ._.DS_Store   Tue Mar 24 16:38:21 2026
+531619       1000       DENY_NONE  0x100081    RDONLY     NONE             /home/haas/Haas_Data_collect   .   Tue Mar 24 16:38:27 2026
+531619       1000       DENY_NONE  0x100081    RDONLY     NONE             /home/haas/Haas_Data_collect   .   Tue Mar 24 16:38:27 2026
+```
 
 Managing Locked Files
 If a file is inappropriately locked (e.g., a client disconnected improperly), you can identify the process and kill it:
@@ -527,3 +547,57 @@ sudo kill <PID>
 This action should release the lock.
 
 ----------------------------------------------------------------
+
+### Wireshark
+
+The Samba server was configured with ntlm auth = ntlmv2-only and lanman auth = no, ensuring that legacy NTLMv1 and LANMAN authentication mechanisms are disabled. If an auditor wants proof that LANMAN and MTLMv1 are not being used you can run the following in the terminal of the appliance to capture packets.
+
+Once the `tcpdump` is running disconnect and reconnect a mapped drive from a Windows machine or one of the machine tools. Copy the capture to you laptop using SCP
+
+```bash linenums='1' hl_lines='1'
+cd ~
+sudo tcpdump -i any host <ip_of_the_windows_host> and port 445 -w smb_ntlm_test.pcap
+```
+
+```bash title='Command Output'
+[sudo] password for haas:
+tcpdump: data link type LINUX_SLL2
+tcpdump: listening on any, link-type LINUX_SLL2 (Linux cooked v2), snapshot length 262144 bytes
+^C715 packets captured
+716 packets received by filter
+0 packets dropped by kernel
+```
+
+In this example I connected to the appliance's Haas share. The `tcpdump` captured 715 packets. It shows `^C715 packets captured` because I used `ctrl+c` to end the capture
+
+Copy the file to your laptop using SCP:
+
+```bash linenums='1' hl_lines='1'
+scp smb_ntlm_test.pcap mhubbard@192.168.10.143:/home/mhubbard/Downloads
+```
+
+Where `192.168.10.143` is my laptop and the file we captured is `smb_ntlm_test.pcap`. If you are on Windows use [Putty SCP](https://the.earth.li/~sgtatham/putty/0.83/htmldoc/Chapter5.html#pscp){target="_blank"}
+
+#### In Wireshark
+
+Once you have `smb_ntlm_test.pcap` open in Wireshark, click the `edit` menu and select `Find Packet...`, type ntlmssp and press enter.
+
+----------------------------------------------------------------
+
+![screenshot](../build_pi_5_appliance/img/Wireshark.png)
+
+----------------------------------------------------------------
+
+Look for the packets that are protocol `SMB` and info `Negotiate Protocol Response`. The source will be the IP Address of the appliance, the destination will be the IP of your laptop. Click the arrows to expand the data in each section.
+
+----------------------------------------------------------------
+
+![screenshot](../build_pi_5_appliance/img/Ubuntu-Install.resized.png)
+
+----------------------------------------------------------------
+
+The small rectangle shows that the appliance accepted `SMB 3..1.1` and the large rectangle show the ciphers are:
+
+- `SHA-512`
+- `AES-128-GCM`
+- `AES-GMAC`.
