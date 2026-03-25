@@ -365,12 +365,12 @@ sleep 3
 # Add execute permission to scripts
 #########################################
 
+sudo chmod +x /usr/local/sbin/build-nmap.sh
 sudo chmod +x /usr/local/sbin/configure_ufw_from_csv.sh
+sudo chmod +x /usr/local/sbin/csvlens
 sudo chmod +x /usr/local/sbin/rollback_csv.sh
 sudo chmod +x /usr/local/sbin/ssh_port.sh
 sudo chmod +x /usr/local/sbin/validate_users_csv.sh
-sudo chmod +x /usr/local/sbin/build-nmap.sh
-sudo chmod +x /usr/local/sbin/csvlens
 sudo chmod +x "$REPO_DIR/lshares.sh"
 sudo chmod +x "$REPO_DIR/manage_users.sh"
 sudo chmod +x "$REPO_DIR/smb_verify.sh"
@@ -852,10 +852,13 @@ id "haas"
     log file = /var/log/samba/log.%m
     max log size = 10000
     logging = file
+    log level = 3 auth:10
     panic action = /usr/share/samba/panic-action %d
 
     # Authentication
     map to guest = Never
+    ntlm auth = ntlmv2-only
+    lanman auth = no
 
     # Protocol Security - Force SMB2/SMB3 only
     client min protocol = SMB2
@@ -874,6 +877,7 @@ id "haas"
     load printers = No
     printing = bsd
     printcap name = /dev/null
+
 
 [Haas]
     comment = Haas Data Collection Share
@@ -1134,6 +1138,7 @@ echo "#                                                  #"
 echo "####################################################"
 echo ""
 echo ""
+
 ########################################
 # Install nmap
 ########################################
@@ -1143,10 +1148,11 @@ echo ""
 # echo "nmap version $VERSION was successfully installed."
 # echo ""
 # sleep 3
+
 # Ensure the underlying Linux directory permissions are correct:
 sudo chown -R haas:HaasGroup /home/haas/Haas_Data_collect
-sudo chmod -R 2775 /home/haas/Haas_Data_collect
-# The 2 in 2775 sets the setgid bit, which ensures that all locally created
+sudo chmod -R 2774 /home/haas/Haas_Data_collect
+# The 2 in 2774 sets the setgid bit, which ensures that all locally created
 # files also inherit the HaasGroup.
 echo ""
 echo ""
