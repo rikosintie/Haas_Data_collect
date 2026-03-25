@@ -32,6 +32,13 @@ if [[ $EUID -ne 0 ]]; then
   exit 1
 fi
 
+#!/bin/bash
+
+# Usage:
+#   ./manage_users.sh <username> [--set-password] [--delete-user] [--admin-user]
+#                     [--ssh-key="..."] [--ssh-key-file=file]
+#                     [--force] [--dry-run]
+
 create_samba_user() {
     if [ "$#" -lt 1 ]; then
         echo "Usage: $0 <username> [options]" >&2
@@ -77,6 +84,17 @@ create_samba_user() {
                 ;;
         esac
     done
+
+    # ---------------------------
+    # Enforce SSH key requires admin
+    # ---------------------------
+    if [[ -n "$SSH_KEY" || -n "$SSH_KEY_FILE" ]]; then
+        if [[ "$ADMIN_USER" == false ]]; then
+            echo "ERROR: --ssh-key requires --admin-user" >&2
+            echo "Reason: SSH access requires a valid shell, which is only assigned to admin users." >&2
+            return 1
+        fi
+    fi
 
     # ---------------------------
     # Helper: run command
@@ -143,6 +161,14 @@ create_samba_user() {
     if id "$USERNAME" &>/dev/null; then
         echo "User exists"
 
+        # Prevent SSH key on nologin user unless admin flag used
+        current_shell=$(getent passwd "$USERNAME" | cut -d: -f7)
+        if [[ "$current_shell" == "/usr/sbin/nologin" && -n "$SSH_KEY" ]]; then
+            echo "ERROR: Existing user has nologin shell." >&2
+            echo "Use --admin-user to enable SSH access." >&2
+            return 1
+        fi
+
         if ! $SET_PASSWORD && ! $FORCE; then
             read -p "Update passwords? (y/N): " choice
             [[ "$choice" =~ ^[Yy]$ ]] && SET_PASSWORD=true
@@ -192,14 +218,10 @@ create_samba_user() {
     fi
 
     # ---------------------------
-    # SSH Key Setup
+    # SSH Key Setup (admin only)
     # ---------------------------
     if [[ -n "$SSH_KEY" ]]; then
         echo "Configuring SSH key"
-
-        if [[ "$ADMIN_USER" == false ]]; then
-            echo "Note: SSH key added to non-admin user $USERNAME"
-        fi
 
         SSH_DIR="/home/$USERNAME/.ssh"
         AUTH_KEYS="$SSH_DIR/authorized_keys"
