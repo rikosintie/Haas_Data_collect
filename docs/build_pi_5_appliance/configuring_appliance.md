@@ -415,6 +415,8 @@ The service files are where you define how to call the Python script when the Pi
 - The port to be used on the machine
 - The IP address of the CNC controller
 
+### Table of Machine
+
 These are the machine names, ports and IP addresses in the sample files.
 
 | Machine  | Port# |   IP Address   |
