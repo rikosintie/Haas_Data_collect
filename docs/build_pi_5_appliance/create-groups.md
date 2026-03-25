@@ -128,6 +128,9 @@ Have eXecute so that you can run them.
 
 All users, whether they are a machine tool, a CNC programmer, or the Operations personnel, need a Linux and a Samba account. The installation script reads the file `initial_users.csv` and creates both the Linux and Samba users during the installation.
 
+!!! Note
+    You cannot create users that can log in over ssh using the `initial_users.csv` file. Use the `manage_users.sh` script - [Manage users by script](../build_pi_5_appliance/create-groups.md/#manage-users-by-script) to create users with ssh capability.
+
 To add users later you can follow these instructions or run the `manage_users.sh` script that is in the `Haas_Data_collect` directory. See [Manage users by script](../build_pi_5_appliance/create-groups.md/#manage-users-by-script) for instructions for the Manager Users script.
 
 In this example I have:
@@ -136,8 +139,8 @@ In this example I have:
 |     Username    | Role and Responsibility                                                                                     |
 |:---------------:|-------------------------------------------------------------------------------------------------------------|
 |     haassvc     | The limited permission account used on the Haas CNC control                                                 |
-|     haassvc2    | An account for the customer to manage the Raspberry Pi 5                                                    |
-| Michael Hubbard | The administrator for the Raspberry Pi 5                                                                    |
+|     mspadmin    | An account for an MSP to manage the appliance                                                               |
+|     haas        | The administrator for the appliance                                                                         |
 |  Manuel Chavez  | CNC Setup technician. Needs to review the CNC Programs from his Windows desktop and review the spreadsheets |
 | Robert Goodwin  | Operations. Needs access to the `cnc_logs` directory to move files                                          |
 ```
@@ -232,17 +235,23 @@ It's fairly simple to create a user manually from the instructions above, but it
 
 The script has the following optional arguments:
 
-- --set-password
-- --delete-user
-- --delete-user --force
-- --delete-user --dry-run
-- --dry-run
+```unixconfig
+| Argument                   | Description                                     |
+|----------------------------|-------------------------------------------------|
+|   Username                 | The user to add, no -- in front of it           |
+| --set-password             | Update password for an existing user            |
+| --delete-user              | Delete an existing user with prompting          |
+| --delete-user --force      | Delete an existing user without prompting       |
+| --dry-run                  | Show what would happen, no changes              |
+| --admin-user               | Create a user with `sudo` and `ssh` permissions |
+| --ssh-key="ssh-ed25519..." | for an admin-user, add a public ssh key         |
+```
 
 ----------------------------------------------------------------
 
 To use the script, first run the following commands to make it executable:
 
-```bash linenums='1' hl_lines='1'
+```bash linenums='1'
 cd /home/haas/Haas_Data_Collect
 chmod +x manage_users.sh
 sudo chmod 2775 manage_users.sh
@@ -273,7 +282,7 @@ ls -l manage_users.sh
 
 #### Examples
 
-```bash hl_lines='2 5 8 11 14 17'
+```bash hl_lines='2 5 8 11 14 17 20 23'
 # To add a user
 sudo ./manage_users.sh bob
 
@@ -291,7 +300,15 @@ sudo ./manage_users.sh bob --delete-user --force
 
 # Show what would happen (no changes made)
 sudo ./manage_users.sh bob --dry-run
+
+# To Add an admin user
+sudo ./manage_users.sh mspadmin --admin-user
+
+#To add an admin user and an SSH public key
+sudo ./manage_users.sh mspadmin --admin-user --ssh-key="ssh-ed25519 AAAAC3Nza...)
 ```
+
+----------------------------------------------------------------
 
 #### Script outputs
 
@@ -312,6 +329,8 @@ mchavez
 thubbard
 test
 ```
+
+----------------------------------------------------------------
 
 #### Display the Samba users
 
@@ -376,6 +395,8 @@ Done.
 
 ```
 
+----------------------------------------------------------------
+
 #### Delete a User with prompts
 
 ```bash hl_lines='1 3 5'
@@ -387,6 +408,8 @@ DELETE MODE ENABLED for bob
 Are you sure you want to delete user 'bob'? (y/N): N
 Aborting.
 ```
+
+----------------------------------------------------------------
 
 #### Silently delete a user
 
@@ -425,6 +448,58 @@ Creating Samba user
 [DRY-RUN] sudo [DRY-RUN] usermod [DRY-RUN] -aG [DRY-RUN] HaasGroup [DRY-RUN] bob
 Final user info:
 [DRY-RUN] id [DRY-RUN] bob
+Done.
+```
+
+----------------------------------------------------------------
+
+#### Add an admin user
+
+```unixconfig linenums='1' hl_lines='1 4-5 7-9 10-12 14 17-19'
+sudo ./manage_users.sh mspadmin --admin-user
+[sudo] password for haas:
+==== Wed Mar 25 15:06:06 PDT 2026 ====
+Log file: /var/log/user_mgmt_20260325_150606.log
+Processing user: mspadmin
+Creating ADMIN user
+New password:
+Retype new password:
+passwd: password updated successfully
+Creating Samba user
+New SMB password:
+Retype new SMB password:Forcing Primary Group to 'Domain Users' for mspadmin
+Forcing Primary Group to 'Domain Users' for mspadmin
+Added user mspadmin.
+Forcing Primary Group to 'Domain Users' for mspadmin
+Forcing Primary Group to 'Domain Users' for mspadmin
+Enabled user mspadmin.
+Final user info:
+uid=1008(mspadmin) gid=1012(mspadmin) groups=1012(mspadmin),27(sudo),1004(HaasGroup)
+Done.
+```
+
+----------------------------------------------------------------
+
+#### Add an admin user with ssh key
+
+```unixconfig linenums='1' hl_lines='1 3-4 6-11 14-15 16-17'
+sudo ./manage_users.sh mspadmin --admin-user --ssh-key="ssh-ed25519 AAAAC3..."
+==== Wed Mar 25 12:49:48 PDT 2026 ====
+Log file: /var/log/user_mgmt_20260325_124948.log
+Processing user: mspadmin
+Creating ADMIN user
+New password:
+Retype new password:
+passwd: password updated successfully
+Creating Samba user
+New SMB password:
+Retype new SMB password
+Forcing Primary Group to 'Domain Users' for mspadmin
+Forcing Primary Group to 'Domain Users' for mspadmin
+Enabled user mspadmin.
+Configuring SSH key
+Final user info:
+uid=1007(mspadmin) gid=1011(mspadmin) groups=1011(mspadmin),27(sudo),1004(HaasGroup)
 Done.
 ```
 
