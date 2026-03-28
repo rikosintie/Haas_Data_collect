@@ -26,6 +26,41 @@ import re
 import subprocess
 import sys
 
+USE_COLOR = sys.stdout.isatty()
+
+# ==============================================
+# COLOR DEFINITIONS (ANSI)
+# ==============================================
+COLOR_RESET = "\033[0m"
+COLOR_RED = "\033[31m"
+COLOR_GREEN = "\033[32m"
+COLOR_YELLOW = "\033[33m"
+
+
+def colorize(status, text):
+    """
+    Apply color based on status.
+
+    Args:
+        status (str): PASS, FAIL, WARN, SMB
+        text (str): Text to colorize
+
+    Returns:
+        str: Colored string
+    """
+    if not USE_COLOR:
+        return text
+    if status == "PASS":
+        return f"{COLOR_GREEN}{text}{COLOR_RESET}"
+    elif status == "FAIL":
+        return f"{COLOR_RED}{text}{COLOR_RESET}"
+    elif status == "WARN":
+        return f"{COLOR_YELLOW}{text}{COLOR_RESET}"
+    elif status == "SMB":
+        return f"{COLOR_GREEN}{text}{COLOR_RESET}"
+    return text
+
+
 # ==============================================
 # ARG PARSING
 # ==============================================
@@ -67,8 +102,11 @@ def run_cmd(cmd):
 
 
 def log(test, status, message):
-    """Print formatted log output."""
-    print(f"{status}: [{test}] {message}")
+    """
+    Print formatted log output with color.
+    """
+    colored_status = colorize(status, status)
+    print(f"{colored_status}: [{test}] {message}")
 
 
 # ==============================================
@@ -78,52 +116,69 @@ def parse_smb_protocols(nmap_output):
     """
     Parse SMB protocol versions from Nmap smb-protocols output.
 
-    Supports both:
-    - Old format: SMBv2, SMBv3
-    - New format: dialect numbers (2:1:0, 3:0:0, etc.)
+    This implementation:
+    - Extracts only the 'dialects:' block
+    - Parses numeric dialects (e.g., 2:1:0, 3:0:0)
+    - Maps major version:
+        1.x -> SMB1
+        2.x -> SMB2
+        3.x -> SMB3
+
+    Args:
+        nmap_output (str): Raw Nmap output.
 
     Returns:
         tuple: (has_smb1, has_smb2, has_smb3)
     """
 
-    # If port is filtered or closed → no SMB
+    # If port is filtered/closed → no SMB reachable
     if re.search(r"445/tcp\s+(filtered|closed)", nmap_output, re.IGNORECASE):
         return False, False, False
 
-    smb_block = []
-    capture = False
+    lines = nmap_output.splitlines()
 
-    for line in nmap_output.splitlines():
-        if "smb-protocols" in line:
-            capture = True
+    in_smb = False
+    in_dialects = False
+    dialects = []
+
+    for line in lines:
+        stripped = line.strip()
+
+        # Enter smb-protocols section
+        if "smb-protocols" in stripped:
+            in_smb = True
             continue
-        if capture:
-            if line.startswith("|") or line.startswith(" "):
-                smb_block.append(line.strip())
-            else:
+
+        if not in_smb:
+            continue
+
+        # Enter dialects subsection
+        if "dialects" in stripped.lower():
+            in_dialects = True
+            continue
+
+        # If we hit end of block
+        if in_dialects:
+            # End conditions (next script or blank)
+            if stripped.startswith("|_") or stripped == "":
                 break
 
-    smb_text = "\n".join(smb_block)
+            # Clean formatting: remove leading "|" and whitespace
+            clean = stripped.lstrip("|").strip()
 
-    # ---- Detection logic ----
+            # Match dialect pattern like 2:1:0
+            match = re.match(r"(\d+:\d+:\d+)", clean)
+            if match:
+                dialects.append(match.group(1))
 
-    # SMB1 detection
-    has_smb1 = bool(
-        re.search(r"SMBv1", smb_text)
-        or re.search(r"^\s*\|?\s*1:", smb_text, re.MULTILINE)
-    )
+    # Deduce versions
+    major_versions = {int(d.split(":")[0]) for d in dialects}
 
-    # SMB2 detection
-    has_smb2 = bool(
-        re.search(r"SMBv2", smb_text)
-        or re.search(r"^\s*\|?\s*2:", smb_text, re.MULTILINE)
-    )
-
-    # SMB3 detection
-    has_smb3 = bool(
-        re.search(r"SMBv3", smb_text)
-        or re.search(r"^\s*\|?\s*3:", smb_text, re.MULTILINE)
-    )
+    has_smb1 = 1 in major_versions
+    has_smb2 = 2 in major_versions
+    has_smb3 = 3 in major_versions
+    COLORIZED_SMB = colorize("SMB", "SMB")
+    print(f"{COLORIZED_SMB}: Detected SMB dialects → [{', '.join(dialects)}]")
 
     return has_smb1, has_smb2, has_smb3
 
@@ -235,14 +290,15 @@ def main():
         overall_secure = (access_result == "PASS") and (smb_grade != "WARN")
     else:
         overall_secure = failures == 0
-
+    overall_text = "SECURE" if overall_secure else "NOT_SECURE"
+    overall_colored = colorize("PASS" if overall_secure else "FAIL", overall_text)
     print("\n==============================================")
     print("  SECURITY SUMMARY")
     print("==============================================")
     print(f"Target: {TARGET_IP}")
     print(f"Expected Access: {EXPECTED_ACCESS}")
     print(f"Access Result: {access_result}")
-    print(f"Overall: {'SECURE' if overall_secure else 'NOT_SECURE'}")
+    print(f"Overall: {overall_colored}")
     print(f"Failures: {failures}, Warnings: {warnings}")
     print(f"SMB Grade: {smb_grade}")
     print("==============================================")
