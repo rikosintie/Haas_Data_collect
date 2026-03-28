@@ -299,6 +299,7 @@ def main():
     print("  SECURITY SUMMARY")
     print("==============================================")
     print(f"Target: {TARGET_IP}")
+
     print(f"Expected Access: {EXPECTED_ACCESS}")
     print(f"Access Result: {colorized_access_result}")
     print(f"Overall: {overall_colored}")
