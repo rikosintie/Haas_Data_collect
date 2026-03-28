@@ -290,17 +290,21 @@ def main():
         overall_secure = (access_result == "PASS") and (smb_grade != "WARN")
     else:
         overall_secure = failures == 0
+    colorized_target = colorize("PASS", TARGET_IP)
+    colorized_access_result = colorize(access_result, access_result)
     overall_text = "SECURE" if overall_secure else "NOT_SECURE"
     overall_colored = colorize("PASS" if overall_secure else "FAIL", overall_text)
+    colorized_smb_grade = colorize(smb_grade, smb_grade)
     print("\n==============================================")
     print("  SECURITY SUMMARY")
     print("==============================================")
     print(f"Target: {TARGET_IP}")
     print(f"Expected Access: {EXPECTED_ACCESS}")
-    print(f"Access Result: {access_result}")
+    print(f"Access Result: {colorized_access_result}")
     print(f"Overall: {overall_colored}")
     print(f"Failures: {failures}, Warnings: {warnings}")
-    print(f"SMB Grade: {smb_grade}")
+    # print(f"SMB Grade: {smb_grade}")
+    print(f"SMB Grade: {colorized_smb_grade}")
     print("==============================================")
 
     # ==========================================
