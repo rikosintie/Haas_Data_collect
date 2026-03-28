@@ -204,9 +204,9 @@ If only local Linux accounts are used there is no risk. See [There are two train
 
 ---
 
-### 6.6. Crypto Ransomware
+### 6.6. Ransomware
 
-How Cryptolocker Impacts a Samba Server
+How Ransomware Impacts a Samba Server
 
 If a Windows machine gets hit with ransomware and that user has write access to a Samba share (Haas, st30, etc.):
 
@@ -217,7 +217,7 @@ If a Windows machine gets hit with ransomware and that user has write access to 
 
 This is identical to what happens on a Windows file server. Samba is protocol‑compatible, so it inherits the same exposure.
 
-**What cannot happen**
+#### What cannot happen
 
 - The ransomware cannot execute on Ubuntu
 - It cannot infect Samba binaries
@@ -225,8 +225,6 @@ This is identical to what happens on a Windows file server. Samba is protocol‑
 - It cannot compromise the OS or Samba daemon
 
 The threat is strictly data‑level, not system‑level.
-
-If only local Linux accounts are used there is no risk. See [There are two trains of thoughts on usernames](../build_pi_5_appliance/configuring_appliance.md/#there-are-two-trains-of-thoughts-on-usernames)
 
 ---
 
