@@ -65,10 +65,10 @@ def colorize(status, text):
 # ARG PARSING
 # ==============================================
 TARGET_IP = None
-EXPECTED_ACCESS = "authorized"
+EXPECTED_ACCESS = None
 STRICT_MODE = False
 
-for arg in sys.argv:
+for arg in sys.argv[1:]:
     if arg.startswith("--target="):
         TARGET_IP = arg.split("=", 1)[1]
     elif arg.startswith("--expected-access="):
@@ -76,12 +76,16 @@ for arg in sys.argv:
     elif arg == "--strict":
         STRICT_MODE = True
 
+# Apply default AFTER parsing
+if EXPECTED_ACCESS is None:
+    EXPECTED_ACCESS = "admin"
+
 if not TARGET_IP:
     print("ERROR: --target=<IP> is required")
     sys.exit(2)
 
-if EXPECTED_ACCESS not in ["authorized", "unauthorized"]:
-    print("Invalid value for --expected-access")
+if EXPECTED_ACCESS not in ["admin", "user", "none"]:
+    print("Invalid value for --expected-access (admin|user|none)")
     sys.exit(2)
 
 REQUIRED_PORTS = ["22", "445", "9090"]
@@ -199,36 +203,38 @@ def test_smb(target_ip, expected_access):
 
     has_smb1, has_smb2, has_smb3 = parse_smb_protocols(output)
 
-    if expected_access == "authorized":
+    if expected_access in ["admin", "user"]:
         if has_smb1:
             log("SMB", "FAIL", "SMB1 detected (insecure)")
             failures += 1
         elif has_smb2 or has_smb3:
             log("SMB", "PASS", "Modern SMB protocols detected")
         else:
-            log("SMB", "FAIL", "No modern SMB protocols detected")
+            log("SMB", "FAIL", "SMB not reachable when it should be")
             failures += 1
 
         smb_grade = "FAIL" if has_smb1 or (not has_smb2 and not has_smb3) else "PASS"
 
-    else:
+    else:  # none
         if has_smb1 or has_smb2 or has_smb3:
-            log(
-                "SMB",
-                "WARN",
-                "SMB reachable from unauthorized host! Firewall issue",
-            )
+            log("SMB", "WARN", "SMB reachable when it should be blocked")
             warnings += 1
             smb_grade = "WARN"
         else:
-            log("SMB", "PASS", "Unauthorized host cannot reach SMB (expected)")
+            log("SMB", "PASS", "SMB correctly blocked")
             smb_grade = "PASS"
 
     return smb_grade, failures, warnings
 
 
 def test_firewall(target_ip, expected_access, required_ports):
-    """Run firewall/port accessibility test."""
+    """
+    Validate firewall behavior based on access role.
+
+    admin → must reach ALL required ports
+    user  → must reach ONLY 445
+    none  → must reach NO ports
+    """
     failures = 0
     warnings = 0
 
@@ -236,41 +242,43 @@ def test_firewall(target_ip, expected_access, required_ports):
         f"nmap -Pn --host-timeout 30s -p {','.join(required_ports)} {target_ip}"
     )
 
-    open_ports = re.findall(r"^(\d+)/tcp\s+open", output, re.MULTILINE)
-    open_ports_set = set(open_ports)
-    required_ports_set = set(required_ports)
+    open_ports = set(re.findall(r"^(\d+)/tcp\s+open", output, re.MULTILINE))
 
-    if expected_access == "authorized":
-        missing = required_ports_set - open_ports_set
-        if missing:
-            log(
-                "FIREWALL",
-                "FAIL",
-                f"Authorized host cannot reach ports: {','.join(sorted(missing))}",
-            )
-            failures += 1
-            status = "DISABLED or MISCONFIGURED"
-        else:
-            log("FIREWALL", "PASS", "Firewall allowing access (expected)")
-            status = "ENABLED"
+    # Define expectations
+    if expected_access == "admin":
+        expected_open = set(required_ports)
+    elif expected_access == "user":
+        expected_open = {"445"}
+    else:  # none
+        expected_open = set()
 
-        access_result = "PASS" if not missing else "FAIL"
+    unexpected_open = open_ports - expected_open
+    missing_expected = expected_open - open_ports
 
-    else:
-        unexpected = required_ports_set & open_ports_set
-        if unexpected:
-            log(
-                "FIREWALL",
-                "WARN",
-                f"Unauthorized access allowed! Open ports: {','.join(sorted(unexpected))}",
-            )
-            warnings += 1
-            status = "DISABLED or MISCONFIGURED"
-        else:
-            log("FIREWALL", "PASS", "Firewall blocking unauthorized access")
-            status = "ENABLED"
+    # --- Evaluate ---
+    if missing_expected:
+        log(
+            "FIREWALL",
+            "FAIL",
+            f"Missing required ports: {','.join(sorted(missing_expected))}",
+        )
+        failures += 1
 
-        access_result = "PASS" if not unexpected else "FAIL"
+    if unexpected_open:
+        log(
+            "FIREWALL",
+            "WARN",
+            f"Unexpected open ports: {','.join(sorted(unexpected_open))}",
+        )
+        warnings += 1
+
+    if not missing_expected and not unexpected_open:
+        log("FIREWALL", "PASS", "Firewall behavior matches expected role")
+
+    # Determine access result
+    access_result = "PASS" if not missing_expected and not unexpected_open else "FAIL"
+
+    status = "ENABLED" if access_result == "PASS" else "MISCONFIGURED"
 
     return status, access_result, failures, warnings
 
@@ -280,6 +288,7 @@ def test_firewall(target_ip, expected_access, required_ports):
 # ==============================================
 def main():
     """Main execution."""
+    print(f"DEBUG: EXPECTED_ACCESS = {EXPECTED_ACCESS}")
     smb_grade, smb_fail, smb_warn = test_smb(TARGET_IP, EXPECTED_ACCESS)
     fw_status, access_result, fw_fail, fw_warn = test_firewall(
         TARGET_IP, EXPECTED_ACCESS, REQUIRED_PORTS
@@ -288,7 +297,7 @@ def main():
     failures = smb_fail + fw_fail
     warnings = smb_warn + fw_warn
 
-    if EXPECTED_ACCESS == "unauthorized":
+    if EXPECTED_ACCESS == "none":
         overall_secure = (access_result == "PASS") and (smb_grade != "WARN")
     else:
         overall_secure = failures == 0
