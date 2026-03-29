@@ -2,7 +2,7 @@
 """
 smb_verify.py
 
-Validate SMB exposure and firewall behavior for an appliance.
+Validate SMB version and firewall behavior for an appliance.
 
 ROLES:
     admin → SSH + SMB + web (22,445,9090)
