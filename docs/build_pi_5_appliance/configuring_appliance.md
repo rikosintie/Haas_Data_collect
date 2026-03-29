@@ -223,7 +223,7 @@ The first method is easier to deploy and maintain, but you lose the ability to t
 - **Tier 1** (Management Plane): This tier consists of enterprise servers (e.g., SQL, Exchange, file servers). Admins use a separate Tier 1 account to manage these servers; this account is explicitly denied the right to log on to Tier 2 workstations.
 - **Tier 2** (User Plane): This is the lowest tier, encompassing end-user workstations and ***devices***. Users and Tier 2 admins use standard accounts here, which have no administrative rights on Tier 1 or Tier 0 systems.
 
-The appliance can be considered a `device`, if you only use the Linux `haassvc` account then even if the appliance was compromised, the attacker couldn't use the account to move laterally.
+The appliance can be considered a `device`, if you only use local Linux accounts like `haas`, `haassvc`, `mspadmin` even if the appliance was compromised, the attacker couldn't use the accounts to move laterally in Active Directory.
 
 ----------------------------------------------------------------
 
