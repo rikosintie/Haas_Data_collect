@@ -165,14 +165,16 @@ def parse_smb_protocols(nmap_output):
 
             # Clean formatting: remove leading "|" and whitespace
             clean = stripped.lstrip("|").strip()
+            # match = re.match(r"(\d+:\d+:\d+)", clean)
+        # Match dialects like 2:1:0, 3:0:2, 3:1:1, 2.1, 3.0.2, 3.1.1
+        match = re.match(r"(\d+(?:[:.]\d+){1,2})", clean)
+        if match:
+            dialect = match.group(1)  # keep full version string
+            dialects.append(dialect)
 
-            # Match dialect pattern like 2:1:0
-            match = re.match(r"(\d+:\d+:\d+)", clean)
-            if match:
-                dialects.append(match.group(1))
-
-    # Deduce versions
-    major_versions = {int(d.split(":")[0]) for d in dialects}
+        # (OUTSIDE the loop)
+        # Deduce major versions
+        major_versions = {int(re.split(r"[:.]", d)[0]) for d in dialects}
 
     has_smb1 = 1 in major_versions
     has_smb2 = 2 in major_versions
