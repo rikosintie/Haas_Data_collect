@@ -26,6 +26,7 @@ nav:
     - Appendix C - Threat Model for Auditors: 'appendices/appendix-c.md'
     - Appendix D - Systemd type options: 'appendices/appendix-d.md'
     - Appendix E - SSH Hardening: 'appendices/appendix-e.md'
+    - Appendix F - SMB Protocols: 'appendices/appendix-f.md'
 
 
 theme:
