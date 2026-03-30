@@ -27,6 +27,7 @@ nav:
     - Appendix D - Systemd type options: 'appendices/appendix-d.md'
     - Appendix E - SSH Hardening: 'appendices/appendix-e.md'
     - Appendix F - SMB Protocols: 'appendices/appendix-f.md'
+    - Appendix G - Troubleshooting: 'appendices/appendix-g.md'
 
 
 theme:
@@ -108,7 +109,12 @@ markdown_extensions:
       pygments_lang_class: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
   - admonition
   - pymdownx.details
   - pymdownx.arithmatex:
