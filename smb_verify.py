@@ -270,7 +270,10 @@ def main():
     else:
         overall_secure = failures == 0
 
-    overall_text = "SECURE" if overall_secure else "NO ACCESS as expected"
+    if overall_secure:
+        overall_text = "NO ACCESS as expected" if expected == "none" else "SECURE"
+    else:
+        overall_text = "FAIL: ACCESS DETECTED" if expected == "none" else "FAIL"
     overall_colored = colorize("PASS" if overall_secure else "FAIL", overall_text)
 
     print("\n==============================================")
