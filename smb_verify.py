@@ -271,9 +271,19 @@ def main():
         overall_secure = failures == 0
 
     if overall_secure:
-        overall_text = "NO ACCESS as expected" if expected == "none" else "SECURE"
+        if expected == "admin":
+            overall_text = "PASS: Admin access verified"
+        elif expected == "user":
+            overall_text = "PASS: User access verified"
+        else:
+            overall_text = "PASS: No access as expected"
     else:
-        overall_text = "FAIL: ACCESS DETECTED" if expected == "none" else "FAIL"
+        if expected == "admin":
+            overall_text = "FAIL: Admin access check failed"
+        elif expected == "user":
+            overall_text = "FAIL: User access check failed"
+        else:
+            overall_text = "FAIL: Unexpected access detected"
     overall_colored = colorize("PASS" if overall_secure else "FAIL", overall_text)
 
     print("\n==============================================")
