@@ -268,7 +268,7 @@ def main():
     if expected == "none":
         overall_secure = (fw_result == "PASS") and (smb_grade != "WARN")
     else:
-        overall_secure = failures == 0
+        overall_secure = failures == 0 and fw_result == "PASS"
 
     if overall_secure:
         if expected == "admin":
