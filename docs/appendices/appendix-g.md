@@ -8,14 +8,22 @@ flowchart TD
 A([Start: SMB Issue Reported]) --> B{Port 445 Reachable?}
 
 B -->|No| B1[Firewall or Network Path Issue]
-B1 --> B1a[Check workstation firewall]
-B1 --> B1b[Check appliance firewall]
-B1 --> B1c[Verify VLANs / switches]
-B1 --> B1d[Confirm correct IP]
+B1 --> B1a[Confirm correct IP]
+B1 --> B1b[Verify VLANs / Switches]
+B1 --> B1c[Check appliance firewall]
+B1 --> B1d[Check W/S firewall]
 B1 --> Z([End])
 
 B -->|Yes| C([Proceed to SMB Listing Checks])
 ```
+
+----------------------------------------------------------------
+
+- Port 445 reachable - use `nmap -p 22,445,9090 <appliance_ip>` to verify
+- Confirm correct IP - Make sure you are using the correct IP address for the appliance.
+- Verify VLANS/Switches - Use `ping <appliance_ip> to verify network connectivity to the appliance
+- Check Appliance firewall - Use `sudo ufw status numbered | sort -k5` to list the appliance firewall rules
+- Check W/S Firewall - This is a low probability. By default Windows, Mac, Linux allow outbound traffic
 
 ----------------------------------------------------------------
 
@@ -24,19 +32,27 @@ B -->|Yes| C([Proceed to SMB Listing Checks])
 ```mermaid
 flowchart TD
 
-START([SMB Listing Checks]) --> C([Can workstation list SMB shares?])
+A([Start: List SMB Shares]) --> B{List SMB shares}
 
-C -->|Yes| D([Proceed to Anonymous Access Checks])
+B -->|No| C[Auth or DNS issue]
+C --> D[Check credentials]
+C --> E[Is domain WORKGROUP]
+C --> F[Check DNS]
+C --> G[Check time sync]
+C --> H[Check Samba logs]
+C --> Z([End])
 
-C -->|No| C1[Authentication or DNS Issue]
-
-C1 --> C1a[Verify username/password]
-C1a --> C1b[Verify domain]
-C1b --> C1c[Check DNS resolution]
-C1c --> C1d[Check time sync (AD)]
-C1d --> C1e[Review Samba logs]
-C1e --> Z([End])
+B -->|Yes| I([Proceed])
 ```
+
+----------------------------------------------------------------
+
+- List SMB Shares - On the appliance, cd to `Haas_Data_collect` and run `./lshares.sh`
+- Check Credentials - Run `manager_users.sh <username> --set-password` to reset the password
+- Domain name - The domain name is `WORKGROUP` by default
+- Check DNS - I you are using a FQDN instead of an ip use `dig` or `nslookup` to verify the appliance is registered in DNS
+- Check Time Sync - On the appliance run `date` to see the current date/time on the appliance
+- Check Samba logs on the appliance - Use `sudo tail -f /var/log/samba/log.smbd`. This keeps the logger running. Use `ctrl+c` to cancel it.
 
 ----------------------------------------------------------------
 
