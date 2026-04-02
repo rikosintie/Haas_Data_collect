@@ -1,0 +1,8 @@
+2026-04-02 16:09:03,086 - INFO - --- Starting SMB Compliance Audit ---
+2026-04-02 16:09:03,087 - INFO - Audit Source: 1S1K-G5 (192.168.10.143)
+2026-04-02 16:09:03,087 - INFO - Target Appliance: 192.168.10.127
+2026-04-02 16:09:03,088 - INFO - Testing Anonymous Access (Should be refused)...
+2026-04-02 16:09:03,114 - INFO - [PASS] Anonymous access successfully refused.
+2026-04-02 16:09:03,114 - INFO - Testing Authenticated Access for: mike...
+2026-04-02 16:09:03,143 - ERROR - [FAIL] Authentication failed or access denied for mike.
+2026-04-02 16:09:03,143 - INFO - --- Audit Session Closed ---
