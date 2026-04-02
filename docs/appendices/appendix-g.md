@@ -1,4 +1,4 @@
-# Troubleshooting flowchart
+# Appliance Troubleshooting flowchart
 
 The following flowchart will assist you in troubleshooting:
 
@@ -69,11 +69,34 @@ flowchart LR
 
 ----------------------------------------------------------------
 
-- Port 445 reachable - use `nmap -p 22,445,9090 <appliance_ip>` to verify
 - Confirm correct IP - Make sure you are using the correct IP address for the appliance.
 - Verify VLANS/Switches - Use `ping <appliance_ip> to verify network connectivity to the appliance
-- Check Appliance firewall - Use `sudo ufw status numbered | sort -k5` to list the appliance firewall rules
+- Port 445 reachable - use `nmap -Pn -p 22,445,9090 <appliance_ip>` to verify
+- Check Appliance firewall - Use `sudo ufw status numbered | sort -k5` on the applinace to list the appliance firewall rules
 - Check W/S Firewall - This is a low probability. By default Windows, Mac, Linux allow outbound traffic
+
+----------------------------------------------------------------
+
+### Reachability Commands
+
+??? info "Common Issues and Fixes"
+
+    ```bash hl_lines='1 6'
+    ping 192.168.10.127
+    PING 192.168.10.127 (192.168.10.127) from 192.168.10.143 wlp61s0: 56(84) bytes of data.
+    64 bytes from 192.168.10.127: icmp_seq=1 ttl=64 time=86.9 ms
+    64 bytes from 192.168.10.127: icmp_seq=2 ttl=64 time=7.80 ms
+    64 bytes from 192.168.10.127: icmp_seq=3 ttl=64 time=6.28 ms
+    nmap -Pn -p 22,445,9090 192.168.10.127
+    Starting Nmap 7.95 ( https://nmap.org ) at 2026-04-02 12:27 PDT
+    Nmap scan report for haas.pu.pri (192.168.10.127)
+    Host is up (0.0061s latency).
+
+    PORT     STATE SERVICE
+    22/tcp   open  ssh
+    445/tcp  open  microsoft-ds
+    9090/tcp open  zeus-admin
+    ```
 
 ----------------------------------------------------------------
 
@@ -125,6 +148,56 @@ flowchart LR
 
 ----------------------------------------------------------------
 
+### SMB Commands
+
+??? info "Common Issues and Fixes"
+
+    ```bash linenums='1' hl_lines='1 3 10-11 14-17 21-24 33 35 38 40'
+    cd Haas_Data_collect
+    ┌─[haas@haas] - [~/Haas_Data_collect] - [2358]
+    └─[$] ./lshares.sh
+    Haas         /home/haas/Haas_Data_collect
+    minimill     /home/haas/Haas_Data_collect/machines/minimill
+    st40         /home/haas/Haas_Data_collect/machines/st40
+    st30         /home/haas/Haas_Data_collect/machines/st30
+    st30l        /home/haas/Haas_Data_collect/machines/st30l
+
+    sudo ./manage_users.sh mspadmin
+    [sudo] password for haas:
+    ==== Thu Apr  2 12:44:43 PDT 2026 ====
+    Log file: /var/log/user_mgmt_20260402_124443.log
+    Processing user: mspadmin
+    User exists
+    Update passwords? (y/N): y
+    Updating system password
+    New password:
+    Retype new password:
+    passwd: password updated successfully
+    Samba user exists
+    Updating Samba password
+    New SMB password:
+    Retype new SMB password:Forcing Primary Group to 'Domain Users' for mspadmin
+
+    Forcing Primary Group to 'Domain Users' for mspadmin
+    Forcing Primary Group to 'Domain Users' for mspadmin
+    Enabled user mspadmin.
+    Final user info:
+    uid=1007(mspadmin) gid=1011(mspadmin) groups=1011(mspadmin),27(sudo),1004(HaasGroup)
+    Done.
+
+    Appliance
+    ┌─[haas@haas] - [~/Haas_Data_collect] - [2361]
+    └─[$] date
+    Thu Apr  2 12:47:58 PDT 2026
+
+    Laptop
+    ┌─[mhubbard@1S1K-G5] - [~/Insync/GD/04_Tools/Haas/Haas_Data_collect] - [9005]
+    └─[$] date
+    Thu Apr  2 12:48:43 PM PDT 2026
+    ```
+
+----------------------------------------------------------------
+
 ## ⭐ Stage 3 — User Authentication & Permissions
 
 ```mermaid
@@ -167,6 +240,52 @@ flowchart LR
 
     %% Endpoints
     E4 --> Z([🔚 End])
+    F4 --> Z
+    G --> Z
+    class Z terminal
+```
+
+----------------------------------------------------------------
+
+```mermaid
+
+flowchart LR
+
+    %% Styles
+    classDef stage3 fill:#fce4ec,stroke:#d81b60,stroke-width:1px,color:#880e4f;
+    classDef terminal fill:#eeeeee,stroke:#424242,color:#212121,stroke-width:1px;
+
+    %% Stage 3 Entry
+    A([➡ From Stage 2]) --> D{3. Drive mapping fails?}
+    class A,D stage3
+
+    %% Stage 3
+    subgraph Stage3 [▼ Stage 3: User Authentication & Permissions]
+        direction LR
+
+        %% Tier 1 — Authentication
+        D -->|Yes| E{3.1 User authentication working?}
+
+        %% Only meaningful workstation-side checks remain
+        E -->|No| E1[3.1.1 Check for cached credentials on workstation]
+        E1 --> E2[3.1.2 Check Samba logs for NTLMv2 handshake]
+
+        %% Tier 2 — Permissions
+        E -->|Yes| F{3.2 Permissions correct?}
+
+        F -->|No| F1[3.2.1 Check filesystem permissions]
+        F1 --> F2["3.2.2 Validate share-level access rules\n(path exists, correct owner/group/mode)"]
+        F2 --> F3[3.2.3 Validate group membership]
+        F3 --> F4[3.2.4 Use smbstatus to inspect active sessions]
+
+        %% Success
+        F -->|Yes| G([🟦 3.3 SMB functioning correctly])
+    end
+
+    class E,E1,E2,F,F1,F2,F3,F4,G stage3
+
+    %% Endpoints
+    E2 --> Z([🔚 End])
     F4 --> Z
     G --> Z
     class Z terminal
