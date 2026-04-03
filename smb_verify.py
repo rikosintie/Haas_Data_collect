@@ -27,6 +27,7 @@ COLOR_RESET = "\033[0m"
 COLOR_RED = "\033[31m"
 COLOR_GREEN = "\033[32m"
 COLOR_YELLOW = "\033[33m"
+COLOR_CYAN = "\033[36m"  # optional alternative to green for informational output
 
 
 def colorize(status, text):
@@ -41,9 +42,6 @@ def colorize(status, text):
     if status == "WARN":
         return f"{COLOR_YELLOW}{text}{COLOR_RESET}"
     return text
-
-
-COLOR_CYAN = "\033[36m"  # optional alternative to green for informational output
 
 
 def cyan(text):
