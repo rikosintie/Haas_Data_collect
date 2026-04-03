@@ -1,13 +1,24 @@
 import argparse
-import datetime
 import getpass
 import logging
 import socket
+import sys
 import uuid
 
 from smbprotocol.connection import Connection
 from smbprotocol.session import Session
 from smbprotocol.tree import TreeConnect
+
+# ==============================================
+# COLOR SUPPORT
+# ==============================================
+USE_COLOR = sys.stdout.isatty()
+
+COLOR_RESET = "\033[0m"
+COLOR_RED = "\033[31m"
+COLOR_GREEN = "\033[32m"
+COLOR_YELLOW = "\033[33m"
+COLOR_CYAN = "\033[36m"  # optional alternative to green for informational output
 
 
 def get_source_info():
@@ -32,63 +43,38 @@ def setup_audit_log(log_file, verbose):
         logging.getLogger("smbprotocol").setLevel(logging.WARNING)
 
 
-def run_audit(target, username, password):
-    """Performs the audit, confirms share availability, and checks time sync."""
+def run_audit(target, username, password, custom_shares=None):
+    """Performs the audit and verifies tool-specific shares."""
     source_info = get_source_info()
     logging.info("--- Starting SMB Compliance Audit ---")
-    logging.info(f"Source: {source_info} | Target: {target}")
+    logging.info(
+        f"{COLOR_CYAN}Source{COLOR_RESET}: {source_info} | {COLOR_CYAN}Target{COLOR_RESET}: {target}"
+    )
 
     connection = Connection(uuid.uuid4(), target, 445)
 
-    # 1. Connection and Time Drift Check
-    logging.info("Verifying System Integrity and Time Sync...")
-    connection.connect()
-
-    # Access the raw data from the negotiate response
-    neg_res = getattr(connection, "negotiate_response", None)
-
-    if neg_res and hasattr(neg_res, "data"):
-        # The 'system_time' is inside the .data attribute of the response
-        remote_time = neg_res["system_time"].get_value()
-        local_time = datetime.datetime.now(datetime.timezone.utc)
-        time_diff = abs((remote_time - local_time).total_seconds())
-
-        logging.info(
-            f"    Appliance Time (UTC): {remote_time.strftime('%Y-%m-%d %H:%M:%S')}"
-        )
-        logging.info(
-            f"    Local Machine Time (UTC): {local_time.strftime('%Y-%m-%d %H:%M:%S')}"
-        )
-
-        if time_diff > 60:
-            logging.warning(
-                f"[!] TIME SYNC ALERT: Drift of {int(time_diff)}s detected!"
-            )
-        else:
-            logging.info(f"[PASS] Time sync within limits ({int(time_diff)}s drift).")
-
-    # 2. Anonymous Access Check
-    logging.info("Testing Anonymous Access (Compliance Check)...")
+    # 1. Authenticated Session
     try:
-        anon_session = Session(connection, "", "")
-        anon_session.connect()
-        anon_tree = TreeConnect(anon_session, f"\\\\{target}\\IPC$")
-        anon_tree.connect()
-        logging.warning("[!] SECURITY ALERT: Anonymous access allowed to IPC$!")
-        anon_tree.disconnect()
-    except Exception:
-        logging.info("[PASS] Anonymous access successfully refused.")
-
-    # 3. Authenticated Access & Share Listing
-    logging.info(f"Testing Authenticated Access for: {username}...")
-    try:
+        logging.info(f"Connecting to {COLOR_CYAN}{target}{COLOR_RESET}...")
+        connection.connect()
         auth_session = Session(connection, username, password)
         auth_session.connect()
+        logging.info(
+            f"{COLOR_GREEN}[PASS]{COLOR_RESET} Authentication successful for {COLOR_CYAN}{username}{COLOR_RESET}."
+        )
 
-        known_shares = ["st30", "st40", "minimill", "Haas", "st30l"]
+        # 2. Share Verification
+        logging.info("Auditing Machine Tool Shares...")
+        # Default discovery list + any custom shares passed by the MSP
+        base_shares = ["st30", "st40", "minimill", "Haas", "st30l"]
+        if custom_shares:
+            base_shares.extend(custom_shares.split(","))
+
+        # Remove duplicates and clean whitespace
+        test_list = sorted(list(set([s.strip() for s in base_shares])))
         found_shares = []
 
-        for share in known_shares:
+        for share in test_list:
             try:
                 tree = TreeConnect(auth_session, f"\\\\{target}\\{share}")
                 tree.connect()
@@ -98,14 +84,37 @@ def run_audit(target, username, password):
                 continue
 
         if found_shares:
-            logging.info("[PASS] Auth successful. Accessible shares found:")
+            logging.info(
+                f"{COLOR_GREEN}[PASS]{COLOR_RESET} Accessible shares verified:"
+            )
             for s in found_shares:
                 logging.info(f"    - {s}")
         else:
-            logging.warning("[!] Auth successful, but no tool shares were accessible.")
+            logging.warning(
+                f"{COLOR_YELLOW}[!]{COLOR_RESET} Auth successful, but no tool shares were accessible."
+            )
 
     except Exception as e:
-        logging.error(f"[FAIL] Authentication failed for {username}: {e}")
+        logging.error(
+            f"{COLOR_RED}[FAIL]{COLOR_RESET} Primary connection/auth to {target} failed: {e}"
+        )
+        return
+
+    # 3. Anonymous Access Check
+    logging.info("Testing Anonymous Access (Compliance Check)...")
+    try:
+        anon_session = Session(connection, "", "")
+        anon_session.connect()
+        anon_tree = TreeConnect(anon_session, f"\\\\{target}\\IPC$")
+        anon_tree.connect()
+        logging.warning(
+            f"{COLOR_YELLOW}[!]{COLOR_RESET} SECURITY ALERT: Anonymous access allowed to IPC$!"
+        )
+        anon_tree.disconnect()
+    except Exception:
+        logging.info(
+            f"{COLOR_GREEN}[PASS]{COLOR_RESET} Anonymous access successfully refused."
+        )
 
 
 if __name__ == "__main__":
@@ -114,18 +123,20 @@ if __name__ == "__main__":
     parser.add_argument("-u", "--user", required=True, help="Samba username")
     parser.add_argument("-l", "--log", default="smb_audit.log", help="Log file path")
     parser.add_argument(
+        "-s", "--shares", help="Optional: Comma-separated extra shares to check"
+    )
+    parser.add_argument(
         "-v", "--verbose", action="store_true", help="Enable debug output"
     )
 
     args = parser.parse_args()
     setup_audit_log(args.log, args.verbose)
 
-    # Prompt for password
     pwd = getpass.getpass(f"Enter password for {args.user}: ")
 
     try:
-        run_audit(args.target, args.user, pwd)
+        run_audit(args.target, args.user, pwd, args.shares)
     except KeyboardInterrupt:
-        print("\nAudit aborted by user.")
+        print("\nAudit aborted.")
     finally:
         logging.info("--- Audit Session Closed ---")
