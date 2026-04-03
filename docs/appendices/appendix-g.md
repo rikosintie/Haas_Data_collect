@@ -200,51 +200,6 @@ flowchart LR
 
 ## ⭐ Stage 3 — User Authentication & Permissions
 
-```mermaid
-
-flowchart LR
-
-    %% Styles
-    classDef stage3 fill:#fce4ec,stroke:#d81b60,stroke-width:1px,color:#880e4f;
-    classDef terminal fill:#eeeeee,stroke:#424242,color:#212121,stroke-width:1px;
-
-    %% Stage 3 Entry
-    A([➡ From Stage 2]) --> D{3. Drive mapping fails?}
-    class A,D stage3
-
-    %% Stage 3
-    subgraph Stage3 [▼ Stage 3: User Authentication & Permissions]
-        direction LR
-
-        %% Tier 1 — Authentication
-        D -->|Yes| E{3.1 User authentication working?}
-
-        E -->|No| E1[3.1.1 Verify username/password]
-        E1 --> E2[3.1.2 Check for cached credentials on workstation]
-        E2 --> E3[3.1.3 Check Samba logs for NTLMv2 handshake]
-        E3 --> E4[3.1.4 Ensure time sync]
-
-        %% Tier 2 — Permissions
-        E -->|Yes| F{3.2 Permissions correct?}
-
-        F -->|No| F1[3.2.1 Check filesystem permissions]
-        F1 --> F2[3.2.2 Check Samba share ACLs]
-        F2 --> F3[3.2.3 Validate group membership]
-        F3 --> F4[3.2.4 Use smbstatus to inspect sessions]
-
-        %% Success
-        F -->|Yes| G([🟦 3.3 SMB functioning correctly])
-    end
-
-    class E,E1,E2,E3,E4,F,F1,F2,F3,F4,G stage3
-
-    %% Endpoints
-    E4 --> Z([🔚 End])
-    F4 --> Z
-    G --> Z
-    class Z terminal
-```
-
 ----------------------------------------------------------------
 
 ```mermaid
