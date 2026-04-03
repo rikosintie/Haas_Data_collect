@@ -10,71 +10,78 @@ from smbprotocol.tree import TreeConnect
 
 
 def get_source_info():
-    """
-    Retrieves the hostname and local IP address of the machine running the audit.
-
-    Returns:
-        str: A formatted string containing the source hostname and IP.
-    """
+    """Retrieves the hostname and local IP of the auditing machine."""
     try:
         hostname = socket.gethostname()
-        local_ip = socket.gethostbyname(hostname)
-        return f"{hostname} ({local_ip})"
-    except Exception:
+        return f"{hostname} ({socket.gethostbyname(hostname)})"
+    except:
         return "Unknown Source"
 
 
 def setup_audit_log(log_file, verbose):
-    """Configures logging for both the console and a local log file."""
+    """Configures logging for console and file output."""
     log_format = "%(asctime)s - %(levelname)s - %(message)s"
     level = logging.DEBUG if verbose else logging.INFO
-
     logging.basicConfig(
         level=level,
         format=log_format,
         handlers=[logging.FileHandler(log_file), logging.StreamHandler()],
     )
-
     if not verbose:
         logging.getLogger("smbprotocol").setLevel(logging.WARNING)
 
 
-def test_connection(target, username, password):
-    """Tests if a connection can be established with the given credentials."""
+def run_audit(target, username, password):
+    """Performs the audit and confirms share availability with separate line logging."""
+    source_info = get_source_info()
+    logging.info("--- Starting SMB Compliance Audit ---")
+    logging.info(f"Source: {source_info} | Target: {target}")
+
+    # 1. Anonymous Check
+    logging.info("Testing Anonymous Access...")
+    try:
+        connection = Connection(uuid.uuid4(), target, 445)
+        connection.connect()
+        session = Session(connection, "", "")
+        session.connect()
+        tree = TreeConnect(session, f"\\\\{target}\\IPC$")
+        tree.connect()
+        logging.warning("[!] SECURITY ALERT: Anonymous access allowed to IPC$!")
+    except:
+        logging.info("[PASS] Anonymous access successfully refused.")
+
+    # 2. Authenticated Check & Share Listing
+    logging.info(f"Testing Authenticated Access for: {username}...")
     try:
         connection = Connection(uuid.uuid4(), target, 445)
         connection.connect()
         session = Session(connection, username, password)
         session.connect()
-        # Binding to IPC$ is the standard way to verify authentication success
-        tree = TreeConnect(session, f"\\\\{target}\\IPC$")
-        tree.connect()
-        return True
+
+        # List of shares to verify for machine shop tools
+        known_shares = ["st30", "st40", "minimill", "Haas", "st30l"]
+        found_shares = []
+
+        for share in known_shares:
+            try:
+                tree = TreeConnect(session, f"\\\\{target}\\{share}")
+                tree.connect()
+                found_shares.append(share)
+                tree.disconnect()
+            except:
+                continue
+
+        if found_shares:
+            logging.info(f"[PASS] Auth successful. Accessible shares found:")
+            for share in found_shares:
+                logging.info(f"    - {share}")
+        else:
+            logging.info(
+                "[PASS] Auth successful, but no expected shares were accessible."
+            )
+
     except Exception as e:
-        logging.debug(f"Connection failed for {username}: {e}")
-        return False
-
-
-def run_audit(target, username, password):
-    """Executes the two-part SMB compliance audit."""
-    source_info = get_source_info()
-    logging.info(f"--- Starting SMB Compliance Audit ---")
-    logging.info(f"Audit Source: {source_info}")
-    logging.info(f"Target Appliance: {target}")
-
-    # Test 1: Anonymous Access (Compliance Check)
-    logging.info("Testing Anonymous Access (Should be refused)...")
-    if test_connection(target, "", ""):
-        logging.warning("[!] SECURITY ALERT: Anonymous access allowed to IPC$!")
-    else:
-        logging.info("[PASS] Anonymous access successfully refused.")
-
-    # Test 2: Authenticated Access (Service Check)
-    logging.info(f"Testing Authenticated Access for: {username}...")
-    if test_connection(target, username, password):
-        logging.info("[PASS] Authentication successful. Appliance is reachable.")
-    else:
-        logging.error(f"[FAIL] Authentication failed or access denied for {username}.")
+        logging.error(f"[FAIL] Authentication failed for {username}: {e}")
 
 
 if __name__ == "__main__":
@@ -83,17 +90,16 @@ if __name__ == "__main__":
     parser.add_argument("-u", "--user", required=True, help="Samba username")
     parser.add_argument("-l", "--log", default="smb_audit.log", help="Log file path")
     parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Enable verbose debug output"
+        "-v", "--verbose", action="store_true", help="Enable debug output"
     )
 
     args = parser.parse_args()
     setup_audit_log(args.log, args.verbose)
-
     pwd = getpass.getpass(f"Enter password for {args.user}: ")
 
     try:
         run_audit(args.target, args.user, pwd)
     except KeyboardInterrupt:
-        print("\nAudit aborted by user.")
+        print("\nAborted.")
     finally:
         logging.info("--- Audit Session Closed ---")
