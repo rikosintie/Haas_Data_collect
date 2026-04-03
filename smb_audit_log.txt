@@ -1,8 +1,14 @@
-2026-04-02 16:09:03,086 - INFO - --- Starting SMB Compliance Audit ---
-2026-04-02 16:09:03,087 - INFO - Audit Source: 1S1K-G5 (192.168.10.143)
-2026-04-02 16:09:03,087 - INFO - Target Appliance: 192.168.10.127
-2026-04-02 16:09:03,088 - INFO - Testing Anonymous Access (Should be refused)...
-2026-04-02 16:09:03,114 - INFO - [PASS] Anonymous access successfully refused.
-2026-04-02 16:09:03,114 - INFO - Testing Authenticated Access for: mike...
-2026-04-02 16:09:03,143 - ERROR - [FAIL] Authentication failed or access denied for mike.
-2026-04-02 16:09:03,143 - INFO - --- Audit Session Closed ---
+2026-04-03 16:09:15,882 - INFO - --- Starting SMB Compliance Audit ---
+2026-04-03 16:09:15,883 - INFO - [36mSource[0m: 1S1K-G5 (192.168.10.143) | [36mTarget[0m: 192.168.10.127
+2026-04-03 16:09:15,883 - INFO - Connecting to [36m192.168.10.127[0m...
+2026-04-03 16:09:15,933 - INFO - [32m[PASS][0m Authentication successful for [36mmspadmin[0m.
+2026-04-03 16:09:15,933 - INFO - Auditing Machine Tool Shares...
+2026-04-03 16:09:15,989 - INFO - [32m[PASS][0m Accessible shares verified:
+2026-04-03 16:09:15,989 - INFO -     - Haas
+2026-04-03 16:09:15,989 - INFO -     - minimill
+2026-04-03 16:09:15,989 - INFO -     - st30
+2026-04-03 16:09:15,989 - INFO -     - st30l
+2026-04-03 16:09:15,989 - INFO -     - st40
+2026-04-03 16:09:15,989 - INFO - Testing Anonymous Access (Compliance Check)...
+2026-04-03 16:09:15,990 - INFO - [32m[PASS][0m Anonymous access successfully refused.
+2026-04-03 16:09:15,990 - INFO - --- Audit Session Closed ---

@@ -1,3 +1,19 @@
+"""
+usage: smb_audit.py [-h] -u USER [-l LOG] [-s SHARES] [-v] target
+
+Appliance SMB Compliance Auditor
+
+positional arguments:
+  target               Target IP or hostname
+
+options:
+  -h, --help           show this help message and exit
+  -u, --user USER      Samba username
+  -l, --log LOG        Log file path
+  -s, --shares SHARES  Optional: Comma-separated extra shares to check
+  -v, --verbose        Enable debug output
+"""
+
 import argparse
 import getpass
 import logging
