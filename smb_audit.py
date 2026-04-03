@@ -1,4 +1,5 @@
 import argparse
+import datetime
 import getpass
 import logging
 import socket
@@ -14,7 +15,7 @@ def get_source_info():
     try:
         hostname = socket.gethostname()
         return f"{hostname} ({socket.gethostbyname(hostname)})"
-    except:
+    except Exception:
         return "Unknown Source"
 
 
@@ -32,53 +33,76 @@ def setup_audit_log(log_file, verbose):
 
 
 def run_audit(target, username, password):
-    """Performs the audit and confirms share availability with separate line logging."""
+    """Performs the audit, confirms share availability, and checks time sync."""
     source_info = get_source_info()
     logging.info("--- Starting SMB Compliance Audit ---")
     logging.info(f"Source: {source_info} | Target: {target}")
 
-    # 1. Anonymous Check
-    logging.info("Testing Anonymous Access...")
+    connection = Connection(uuid.uuid4(), target, 445)
+
+    # 1. Connection and Time Drift Check
+    logging.info("Verifying System Integrity and Time Sync...")
+    connection.connect()
+
+    # Access the raw data from the negotiate response
+    neg_res = getattr(connection, "negotiate_response", None)
+
+    if neg_res and hasattr(neg_res, "data"):
+        # The 'system_time' is inside the .data attribute of the response
+        remote_time = neg_res["system_time"].get_value()
+        local_time = datetime.datetime.now(datetime.timezone.utc)
+        time_diff = abs((remote_time - local_time).total_seconds())
+
+        logging.info(
+            f"    Appliance Time (UTC): {remote_time.strftime('%Y-%m-%d %H:%M:%S')}"
+        )
+        logging.info(
+            f"    Local Machine Time (UTC): {local_time.strftime('%Y-%m-%d %H:%M:%S')}"
+        )
+
+        if time_diff > 60:
+            logging.warning(
+                f"[!] TIME SYNC ALERT: Drift of {int(time_diff)}s detected!"
+            )
+        else:
+            logging.info(f"[PASS] Time sync within limits ({int(time_diff)}s drift).")
+
+    # 2. Anonymous Access Check
+    logging.info("Testing Anonymous Access (Compliance Check)...")
     try:
-        connection = Connection(uuid.uuid4(), target, 445)
-        connection.connect()
-        session = Session(connection, "", "")
-        session.connect()
-        tree = TreeConnect(session, f"\\\\{target}\\IPC$")
-        tree.connect()
+        anon_session = Session(connection, "", "")
+        anon_session.connect()
+        anon_tree = TreeConnect(anon_session, f"\\\\{target}\\IPC$")
+        anon_tree.connect()
         logging.warning("[!] SECURITY ALERT: Anonymous access allowed to IPC$!")
-    except:
+        anon_tree.disconnect()
+    except Exception:
         logging.info("[PASS] Anonymous access successfully refused.")
 
-    # 2. Authenticated Check & Share Listing
+    # 3. Authenticated Access & Share Listing
     logging.info(f"Testing Authenticated Access for: {username}...")
     try:
-        connection = Connection(uuid.uuid4(), target, 445)
-        connection.connect()
-        session = Session(connection, username, password)
-        session.connect()
+        auth_session = Session(connection, username, password)
+        auth_session.connect()
 
-        # List of shares to verify for machine shop tools
         known_shares = ["st30", "st40", "minimill", "Haas", "st30l"]
         found_shares = []
 
         for share in known_shares:
             try:
-                tree = TreeConnect(session, f"\\\\{target}\\{share}")
+                tree = TreeConnect(auth_session, f"\\\\{target}\\{share}")
                 tree.connect()
                 found_shares.append(share)
                 tree.disconnect()
-            except:
+            except Exception:
                 continue
 
         if found_shares:
-            logging.info(f"[PASS] Auth successful. Accessible shares found:")
-            for share in found_shares:
-                logging.info(f"    - {share}")
+            logging.info("[PASS] Auth successful. Accessible shares found:")
+            for s in found_shares:
+                logging.info(f"    - {s}")
         else:
-            logging.info(
-                "[PASS] Auth successful, but no expected shares were accessible."
-            )
+            logging.warning("[!] Auth successful, but no tool shares were accessible.")
 
     except Exception as e:
         logging.error(f"[FAIL] Authentication failed for {username}: {e}")
@@ -95,11 +119,13 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     setup_audit_log(args.log, args.verbose)
+
+    # Prompt for password
     pwd = getpass.getpass(f"Enter password for {args.user}: ")
 
     try:
         run_audit(args.target, args.user, pwd)
     except KeyboardInterrupt:
-        print("\nAborted.")
+        print("\nAudit aborted by user.")
     finally:
         logging.info("--- Audit Session Closed ---")
