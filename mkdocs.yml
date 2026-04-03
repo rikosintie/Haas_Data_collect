@@ -90,7 +90,7 @@ theme:
 plugins:
     - social
     - search
-    - mermaid2
+
 
 
 extra:
