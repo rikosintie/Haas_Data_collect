@@ -90,6 +90,8 @@ theme:
 plugins:
     - social
     - search
+    - mermaid2
+
 
 
 
