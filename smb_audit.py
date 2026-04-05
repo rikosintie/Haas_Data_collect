@@ -125,8 +125,36 @@ def print_smb_troubleshooting():
     logging.info("")
 
 
+def print_quick_commands(target):
+    logging.info(cyan("=== Quick Commands ==="))
+    logging.info("")
+
+    logging.info(cyan("List Shares:"))
+    logging.info(f"  Windows:  {cyan(f'net view \\\\{target}')}")
+    logging.info(f"  Linux:    {cyan(f'smbclient -L //{target} -U <username>')}")
+
+    logging.info("")
+    logging.info(cyan("Access Haas Share:"))
+    logging.info(f"  Windows:  {cyan(f'\\\\{target}\\Haas')}")
+    logging.info(
+        f"  Linux:    {cyan(f'smbclient //{target}/Haas -U <username> type "help"')}"
+    )
+
+    logging.info("")
+    logging.info(cyan("Test Connectivity:"))
+    logging.info(f"  Windows:  {cyan(f'Test-NetConnection {target} -Port 445')}")
+    logging.info(f"  Linux:    {cyan(f'nc -zv {target} 445')}")
+
+    logging.info("")
+    logging.info(cyan("Check Time (SSH):"))
+    logging.info(f"  {cyan(f'ssh <username>@{target}')}")
+    logging.info(f"  {cyan('date')}")
+
+    logging.info("")
+
+
 def run_audit(target, username, password, custom_shares=None):
-    """Performs the audit and verifies tool-specific shares."""
+    """Performs the audit and verifies machine-tool-specific shares."""
     source_info = get_source_info()
     logging.info(cyan("--- Starting SMB Compliance Audit ---"))
     logging.info(
@@ -152,7 +180,7 @@ def run_audit(target, username, password, custom_shares=None):
         # 2. Share Verification
         logging.info("Auditing Machine Tool Shares...")
 
-        base_shares = ["st30", "st40", "minimill", "Haas", "st30l"]
+        base_shares = ["Haas"]
         if custom_shares:
             base_shares.extend(custom_shares.split(","))
 
@@ -170,7 +198,7 @@ def run_audit(target, username, password, custom_shares=None):
 
         if found_shares:
             logging.info(
-                f"{COLOR_GREEN}[PASS]{COLOR_RESET} Accessible shares verified:"
+                f"{COLOR_GREEN}[PASS]{COLOR_RESET} Accessible share(s) that could be verified:"
             )
             for s in found_shares:
                 logging.info(f"    - {s}")
@@ -221,13 +249,22 @@ def run_audit(target, username, password, custom_shares=None):
 
     if not audit_success:
         print_smb_troubleshooting()
+    print("")
+    print_quick_commands(target)
+    print("")
+    if audit_success:
+        sys.exit(0)
+    else:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Appliance SMB Compliance Auditor")
     parser.add_argument("target", help="Target IP or hostname")
     parser.add_argument("-u", "--user", required=True, help="Samba username")
-    parser.add_argument("-l", "--log", default="smb_audit.log", help="Log file path")
+    parser.add_argument(
+        "-l", "--log", default="smb_audit.log", help="Optional: Log file path"
+    )
     parser.add_argument(
         "-s", "--shares", help="Optional: Comma-separated extra shares to check"
     )
@@ -237,7 +274,13 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     setup_audit_log(args.log, args.verbose)
-
+    print("")
+    logging.info(cyan("Haas SMB Audit Tool"))
+    logging.info(cyan("---------------------"))
+    print("")
+    logging.info(cyan("Run this tool from an authorized network location."))
+    logging.info(cyan("Then run it from an unauthorized network location."))
+    print("")
     pwd = getpass.getpass(f"Enter password for {args.user}: ")
 
     try:
