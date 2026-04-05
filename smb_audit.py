@@ -35,6 +35,11 @@ COLOR_RED = "\033[31m"
 COLOR_GREEN = "\033[32m"
 COLOR_YELLOW = "\033[33m"
 COLOR_CYAN = "\033[36m"  # optional alternative to green for informational output
+COLOR_DIM = "\033[2m"  # Used in error message details to de-emphasize them.
+
+
+def cyan(text):
+    return f"{COLOR_CYAN}{text}{COLOR_RESET}"
 
 
 def get_source_info():
@@ -59,13 +64,76 @@ def setup_audit_log(log_file, verbose):
         logging.getLogger("smbprotocol").setLevel(logging.WARNING)
 
 
+# def filetime_to_dt(filetime):
+#     from datetime import datetime, timezone
+
+#     return datetime.fromtimestamp(filetime / 10**7 - 11644473600, tz=timezone.utc)
+
+
+def format_smb_error(e):
+    msg = str(e)
+
+    if "STATUS_LOGON_FAILURE" in msg:
+        return "Authentication failed (bad username/password)"
+    elif "timed out" in msg.lower():
+        return "Connection timed out (host unreachable or port 445 blocked)"
+    elif "STATUS_ACCESS_DENIED" in msg:
+        return "Access denied"
+    else:
+        return "Connection/authentication failed"
+
+
+def print_notes():
+    logging.info(cyan("=== Summary & Notes ==="))
+    logging.info("")
+
+    logging.info(cyan("Expected Behavior From an authorized ip address:"))
+
+    # logging.info(f"  - {COLOR_CYAN}From an authorized ip address:{COLOR_RESET}")
+    logging.info("  - Authorized users should see at a minimum the 'Haas' share.")
+    logging.info("  - Anonymous access should be denied.")
+    logging.info("")
+    logging.info(cyan("Expected Behavior From an unauthorized ip address:"))
+    # logging.info(f" - {COLOR_CYAN}From an unauthorized ip address:{COLOR_RESET}")
+    logging.info("  - Connection timed out (host unreachable or port 445 blocked)")
+
+    logging.info("")
+    logging.info(cyan("Time Synchronization:"))
+    logging.info("  - This script does not verify the appliance clock.")
+    logging.info("  - SSH to the appliance and run the 'date' command.")
+    logging.info("  - Compare the appliance time/date to your local system.")
+    logging.info(
+        "  - A difference greater than a few seconds may indicate a time sync issue."
+    )
+
+    logging.info("")
+
+
+def print_smb_troubleshooting():
+    print("")
+    logging.info(cyan("=== SMB Troubleshooting ==="))
+    logging.info("")
+
+    logging.info("  - Confirm username/password are correct (Appendix G, Stage 2).")
+    logging.info("  - Ensure that the local machine is using an authorized ip address.")
+    logging.info(
+        "  - On the appliance, run 'sudo ufw status  | sort -k5' to verify allowed IPs."
+    )
+    logging.info("  - Verify TCP port 445 is reachable.")
+    logging.info("  - See Appendix F for SMB troubleshooting commands.")
+
+    logging.info("")
+
+
 def run_audit(target, username, password, custom_shares=None):
     """Performs the audit and verifies tool-specific shares."""
     source_info = get_source_info()
-    logging.info("--- Starting SMB Compliance Audit ---")
+    logging.info(cyan("--- Starting SMB Compliance Audit ---"))
     logging.info(
         f"{COLOR_CYAN}Source{COLOR_RESET}: {source_info} | {COLOR_CYAN}Target{COLOR_RESET}: {target}"
     )
+
+    audit_success = False  # 🔑 Track overall success
 
     connection = Connection(uuid.uuid4(), target, 445)
 
@@ -73,20 +141,21 @@ def run_audit(target, username, password, custom_shares=None):
     try:
         logging.info(f"Connecting to {COLOR_CYAN}{target}{COLOR_RESET}...")
         connection.connect()
+
         auth_session = Session(connection, username, password)
         auth_session.connect()
+
         logging.info(
             f"{COLOR_GREEN}[PASS]{COLOR_RESET} Authentication successful for {COLOR_CYAN}{username}{COLOR_RESET}."
         )
 
         # 2. Share Verification
         logging.info("Auditing Machine Tool Shares...")
-        # Default discovery list + any custom shares passed by the MSP
+
         base_shares = ["st30", "st40", "minimill", "Haas", "st30l"]
         if custom_shares:
             base_shares.extend(custom_shares.split(","))
 
-        # Remove duplicates and clean whitespace
         test_list = sorted(list(set([s.strip() for s in base_shares])))
         found_shares = []
 
@@ -105,32 +174,53 @@ def run_audit(target, username, password, custom_shares=None):
             )
             for s in found_shares:
                 logging.info(f"    - {s}")
+            audit_success = True  # ✅ Only set here
         else:
             logging.warning(
-                f"{COLOR_YELLOW}[!]{COLOR_RESET} Auth successful, but no tool shares were accessible."
+                f"{COLOR_YELLOW}[!]{COLOR_RESET} Auth successful, but no shares were accessible."
             )
 
     except Exception as e:
-        logging.error(
-            f"{COLOR_RED}[FAIL]{COLOR_RESET} Primary connection/auth to {target} failed: {e}"
-        )
-        return
+        friendly_error = format_smb_error(e)
+
+        logging.error(f"{COLOR_RED}[FAIL]{COLOR_RESET} {friendly_error}")
+        logging.error(f"       Target : {COLOR_CYAN}{target}{COLOR_RESET}")
+        logging.error(f"       Details: {COLOR_CYAN}{str(e)}{COLOR_RESET}")
+
+        print("")
+        print_smb_troubleshooting()
+        print_notes()
+        return  # 🔑 Exit early
 
     # 3. Anonymous Access Check
     logging.info("Testing Anonymous Access (Compliance Check)...")
     try:
         anon_session = Session(connection, "", "")
         anon_session.connect()
+
         anon_tree = TreeConnect(anon_session, f"\\\\{target}\\IPC$")
         anon_tree.connect()
+
         logging.warning(
             f"{COLOR_YELLOW}[!]{COLOR_RESET} SECURITY ALERT: Anonymous access allowed to IPC$!"
         )
+
         anon_tree.disconnect()
+
+        audit_success = False  # ❗ Force failure if this happens
+
     except Exception:
         logging.info(
-            f"{COLOR_GREEN}[PASS]{COLOR_RESET} Anonymous access successfully refused."
+            f"{COLOR_GREEN}[PASS]{COLOR_RESET} Anonymous access successfully {COLOR_RED}refused{COLOR_RESET}."
         )
+
+    # --- Final Output ---
+    print("")
+    print("")
+    print_notes()
+
+    if not audit_success:
+        print_smb_troubleshooting()
 
 
 if __name__ == "__main__":
