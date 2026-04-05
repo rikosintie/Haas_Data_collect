@@ -4,6 +4,7 @@ The following flowchart will assist you in troubleshooting:
 
 - You can't ping the device
 - You can't map a drive to the appliance
+- You can save a CNC program to the appliance
 - The machine tools can't connect
 
 It's broken down into the following three stages:
