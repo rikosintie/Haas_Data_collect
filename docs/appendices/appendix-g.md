@@ -11,6 +11,8 @@ It's broken down into the following three stages:
 
 ----------------------------------------------------------------
 
+![screenshot](../appendices/img/minimap1.png)
+
 ```mermaid
 
 flowchart LR
@@ -32,6 +34,8 @@ flowchart LR
 ----------------------------------------------------------------
 
 ## ⭐ Stage 1 — Port Reachability & Firewall Checks
+
+![screenshot](../appendices/img/stage1.md)
 
 ```mermaid
 
