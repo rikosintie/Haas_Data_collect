@@ -356,17 +356,50 @@ ls -l configure*
 .rwxrwxr-x 4.8k haas 11 Jan 19:54  configure_ufw_from_csv.sh
 ```
 
+----------------------------------------------------------------
+
+#### The script options
+
+The installation script sets up a firewall service and creates a file - `/etc/haas-firewall.conf` with defaults for the `configure_ufw_from_scv.sh` script. Here is the top of the `configure_ufw_from_scv.sh` script showing the defaults. The variable `<script_dir>` is the full path to the `Haas_Data_collection` directory.
+
+----------------------------------------------------------------
+
+```unixconfig
+│ Haas Appliance - UFW Configuration from CSV (Config-File Architecture)
+│
+│ Uses:
+│   - /etc/haas-firewall.conf for:
+│       CSV_PATH
+│       BACKUP_DIR
+│       HAAS_MACHINES_SUBNET_V4
+│       HAAS_MACHINES_SUBNET_V6
+│
+│ Defaults (if config missing):
+│   CSV_PATH               = <script_dir>/users.csv
+│   BACKUP_DIR             = <script_dir>/backups
+│   HAAS_MACHINES_SUBNET_V4 = ""
+│   HAAS_MACHINES_SUBNET_V6 = ""
+│
+│ Supports:
+│   --dry-run     (simulate changes)
+│   --compare     (compare current vs planned rules)
+│   --show-rules  (show current UFW rules)
+```
+
+----------------------------------------------------------------
+
 ### The Dry-Run script option
 
 The script lives in `/usr/local/sbin/` so it requires root access to run it manually. During deployment is it possible to run it manually with the dry-run option using the following:
 
-```bash linenums='1' hl_lines='1'
+```bash
 sudo /usr/local/sbin/configure_ufw_from_csv.sh --dry-run
 ```
 
 Dry run mode reads the users.csv file, processes it and then displays what would be configured for `UFW`.
 
-🟧 Why is there a `dry-run` mode?
+**Why is there a `dry-run` mode?**
+
 This is extremely helpful when:
 
 - testing new CSV formats
@@ -376,50 +409,177 @@ This is extremely helpful when:
 
 ----------------------------------------------------------------
 
-Here is what the output of the `dry-run` option looks like:
+??? Info "Output of the `dry-run` option"
 
-```bash title='Command Output'
-[*] Setting UFW base policy...
-[DRY-RUN] Would set IPV6=yes in /etc/default/ufw
-[DRY-RUN] ufw default deny incoming
-[DRY-RUN] ufw default allow outgoing
-[DRY-RUN] ufw allow in on lo
-[DRY-RUN] ufw allow out on lo
-[DRY-RUN] ufw limit 22/tcp
-[DRY-RUN] ufw deny 137/udp
-[DRY-RUN] ufw deny 138/udp
-[DRY-RUN] ufw deny 139/tcp
-[*] Creating rules for Haas machines (haassvc)...
-[DRY-RUN] ufw allow from 192.168.50.0/24 to any port 445 proto tcp comment 'Haas machines IPv4 -> Samba'
-[*] Processing CSV: users.csv
-[*] Adding ADMIN 'haas' from 192.168.10.143
-[DRY-RUN] ufw allow from 192.168.10.143 to any port 445 proto tcp comment 'Admin haas -> Samba'
-[DRY-RUN] ufw allow from 192.168.10.143 to any port 22 proto tcp comment 'Admin haas -> SSH'
-[DRY-RUN] ufw allow from 192.168.10.143 to any port 9090 proto tcp comment 'Admin haas -> Cockpit'
-[*] Adding USER 'haassvc' from 192.168.10.104
-[DRY-RUN] ufw allow from 192.168.10.104 to any port 445 proto tcp comment 'User haassvc -> Samba'
-[*] Adding ADMIN 'mspadmin' from 192.168.10.120
-[DRY-RUN] ufw allow from 192.168.10.120 to any port 445 proto tcp comment 'Admin mspadmin -> Samba'
-[DRY-RUN] ufw allow from 192.168.10.120 to any port 22 proto tcp comment 'Admin mspadmin -> SSH'
-[DRY-RUN] ufw allow from 192.168.10.120 to any port 9090 proto tcp comment 'Admin mspadmin -> Cockpit'
-[*] Adding ADMIN 'rgoodwin' from 192.168.10.120
-[DRY-RUN] ufw allow from 192.168.10.120 to any port 445 proto tcp comment 'Admin rgoodwin -> Samba'
-[DRY-RUN] ufw allow from 192.168.10.120 to any port 22 proto tcp comment 'Admin rgoodwin -> SSH'
-[DRY-RUN] ufw allow from 192.168.10.120 to any port 9090 proto tcp comment 'Admin rgoodwin -> Cockpit'
-[*] Adding ADMIN 'mchavez' from 192.168.10.223
-[DRY-RUN] ufw allow from 192.168.10.223 to any port 445 proto tcp comment 'Admin mchavez -> Samba'
-[DRY-RUN] ufw allow from 192.168.10.223 to any port 22 proto tcp comment 'Admin mchavez -> SSH'
-[DRY-RUN] ufw allow from 192.168.10.223 to any port 9090 proto tcp comment 'Admin mchavez -> Cockpit'
-[DRY-RUN] Would enable UFW
-[DRY-RUN] Would show UFW status
-[*] Done.
+    ```bash
+    [*] Setting UFW base policy...
+    [DRY-RUN] Would set IPV6=yes in /etc/default/ufw
+    [DRY-RUN] ufw default deny incoming
+    [DRY-RUN] ufw default allow outgoing
+    [DRY-RUN] ufw allow in on lo
+    [DRY-RUN] ufw allow out on lo
+    [DRY-RUN] ufw limit 22/tcp
+    [DRY-RUN] ufw deny 137/udp
+    [DRY-RUN] ufw deny 138/udp
+    [DRY-RUN] ufw deny 139/tcp
+    [*] Creating rules for Haas machines (haassvc)...
+    [DRY-RUN] ufw allow from 192.168.50.0/24 to any port 445 proto tcp comment 'Haas machines IPv4 -> Samba'
+    [*] Processing CSV: users.csv
+    [*] Adding ADMIN 'haas' from 192.168.10.143
+    [DRY-RUN] ufw allow from 192.168.10.143 to any port 445 proto tcp comment 'Admin haas -> Samba'
+    [DRY-RUN] ufw allow from 192.168.10.143 to any port 22 proto tcp comment 'Admin haas -> SSH'
+    [DRY-RUN] ufw allow from 192.168.10.143 to any port 9090 proto tcp comment 'Admin haas -> Cockpit'
+    [*] Adding USER 'haassvc' from 192.168.10.104
+    [DRY-RUN] ufw allow from 192.168.10.104 to any port 445 proto tcp comment 'User haassvc -> Samba'
+    [*] Adding ADMIN 'mspadmin' from 192.168.10.120
+    [DRY-RUN] ufw allow from 192.168.10.120 to any port 445 proto tcp comment 'Admin mspadmin -> Samba'
+    [DRY-RUN] ufw allow from 192.168.10.120 to any port 22 proto tcp comment 'Admin mspadmin -> SSH'
+    [DRY-RUN] ufw allow from 192.168.10.120 to any port 9090 proto tcp comment 'Admin mspadmin -> Cockpit'
+    [*] Adding ADMIN 'rgoodwin' from 192.168.10.120
+    [DRY-RUN] ufw allow from 192.168.10.120 to any port 445 proto tcp comment 'Admin rgoodwin -> Samba'
+    [DRY-RUN] ufw allow from 192.168.10.120 to any port 22 proto tcp comment 'Admin rgoodwin -> SSH'
+    [DRY-RUN] ufw allow from 192.168.10.120 to any port 9090 proto tcp comment 'Admin rgoodwin -> Cockpit'
+    [*] Adding ADMIN 'mchavez' from 192.168.10.223
+    [DRY-RUN] ufw allow from 192.168.10.223 to any port 445 proto tcp comment 'Admin mchavez -> Samba'
+    [DRY-RUN] ufw allow from 192.168.10.223 to any port 22 proto tcp comment 'Admin mchavez -> SSH'
+    [DRY-RUN] ufw allow from 192.168.10.223 to any port 9090 proto tcp comment 'Admin mchavez -> Cockpit'
+    [DRY-RUN] Would enable UFW
+    [DRY-RUN] Would show UFW status
+    [*] Done.
+    ```
+
+----------------------------------------------------------------
+
+### Compare current vs planned rules
+
+Before making firewall changes you can see what the changes would look like using the ``--compare <new-file.csv>`` command. In this example, the default `users.csv` file is compared to the `users1.csv` file.
+
+`sudo ./configure_ufw_from_csv.sh --compare users1.csv`
+
+```bash hl_lines='1'
+cat -p users.csv
+username,ip_address,role
+vf2ss,192.168.10.104,Administrator
+msp_admin,192.168.10.113,Administrator
+haas,192.168.10.143,Administrator
+st40,192.168.10.141,user
+st30,192.168.10.147,user
+st30l,192.168.10.145,user
 ```
+
+----------------------------------------------------------------
+
+```bash hl_lines='1'
+cat -p users1.csv
+username,ip_address,role
+vf2ss,192.168.10.104,Administrator
+msp_admin,192.168.10.113,Administrator
+haas,192.168.10.143,Administrator
+st40,192.168.10.141,user
+st30,192.168.10.147,user
+```
+
+----------------------------------------------------------------
+As you can see, the st30l line was deleted.
+
+----------------------------------------------------------------
+
+??? Info "Compare option output"
+
+    ```bash hl_lines='1'
+    sudo ./configure_ufw_from_csv.sh --compare users1.csv
+    [INFO] Using CSV file: /home/haas/Haas_Data_collect/users.csv
+    [INFO] Using backup directory: /home/haas/Haas_Data_collect/backups
+    2026-04-06 15:59:50 [INFO] Starting UFW configuration from CSV.
+    2026-04-06 15:59:50 [INFO] Using CSV file: users1.csv
+    2026-04-06 15:59:50 [INFO] Validating CSV...
+    [*] Validating CSV: users1.csv
+    [*] CSV validation PASSED successfully.
+    2026-04-06 15:59:50 [INFO] CSV validation passed.
+    2026-04-06 15:59:50 [INFO] CSV backup created at: /home/haas/Haas_Data_collect/backups/users_2026-04-06_15-59-50.csv
+    2026-04-06 15:59:50 [INFO] COMPARE mode: current vs planned rules.
+    --- /tmp/tmp.ziVxGHEskC 2026-04-06 15:59:50.267489933 -0700
+    +++ /tmp/tmp.VJTvdyfDWK 2026-04-06 15:59:50.302489949 -0700
+    @@ -1,17 +1,11 @@
+    -Status: active
+    -
+    -     To                         Action      From
+    -     --                         ------      ----
+    -[ 1] 22                         ALLOW IN    192.168.10.104             # vf2ss-admin-ssh
+    -[ 2] 445                        ALLOW IN    192.168.10.104             # vf2ss-admin-smb
+    -[ 3] 9090                       ALLOW IN    192.168.10.104             # vf2ss-admin-cockpit
+    -[ 4] 22                         ALLOW IN    192.168.10.113             # msp_admin-admin-ssh
+    -[ 5] 445                        ALLOW IN    192.168.10.113             # msp_admin-admin-smb
+    -[ 6] 9090                       ALLOW IN    192.168.10.113             # msp_admin-admin-cockpit
+    -[ 7] 22                         ALLOW IN    192.168.10.143             # haas-admin-ssh
+    -[ 8] 445                        ALLOW IN    192.168.10.143             # haas-admin-smb
+    -[ 9] 9090                       ALLOW IN    192.168.10.143             # haas-admin-cockpit
+    -[10] 445                        ALLOW IN    192.168.10.141             # st40-user-smb
+    -[11] 445                        ALLOW IN    192.168.10.147             # st30-user-smb
+    -[12] 445                        ALLOW IN    192.168.10.145             # st30l-user-smb
+    -
+    +ADMIN  FROM 192.168.10.104 : 22/tcp
+    +ADMIN  FROM 192.168.10.104 : 445/tcp
+    +ADMIN  FROM 192.168.10.104 : 9090/tcp
+    +ADMIN  FROM 192.168.10.113 : 22/tcp
+    +ADMIN  FROM 192.168.10.113 : 445/tcp
+    +ADMIN  FROM 192.168.10.113 : 9090/tcp
+    +ADMIN  FROM 192.168.10.143 : 22/tcp
+    +ADMIN  FROM 192.168.10.143 : 445/tcp
+    +ADMIN  FROM 192.168.10.143 : 9090/tcp
+    +USER   FROM 192.168.10.141 : 445/tcp
+    +USER   FROM 192.168.10.147 : 445/tcp
+    2026-04-06 15:59:50 [INFO] COMPARE mode complete. No firewall changes applied.
+    ```
+
+----------------------------------------------------------------
+
+The `-` sign means - `These will be deleted`
+
+The `+` sign means - `These will be added`
+
+The compare argument is a nice feature if you need to change the firewall rules after the appliance is deployed.
+
+----------------------------------------------------------------
+
+### The show rules option
+
+You can list the current firewall rules with the `--show-rules`` argument.
+
+??? Info "Listing of firewall rules"
+
+    ``` bash
+    sudo ./configure_ufw_from_csv.sh --show-rules
+    [INFO] Using CSV file: /home/haas/Haas_Data_collect/users.csv
+    [INFO] Using backup directory: /home/haas/Haas_Data_collect/backups
+    2026-04-06 16:09:43 [INFO] Showing current UFW rules...
+    Status: active
+
+         To                         Action      From
+         --                         ------      ----
+    [ 1] 22                         ALLOW IN    192.168.10.104             # vf2ss-admin-ssh
+    [ 2] 445                        ALLOW IN    192.168.10.104             # vf2ss-admin-smb
+    [ 3] 9090                       ALLOW IN    192.168.10.104             # vf2ss-admin-cockpit
+    [ 4] 22                         ALLOW IN    192.168.10.113             # msp_admin-admin-ssh
+    [ 5] 445                        ALLOW IN    192.168.10.113             # msp_admin-admin-smb
+    [ 6] 9090                       ALLOW IN    192.168.10.113             # msp_admin-admin-cockpit
+    [ 7] 22                         ALLOW IN    192.168.10.143             # haas-admin-ssh
+    [ 8] 445                        ALLOW IN    192.168.10.143             # haas-admin-smb
+    [ 9] 9090                       ALLOW IN    192.168.10.143             # haas-admin-cockpit
+    [10] 445                        ALLOW IN    192.168.10.141             # st40-user-smb
+    [11] 445                        ALLOW IN    192.168.10.147             # st30-user-smb
+    [12] 445                        ALLOW IN    192.168.10.145             # st30l-user-smb
+    ```
+
+----------------------------------------------------------------
+
+You can also use the Linux command `sudo ufw status numbered | sort -k5` to see a list sorted by column 5 "ip address".
 
 ----------------------------------------------------------------
 
 ### Custom `csv` file option
 
-The default file name is users.csv. For testing, you can run  a different `csv` file using the following:
+The default file name is users.csv. For testing, you can run a different `csv` file using the following:
 
 ```bash
 sudo /usr/local/sbin/configure_ufw_from_csv.sh /path/to/test.csv
@@ -432,7 +592,7 @@ sudo /usr/local/sbin/configure_ufw_from_csv.sh /path/to/test.csv
 [Cockpit](https://cockpit-project.org/) is a web-based graphical interface for servers, intended for everyone, especially those who are:
 
 - new to Linux (including Windows admins)
-- familiar with Linux and want an easy, graphical way to administer servers
+- familiar with the Linux terminal but want an easy, graphical way to administer servers
 - expert admins who mainly use other tools but want an overview on individual systems
 
 ----------------------------------------------------------------
