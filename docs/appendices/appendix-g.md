@@ -4,10 +4,9 @@ The following flowchart will assist you in troubleshooting:
 
 - You can't ping the device
 - You can't map a drive to the appliance
-- You can save a CNC program to the appliance
-- The machine tools can't connect
+- You can't save a CNC program to the appliance
 
-It's broken down into the following three stages:
+The flowchart has the following three stages:
 
 ----------------------------------------------------------------
 
@@ -21,10 +20,16 @@ It's broken down into the following three stages:
 
 ----------------------------------------------------------------
 
-- Confirm correct IP - Make sure you are using the correct IP address for the appliance.
-- Verify VLANS/Switches - Use `ping <appliance_ip> to verify network connectivity to the appliance
-- Port 445 reachable - use `nmap -Pn -p 22,445,9090 <appliance_ip>` to verify
-- Check Appliance firewall - Use `sudo ufw status numbered | sort -k5` on the applinace to list the appliance firewall rules
+- Confirm correct IP - Make sure you are using the correct IP address for the appliance
+- Verify VLANS/Switches - Use `ping <appliance_ip>` to verify network connectivity to the appliance
+- Port 445 reachable
+  - use `nmap -Pn -p 22,445,9090 <appliance_ip>` to verify
+  - use `Test-NetConnection <appliance_ip> -Port 445` on Windows
+  - use `telnet 192.168.10.133 445`. Use `ctrl+]` to close the connection and `quit` to exit.
+- Check Appliance firewall - Use `sudo ufw status numbered | sort -k5` on the appliance to list the appliance firewall rules
+  - Use `Cockpit` to manage the firewall from a browser `https://<appliance_ip>:9090`
+  - Or the `configure_ufw_from_csv.sh` script from the terminal - `sudo /usr/local/sbin/configure_ufw_from_csv.sh --show-rules`
+  - See [The script options](../build_pi_5_appliance/firewall_configuration.md/#the-script-options){target="_blank"} for more information
 - Check W/S Firewall - This is a low probability. By default Windows, Mac, Linux allow outbound traffic
 
 ----------------------------------------------------------------
