@@ -13,64 +13,11 @@ It's broken down into the following three stages:
 
 ![screenshot](../appendices/img/minimap1.png)
 
-```mermaid
-
-flowchart LR
-
-    classDef stage1 fill:#e3f2fd,stroke:#1e88e5,color:#0d47a1;
-    classDef stage2 fill:#e8f5e9,stroke:#43a047,color:#1b5e20;
-    classDef stage3 fill:#fce4ec,stroke:#d81b60,color:#880e4f;
-
-    A([🟢 Start: SMB Issue Reported]) --> B([1. Port Reachability & Firewall])
-    B --> C([2. SMB Listing & Authentication])
-    C --> D([3. User Authentication & Permissions])
-    D --> E([🟦 End: SMB Functioning Correctly])
-
-    class B stage1
-    class C stage2
-    class D stage3
-```
-
 ----------------------------------------------------------------
 
 ## ⭐ Stage 1 — Port Reachability & Firewall Checks
 
-![screenshot](../appendices/img/stage1.md)
-
-```mermaid
-
-flowchart LR
-
-    %% Styles
-    classDef stage1 fill:#e3f2fd,stroke:#1e88e5,stroke-width:1px,color:#0d47a1;
-    classDef terminal fill:#eeeeee,stroke:#424242,color:#212121,stroke-width:1px;
-
-    %% Stage 1 Entry
-    A([🟢 0. Start: SMB Issue Reported]) --> B{1. Port 445 reachable?}
-    class A,B stage1
-
-    %% Stage 1
-    subgraph Stage1 [▼ Stage 1: Port Reachability & Firewall]
-        direction LR
-
-        %% No path → firewall troubleshooting
-        B -->|No| B1[1.1 Firewall or network path issue]
-        B1 --> B1a[1.1.1 Confirm correct IP]
-        B1 --> B1b[1.1.2 Verify VLANs / switches]
-        B1 --> B1c[1.1.3 Check appliance firewall]
-        B1 --> B1d[1.1.4 Check workstation firewall]
-    end
-
-    class B1,B1a,B1b,B1c,B1d stage1
-
-    %% End if unreachable
-    B1d --> Z([🔚 End])
-    class Z terminal
-
-    %% Yes path → Stage 2
-    B -->|Yes| NextStage2([➡ Proceed to Stage 2])
-    class NextStage2 stage1
-```
+![screenshot](../appendices/img/stage1.png)
 
 ----------------------------------------------------------------
 
@@ -107,40 +54,7 @@ flowchart LR
 
 ## ⭐ Stage 2 — SMB Share Listing & Authentication
 
-```mermaid
-flowchart LR
-
-    %% Styles
-    classDef stage2 fill:#e8f5e9,stroke:#43a047,stroke-width:1px,color:#1b5e20;
-    classDef terminal fill:#eeeeee,stroke:#424242,color:#212121,stroke-width:1px;
-
-    %% Stage 2 Entry
-    A([➡ From Stage 1]) --> C{2. Can workstation list SMB shares?}
-    class A,C stage2
-
-    %% Stage 2
-    subgraph Stage2 [▼ Stage 2: SMB Listing & Authentication]
-        direction LR
-
-        C -->|No| C1[2.1 Authentication or DNS issue]
-
-        C1 --> C1a[2.1.1 Check credentials]
-        C1 --> C1b[2.1.2 Is domain WORKGROUP?]
-        C1 --> C1c[2.1.3 Check DNS resolution]
-        C1 --> C1d[2.1.4 Check time sync]
-        C1 --> C1e[2.1.5 Check Samba logs]
-    end
-
-    class C1,C1a,C1b,C1c,C1d,C1e stage2
-
-    %% End if listing fails
-    C1e --> Z([🔚 End])
-    class Z terminal
-
-    %% Success path → Stage 3
-    C -->|Yes| NextStage3([➡ Proceed to Stage 3])
-    class NextStage3 stage2
-```
+![screenshot](../appendices/img/stage2.png)
 
 ----------------------------------------------------------------
 
@@ -207,49 +121,7 @@ flowchart LR
 
 ----------------------------------------------------------------
 
-```mermaid
-
-flowchart LR
-
-    %% Styles
-    classDef stage3 fill:#fce4ec,stroke:#d81b60,stroke-width:1px,color:#880e4f;
-    classDef terminal fill:#eeeeee,stroke:#424242,color:#212121,stroke-width:1px;
-
-    %% Stage 3 Entry
-    A([➡ From Stage 2]) --> D{3. Drive mapping fails?}
-    class A,D stage3
-
-    %% Stage 3
-    subgraph Stage3 [▼ Stage 3: User Authentication & Permissions]
-        direction LR
-
-        %% Tier 1 — Authentication
-        D -->|Yes| E{3.1 User authentication working?}
-
-        %% Only meaningful workstation-side checks remain
-        E -->|No| E1[3.1.1 Check for cached credentials on workstation]
-        E1 --> E2[3.1.2 Check Samba logs for NTLMv2 handshake]
-
-        %% Tier 2 — Permissions
-        E -->|Yes| F{3.2 Permissions correct?}
-
-        F -->|No| F1[3.2.1 Check filesystem permissions]
-        F1 --> F2["3.2.2 Validate share-level access rules\n(path exists, correct owner/group/mode)"]
-        F2 --> F3[3.2.3 Validate group membership]
-        F3 --> F4[3.2.4 Use smbstatus to inspect active sessions]
-
-        %% Success
-        F -->|Yes| G([🟦 3.3 SMB functioning correctly])
-    end
-
-    class E,E1,E2,F,F1,F2,F3,F4,G stage3
-
-    %% Endpoints
-    E2 --> Z([🔚 End])
-    F4 --> Z
-    G --> Z
-    class Z terminal
-```
+![screenshot](../appendices/img/stage3.png)
 
 ----------------------------------------------------------------
 
