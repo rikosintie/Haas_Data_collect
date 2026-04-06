@@ -157,6 +157,7 @@ def print_troubleshooting():
     logging.info("  - Verify the target IP address is correct.")
     logging.info("  - Ensure the machine tool is powered on.")
     logging.info("  - Confirm the correct port is configured on the machine tool.")
+    logging.info("  - Options 261-263 set the port on the Haas CNC control.")
     logging.info("  - Check for firewalls blocking the connection.")
     logging.info("  - Ensure the appliance is on the correct network/VLAN.")
 
