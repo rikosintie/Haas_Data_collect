@@ -23,13 +23,13 @@ The flowchart has the following three stages:
 - Confirm correct IP - Make sure you are using the correct IP address for the appliance
 - Verify VLANS/Switches - Use `ping <appliance_ip>` to verify network connectivity to the appliance
 - Port 445 reachable
-  1. use `nmap -Pn -p 22,445,9090 <appliance_ip>` to verify
-  1. use `Test-NetConnection <appliance_ip> -Port 445` on Windows
-  1. use `telnet 192.168.10.133 445`. Use `ctrl+]` to close the connection and `quit` to exit.
+    1. use `nmap -Pn -p 22,445,9090 <appliance_ip>` to verify
+    2. use `Test-NetConnection <appliance_ip> -Port 445` on Windows
+    3. use `telnet 192.168.10.133 445`. Use `ctrl+]` to close the connection and `quit` to exit.
 - Check Appliance firewall - Use `sudo ufw status numbered | sort -k5` on the appliance to list the appliance firewall rules
-  1. Use `Cockpit` to manage the firewall from a browser `https://<appliance_ip>:9090`
-  2. Use the `configure_ufw_from_csv.sh` script from the terminal - `sudo /usr/local/sbin/configure_ufw_from_csv.sh --show-rules`
-  3. See [The script options](../build_pi_5_appliance/firewall_configuration.md/#the-script-options){target="_blank"} for more information
+    1. Use `Cockpit` to manage the firewall from a browser `https://<appliance_ip>:9090`
+    2. Use the `configure_ufw_from_csv.sh` script from the terminal - `sudo /usr/local/sbin/configure_ufw_from_csv.sh --show-rules`
+    3. See [The script options](../build_pi_5_appliance/firewall_configuration.md/#the-script-options){target="_blank"} for more information
 - Check W/S Firewall - This is a low probability. By default Windows, Mac, Linux allow outbound traffic
 
 ----------------------------------------------------------------
