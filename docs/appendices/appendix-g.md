@@ -72,20 +72,24 @@ The flowchart has the following three stages:
 
 ----------------------------------------------------------------
 
-- List SMB Shares - On the appliance, cd to `Haas_Data_collect` and run `./lshares.sh`
-- Check Credentials - Run `manager_users.sh <username> --set-password` to reset the password
-- Domain name - The domain name is `WORKGROUP` by default
+- List SMB Shares
+     1. On the appliance, cd to `Haas_Data_collect` and run `./lshares.sh`
+     2. Run `python smb_audit.py -u <username> <appliance_ip>`. Lists all shares for the username.
+- Check Credentials
+     1. Run `python smb_audit.py -u <username> <appliance_ip>`. Pass/Fail message on provided credentials
+     2. Run `manager_users.sh <username> --set-password` to reset the password
+- Domain name - The domain name is `WORKGROUP` by default, all caps
 - Check DNS - I you are using a FQDN instead of an ip use `dig` or `nslookup` to verify the appliance is registered in DNS
 - Check Time Sync - On the appliance run `date` to see the current date/time on the appliance
 - Check Samba logs on the appliance - Use `sudo tail -f /var/log/samba/log.smbd`. This keeps the logger running. Use `ctrl+c` to cancel it.
 
 ----------------------------------------------------------------
 
-### SMB Commands
+### List Share Commands
 
-??? info "Common Issues and Fixes"
+??? info "share troubleshooting commands"
 
-    ```bash linenums='1' hl_lines='1 3 10-11 14-17 21-24 33 35 38 40'
+    ```unixconfig linenums='1' hl_lines='1 3 11 14-17 21-24 28-29 33 36 38 40 42-43 48 53'
     cd Haas_Data_collect
     ┌─[haas@haas] - [~/Haas_Data_collect] - [2358]
     └─[$] ./lshares.sh
@@ -95,8 +99,8 @@ The flowchart has the following three stages:
     st30         /home/haas/Haas_Data_collect/machines/st30
     st30l        /home/haas/Haas_Data_collect/machines/st30l
 
+
     sudo ./manage_users.sh mspadmin
-    [sudo] password for haas:
     ==== Thu Apr  2 12:44:43 PDT 2026 ====
     Log file: /var/log/user_mgmt_20260402_124443.log
     Processing user: mspadmin
@@ -110,7 +114,6 @@ The flowchart has the following three stages:
     Updating Samba password
     New SMB password:
     Retype new SMB password:Forcing Primary Group to 'Domain Users' for mspadmin
-
     Forcing Primary Group to 'Domain Users' for mspadmin
     Forcing Primary Group to 'Domain Users' for mspadmin
     Enabled user mspadmin.
@@ -118,12 +121,26 @@ The flowchart has the following three stages:
     uid=1007(mspadmin) gid=1011(mspadmin) groups=1011(mspadmin),27(sudo),1004(HaasGroup)
     Done.
 
-    Appliance
+
+    python smb_audit.py -u mspadmin -l smb_audit_log.txt -s st50 192.168.10.127
+    2026-04-07 15:24:52,192 - INFO - Haas SMB Audit Tool
+    2026-04-07 15:24:52,192 - INFO - ---------------------
+    Enter password for mspadmin:
+    2026-04-07 15:24:56,047 - INFO - --- Starting SMB Compliance Audit ---
+    2026-04-07 15:24:56,048 - INFO - Source: 1S1K-G5 (192.168.10.143) | Target: 192.168.10.127
+    2026-04-07 15:24:56,048 - INFO - Connecting to 192.168.10.127...
+    2026-04-07 15:24:56,152 - INFO - [PASS] Authentication successful for mspadmin.
+    2026-04-07 15:24:56,152 - INFO - Auditing Machine Tool Shares...
+    2026-04-07 15:24:56,173 - INFO - [PASS] Accessible share(s) that could be verified:
+    2026-04-07 15:24:56,173 - INFO -     - Haas
+
+
+    On the appliance
     ┌─[haas@haas] - [~/Haas_Data_collect] - [2361]
     └─[$] date
     Thu Apr  2 12:47:58 PDT 2026
 
-    Laptop
+    On your Laptop
     ┌─[mhubbard@1S1K-G5] - [~/Insync/GD/04_Tools/Haas/Haas_Data_collect] - [9005]
     └─[$] date
     Thu Apr  2 12:48:43 PM PDT 2026
@@ -139,7 +156,138 @@ The flowchart has the following three stages:
 
 ----------------------------------------------------------------
 
-🖥️ Common Workstation Issues
+!!! Note
+    All stage 3 troubleshooting requires being logged into the appliance over ssh as an admin
+
+- List file permissions
+    1. `cd Haas_Data_collect\machines`, `ls -l`, should see `drwxrwsr--` and `haas HaasGroup` for each folder
+    2. Run `tree -d` to list the machine directory structure
+- Validate Share level access rules
+    1. Verify that the directory for the machine tool exists under `machines`
+    2. Run `testparm -s` and verify that the share is defined correctly
+- Verify firewall rules
+    1. Run `sudo ufw status numbered | sort -k5`
+    2. Verify that the ip address of the workstation is listed.
+- Verify that the Samba Service is active - Run `sudo systemctl status smbd.service` and look for Active: active (running)
+- List Samba Shares that are active - Run `sudo smbstatus` (Only lists shares with devices that are connected). If any shares are listed, Samba is working.
+
+----------------------------------------------------------------
+
+### SMB Commands
+
+??? info "Common share commands"
+
+    ```unixconfig linenums='1' hl_lines='2 7 12 14-17 22 35-37 41 52 66 86 94'
+    ┌─[haas@haas] - [~] - [2409]
+    └─[$] cd Haas_Data_collect/
+
+    ---
+
+    ┌─[haas@haas] - [~/Haas_Data_collect] - [2410]
+    └─[$] cd machines
+
+    ---
+
+    ┌─[haas@haas] - [~/Haas_Data_collect/machines] - [2411]
+    └─[$] ls -l
+    total 16
+    drwxrwsr-- 2 haas HaasGroup 4096 Mar 15 20:18 minimill
+    drwxrwsr-- 3 haas HaasGroup 4096 Mar 25 13:22 st30
+    drwxrwsr-- 3 haas HaasGroup 4096 Mar 18 17:49 st30l
+    drwxrwsr-- 3 haas HaasGroup 4096 Mar 25 13:22 st40
+
+    ---
+
+    ┌─[haas@haas] - [~/Haas_Data_collect/machines] - [2422]
+    └─[$] tree -d
+    .
+    ├── minimill
+    │   └── cnc_logs
+    ├── st30
+    │   └── cnc_logs
+    ├── st30l
+    │   └── cnc_logs
+    └── st40
+        └── cnc_logs
+
+    ---
+
+    testparm -s
+    Load smb config files from /etc/samba/smb.conf
+    Loaded services file OK.
+    Weak crypto is allowed by GnuTLS (e.g. NTLM as a compatibility fallback)
+    Server role: ROLE_STANDALONE
+    ([Global] output not shown)
+    [Haas]
+      comment = Haas Data Collection Share
+      create mask = 0664
+      directory mask = 0775
+      force create mode = 0664
+      force directory mode = 0775
+      force group = HaasGroup
+      force user = haas
+      path = /home/haas/Haas_Data_collect
+      read only = No
+      valid users = @HaasGroup haas
+    [minimill]
+      comment = Logger for minimill
+      create mask = 0664
+      directory mask = 0775
+      force create mode = 0664
+      force directory mode = 0775
+      force group = HaasGroup
+      force user = haas
+      path = /home/haas/Haas_Data_collect/machines/minimill
+      read only = No
+      valid users = @HaasGroup haas # Ensure the user is valid
+
+    ---
+
+    sudo ufw status numbered | sort -k5
+       --                         ------      ----
+       To                         Action      From
+    Status: active
+    [10] 445                        ALLOW IN    192.168.10.141             # st40-user-smb
+    [12] 445                        ALLOW IN    192.168.10.145             # st30l-user-smb
+    [11] 445                        ALLOW IN    192.168.10.147             # st30-user-smb
+    [ 3] 9090                       ALLOW IN    192.168.10.104             # vf2ss-admin-cockpit
+    [ 2] 445                        ALLOW IN    192.168.10.104             # vf2ss-admin-smb
+    [ 1] 22                         ALLOW IN    192.168.10.104             # vf2ss-admin-ssh
+    [ 6] 9090                       ALLOW IN    192.168.10.113             # msp_admin-admin-cockpit
+    [ 5] 445                        ALLOW IN    192.168.10.113             # msp_admin-admin-smb
+    [ 4] 22                         ALLOW IN    192.168.10.113             # msp_admin-admin-ssh
+    [ 9] 9090                       ALLOW IN    192.168.10.143             # haas-admin-cockpit
+    [ 8] 445                        ALLOW IN    192.168.10.143             # haas-admin-smb
+    [ 7] 22                         ALLOW IN    192.168.10.143             # haas-admin-ssh
+
+    ---
+
+    ┌─[haas@haas] - [~/Haas_Data_collect/machines] - [2416]
+    └─[$] sudo systemctl status smbd.service
+    ● smbd.service - Samba SMB Daemon
+         Loaded: loaded (/usr/lib/systemd/system/smbd.service; enabled; preset: enabled)
+         Active: active (running) since Tue 2026-04-07 15:37:55 PDT; 15min ago
+
+    ---
+
+    ┌─[haas@haas] - [~/Haas_Data_collect/machines] - [2415]
+    └─[$] sudo smbstatus
+
+    Samba version 4.19.5-Ubuntu
+    PID     Username     Group        Machine                                   Protocol Version  Encryption           Signing
+    ----------------------------------------------------------------------------------------------------------------------------------------
+    3749    mspadmin     mspadmin     192.168.10.113 (ipv4:192.168.10.113:63186) SMB3_11           -                    partial(AES-128-GMAC)
+
+    Service      pid     Machine       Connected at                     Encryption   Signing
+    ---------------------------------------------------------------------------------------------
+    st40         3749    192.168.10.113 Tue Apr  7 15:43:20 2026 PDT     -            -
+    ```
+
+----------------------------------------------------------------
+
+## 🖥️ Common Workstation Issues
+
+----------------------------------------------------------------
 
 !!! info "Common Workstation Issues"
     SMB failures often originate on the workstation rather than the appliance.
@@ -209,9 +357,3 @@ The flowchart has the following three stages:
 ----------------------------------------------------------------
 
 ## End of the troubleshooting guide
-
-[stage 3](../appendices/appendix-g.md/#stage-3-user-authentication-and-permissions)
-
-[stage2](../appendices/appendix-g.md/#stage-2-smb-share-listing-and-authentication)
-
-[stage1](../appendices/appendix-g.md/#stage-1-port-reachability-and-firewall-checks)
