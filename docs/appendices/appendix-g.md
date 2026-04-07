@@ -14,15 +14,15 @@ The flowchart has the following three stages:
 
 ----------------------------------------------------------------
 
-## ⭐ Stage 1 — Port Reachability & Firewall Checks
+## ⭐ Stage 1 Port Reachability and Firewall Checks
 
 ![screenshot](../appendices/img/stage1.png)
 
 ----------------------------------------------------------------
 
-- Confirm correct IP - Make sure you are using the correct IP address for the appliance
+- Confirm correct IP - Make sure you are using the correct IP address for the appliance. Port 445 is only open from authorized ip addresses.
 - Verify VLANS/Switches - Use `ping <appliance_ip>` to verify network connectivity to the appliance
-- Port 445 reachable
+- Is port 445 reachable
     1. use `nmap -Pn -p 22,445,9090 <appliance_ip>` to verify
     2. use `Test-NetConnection <appliance_ip> -Port 445` on Windows
     3. use `telnet 192.168.10.133 445`. Use `ctrl+]` to close the connection and `quit` to exit.
@@ -38,12 +38,13 @@ The flowchart has the following three stages:
 
 ??? info "Common Issues and Fixes"
 
-    ```bash hl_lines='1 6'
+    ```unixconfig hl_lines='1 7 17'
     ping 192.168.10.127
     PING 192.168.10.127 (192.168.10.127) from 192.168.10.143 wlp61s0: 56(84) bytes of data.
     64 bytes from 192.168.10.127: icmp_seq=1 ttl=64 time=86.9 ms
     64 bytes from 192.168.10.127: icmp_seq=2 ttl=64 time=7.80 ms
     64 bytes from 192.168.10.127: icmp_seq=3 ttl=64 time=6.28 ms
+    ---
     nmap -Pn -p 22,445,9090 192.168.10.127
     Starting Nmap 7.95 ( https://nmap.org ) at 2026-04-02 12:27 PDT
     Nmap scan report for haas.pu.pri (192.168.10.127)
@@ -53,11 +54,19 @@ The flowchart has the following three stages:
     22/tcp   open  ssh
     445/tcp  open  microsoft-ds
     9090/tcp open  zeus-admin
+    ---
+    Test-NetConnection 192.168.10.127 -Port 445
+    ComputerName     : 192.168.10.127
+    RemoteAddress    : 192.168.10.127
+    RemotePort       : 445
+    InterfaceAlias   : Wi-Fi
+    SourceAddress    : 192.168.10.104
+    TcpTestSucceeded : True
     ```
 
 ----------------------------------------------------------------
 
-## ⭐ Stage 2 — SMB Share Listing & Authentication
+## ⭐ Stage 2 SMB Share Listing and Authentication
 
 ![screenshot](../appendices/img/stage2.png)
 
@@ -122,7 +131,7 @@ The flowchart has the following three stages:
 
 ----------------------------------------------------------------
 
-## ⭐ Stage 3 — User Authentication & Permissions
+## ⭐ Stage 3 User Authentication and Permissions
 
 ----------------------------------------------------------------
 
@@ -186,21 +195,23 @@ The flowchart has the following three stages:
 
 | Symptom / Observation | Likely Cause | Quick Checks / Next Steps |
 |----------------------|--------------|----------------------------|
-| <span style="color:#1e88e5;">🛜 Cannot reach server on port 445</span> | <span style="color:#1e88e5;">Stage 1 — Firewall or network path issue</span> | [1.1.1 Confirm correct IP](#-stage-1--port-reachability--firewall-checks) • [1.1.2 Verify VLANs/switches](#stage-1-port-reachability--firewall) • [1.1.3 Appliance firewall](#stage-1-port-reachability--firewall) |
-| <span style="color:#43a047;">📁 Shares not listed</span> | <span style="color:#43a047;">Stage 2 — Authentication or DNS issue</span> | [2.1.1 Check credentials](#stage-2-smb-listing--authentication) • [2.1.3 DNS resolution](#stage-2-smb-listing--authentication) • [2.1.4 Time sync](#stage-2-smb-listing--authentication) |
-| <span style="color:#43a047;">👤 Wrong username appears in logs</span> | <span style="color:#43a047;">Stage 2 — Cached credentials</span> | [2.1.1 Verify credentials](#stage-2-smb-listing--authentication) • Clear credential cache • Reboot workstation |
-| <span style="color:#d81b60;">🔐 Drive mapping fails</span> | <span style="color:#d81b60;">Stage 3 — Authentication failure</span> | [3.1.1 Verify username/password](#stage-3-user-authentication--permissions) • [3.1.2 Clear cached credentials](#stage-3-user-authentication--permissions) • [3.1.3 Check NTLMv2 handshake](#stage-3-user-authentication--permissions) |
-| <span style="color:#d81b60;">🚫 Access denied after mapping</span> | <span style="color:#d81b60;">Stage 3 — Permissions issue</span> | [3.2.1 Filesystem permissions](#stage-3-user-authentication--permissions) • [3.2.2 Samba share ACLs](#stage-3-user-authentication--permissions) • [3.2.3 Group membership](#stage-3-user-authentication--permissions) |
-| <span style="color:#43a047;">⏱️ Intermittent failures</span> | <span style="color:#43a047;">Stage 2 — DNS or time skew</span> | [2.1.3 DNS resolution](#stage-2-smb-listing--authentication) • [2.1.4 Time sync](#stage-2-smb-listing--authentication) |
-| <span style="color:#d81b60;">🔄 Behavior inconsistent across attempts</span> | <span style="color:#d81b60;">Stage 3 — Stale Samba session</span> | [3.2.4 Use smbstatus](#stage-3-user-authentication--permissions) • Kill stale session • Reconnect |
-| <span style="color:#43a047;">🧩 Works on one device but not another</span> | <span style="color:#43a047;">Stage 2 — Local firewall or endpoint policy</span> | Check UFW/Windows Firewall • Corporate endpoint policies |
-| <span style="color:#43a047;">🐌 Slow browsing or delayed auth</span> | <span style="color:#43a047;">Stage 2 — DNS search domain issues</span> | Verify `/etc/resolv.conf` • Ensure correct search domain |
-| <span style="color:#d81b60;">📂 User appears logged in but cannot access files</span> | <span style="color:#d81b60;">Stage 3 — Stale or conflicting session</span> | [3.2.4 smbstatus](#stage-3-user-authentication--permissions) • Kill session • Reconnect |
+| <span style="color:#1e88e5;">🛜 Cannot reach server on port 445</span> | <span style="color:#1e88e5;">Stage 1 — Firewall or network path issue</span> | [1.1.1 Confirm correct IP](../appendices/appendix-g.md/#stage-1-port-reachability-and-firewall-checks) • [1.1.2 Verify VLANs/switches](../appendices/appendix-g.md/#stage-1-port-reachability-and-firewall-checks) • [1.1.3 Appliance firewall](../appendices/appendix-g.md/#stage-1-port-reachability-and-firewall-checks) |
+| <span style="color:#43a047;">📁 Shares not listed</span> | <span style="color:#43a047;">Stage 2 — Authentication or DNS issue</span> | [2.1.1 Check credentials](../appendices/appendix-g.md/#stage-2-smb-share-listing-and-authentication) • [2.1.3 DNS resolution](../appendices/appendix-g.md/#stage-2-smb-share-listing-and-authentication) • [2.1.4 Time sync](../appendices/appendix-g.md/#stage-2-smb-share-listing-and-authentication) |
+| <span style="color:#43a047;">👤 Wrong username appears in logs</span> | <span style="color:#43a047;">Stage 2 — Cached credentials</span> | [2.1.1 Verify credentials](../appendices/appendix-g.md/#stage-2-smb-share-listing-and-authentication) • [Clear credential cache](../appendices/appendix-g.md/#stage-2-smb-share-listing-and-authentication) • [Reboot workstation](../appendices/appendix-g.md/#stage-2-smb-share-listing-and-authentication) |
+| <span style="color:#d81b60;">🔐 Drive mapping fails</span> | <span style="color:#d81b60;">Stage 3 — Authentication failure</span> | [3.1.1 Verify username/password](../appendices/appendix-g.md/#stage-3-user-authentication-and-permissions) • [3.1.2 Clear cached credentials](../appendices/appendix-g.md/#stage-3-user-authentication-and-permissions) • [3.1.3 Check NTLMv2 handshake](../appendices/appendix-g.md/#stage-3-user-authentication-and-permissions) |
+| <span style="color:#d81b60;">🚫 Access denied after mapping</span> | <span style="color:#d81b60;">Stage 3 — Permissions issue</span> | [3.2.1 Filesystem permissions](../appendices/appendix-g.md/#stage-3-user-authentication-and-permissions) • [3.2.2 Samba share ACLs](../appendices/appendix-g.md/#stage-3-user-authentication-and-permissions) • [3.2.3 Group membership](../appendices/appendix-g.md/#stage-3-user-authentication-and-permissions) |
+| <span style="color:#43a047;">⏱️ Intermittent failures</span> | <span style="color:#43a047;">Stage 2 — DNS or time skew</span> | [2.1.3 DNS resolution](../appendices/appendix-g.md/#stage-2-smb-share-listing-and-authentication) • [2.1.4 Time sync](../appendices/appendix-g.md/#stage-2-smb-share-listing-and-authentication) |
+| <span style="color:#d81b60;">🔄 Behavior inconsistent across attempts</span> | <span style="color:#d81b60;">Stage 3 — Stale Samba session</span> | [3.2.4 Use smbstatus](../appendices/appendix-g.md/#stage-3-user-authentication-and-permissions) • [Kill stale session - reconnect](../appendices/appendix-g.md/#stage-3-user-authentication-and-permissions) |
+| <span style="color:#43a047;">🧩 Works on one device but not another</span> | <span style="color:#43a047;">Stage 2 — Local firewall or endpoint policy</span> | [Check UFW/Windows Firewall](../appendices/appendix-g.md/#stage-2-smb-share-listing-and-authentication) • [Corporate endpoint policies](../appendices/appendix-g.md/#stage-2-smb-share-listing-and-authentication) |
+| <span style="color:#43a047;">🐌 Slow browsing or delayed auth</span> | <span style="color:#43a047;">Stage 2 — DNS search domain issues</span> | [Verify `/etc/resolv.conf`](../appendices/appendix-g.md/#stage-2-smb-share-listing-and-authentication) • [Ensure correct search domain](../appendices/appendix-g.md/#stage-2-smb-share-listing-and-authentication) |
+| <span style="color:#d81b60;">📂 User appears logged in but cannot access files</span> | <span style="color:#d81b60;">Stage 3 — Stale or conflicting session</span> | [3.2.4 smbstatus](../appendices/appendix-g.md/#stage-3-user-authentication-and-permissions) • [Kill session - Reconnect](../appendices/appendix-g.md/#stage-3-user-authentication-and-permissions) |
 
 ----------------------------------------------------------------
 
 ## End of the troubleshooting guide
 
-[test](../appendices/appendix-g.md/#-stage-1--port-reachability--firewall-checks)
+[stage 3](../appendices/appendix-g.md/#stage-3-user-authentication-and-permissions)
 
-[test](../appendices/appendix-g.md/#-stage-1--port-reachability--firewall-checks)
+[stage2](../appendices/appendix-g.md/#stage-2-smb-share-listing-and-authentication)
+
+[stage1](../appendices/appendix-g.md/#stage-1-port-reachability-and-firewall-checks)
