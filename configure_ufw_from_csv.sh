@@ -289,7 +289,7 @@ apply_ufw_rules() {
         ;;
     esac
   done
-
+  echo ""
   log "Firewall rule application complete."
 }
 
