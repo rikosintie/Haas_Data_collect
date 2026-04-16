@@ -237,6 +237,7 @@ apply_ufw_rules() {
 
   if ! ufw status | grep -q "Status: active"; then
     log "UFW is not active. Enabling..."
+    echo ""
     ufw --force enable
   fi
 
@@ -264,6 +265,7 @@ apply_ufw_rules() {
 
     case "$role_lower" in
       administrator)
+        echo ""
         log "ADMIN: $user@$ip → $SSH_PORT, 445, 9090"
         if ! $DRY_RUN; then
           ufw allow from "$ip" to any port $SSH_PORT comment "${user}-admin-ssh"
@@ -296,6 +298,7 @@ if $DRY_RUN; then
   log "DRY-RUN finished."
 else
   log "Resetting UFW to remove all existing rules before applying CSV..."
+  echo ""
   ufw --force reset
   echo ""
   apply_ufw_rules "$CSV_FILE"
