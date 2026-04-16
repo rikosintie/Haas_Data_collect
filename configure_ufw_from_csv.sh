@@ -293,6 +293,8 @@ if $DRY_RUN; then
   apply_ufw_rules "$CSV_FILE"
   log "DRY-RUN finished."
 else
+  log "Resetting UFW to remove all existing rules before applying CSV..."
+  ufw --force reset
   apply_ufw_rules "$CSV_FILE"
 fi
 
