@@ -276,6 +276,7 @@ apply_ufw_rules() {
         fi
         ;;
       user)
+        echo ""
         log "USER: $user@$ip → 445"
         if ! $DRY_RUN; then
           ufw allow from "$ip" to any port 445 comment "${user}-user-smb"
