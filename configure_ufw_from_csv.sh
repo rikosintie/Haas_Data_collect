@@ -74,6 +74,7 @@ fi
 
 echo "[INFO] Using CSV file: $CSV_PATH"
 echo "[INFO] Using backup directory: $BACKUP_DIR"
+echo ""
 
 ########################################
 # FLAGS
@@ -158,6 +159,7 @@ if ! "$VALIDATOR" "$CSV_FILE"; then
   exit 1
 fi
 log "CSV validation passed."
+echo ""
 
 ########################################
 # BACKUP CSV
@@ -295,6 +297,7 @@ if $DRY_RUN; then
 else
   log "Resetting UFW to remove all existing rules before applying CSV..."
   ufw --force reset
+  echo ""
   apply_ufw_rules "$CSV_FILE"
 fi
 
