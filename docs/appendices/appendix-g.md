@@ -20,17 +20,18 @@ The flowchart has the following three stages:
 
 ----------------------------------------------------------------
 
-- Confirm correct IP - Make sure you are using the correct IP address for the appliance. Port 445 is only open from authorized ip addresses.
-- Verify VLANS/Switches - Use `ping <appliance_ip>` to verify network connectivity to the appliance
-- Is port 445 reachable
+- **Confirm correct IP** - Make sure you are using the correct IP address for the appliance. Port 445 is only open from authorized ip addresses.
+- **Verify VLANS/Switches** - Use `ping <appliance_ip>` to verify network connectivity to the appliance
+- **Is port 445 reachable**
     1. use `nmap -Pn -p 22,445,9090 <appliance_ip>` to verify
     2. use `Test-NetConnection <appliance_ip> -Port 445` on Windows
     3. use `telnet 192.168.10.133 445`. Use `ctrl+]` to close the connection and `quit` to exit.
-- Check Appliance firewall - Use `sudo ufw status numbered | sort -k5` on the appliance to list the appliance firewall rules
+    4. **Use `mt_audit <appliance_ip> -p 445**
+- **Check Appliance firewall** - SSH to the appliance, run `sudo ufw status numbered | sort -k5` to list the appliance firewall rules
     1. Use `Cockpit` to manage the firewall from a browser `https://<appliance_ip>:9090`
     2. Use the `configure_ufw_from_csv.sh` script from the terminal - `sudo /usr/local/sbin/configure_ufw_from_csv.sh --show-rules`
     3. See [The script options](../build_pi_5_appliance/firewall_configuration.md/#the-script-options){target="_blank"} for more information
-- Check W/S Firewall - This is a low probability. By default Windows, Mac, Linux allow outbound traffic
+- **Check W/S Firewall** - This is a low probability. By default Windows, Mac, Linux allow outbound traffic
 
 ----------------------------------------------------------------
 
@@ -72,16 +73,19 @@ The flowchart has the following three stages:
 
 ----------------------------------------------------------------
 
-- List SMB Shares
+- **List SMB Shares**
      1. On the appliance, cd to `Haas_Data_collect` and run `./lshares.sh`
-     2. Run `python smb_audit.py -u <username> <appliance_ip>`. Lists all shares for the username.
-- Check Credentials
+     2. Lists the Haas share and the <share_name> share.Lists the Haas share and the <share_name> share.
+        1. `smb_audit.exe -u <username> -s <share_name> <appliance_ip>` on Windows
+        2. `sudo ./smb_audit` on Linux.
+        3. `sudo ./smb_audit-macos-arm64` on Apple Silicon Macs
+- **Check Credentials**
      1. Run `python smb_audit.py -u <username> <appliance_ip>`. Pass/Fail message on provided credentials
      2. Run `manager_users.sh <username> --set-password` to reset the password
-- Domain name - The domain name is `WORKGROUP` by default, all caps
-- Check DNS - I you are using a FQDN instead of an ip use `dig` or `nslookup` to verify the appliance is registered in DNS
-- Check Time Sync - On the appliance run `date` to see the current date/time on the appliance
-- Check Samba logs on the appliance - Use `sudo tail -f /var/log/samba/log.smbd`. This keeps the logger running. Use `ctrl+c` to cancel it.
+- **Domain name** - The domain name is `WORKGROUP` by default, all caps
+- **Check DNS** - If you are using a FQDN instead of an ip use `dig` or `nslookup` to verify the appliance is registered in DNS
+- **Check Time Sync** - SSH to the appliance and run `date` to see the current date/time on the appliance
+- **Check Samba logs on the appliance** - SSH to the appliance, run `sudo tail -f /var/log/samba/log.smbd`. This keeps the logger running. Use `ctrl+c` to cancel it.
 
 ----------------------------------------------------------------
 
@@ -159,17 +163,17 @@ The flowchart has the following three stages:
 !!! Note
     All stage 3 troubleshooting requires being logged into the appliance over ssh as an admin
 
-- List file permissions
+- **List file permissions**
     1. `cd Haas_Data_collect\machines`, `ls -l`, should see `drwxrwsr--` and `haas HaasGroup` for each folder
     2. Run `tree -d` to list the machine directory structure
 - Validate Share level access rules
     1. Verify that the directory for the machine tool exists under `machines`
     2. Run `testparm -s` and verify that the share is defined correctly
-- Verify firewall rules
+- **Verify firewall rules**
     1. Run `sudo ufw status numbered | sort -k5`
     2. Verify that the ip address of the workstation is listed.
-- Verify that the Samba Service is active - Run `sudo systemctl status smbd.service` and look for Active: active (running)
-- List Samba Shares that are active - Run `sudo smbstatus` (Only lists shares with devices that are connected). If any shares are listed, Samba is working.
+- **Verify that the Samba Service is active** - Run `sudo systemctl status smbd.service` and look for Active: active (running)
+- **List Samba Shares that are active** - SSH to the appliance, run `sudo smbstatus` (Only lists shares with devices that are connected). If any shares are listed, Samba is working.
 
 ----------------------------------------------------------------
 
