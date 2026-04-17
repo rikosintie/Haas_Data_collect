@@ -23,10 +23,10 @@ The flowchart has the following three stages:
 - **Confirm correct IP** - Make sure you are using the correct IP address for the appliance. Port 445 is only open from authorized ip addresses.
 - **Verify VLANS/Switches** - Use `ping <appliance_ip>` to verify network connectivity to the appliance
 - **Is port 445 reachable**
-    1. use `nmap -Pn -p 22,445,9090 <appliance_ip>` to verify
-    2. use `Test-NetConnection <appliance_ip> -Port 445` on Windows
-    3. use `telnet 192.168.10.133 445`. Use `ctrl+]` to close the connection and `quit` to exit.
-    4. **Use `mt_audit <appliance_ip> -p 445**
+    1. Use `nmap -Pn -p 445 <appliance_ip>` to verify
+    2. Use `Test-NetConnection <appliance_ip> -Port 445` on Windows
+    3. Use `smb_audit.exe` (Windows), or `smb_audit-macos-arm64` (Apple Silicon) or `smb_audit` (Linux x86). `smb_audit` can test for all ports needed to manage the appliance and available shares. Usage: `smb_audit.exe -u <username> -s <share_name> <appliance_ip>`
+    4. Use `mt_audit <appliance_ip> -p 445`. Only checks for port 445. Useful to verify that the CNC control has port 445 open. `mt_audit` is in the releases directory
 - **Check Appliance firewall** - SSH to the appliance, run `sudo ufw status numbered | sort -k5` to list the appliance firewall rules
     1. Use `Cockpit` to manage the firewall from a browser `https://<appliance_ip>:9090`
     2. Use the `configure_ufw_from_csv.sh` script from the terminal - `sudo /usr/local/sbin/configure_ufw_from_csv.sh --show-rules`
@@ -37,9 +37,9 @@ The flowchart has the following three stages:
 
 ### Reachability Commands
 
-??? info "Common Issues and Fixes"
+??? info "troubleshooting outputs"
 
-    ```unixconfig hl_lines='1 7 17'
+    ```text hl_lines='1 7 17'
     ping 192.168.10.127
     PING 192.168.10.127 (192.168.10.127) from 192.168.10.143 wlp61s0: 56(84) bytes of data.
     64 bytes from 192.168.10.127: icmp_seq=1 ttl=64 time=86.9 ms
@@ -77,8 +77,8 @@ The flowchart has the following three stages:
      1. On the appliance, cd to `Haas_Data_collect` and run `./lshares.sh`
      2. Lists the Haas share and the <share_name> share.Lists the Haas share and the <share_name> share.
         1. `smb_audit.exe -u <username> -s <share_name> <appliance_ip>` on Windows
-        2. `sudo ./smb_audit` on Linux.
-        3. `sudo ./smb_audit-macos-arm64` on Apple Silicon Macs
+        2. `./smb_audit` on Linux.
+        3. `./smb_audit-macos-arm64` on Apple Silicon Macs
 - **Check Credentials**
      1. Run `python smb_audit.py -u <username> <appliance_ip>`. Pass/Fail message on provided credentials
      2. Run `manager_users.sh <username> --set-password` to reset the password
@@ -91,9 +91,9 @@ The flowchart has the following three stages:
 
 ### List Share Commands
 
-??? info "share troubleshooting commands"
+??? info "troubleshooting outputs"
 
-    ```unixconfig linenums='1' hl_lines='1 3 11 14-17 21-24 28-29 33 36 38 40 42-43 48 53'
+    ```text linenums='1' hl_lines='1 3 11 14-17 21-24 28-29 33 36 38 40 42-43 48 53'
     cd Haas_Data_collect
     ┌─[haas@haas] - [~/Haas_Data_collect] - [2358]
     └─[$] ./lshares.sh
@@ -103,6 +103,7 @@ The flowchart has the following three stages:
     st30         /home/haas/Haas_Data_collect/machines/st30
     st30l        /home/haas/Haas_Data_collect/machines/st30l
 
+            -------------------------------
 
     sudo ./manage_users.sh mspadmin
     ==== Thu Apr  2 12:44:43 PDT 2026 ====
@@ -125,29 +126,43 @@ The flowchart has the following three stages:
     uid=1007(mspadmin) gid=1011(mspadmin) groups=1011(mspadmin),27(sudo),1004(HaasGroup)
     Done.
 
+            -------------------------------
 
-    python smb_audit.py -u mspadmin -l smb_audit_log.txt -s st50 192.168.10.127
-    2026-04-07 15:24:52,192 - INFO - Haas SMB Audit Tool
-    2026-04-07 15:24:52,192 - INFO - ---------------------
+    ./smb_audit 192.168.10.127 -u mspadmin -s st30l
+
+    2026-04-17 15:52:32,648 - INFO - Haas SMB Audit Tool
+    2026-04-17 15:52:32,653 - INFO - ---------------------
+
+    2026-04-17 15:52:32,653 - INFO - Run this tool from an authorized network location.
+    2026-04-17 15:52:32,653 - INFO - Then run it from an unauthorized network location.
+
     Enter password for mspadmin:
-    2026-04-07 15:24:56,047 - INFO - --- Starting SMB Compliance Audit ---
-    2026-04-07 15:24:56,048 - INFO - Source: 1S1K-G5 (192.168.10.143) | Target: 192.168.10.127
-    2026-04-07 15:24:56,048 - INFO - Connecting to 192.168.10.127...
-    2026-04-07 15:24:56,152 - INFO - [PASS] Authentication successful for mspadmin.
-    2026-04-07 15:24:56,152 - INFO - Auditing Machine Tool Shares...
-    2026-04-07 15:24:56,173 - INFO - [PASS] Accessible share(s) that could be verified:
-    2026-04-07 15:24:56,173 - INFO -     - Haas
+    2026-04-17 15:52:36,542 - INFO - --- Starting SMB Compliance Audit ---
+    2026-04-17 15:52:36,543 - INFO - Source: 1S1K-G5 (192.168.10.143) | Target: 192.168.10.127
+    2026-04-17 15:52:36,543 - INFO - Connecting to 192.168.10.127...
+    2026-04-17 15:52:36,608 - INFO - [PASS] Authentication successful for mspadmin.
+    2026-04-17 15:52:36,608 - INFO - Auditing Machine Tool Shares...
+    2026-04-17 15:52:36,644 - INFO - [PASS] Accessible share(s) that could be verified:
+    2026-04-17 15:52:36,645 - INFO -     - Haas
+    2026-04-17 15:52:36,645 - INFO -     - st30l
+    2026-04-17 15:52:36,645 - INFO - Testing Anonymous Access (Compliance Check)...
+    2026-04-17 15:52:36,647 - INFO - [PASS] Anonymous access successfully refused.
 
+
+            -------------------------------
 
     On the appliance
     ┌─[haas@haas] - [~/Haas_Data_collect] - [2361]
     └─[$] date
     Thu Apr  2 12:47:58 PDT 2026
 
+            -------------------------------
+
     On your Laptop
     ┌─[mhubbard@1S1K-G5] - [~/Insync/GD/04_Tools/Haas/Haas_Data_collect] - [9005]
     └─[$] date
     Thu Apr  2 12:48:43 PM PDT 2026
+
     ```
 
 ----------------------------------------------------------------
@@ -166,14 +181,160 @@ The flowchart has the following three stages:
 - **List file permissions**
     1. `cd Haas_Data_collect\machines`, `ls -l`, should see `drwxrwsr--` and `haas HaasGroup` for each folder
     2. Run `tree -d` to list the machine directory structure
-- Validate Share level access rules
+- **Validate Share level access rules**
     1. Verify that the directory for the machine tool exists under `machines`
     2. Run `testparm -s` and verify that the share is defined correctly
 - **Verify firewall rules**
     1. Run `sudo ufw status numbered | sort -k5`
     2. Verify that the ip address of the workstation is listed.
-- **Verify that the Samba Service is active** - Run `sudo systemctl status smbd.service` and look for Active: active (running)
+- **Verify that the Samba Service is active** - SSH to the appliance, run `sudo systemctl status smbd.service` and look for Active: active (running)
 - **List Samba Shares that are active** - SSH to the appliance, run `sudo smbstatus` (Only lists shares with devices that are connected). If any shares are listed, Samba is working.
+
+### Permission Commands
+
+??? info "troubleshooting outputs"
+
+    ```text linenums='1' hl_lines='2 4 7-11 16 18 20-27 32 70 94 97 102 104 110 120 121 131 133 134-137 139'
+    ┌─[haas@haas] - [~] - [2503]
+    └─[$] cd Haas_Data_collect
+    ┌─[haas@haas] - [~/Haas_Data_collect] - [2504]
+    └─[$] ls -l --group-directories-first
+
+    total 8460
+    drwxrwsr-- 2 haas    HaasGroup   12288 Apr 17 00:00  backups
+    drwxrwsr-- 2 haas    HaasGroup    4096 Mar 22 18:36  cockpit
+    drwxrwsr-- 5 haas    HaasGroup    4096 Mar 22 18:36  docs
+    drwxrwsr-- 6 haas    HaasGroup    4096 Mar 16 19:43  machines
+    drwxrwsr-x 2 haas    HaasGroup    4096 Apr 16 14:26  releases
+
+            -------------------------------
+
+    ┌─[haas@haas] - [~/Haas_Data_collect] - [2505]
+    └─[$] cd machines
+    ┌─[haas@haas] - [~/Haas_Data_collect/machines] - [2506]
+    └─[$] tree -d
+    .
+    ├── minimill
+    │   └── cnc_logs
+    ├── st30
+    │   └── cnc_logs
+    ├── st30l
+    │   └── cnc_logs
+    └── st40
+        └── cnc_logs
+
+            -------------------------------
+
+    ┌─[haas@haas] - [~/Haas_Data_collect/machines] - [2507]
+    └─[$] testparm -s
+    Load smb config files from /etc/samba/smb.conf
+    Loaded services file OK.
+    Weak crypto is allowed by GnuTLS (e.g. NTLM as a compatibility fallback)
+    Server role: ROLE_STANDALONE
+
+    --- Global section truncated for brevity ---
+
+    [Haas]
+        comment = Haas Data Collection Share
+        create mask = 0664
+        directory mask = 0775
+        force create mode = 0664
+        force directory mode = 0775
+        force group = HaasGroup
+        force user = haas
+        path = /home/haas/Haas_Data_collect
+        read only = No
+        valid users = @HaasGroup haas
+
+
+    [minimill]
+        comment = Logger for minimill
+        create mask = 0664
+        directory mask = 0775
+        force create mode = 0664
+        force directory mode = 0775
+        force group = HaasGroup
+        force user = haas
+        path = /home/haas/Haas_Data_collect/machines/minimill
+        read only = No
+        valid users = @HaasGroup haas # Ensure the user is valid
+
+    --- output truncated for brevity ---
+
+            -------------------------------
+
+    ┌─[haas@haas] - [~/Haas_Data_collect/machines] - [2508]
+    └─[$] sudo ufw status numbered | sort -k5
+
+         --                         ------      ----
+         To                         Action      From
+    Status: active
+    [13] 445                        ALLOW IN    192.168.10.141             # st40-user-smb
+    [12] 9090                       ALLOW IN    192.168.10.143             # haas-admin-cockpit
+    [11] 445                        ALLOW IN    192.168.10.143             # haas-admin-smb
+    [10] 22                         ALLOW IN    192.168.10.143             # haas-admin-ssh
+    [15] 445                        ALLOW IN    192.168.10.145             # st30l-user-smb
+    [14] 445                        ALLOW IN    192.168.10.147             # st30-user-smb
+    [ 3] 9090                       ALLOW IN    192.168.1.100              # test-admin-cockpit
+    [ 2] 445                        ALLOW IN    192.168.1.100              # test-admin-smb
+    [ 1] 22                         ALLOW IN    192.168.1.100              # test-admin-ssh
+    [ 6] 9090                       ALLOW IN    192.168.10.104             # vf2ss-admin-cockpit
+    [ 5] 445                        ALLOW IN    192.168.10.104             # vf2ss-admin-smb
+    [ 4] 22                         ALLOW IN    192.168.10.104             # vf2ss-admin-ssh
+    [ 9] 9090                       ALLOW IN    192.168.10.113             # msp_admin-admin-cockpit
+    [ 8] 445                        ALLOW IN    192.168.10.113             # msp_admin-admin-smb
+    [ 7] 22                         ALLOW IN    192.168.10.113             # msp_admin-admin-ssh
+
+            -------------------------------
+
+    ┌─[haas@haas] - [~/Haas_Data_collect/machines] - [2509]
+    └─[$] sudo systemctl status smbd.service
+    ● smbd.service - Samba SMB Daemon
+         Loaded: loaded (/usr/lib/systemd/system/smbd.service; enabled; preset: enabled)
+         Active: active (running) since Wed 2026-04-08 19:20:41 PDT; 1 week 1 day ago
+           Docs: man:smbd(8)
+                 man:samba(7)
+                 man:smb.conf(5)
+       Main PID: 65773 (smbd)
+         Status: "smbd: ready to serve connections..."
+          Tasks: 4 (limit: 9063)
+         Memory: 13.3M (peak: 15.3M)
+            CPU: 22.882s
+         CGroup: /system.slice/smbd.service
+                 ├─65773 /usr/sbin/smbd --foreground --no-process-group
+                 ├─65814 "smbd: notifyd" .
+                 ├─65817 "smbd: cleanupd "
+                 └─67376 "smbd: client [192.168.10.113]"
+
+    Apr 08 19:20:40 haas systemd[1]: Starting smbd.service - Samba SMB Daemon...
+    Apr 08 19:20:41 haas (smbd)[65773]: smbd.service: Referenced but unset environment variable evaluates to an empty string: SMBDOPTIONS
+    Apr 08 19:20:41 haas systemd[1]: Started smbd.service - Samba SMB Daemon.
+    Apr 09 00:00:17 haas systemd[1]: Reloading smbd.service - Samba SMB Daemon...
+    Apr 09 00:00:17 haas systemd[1]: Reloaded smbd.service - Samba SMB Daemon.
+
+            -------------------------------
+
+    ┌─[mhubbard@1S1K-G5] - [~/Insync/GD/04_Tools/Haas/Haas_Data_collect/releases] - [9532]
+    └─[$] ./smb_audit 192.168.10.127 -u mspadmin -s st30l
+
+    2026-04-17 15:52:32,648 - INFO - Haas SMB Audit Tool
+    2026-04-17 15:52:32,653 - INFO - ---------------------
+
+    2026-04-17 15:52:32,653 - INFO - Run this tool from an authorized network location.
+    2026-04-17 15:52:32,653 - INFO - Then run it from an unauthorized network location.
+
+    Enter password for mspadmin:
+    2026-04-17 15:52:36,542 - INFO - --- Starting SMB Compliance Audit ---
+    2026-04-17 15:52:36,543 - INFO - Source: 1S1K-G5 (192.168.10.143) | Target: 192.168.10.127
+    2026-04-17 15:52:36,543 - INFO - Connecting to 192.168.10.127...
+    2026-04-17 15:52:36,608 - INFO - [PASS] Authentication successful for mspadmin.
+    2026-04-17 15:52:36,608 - INFO - Auditing Machine Tool Shares...
+    2026-04-17 15:52:36,644 - INFO - [PASS] Accessible share(s) that could be verified:
+    2026-04-17 15:52:36,645 - INFO -     - Haas
+    2026-04-17 15:52:36,645 - INFO -     - st30l
+    2026-04-17 15:52:36,645 - INFO - Testing Anonymous Access (Compliance Check)...
+    2026-04-17 15:52:36,647 - INFO - [PASS] Anonymous access successfully refused.
+    ```
 
 ----------------------------------------------------------------
 
