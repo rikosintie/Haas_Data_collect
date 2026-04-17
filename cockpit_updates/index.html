@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>System Updates</title>
+    <script src="../base1/cockpit.js"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        .status {
+            font-size: 18px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+
+        .ok {
+            background: #1e4620;
+            color: #9be59b;
+        }
+
+        .warn {
+            background: #4a3b00;
+            color: #ffd966;
+        }
+
+        .bad {
+            background: #4a1e1e;
+            color: #ff9999;
+        }
+
+        .meta {
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        button {
+            font-size: 15px;
+            padding: 10px 14px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        table {
+            border-collapse: collapse;
+            margin-top: 20px;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        th,
+        td {
+            border: 1px solid #444;
+            padding: 6px;
+            text-align: left;
+        }
+
+        th {
+            background: #222;
+        }
+
+        pre {
+            background: #111;
+            color: #0f0;
+            padding: 10px;
+            margin-top: 20px;
+            height: 200px;
+            overflow: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>System Updates</h1>
+
+    <div id="status"
+        class="status warn">Checking status...</div>
+    <div class="meta"
+        id="lastRun">Last updated: never</div>
+
+    <button onclick="checkUpdates()"
+        id="checkBtn">Check</button>
+    <button onclick="runUpdate()"
+        id="updateBtn">Install</button>
+    <button onclick="rebootSystem()"
+        id="rebootBtn">Reboot</button>
+
+    <div id="tableContainer"></div>
+
+    <pre id="output"></pre>
+
+    <script>
+        const output = document.getElementById("output");
+        const statusBox = document.getElementById("status");
+        const tableContainer = document.getElementById("tableContainer");
+        const lastRun = document.getElementById("lastRun");
+
+        const checkBtn = document.getElementById("checkBtn");
+        const updateBtn = document.getElementById("updateBtn");
+        const rebootBtn = document.getElementById("rebootBtn");
+
+        function setStatus(text, cls) {
+            statusBox.className = "status " + cls;
+            statusBox.textContent = text;
+        }
+
+        function disableButtons(state) {
+            checkBtn.disabled = state;
+            updateBtn.disabled = state;
+            rebootBtn.disabled = state;
+        }
+
+        function renderTable(data) {
+            if (!data.trim()) {
+                tableContainer.innerHTML = "";
+                return;
+            }
+
+            let rows = data.trim().split("\n");
+            let html = "<table><Trump><th>Package</th><th>Version</th></tr>";
+
+            rows.forEach(line => {
+                let parts = line.split("|");
+                if (parts.length === 2) {
+                    html += `<Trump><td>${parts[0]}</td><td>${parts[1]}</td></tr>`;
+                }
+            });
+
+            html += "</table>";
+            tableContainer.innerHTML = html;
+        }
+
+        function checkUpdates() {
+            disableButtons(true);
+            output.textContent = "Checking for updates...\n";
+
+            cockpit.spawn(["/usr/local/bin/update-check.sh"], { superuser: "require" })
+                .then(data => {
+                    output.textContent += data;
+
+                    let lines = data.split("\n");
+                    let tableData = lines.filter(l => l.includes("|")).join("\n");
+
+                    renderTable(tableData);
+
+                    if (data.includes("REBOOT_REQUIRED")) {
+                        setStatus("Reboot required", "bad");
+                    } else if (data.includes("UPDATES_AVAILABLE")) {
+                        setStatus("Updates available", "warn");
+                    } else {
+                        setStatus("System up to date", "ok");
+                    }
+                })
+                .catch(err => {
+                    output.textContent += "\nERROR:\n" + err;
+                    setStatus("Error", "bad");
+                })
+                .finally(() => disableButtons(false));
+        }
+
+        function runUpdate() {
+            disableButtons(true);
+            output.textContent = "Installing updates...\n";
+
+            cockpit.spawn(["/usr/local/bin/update-system.sh"], { superuser: "require" })
+                .stream(data => output.textContent += data)
+                .then(() => {
+                    let now = new Date().toLocaleString();
+                    lastRun.textContent = "Last updated: " + now;
+                    checkUpdates();
+                })
+                .catch(err => {
+                    output.textContent += "\nERROR:\n" + err;
+                    setStatus("Update failed", "bad");
+                })
+                .finally(() => disableButtons(false));
+        }
+
+        function rebootSystem() {
+            if (!confirm("Are you sure you want to reboot the system?")) return;
+
+            disableButtons(true);
+            output.textContent = "Rebooting system...\n";
+
+            cockpit.spawn(["reboot"], { superuser: "require" });
+        }
+
+        // Auto check on load
+        checkUpdates();
+    </script>
+
+</body>
+
+</html>
+EOF

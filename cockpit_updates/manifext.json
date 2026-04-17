@@ -1,0 +1,9 @@
+{
+  "version": 0,
+  "tools": {
+    "update-appliance": {
+      "label": "Updates",
+      "path": "index.html"
+    }
+  }
+}
