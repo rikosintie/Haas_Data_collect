@@ -12,20 +12,6 @@ The Desktop version of Ubuntu has bluetooth support built in so you don't need t
 
 ----------------------------------------------------------------
 
-If you aren't sure if your hardware has bluetooth enabled run the following:
-
-```bash linenums='1' hl_lines='1'
-lsmod | grep -i blue
-```
-
-```bash title='Command Output'
-bluetooth            1019904  48 btrtl,btmtk,btintel,btbcm,bnep,btusb,rfcomm
-```
-
-If you don't see any output you will need a dongle.
-
-----------------------------------------------------------------
-
 ## Server Version
 
 Follow these instructions to connect a bluetooth keyboard to Ubuntu server. Connecting a bluetooth mouse is the same process except you won't type in the 6 digit code.
@@ -41,26 +27,61 @@ sudo apt install bluetooth bluez bluez-tools rfkill -y
 
 ----------------------------------------------------------------
 
-## Verify that Bluetooth dongle is detected
+## Verify the dongle is detected
 
-If you used an Intel PC or SFF PC and needed to use a Bluetooth dongle, follow these steps. If no, continue from `Start and enable the Bluetooth service` below.
+If you used an Intel PC or SFF PC and needed to use a Bluetooth dongle, follow these steps. If not, continue from [Start and enable the Bluetooth service](../appendices/appendix-h.md/#start-and-enable-the-bluetooth-service) below.
 
-Check whether the system sees the adapter:
+Check whether the system sees the adapter using the `list usb devices` command:
 
 ```bash
-lsusb | grep -i bluetooth
+lsusb
 ```
 
-Then check kernel recognition:
+```bash title='Command Output'
+lsusb
+Bus 001 Device 003: ID 04b4:f901 Cypress Semiconductor Corp. CYW20704A2
+```
+
+Bluetooth is usually not in the output. You will have to do a Google search. In this example, `Cypress Semiconductor Corp. CYW20704A2` is my bluetooth dongle.
+
+Linux provides a tool called `hciconfig` for bluetooth devices. You can see all the options it supports by running `man hciconfig`. In this case `-a` to show all output.
 
 ```bash
 hciconfig -a
 ```
 
-If nothing appears, load the USB Bluetooth driver:
+```bash title='Command Output'
+hciconfig -a
+hci0:    Type: Primary  Bus: USB
+    BD Address: DA:60:92:F7:CA:9A  ACL MTU: 1021:8  SCO MTU: 64:1
+    UP RUNNING
+    RX bytes:12236 acl:450 sco:0 events:729 errors:0
+    TX bytes:7171 acl:85 sco:0 commands:141 errors:0
+    ...Output removed for brevity
+    Manufacturer: Cypress Semiconductor (305)
+```
+
+If nothing appears:
+
+- Reseat the bluetooth dongle
+- load the USB Bluetooth driver using `modprobe`
+
+Modprobe is the tool to add or remove modules from the Linux kernel.:
 
 ```bash
 sudo modprobe btusb
+```
+
+----------------------------------------------------------------
+
+To verify that the module loaded use the `list modules` command:
+
+```bash linenums='1' hl_lines='1'
+lsmod | grep -i blue
+```
+
+```bash title='Command Output'
+bluetooth            1019904  48 btrtl,btmtk,btintel,btbcm,bnep,btusb,rfcomm
 ```
 
 ----------------------------------------------------------------
@@ -135,19 +156,25 @@ Once you see something like:
 ```
 
 Run:
+
+```bash
 pair DA:60:92:F7:CA:9A
+```
 
-Ubuntu will display a PIN code. Type that PIN on the MX Keys Mini and press Enter.
+Ubuntu will display a PIN code. Type that PIN on the keyboard and press Enter.
 
-This is required for keyboards.
+This is required for keyboards, not for mice.
 
 Then:
 [bluetooth]# trust DA:60:92:F7:CA:9A
 [bluetooth]# connect DA:60:92:F7:CA:9A
 
+!!! Note
+    Use the MAC of your keyboard, not the one in the example: DA:60:92:F7:CA:9
+
 ----------------------------------------------------------------
 
-⚠️ Common Issues & Fixes
+## ⚠️ Common Issues & Fixes
 
 1. Keyboard not detected
     1. Make sure it’s not still connected to another device — keyboards often stop advertising when already paired.
