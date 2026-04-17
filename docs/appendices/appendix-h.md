@@ -29,7 +29,7 @@ sudo apt install bluetooth bluez bluez-tools rfkill -y
 
 ## Verify the dongle is detected
 
-If you used an Intel PC or SFF PC and needed to use a Bluetooth dongle, follow these steps. If not, continue from [Start and enable the Bluetooth service](../appendices/appendix-h.md/#start-and-enable-the-bluetooth-service) below.
+If you used a PC and needed to use a Bluetooth dongle, follow these steps. If not, continue from [Start and enable the Bluetooth service](../appendices/appendix-h.md/#start-and-enable-the-bluetooth-service) below.
 
 Check whether the system sees the adapter using the `list usb devices` command:
 
