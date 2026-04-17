@@ -1,8 +1,36 @@
-# Ubuntu Server - Pair Bluetooth keyboard
+# Pair Bluetooth keyboard
 
-If you used a Raspberry Pi 5 for your appliance, it has bluetooth built in. If you want to connect a bluetooth keyboard follow these instructions. Connecting a bluetooth mouse is the same process except you won't type in the 6 digit code.
+If you used a Raspberry Pi 5 for your appliance, it has bluetooth built in. If you used physical PC it might have Bluetooth built in or you can use a [USB Bluetooth dongle](https://www.amazon.com/gp/aw/d/B09DMP6T22/) available on Amazon for about $15.
 
-If you are using Ubuntu Desktop you can use the GUI. Press `super + s` to open the quick settings menu. Then click the gear icon, then `bluetooth`.
+## Desktop version
+
+The Desktop version of Ubuntu has bluetooth support built in so you don't need to install anything. Press `super + s` to open the quick settings menu. Then click the gear icon, click `bluetooth`. Move the slider to the right to enable bluetooth. Devices actively advertising bluetooth will appear.
+
+----------------------------------------------------------------
+
+![screenshot](../appendices/img/Bluetooth-settings.png)
+
+----------------------------------------------------------------
+
+If you aren't sure if your hardware has bluetooth enabled run the following:
+
+```bash linenums='1' hl_lines='1'
+lsmod | grep -i blue
+```
+
+```bash title='Command Output'
+bluetooth            1019904  48 btrtl,btmtk,btintel,btbcm,bnep,btusb,rfcomm
+```
+
+If you don't see any output you will need a dongle.
+
+----------------------------------------------------------------
+
+## Server Version
+
+Follow these instructions to connect a bluetooth keyboard to Ubuntu server. Connecting a bluetooth mouse is the same process except you won't type in the 6 digit code.
+
+----------------------------------------------------------------
 
 ## Install Bluetooth support
 
@@ -11,7 +39,11 @@ sudo apt update
 sudo apt install bluetooth bluez bluez-tools rfkill -y
 ```
 
-## Verify that your USB Bluetooth dongle is detected
+----------------------------------------------------------------
+
+## Verify that Bluetooth dongle is detected
+
+If you used an Intel PC or SFF PC and needed to use a Bluetooth dongle, follow these steps. If no, continue from `Start and enable the Bluetooth service` below.
 
 Check whether the system sees the adapter:
 
@@ -31,12 +63,16 @@ If nothing appears, load the USB Bluetooth driver:
 sudo modprobe btusb
 ```
 
+----------------------------------------------------------------
+
 ## Start and enable the Bluetooth service
 
 ```bash
 sudo systemctl start bluetooth
 sudo systemctl enable bluetooth
 ```
+
+----------------------------------------------------------------
 
 ## Enter the Bluetooth control shell
 
@@ -45,7 +81,8 @@ sudo bluetoothctl
 ```
 
 ```bash title='Command Output'
-Waiting to connect to bluetoothd...[bluetooth]# hci0 new_settings: powered bondable ssp br/edr le secure-conn
+Waiting to connect to bluetoothd...
+[bluetooth]# hci0 new_settings: powered bondable ssp br/edr le secure-conn
 [bluetooth]# Agent registered
 ```
 
@@ -77,6 +114,8 @@ pairable on
 scan on
 ```
 
+----------------------------------------------------------------
+
 ## Put your keyboard into pairing mode
 
 In this example I am using a logitech MX Keys Mini keyboard. To put it into pairing mode:
@@ -84,6 +123,8 @@ In this example I am using a logitech MX Keys Mini keyboard. To put it into pair
 **Hold Easy‑Switch key 1, 2, or 3 for 3 seconds until it blinks rapidly.**
 
 Your server should now detect it.
+
+----------------------------------------------------------------
 
 ## Pair the keyboard
 
@@ -103,6 +144,8 @@ This is required for keyboards.
 Then:
 [bluetooth]# trust DA:60:92:F7:CA:9A
 [bluetooth]# connect DA:60:92:F7:CA:9A
+
+----------------------------------------------------------------
 
 ⚠️ Common Issues & Fixes
 
