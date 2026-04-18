@@ -149,7 +149,7 @@
             disableButtons(true);
             output.textContent = "Checking for updates...\n";
 
-            cockpit.spawn(["/usr/local/bin/update-check.sh"], { superuser: "require" })
+            cockpit.spawn(["    /usr/local/sbin/update-check.sh"], { superuser: "require" })
                 .then(data => {
                     output.textContent += data;
 
@@ -177,7 +177,7 @@
             disableButtons(true);
             output.textContent = "Installing updates...\n";
 
-            cockpit.spawn(["/usr/local/bin/update-system.sh"], { superuser: "require" })
+            cockpit.spawn(["/usr/local/sbin/update-system.sh"], { superuser: "require" })
                 .stream(data => output.textContent += data)
                 .then(() => {
                     let now = new Date().toLocaleString();
