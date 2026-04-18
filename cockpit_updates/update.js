@@ -97,5 +97,10 @@ function rebootSystem() {
     cockpit.spawn(["reboot"], { superuser: "require" });
 }
 
+// Wire up buttons
+checkBtn.addEventListener("click", checkUpdates);
+updateBtn.addEventListener("click", runUpdate);
+rebootBtn.addEventListener("click", rebootSystem);
+
 // Auto check on load
 checkUpdates();
