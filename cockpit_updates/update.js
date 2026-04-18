@@ -59,12 +59,13 @@ function checkUpdates() {
                 } else {
                     setStatus("System up to date", "ok");
                 }
+                disableButtons(false);
             })
             .catch(function(err) {
                 output.textContent += "\nERROR:\n" + (err.message || JSON.stringify(err));
                 setStatus("Error checking updates", "bad");
-            })
-            .finally(function() { disableButtons(false); });
+                disableButtons(false);
+            });
     } catch (err) {
         output.textContent += "\nFATAL ERROR:\n" + (err.message || err);
         setStatus("Cockpit API error", "bad");
@@ -86,8 +87,8 @@ function runUpdate() {
         .catch(function(err) {
             output.textContent += "\nERROR:\n" + err;
             setStatus("Update failed", "bad");
-        })
-        .finally(function() { disableButtons(false); });
+            disableButtons(false);
+        });
 }
 
 function rebootSystem() {
