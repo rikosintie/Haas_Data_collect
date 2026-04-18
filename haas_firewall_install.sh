@@ -125,6 +125,7 @@ sleep 3
 
 BACKUP_DIR="$REPO_DIR/backups"
 COCKPIT_SRC="$REPO_DIR/cockpit"
+COCKPIT_UPDATE_SRC="$REPO_DIR/cockpit_updates"
 CSV_PATH="$REPO_DIR/users.csv"
 
 
@@ -188,6 +189,30 @@ for f in manifest.json index.html haas-firewall.js haas-firewall.css icon.png; d
     exit 1
   fi
 done
+echo ""
+echo ""
+
+if [[ ! -d "$COCKPIT_UPDATE_SRC" ]]; then
+  echo "###########################################################"
+  echo "#                                                         #"
+  echo -e "#     ${YELLOW}[ERROR] Cockpit Update directory missing:${RESET}${CYAN} $COCKPIT_UPDATE_SRC ${RESET}     #"
+  echo "#                                                         #"
+  echo "###########################################################"
+  exit 1
+fi
+
+for f in manifest.json index.html ; do
+  if [[ ! -f "$COCKPIT_UPDATE_SRC/$f" ]]; then
+    echo "###########################################################"
+    echo "#                                                         #"
+    echo -e "#      ${YELLOW}[ERROR] Missing Cockpit Update file:${RESET}${CYAN} $COCKPIT_UPDATE_SRC/$f ${RESET}      #"
+    echo "#                                                         #"
+    echo "###########################################################"
+    exit 1
+  fi
+done
+
+
 echo ""
 echo "#################################################"
 echo "#                                               #"
@@ -1033,7 +1058,7 @@ fi
 sleep 3
 
 ########################################
-# INSTALL COCKPIT EXTENSION
+# INSTALL COCKPIT FIREWALL EXTENSION
 ########################################
 
 COCKPIT_DST="/usr/share/cockpit/haas-firewall"
@@ -1087,6 +1112,66 @@ echo ""
 echo ""
 fi
 sleep 3
+echo ""
+echo ""
+
+
+########################################
+# INSTALL COCKPIT UPDATES EXTENSION
+########################################
+
+COCKPIT_UPDATE_DST="/usr/share/cockpit/update-appliance"
+
+echo ""
+echo ""
+echo "###############################################################################"
+echo "#                                                                             #"
+echo -e "#  ${CYAN}Installing Cockpit Update extension to $COCKPIT_UPDATE_DST...${RESET}        #"
+echo "#                                                                             #"
+echo "###############################################################################"
+echo ""
+echo ""
+
+sudo mkdir -p "$COCKPIT_UPDATE_DST"
+sudo cp "$COCKPIT_UPDATE_SRC"/* "$COCKPIT_UPDATE_DST"/
+
+echo ""
+echo ""
+echo "#####################################################"
+echo "#                                                   #"
+echo -e "#  ${CYAN}[*] Restarting Cockpit...${RESET}                        #"
+echo "#                                                   #"
+echo "#####################################################"
+echo ""
+echo ""
+
+sudo systemctl restart cockpit
+
+if [[ -f "$COCKPIT_UPDATE_DST/index.html" ]]; then
+
+echo ""
+echo ""
+echo "###########################################################"
+echo "#                                                         #"
+echo -e "#  ${CYAN}✅ Cockpit extension Update installed and Cockpit restarted.${RESET}  #"
+echo "#                                                         #"
+echo "###########################################################"
+echo ""
+echo ""
+
+else
+echo ""
+echo ""
+echo "#################################################################"
+echo "#                                                               #"
+echo -e "#          ${YELLOW} ⚠️ Cockpit Update extension not installed.{RESET}                 #"
+echo "#                                                               #"
+echo "#################################################################"
+echo ""
+echo ""
+fi
+sleep 3
+
 
 ########################################
 # ENSURE BACKUP DIRECTORY EXISTS
