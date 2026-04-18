@@ -291,6 +291,8 @@ sudo cp "$REPO_DIR/configure_ufw_from_csv.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/validate_users_csv.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/rollback_csv.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/build-nmap.sh" /usr/local/sbin/
+sudo cp "$REPO_DIR/update-check.sh" /usr/local/sbin/
+sudo cp "$REPO_DIR/update-system.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/csvlens" /usr/local/sbin/
 sudo cp "$REPO_DIR/ssh_port.sh" /usr/local/sbin
 sudo cp "$REPO_DIR/appliance" /etc/logrotate.d/
@@ -396,6 +398,8 @@ sudo chmod +x /usr/local/sbin/csvlens
 sudo chmod +x /usr/local/sbin/rollback_csv.sh
 sudo chmod +x /usr/local/sbin/ssh_port.sh
 sudo chmod +x /usr/local/sbin/validate_users_csv.sh
+sudo chmod +x /usr/local/sbin/update-check.sh
+sudo chmod +x /usr/local/sbin/update-system.sh
 sudo chmod +x "$REPO_DIR/lshares.sh"
 sudo chmod +x "$REPO_DIR/manage_users.sh"
 sudo chmod +x "$REPO_DIR/smb_verify.sh"
@@ -1121,6 +1125,8 @@ echo ""
 ########################################
 
 COCKPIT_UPDATE_DST="/usr/share/cockpit/update-appliance"
+mkdir -p /usr/share/cockpit/update-appliance
+sudo cp "$COCKPIT_UPDATE_SRC"/* "$COCKPIT_UPDATE_DST"/
 
 echo ""
 echo ""
