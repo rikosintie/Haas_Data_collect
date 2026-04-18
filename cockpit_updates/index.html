@@ -132,12 +132,12 @@
             }
 
             let rows = data.trim().split("\n");
-            let html = "<table><Trump><th>Package</th><th>Version</th></tr>";
+            let html = "<table><tr><th>Package</th><th>Version</th></tr>";
 
             rows.forEach(line => {
                 let parts = line.split("|");
                 if (parts.length === 2) {
-                    html += `<Trump><td>${parts[0]}</td><td>${parts[1]}</td></tr>`;
+                    html += `<tr><td>${parts[0]}</td><td>${parts[1]}</td></tr>`;
                 }
             });
 
@@ -149,28 +149,34 @@
             disableButtons(true);
             output.textContent = "Checking for updates...\n";
 
-            cockpit.spawn(["/usr/local/sbin/update-check.sh"], { superuser: "require" })
-                .then(data => {
-                    output.textContent += data;
+            try {
+                cockpit.spawn(["/usr/local/sbin/update-check.sh"], { superuser: "require" })
+                    .then(data => {
+                        output.textContent += data;
 
-                    let lines = data.split("\n");
-                    let tableData = lines.filter(l => l.includes("|")).join("\n");
+                        let lines = data.split("\n");
+                        let tableData = lines.filter(l => l.includes("|")).join("\n");
 
-                    renderTable(tableData);
+                        renderTable(tableData);
 
-                    if (data.includes("REBOOT_REQUIRED")) {
-                        setStatus("Reboot required", "bad");
-                    } else if (data.includes("UPDATES_AVAILABLE")) {
-                        setStatus("Updates available", "warn");
-                    } else {
-                        setStatus("System up to date", "ok");
-                    }
-                })
-                .catch(err => {
-                    output.textContent += "\nERROR:\n" + err;
-                    setStatus("Error", "bad");
-                })
-                .finally(() => disableButtons(false));
+                        if (data.includes("REBOOT_REQUIRED")) {
+                            setStatus("Reboot required", "bad");
+                        } else if (data.includes("UPDATES_AVAILABLE")) {
+                            setStatus("Updates available", "warn");
+                        } else {
+                            setStatus("System up to date", "ok");
+                        }
+                    })
+                    .catch(err => {
+                        output.textContent += "\nERROR:\n" + (err.message || JSON.stringify(err));
+                        setStatus("Error checking updates", "bad");
+                    })
+                    .finally(() => disableButtons(false));
+            } catch (err) {
+                output.textContent += "\nFATAL ERROR:\n" + (err.message || err);
+                setStatus("Cockpit API error", "bad");
+                disableButtons(false);
+            }
         }
 
         function runUpdate() {
