@@ -134,6 +134,8 @@ REQUIRED_FILES=(
   "validate_users_csv.sh"
   "haas-firewall.service"
   "haas-firewall.timer"
+  "update-check.sh"
+  "update-system.sh"
   "rollback_csv.sh"
   "build-nmap.sh"
   "ssh_port.sh"
