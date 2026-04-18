@@ -149,7 +149,7 @@
             disableButtons(true);
             output.textContent = "Checking for updates...\n";
 
-            cockpit.spawn(["    /usr/local/sbin/update-check.sh"], { superuser: "require" })
+            cockpit.spawn(["/usr/local/sbin/update-check.sh"], { superuser: "require" })
                 .then(data => {
                     output.textContent += data;
 
@@ -207,4 +207,3 @@
 </body>
 
 </html>
-EOF
