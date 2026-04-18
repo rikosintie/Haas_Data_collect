@@ -211,7 +211,7 @@ if [[ ! -d "$COCKPIT_UPDATE_SRC" ]]; then
   exit 1
 fi
 
-for f in manifest.json index.html ; do
+for f in manifest.json index.html update.css update.js; do
   if [[ ! -f "$COCKPIT_UPDATE_SRC/$f" ]]; then
     echo "###########################################################"
     echo "#                                                         #"
