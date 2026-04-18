@@ -77,7 +77,15 @@ fix_var_log_perms() {
         sudo chown root:syslog /var/log
         sudo chmod 755 /var/log
     else
-        echo "[OK] /var/log permissions correct"
+        echo ""
+        echo "############################################################"
+        echo "#                                                          #"
+        echo -e "#     ${CYAN}[*] [OK] /var/log permissions correct...${RESET}   #"
+        echo "#                                                          #"
+        echo "############################################################"
+        echo ""
+        echo ""
+        # echo "[OK] /var/log permissions correct"
     fi
 }
 
@@ -1153,6 +1161,7 @@ echo "#####################################################"
 echo ""
 echo ""
 
+sudo systemctl enable --now cockpit.socket
 sudo systemctl restart cockpit
 
 if [[ -f "$COCKPIT_UPDATE_DST/index.html" ]]; then
@@ -1289,3 +1298,31 @@ echo ""
 echo "Current UFW rules:"
 sudo ufw status numbered | sort -k5
 echo ""
+echo ""
+echo ""
+echo "##################################################"
+echo "#                                               #"
+echo -e "#     ${CYAN}[*] Checking reboot status...${RESET}   #"
+echo "#                                              #"
+echo "################################################"
+echo ""
+echo ""
+if [ -f /var/run/reboot-required ]; then
+  echo ""
+  echo ""
+  echo "###########################################"
+  echo "#                                         #"
+  echo -e "#     ${CYAN}[*] Reboot is required${RESET}   #"
+  echo "#                                         #"
+  echo "###########################################"
+  echo ""
+else
+  echo ""
+  echo ""
+  echo "###########################################"
+  echo "#                                         #"
+  echo -e "#     ${CYAN}[*] No reboot required${RESET}   #"
+  echo "#                                         #"
+  echo "###########################################"
+  echo ""
+fi
