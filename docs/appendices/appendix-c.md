@@ -1,9 +1,15 @@
-# Appendix C — Threat Model
+#
+
+----------------------------------------------------------------
+
+![screenshot](../appendices/img/tux-threat-model.png)
+
+----------------------------------------------------------------
 
 This threat model describes the security assumptions, expected adversaries, and defensive posture of the Haas Data Collection Appliance.
 It is intended to support penetration testing, vendor risk assessments, and internal security reviews.
 
----
+----------------------------------------------------------------
 
 ## 1. Security Objectives
 
@@ -17,7 +23,7 @@ The appliance is designed to:
 
 The appliance is **not** intended to provide cloud connectivity, Internet remote management, or multi‑tenant operation.
 
----
+----------------------------------------------------------------
 
 ## 2. In‑Scope Threat Actors
 
@@ -40,7 +46,7 @@ Attackers on the same LAN attempting:
 - Cockpit restricted to authorized hosts.
 - The appliance supports using SSH keys instead of username/password for ssh access.
 
----
+----------------------------------------------------------------
 
 ### 2.2. Malicious or Compromised Internal Users
 
@@ -59,7 +65,7 @@ Users with physical or logical access to the shop network attempting:
 - file permissions locked down
 - Cockpit limited to authorized IPs.
 
----
+----------------------------------------------------------------
 
 ### 2.3. Malware on Nearby Windows Systems
 
@@ -81,7 +87,7 @@ Potential threats:
 
 The appliance can be used with no Active Directory accounts. See [There are two trains of thoughts on usernames](../build_pi_5_appliance/configuring_appliance.md/#there-are-two-trains-of-thoughts-on-usernames) for more detail.
 
----
+----------------------------------------------------------------
 
 ### 2.4. Opportunistic Attackers on the Internet
 
@@ -92,7 +98,7 @@ If misconfigured by an MSP, the threat becomes relevant.
 
 - Documented requirement: appliance ***must*** remain on an internal network,firewalled off from the Internet.
 
----
+----------------------------------------------------------------
 
 ## 3. Out‑of‑Scope Threat Actors
 
@@ -107,7 +113,7 @@ These threats are explicitly out of scope for the appliance’s design:
 
 The appliance is not intended to withstand high‑budget, targeted attacks.
 
----
+----------------------------------------------------------------
 
 ## 4. Attack Surface Summary
 
@@ -121,7 +127,7 @@ The appliance exposes only three network services, all restricted by IP:
 
 **No other ports or services are exposed.**
 
----
+----------------------------------------------------------------
 
 ## 5. Key Security Assumptions
 
@@ -136,7 +142,7 @@ The threat model assumes:
 
 If any of these assumptions are violated, the risk profile changes.
 
----
+----------------------------------------------------------------
 
 ## 6. Identified Risks & Mitigations
 
@@ -151,7 +157,7 @@ If any of these assumptions are violated, the risk profile changes.
 - no guest access
 - key‑only SSH optional to prevent `spray and pray`, `brute force` attacks.
 
----
+----------------------------------------------------------------
 
 ### 6.2. Credential Compromise
 
@@ -163,7 +169,7 @@ If any of these assumptions are violated, the risk profile changes.
 - local accounts only
 - Cockpit behind firewall.
 
----
+----------------------------------------------------------------
 
 ### 6.3. Exploitation of Legacy Protocols
 
@@ -177,7 +183,7 @@ If any of these assumptions are violated, the risk profile changes.
 
 See [In Wireshark](../build_pi_5_appliance/create-groups.md/#in-wireshark){target='_blank'} for details.
 
----
+----------------------------------------------------------------
 
 ### 6.4. Lateral Movement
 
@@ -191,7 +197,7 @@ See [In Wireshark](../build_pi_5_appliance/create-groups.md/#in-wireshark){targe
 
 If only local Linux accounts are used there is no risk. See [There are two trains of thoughts on usernames](../build_pi_5_appliance/configuring_appliance.md/#there-are-two-trains-of-thoughts-on-usernames)
 
----
+----------------------------------------------------------------
 
 ### 6.5. Misconfiguration by MSPs
 
@@ -202,7 +208,7 @@ If only local Linux accounts are used there is no risk. See [There are two train
 - Documentation explicitly states internal‑only deployment
 - SMB Shares, Cockpit and SSH reject unauthorized IPs
 
----
+----------------------------------------------------------------
 
 ### 6.6. Ransomware
 
@@ -226,7 +232,7 @@ This is identical to what happens on a Windows file server. Samba is protocol‑
 
 The threat is strictly data‑level, not system‑level.
 
----
+----------------------------------------------------------------
 
 ## 7. Residual Risk
 
@@ -244,7 +250,7 @@ Residual risk increases if:
 
 These risks are documented for MSP awareness. The script `smb_verify.sh` can be run from a remote Linux laptop/server to verify.
 
----
+----------------------------------------------------------------
 
 ## 8. Software Supply Chain Attack
 
@@ -285,7 +291,7 @@ sudo dpkg -r fresh
 
 The risk from this packages is low since the appliance firewalls off all IP addresses that are authorized.
 
----
+----------------------------------------------------------------
 
 ## 9.0 Verification
 
@@ -301,14 +307,14 @@ To use the `smb_verify.py` script you must have `nmap` installed. nmap is The in
 - Linux/WSL - To install `sudo apt install nmap`. See [Linux Distributions](https://nmap.org/book/inst-linux.html)
 - Macos - To install on Mac use brew or download the installer from [The nmap site](https://nmap.org/download.html#macosx)
 
----
+----------------------------------------------------------------
 
 The Python script performs the following:
 
 - Uses nmap to scan for SMB versions
 - Uses nmap to verify that the correct ports are open
 
----
+----------------------------------------------------------------
 
 ### Usage
 
@@ -318,7 +324,7 @@ The Python script performs the following:
 | Unauthorized host         | `python3 smb_verify.py --expected-access=unauthorized`                          |
 | JSON output               | `python3 smb_verify.py --expected-access=unauthorized --json`                   |
 
----
+----------------------------------------------------------------
 
 ### Results
 
@@ -329,7 +335,7 @@ The Python script performs the following:
 | Authorized host can reach required ports              | `[FIREWALL] Firewall allowing access (expected)`                             | PASS  |
 | Authorized host blocked (misconfigured)               | `Authorized host cannot reach required services check Firewall rules`    | FAIL  |
 
----
+----------------------------------------------------------------
 
 ### Examples
 
@@ -354,7 +360,7 @@ Status: active
 [ 8] 445                        ALLOW IN    192.168.10.145             # st30l-user-smb
 ```
 
----
+----------------------------------------------------------------
 
 The following IP addresses have the admin roll so they have ports 22, 445 and 9090 open.:
 
@@ -387,7 +393,7 @@ SMB Grade: PASS
 
 That is perfect. All ports are open and the Samba Server offered only SMBv2 or SMBv3.
 
----
+----------------------------------------------------------------
 
 If we run it with the `--expected-access=unauthorized` flag we will see these outputs:
 
@@ -411,17 +417,17 @@ SMB Grade: WARN
 ==============================================
 ```
 
----
+----------------------------------------------------------------
 
 That is expected since we ran it from an admin ip address. If you run it from a device on the network that isn't authorized as admin and get the first output there is a problem. **Most likely the firewall is disabled** and needs to be re-enabled and possibly reconfigured.
 
----
+----------------------------------------------------------------
 
 #### Run script from ip not listed
 
 In this example we run the script from `192.168.10.142` which isn't authorized to access the appliance as an admin.
 
----
+----------------------------------------------------------------
 
 Run with the `--expected-access=authorized` flag:
 
@@ -445,11 +451,11 @@ SMB Grade: FAIL
 ==============================================
 ```
 
----
+----------------------------------------------------------------
 
 That is exactly what we want to see. Lines 1-2 show that SMB isn't exposed and the firewall blocked the ports.
 
----
+----------------------------------------------------------------
 
 Now let's run it with the `--expected-access=unauthorized` flag.
 
@@ -473,11 +479,11 @@ SMB Grade: PASS
 ==============================================
 ```
 
----
+----------------------------------------------------------------
 
 That is exactly what we want. Lines 1-2 show all ports were blocked and SMB wasn't available. You should run the script from an unauthorized workstation right after deployment and then as often as your security policy requires.
 
----
+----------------------------------------------------------------
 
 ## 10. Conclusion
 
