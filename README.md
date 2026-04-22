@@ -4,13 +4,13 @@
 ![repo size](https://img.shields.io/github/repo-size/rikosintie/Haas_Data_collect)
 ![python](https://img.shields.io/badge/Python-3.x-blue&logo=python)
 ![bash](https://img.shields.io/badge/Shell-Bash-green&logo=gnubash)
-![language](https://img.shields.io/github/languages/top/Yrikosintie/Haas_Data_collect)
+![language](https://img.shields.io/github/languages/top/rikosintie/Haas_Data_collect)
 ![shellcheck](https://img.shields.io/badge/ShellCheck-passing-brightgreen)
 ![os](https://img.shields.io/badge/OS-Ubuntu_24.04-orange&logo=ubuntu)
 ![linux](https://img.shields.io/badge/Linux-systemd-FCC624&logo=linux)
 ![last commit](https://img.shields.io/github/last-commit/rikosintie/Haas_Data_collect)
 [![Commit Activity](https://img.shields.io/github/commit-activity/m/rikosintie/Haas_Data_collect)](https%3A%2F%2Fgithub.com%2Frikosintie%2FHaas_Data_collect)
-[![Works with](https://img.shields.io/badge/Works_with-RPi5_Intel_AMD_PCs-blue)](https://github.com/rikosintie/Haas_Data_collect)
+[![Works with](https://img.shields.io/badge/Works_with-RPi5_Intel%2fAMD_PCs-blue)](https://github.com/rikosintie/Haas_Data_collect)
 
 ----------------------------------------------------------------
 
