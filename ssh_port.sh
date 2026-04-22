@@ -34,9 +34,6 @@ else
     fi
 done
     echo "SSH_PORT set to $port"
-    # Update /etc/ssh/ssd_config
-    # echo "Updating /etc/ssh/sshd_config..."
-    # sudo sed -i "s/^#\?Port.*/Port $port/" /etc/ssh/sshd_config
     # Update /etc/haas-firewall.conf
     echo ""
     echo "Updating /etc/haas-firewall.conf..."
@@ -89,3 +86,56 @@ else
     echo ""
     echo ""
 fi
+echo ""
+echo ""
+echo "#############################################################"
+echo "#                                                           #"
+echo "#     Preparing to run configure_ufw_from_csv.sh            #"
+echo "#     Enter the users file to use (users.csv for ex.)       #"
+echo "#                                                           #"
+echo "#############################################################"
+echo ""
+echo ""
+
+VALIDATOR="/usr/local/sbin/validate_users_csv.sh"
+
+while true; do
+    read -r -p "Enter the CSV filename to use: " csv_file
+
+    # Check file exists
+    if [[ ! -f "$csv_file" ]]; then
+        echo "Error: File '$csv_file' not found."
+        echo ""
+        continue
+    fi
+
+    # Check .csv extension
+    if [[ "${csv_file##*.}" != "csv" ]]; then
+        echo "Error: '$csv_file' does not have a .csv extension."
+        echo ""
+        continue
+    fi
+
+    # Check header matches expected format
+    header=$(head -n 1 "$csv_file")
+    if [[ "$header" != "username,ip_address,role" ]]; then
+        echo "Error: Invalid header. Expected: username,ip_address,role"
+        echo "  Found: $header"
+        echo ""
+        continue
+    fi
+
+    # Run the validator if available
+    if [[ -x "$VALIDATOR" ]]; then
+        if ! "$VALIDATOR" "$csv_file"; then
+            echo "Error: CSV validation failed."
+            echo ""
+            continue
+        fi
+    fi
+
+    # All checks passed — run the firewall configuration
+    echo ""
+    sudo ./configure_ufw_from_csv.sh "$csv_file"
+    break
+done
