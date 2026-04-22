@@ -1,9 +1,10 @@
-# How is the appliance hardened?
+#
 
-----------------------------------------------------------------
 ![screenshot](../appendices/img/tux-harden-appliance.png)
 
 ----------------------------------------------------------------
+
+## How is the appliance hardened
 
 The appliance is built on Ubuntu 24.04 which is a Long Term Support (LTS) version of Ubuntu. Ubuntu 24.04 is well tested in enterprises and the Ubuntu team releases security patches on a regular schedule.
 
@@ -121,7 +122,7 @@ See [Appendix E - SSH Hardening Profile](../appendices/appendix-e.md) for the ss
 ----------------------------------------------------------------
 
 !!! Note
-    The loglevel verbose setting will increase the disk space used for the log. But the appliance shouldn't have users logging in very often. Here is an example message, The value of `verbose` is obvious:
+    The loglevel verbose setting will increase the disk space used for the log. But the appliance shouldn't have users logging in over SSH very often. Here is an example message, The value of `verbose` is obvious:
     ```bash
     Accepted publickey for haas from 192.168.10.143 port 46604 ssh2: ED25519 SHA256:OzzMu5XQjcXeG5Rks2hV2tSZ/jFq8QoPeTJy/w9QkgI
     ```
