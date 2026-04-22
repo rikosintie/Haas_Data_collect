@@ -2,6 +2,12 @@
 
 **This appendix is optional reading!**
 
+----------------------------------------------------------------
+
+![screenshot](../appendices/img/tux-Linux-perms.png)
+
+----------------------------------------------------------------
+
 I included it in case you are coming from Windows and want to understand what the output of commands like `ls -la` mean. This was created 100% by Google Gemini. But I did read every line to make sure there were no **hallucinations** :smiley:
 
 When I was at Cal Poly, the head of the department started a lecture with this:
