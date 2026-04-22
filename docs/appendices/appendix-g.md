@@ -1,5 +1,11 @@
 # Appliance Troubleshooting flowchart
 
+----------------------------------------------------------------
+
+![screenshot](../appendices/img/ts-tux.png)
+
+----------------------------------------------------------------
+
 The following flowchart will assist you in troubleshooting:
 
 - You can't ping the device
