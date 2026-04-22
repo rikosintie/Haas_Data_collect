@@ -414,7 +414,7 @@ Status: active
 
 #### 4. Validate Authentication Method
 
-If password authentication was disabled, confirm SSH key access:
+If password authentication was disabled, confirm SSH key access permissions on the appliance:
 
 ```bash hl_lines='1'
 ls -ld ~/.ssh
@@ -498,6 +498,10 @@ This provides protection during Operating System upgrades because the updater wi
 ----------------------------------------------------------------
 
 ## Securing Samba
+
+![screenshot](../appendices/img/tux-Samba.png)
+
+----------------------------------------------------------------
 
 The appliance has Microsoft `SMBv1` removed and supports `SMBv2/SMBv3`, the Haas CNC controls support `SMBv2` and the Windows desktops that will access the shares should support `SMBv2` since it has been built into Windows since Vista in 2006!
 
