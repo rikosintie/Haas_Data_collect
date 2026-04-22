@@ -10,9 +10,14 @@
 ![linux](https://img.shields.io/badge/Linux-systemd-FCC624&logo=linux)
 ![last commit](https://img.shields.io/github/last-commit/rikosintie/Haas_Data_collect)
 [![Commit Activity](https://img.shields.io/github/commit-activity/m/rikosintie/Haas_Data_collect)](https%3A%2F%2Fgithub.com%2Frikosintie%2FHaas_Data_collect)
-[![Website](https://img.shields.io/badge/Works_with-RPi5/Intel/AMD_PCs)(https://github.com/rikosintie/Haas_Data_collect)
+[![Works with](https://img.shields.io/badge/Works_with-RPi5_Intel_AMD_PCs-blue)](https://github.com/rikosintie/Haas_Data_collect)
+
+----------------------------------------------------------------
+
 [![Website](https://img.shields.io/badge/Blog-Visit-blue)](https://mwhubbard.blogspot.com)
 [![X](https://img.shields.io/twitter/follow/rikosintie?style=social&logo=x)](https://twitter.com/rikosintie)
+
+----------------------------------------------------------------
 
 # Haas_Data_collect
 
