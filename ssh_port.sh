@@ -58,7 +58,7 @@ done
     echo "           Script is now complete!              "
     echo "  The SSH service is configured for port $port     "
     echo "  /etc/haas-firewall.conf is updated with SSH_PORT=$port  "
-    echo "        Use Cockpit to update the Firewall            "
+    echo "         Firewall will be updated next           "
     echo "                                                "
     echo "##########################################################"
     echo ""
