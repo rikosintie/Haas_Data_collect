@@ -1,5 +1,11 @@
 # SSH Hardening Profile
 
+----------------------------------------------------------------
+
+![screenshot](../appendices/img/tux-ssh-harden.png)
+
+----------------------------------------------------------------
+
 This appliance includes a hardened OpenSSH configuration designed for secure, predictable, and low‑surface remote management. The goal is to provide strong defaults that meet modern security expectations while remaining simple for MSPs to operate and audit.
 
 The configuration is applied through `/etc/ssh/sshd_config.d/99-haas-hardening.conf`, allowing the base system to remain untouched while enforcing a clear, vendor‑supported security posture.
