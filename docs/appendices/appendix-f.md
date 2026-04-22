@@ -1,12 +1,10 @@
-# Quick Reference
-
-----------------------------------------------------------------
+#
 
 ![screenshot](../appendices/img/tux-smb-ref.png)
 
 ----------------------------------------------------------------
 
-## SMB Verification Quick‑Reference
+## Cross platform commands
 
 === "Linux"
 
