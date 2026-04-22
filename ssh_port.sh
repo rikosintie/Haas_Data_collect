@@ -35,8 +35,8 @@ else
 done
     echo "SSH_PORT set to $port"
     # Update /etc/ssh/ssd_config
-    echo "Updating /etc/ssh/sshd_config..."
-    sudo sed -i "s/^#\?Port.*/Port $port/" /etc/ssh/sshd_config
+    # echo "Updating /etc/ssh/sshd_config..."
+    # sudo sed -i "s/^#\?Port.*/Port $port/" /etc/ssh/sshd_config
     # Update /etc/haas-firewall.conf
     echo ""
     echo "Updating /etc/haas-firewall.conf..."
