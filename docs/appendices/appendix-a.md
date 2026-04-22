@@ -1,7 +1,8 @@
 # How is the appliance hardened?
 
 ----------------------------------------------------------------
-![screenshot](../appendices/img/tux-hardening.PNG)
+![screenshot](../appendices/img/tux-harden-appliance.png)
+
 ----------------------------------------------------------------
 
 The appliance is built on Ubuntu 24.04 which is a Long Term Support (LTS) version of Ubuntu. Ubuntu 24.04 is well tested in enterprises and the Ubuntu team releases security patches on a regular schedule.
