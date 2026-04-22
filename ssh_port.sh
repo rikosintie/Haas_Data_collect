@@ -139,3 +139,13 @@ while true; do
     sudo ./configure_ufw_from_csv.sh "$csv_file"
     break
 done
+echo ""
+echo ""
+echo "#############################################################"
+echo "#                                                           #"
+echo "#                  Updated firewall rules                   #"
+echo "#                                                           #"
+echo "#############################################################"
+echo ""
+echo ""
+sudo ufw status numbered | sort -k5
