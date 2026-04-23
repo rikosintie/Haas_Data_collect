@@ -8,9 +8,9 @@
 
 **What is a Samba Server?**
 
-A [Samba server](https://www.samba.org/) is an open-source software suite that enables seamless file and printer sharing between Linux/Unix systems and Windows systems. It implements the Server Message Block (SMB) and Common Internet File System (CIFS) protocols, which are standard for Windows-based file sharing. Samba also supports integration with Active Directory (AD) environments, making it a versatile tool for mixed-OS networks.
+A [Samba server](https://www.samba.org/) is an open-source software suite that enables seamless file and printer sharing between Linux/Unix systems and Windows systems. It implements the Microsoft **S**erver **M**essage **B**lock (Windows file sharing) and Microsoft **C**ommon **I**nternet **F**ile **S**ystem (CIFS) protocols, which are standard for Windows-based file sharing. Samba also supports integration with Microsoft Active Directory (AD) environments, making it a versatile tool for mixed-OS networks. SMB is commonly referred to as Samba on a Linux server. Just remember that Samba is the Linux software that creates file shares that Windows can use as mapped drives.
 
-- Active Directory Integration: Samba can act as an Active Directory Domain Controller or a member server, supporting protocols like LDAP and Kerberos.
+- **Active Directory Integration**: Samba can act as an Active Directory Domain Controller or a member server, supporting protocols like LDAP and Kerberos.
 
 !!! Note
     If the appliance isn't added to Active Directory as a member server it will only offer `NTLMv2` authentication to Windows. If your company's security policy doesn't allow NTLMV2, then you must join the appliance to the domain. Microsoft plans to disable `NTLMv2` in 2028 so you will have to Active Directory integrate it then or re-enable NTLMv2 on the desktops connecting to it!
