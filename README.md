@@ -1,6 +1,6 @@
 ![maintained](https://img.shields.io/badge/Maintained-yes-green)
 ![issues](https://img.shields.io/github/issues/rikosintie/Haas_Data_collect)
-![repo size](https://img.shields.io/github/repo-size/rikosintie/Haas_Data_collect)
+![repo size](https://img.shields.io/github/repo-size/rikosintie/Haas_Data_collect?color=green)
 ![bash](https://img.shields.io/badge/Shell-Bash-green&logo=gnubash)
 ![shellcheck](https://img.shields.io/badge/ShellCheck-passing-brightgreen)
 
