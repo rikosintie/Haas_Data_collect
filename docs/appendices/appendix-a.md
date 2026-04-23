@@ -229,13 +229,13 @@ If you are concerned about SSH security, I recommend switching to SSH keys after
 
 ### The ssh_port script
 
-The script must be run with `sudo` since it modifies `/ect/haas-firewall.conf` and /etc/ssh/sshd_config`. Use the following to run the script:
+The script must be run with `sudo` since it modifies `/ect/haas-firewall.conf` and /etc/ssh/sshd_config.d/99-haas-hardening.conf`. Use the following to run the script and set ssh to use port 3333:
 
 ```bash linenums='1' hl_lines='1'
 sudo ./ssh_port.sh
 ```
 
-```bash title='Command Output'
+```bash title='Script Output'
 #############################################
 #                                           #
 #      Configure a custom port for SSH      #
@@ -245,62 +245,84 @@ sudo ./ssh_port.sh
 
 
 Enter the SSH port number (22, 1024-65535): 3333
+```
 
+```bash title='Script Output'
 SSH_PORT set to 3333
-Updating /etc/ssh/sshd_config...
+
 Updating /etc/haas-firewall.conf...
+
+Updating /etc/ssh/sshd_config.d/99-haas-hardening.conf
 
 Restarting SSH Service...
 
-
-Feb 19 14:31:38 haas sshd[47452]: Server listening on 0.0.0.0 port 3333.
-Feb 19 14:31:38 haas sshd[47452]: Server listening on :: port 3333.
+Apr 22 16:40:06 haas sshd[250180]: Server listening on 0.0.0.0 port 3333.
+Apr 22 16:40:06 haas sshd[250180]: Server listening on :: port 3333.
 
 
 ##########################################################
 
-           Script is now complete!
+             Port Update is complete!
   The SSH service is configured for port 3333
   /etc/haas-firewall.conf is updated with SSH_PORT=3333
-        Use Cockpit to update the Firewall
+         Firewall will be updated next
 
 ##########################################################
 ```
 
-### Update the firewall
+----------------------------------------------------------------
 
-The firewall by default is configured to use port 22 for ssh. If you change the port using `sudo ssh_port` then you must run the firewall configuration script to update the port:
+#### Update Firewall rules
 
-```bash linenums='1' hl_lines='1'
-sudo /usr/local/sbin/configure_ufw_from_csv.sh
-```
+```bash title='Script Output'
+#############################################################
+#                                                           #
+#     Preparing to run configure_ufw_from_csv.sh            #
+#     Enter the users file to use (users.csv for ex.)       #
+#                                                           #
+#############################################################
 
-```bash title='Command Output'
+
+Enter the CSV filename to use: users.csv
+[*] Validating CSV: users.csv
+[*] CSV validation PASSED successfully.
+
 [INFO] Using CSV file: /home/haas/Haas_Data_collect/users.csv
 [INFO] Using backup directory: /home/haas/Haas_Data_collect/backups
-2026-02-19 14:36:12 [INFO] Starting UFW configuration from CSV.
-2026-02-19 14:36:12 [INFO] Using CSV file: /home/haas/Haas_Data_collect/users.csv
-2026-02-19 14:36:12 [INFO] Validating CSV...
-[*] Validating CSV: /home/haas/Haas_Data_collect/users.csv
-[*] CSV validation PASSED successfully.
-2026-02-19 14:36:12 [INFO] CSV validation passed.
-2026-02-19 14:36:12 [INFO] CSV backup created at: /home/haas/Haas_Data_collect/backups/users_2026-02-19_14-36-12.csv
-2026-02-19 14:36:12 [INFO] Applying Haas subnet rule: ALLOW 445/tcp FROM 10.10.10.0/24
-Skipping adding existing rule
-2026-02-19 14:36:12 [INFO] ADMIN: haas@192.168.10.143 → 3333, 445, 9090
-Skipping adding existing rule
-Skipping adding existing rule
-Skipping adding existing rule
-2026-02-19 14:36:12 [INFO] USER: toolroom@192.168.10.104 → 445
-Skipping adding existing rule
-2026-02-19 14:36:12 [INFO] ADMIN: msp_admin@192.168.10.113 → 3333, 445, 9090
-Skipping adding existing rule
-Skipping adding existing rule
-Skipping adding existing rule
-2026-02-19 14:36:13 [INFO] USER: thubbard@192.168.10.100 → 445
-Skipping adding existing rule
-2026-02-19 14:36:13 [INFO] Firewall rule application complete.
 ```
+
+----------------------------------------------------------------
+
+#### Updated Firewall rules
+
+```bash title='Script Output'
+#############################################################
+#                                                           #
+#                  Updated firewall rules                   #
+#                                                           #
+#############################################################
+
+     --                         ------      ----
+     To                         Action      From
+Status: active
+[13] 445                        ALLOW IN    192.168.10.141             # st40-user-smb
+[12] 9090                       ALLOW IN    192.168.10.143             # haas-admin-cockpit
+[11] 445                        ALLOW IN    192.168.10.143             # haas-admin-smb
+[10] 3333                       ALLOW IN    192.168.10.143             # haas-admin-ssh
+[15] 445                        ALLOW IN    192.168.10.145             # st30l-user-smb
+[14] 445                        ALLOW IN    192.168.10.147             # st30-user-smb
+[ 3] 9090                       ALLOW IN    192.168.1.100              # test-admin-cockpit
+[ 2] 445                        ALLOW IN    192.168.1.100              # test-admin-smb
+[ 1] 3333                       ALLOW IN    192.168.1.100              # test-admin-ssh
+[ 6] 9090                       ALLOW IN    192.168.10.104             # vf2ss-admin-cockpit
+[ 5] 445                        ALLOW IN    192.168.10.104             # vf2ss-admin-smb
+[ 4] 3333                       ALLOW IN    192.168.10.104             # vf2ss-admin-ssh
+[ 9] 9090                       ALLOW IN    192.168.10.113             # msp_admin-admin-cockpit
+[ 8] 445                        ALLOW IN    192.168.10.113             # msp_admin-admin-smb
+[ 7] 3333                       ALLOW IN    192.168.10.113             # msp_admin-admin-ssh
+```
+
+----------------------------------------------------------------
 
 !!! Note
         I have run this while connected to the appliance over ssh/port 22 and didn't get disconnected. But, it is possible that you will lose connectivity. If that happens reconnect using `ss -p 3333 haas@<ip_address>
