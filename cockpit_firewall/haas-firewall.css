@@ -137,6 +137,16 @@ h1 {
     margin-top: 0.5rem;
 }
 
+.compare-row {
+    align-items: center;
+}
+
+.compare-row input[type="text"] {
+    flex: 1;
+    max-width: 500px;
+    margin-top: 0;
+}
+
 /* Utility spacing */
 .mt-1 {
     margin-top: 0.5rem;

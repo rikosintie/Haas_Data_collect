@@ -48,10 +48,17 @@
         <p>These operations do not make persistent changes to the firewall.</p>
         <div class="button-row">
             <button id="btn-dry-run" class="btn">Simulate Firewall Update (Dry-Run)</button>
-            <button id="btn-compare" class="btn">Compare Current vs Planned Rules</button>
             <button id="btn-show-rules" class="btn">Show Current UFW Rules</button>
             <button id="btn-edit-csv" class="btn">Edit users.csv</button>
             <button id="btn-edit-conf" class="btn">Edit conf file</button>
+        </div>
+        <div class="button-row compare-row">
+            <button id="btn-compare" class="btn">Compare Current vs Planned Rules</button>
+            <input type="text"
+                   id="compare-csv-path"
+                   class="wide"
+                   placeholder="/home/haas/Haas_Data_collect/users.csv"
+                   value="/home/haas/Haas_Data_collect/users.csv">
         </div>
     </div>
 

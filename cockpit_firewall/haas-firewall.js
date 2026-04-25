@@ -202,7 +202,12 @@
         
         // Button 2: Compare
         document.getElementById("btn-compare").addEventListener("click", function() {
-            runCommand(["/usr/local/sbin/configure_ufw_from_csv.sh", "--compare"], "Compare firewall rules");
+            var csvPath = document.getElementById("compare-csv-path").value.trim();
+            if (!csvPath) {
+                output.textContent = "Please enter a CSV file path to compare against.\n";
+                return;
+            }
+            runCommand(["/usr/local/sbin/configure_ufw_from_csv.sh", "--compare", csvPath], "Compare firewall rules against " + csvPath);
         });
         
         // Button 3: Show rules
