@@ -1,0 +1,18 @@
+{
+    "version": 2,
+    "name": "haas-firewall",
+    "label": "Haas Firewall",
+    "icon": "icon.png",
+    "requires": {
+        "cockpit": "*"
+    },
+    "translation": false,
+    "entry": "index",
+    "menu": {
+        "index": {
+            "label": "Firewall Control",
+            "order": 10,
+            "category": "system"
+        }
+    }
+}

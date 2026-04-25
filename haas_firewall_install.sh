@@ -132,7 +132,7 @@ echo ""
 sleep 3
 
 BACKUP_DIR="$REPO_DIR/backups"
-COCKPIT_SRC="$REPO_DIR/cockpit"
+COCKPIT_SRC="$REPO_DIR/cockpit_firewall"
 COCKPIT_UPDATE_SRC="$REPO_DIR/cockpit_updates"
 CSV_PATH="$REPO_DIR/users.csv"
 
@@ -1161,8 +1161,10 @@ echo "#####################################################"
 echo ""
 echo ""
 
+sudo systemctl enable --now cockpit
 sudo systemctl enable --now cockpit.socket
 sudo systemctl restart cockpit
+sudo systemctl restart cockpit.socket
 
 if [[ -f "$COCKPIT_UPDATE_DST/index.html" ]]; then
 
