@@ -239,74 +239,35 @@
         
         // Button 5: Apply firewall changes
         document.getElementById("btn-apply").addEventListener("click", function() {
-            const autoReset = document.getElementById("auto-reset").checked;
             const useCustom = document.getElementById("use-custom-csv").checked;
             const customPath = document.getElementById("custom-csv-path").value.trim();
-            
+
             if (useCustom && !customPath) {
                 output.textContent = "Please enter a custom CSV file path or uncheck the option.\n";
                 return;
             }
-            
-            if (!confirm("This will apply firewall changes. Continue?")) {
+
+            if (!confirm("This will reset and reapply firewall rules. Continue?")) {
                 return;
             }
-            
-            let configCommand;
-            let fileToCheck;
-            
-            if (useCustom) {
-                configCommand = ["/usr/local/sbin/configure_ufw_from_csv.sh", customPath];
-                fileToCheck = customPath;
-            } else {
-                configCommand = ["/usr/local/sbin/configure_ufw_from_csv.sh"];
-                fileToCheck = "/home/mhubbard/test/Haas_Data_collect/users.csv";
-            }
-            
-            // Check if CSV file exists BEFORE resetting firewall
+
+            const configCommand = useCustom
+                ? ["/usr/local/sbin/configure_ufw_from_csv.sh", customPath]
+                : ["/usr/local/sbin/configure_ufw_from_csv.sh"];
+            const fileToCheck = useCustom
+                ? customPath
+                : "/home/haas/Haas_Data_collect/users.csv";
+
             output.textContent = "Validating CSV file path...\n";
-            
+
             cockpit.spawn(["test", "-f", fileToCheck], { err: "out" })
                 .then(function() {
                     output.textContent += "[OK] CSV file found: " + fileToCheck + "\n\n";
-                    
-                    if (autoReset) {
-                        output.textContent += "Step 1: Resetting firewall...\n";
-                        cockpit.spawn(["/bin/bash", "-c", "echo 'y' | ufw reset"], { superuser: "require", err: "out" })
-                            .stream(function(data) {
-                                output.textContent += data;
-                                output.scrollTop = output.scrollHeight;
-                            })
-                            .then(function() {
-                                output.textContent += "\n[SUCCESS] Firewall reset completed.\n";
-                                output.textContent += "\nStep 2: Applying new rules from " + fileToCheck + "...\n";
-                                output.scrollTop = output.scrollHeight;
-                                
-                                cockpit.spawn(configCommand, { superuser: "require", err: "out" })
-                                    .stream(function(data) {
-                                        output.textContent += data;
-                                        output.scrollTop = output.scrollHeight;
-                                    })
-                                    .then(function() {
-                                        output.textContent += "\n[SUCCESS] Firewall configuration completed.\n";
-                                        output.scrollTop = output.scrollHeight;
-                                    })
-                                    .catch(function(error) {
-                                        output.textContent += "\n[ERROR] Failed to apply rules: " + error + "\n";
-                                        output.scrollTop = output.scrollHeight;
-                                    });
-                            })
-                            .catch(function(error) {
-                                output.textContent += "\n[ERROR] Reset failed: " + error + "\n";
-                                output.scrollTop = output.scrollHeight;
-                            });
-                    } else {
-                        runCommand(configCommand, "Apply firewall changes from " + fileToCheck);
-                    }
+                    runCommand(configCommand, "Apply firewall changes from " + fileToCheck);
                 })
                 .catch(function() {
-                    output.textContent += "\n[ERROR] CSV file not found: " + fileToCheck + "\n";
-                    output.textContent += "\nPlease verify the file path and try again.\n";
+                    output.textContent += "[ERROR] CSV file not found: " + fileToCheck + "\n";
+                    output.textContent += "Please verify the file path and try again.\n";
                     output.textContent += "Firewall was NOT modified.\n";
                     output.scrollTop = output.scrollHeight;
                 });
