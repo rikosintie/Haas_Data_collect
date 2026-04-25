@@ -78,6 +78,7 @@ function runUpdate() {
         .done(function() {
             var now = new Date().toLocaleString();
             lastRun.textContent = "Last updated: " + now;
+            localStorage.setItem("haasLastUpdate", now);
             checkUpdates();
         })
         .fail(function(ex, data) {
@@ -95,6 +96,12 @@ function rebootSystem() {
     output.textContent = "Rebooting system...\n";
 
     cockpit.spawn(["reboot"], { superuser: "require" });
+}
+
+// Restore last update time from persistent storage
+var savedTime = localStorage.getItem("haasLastUpdate");
+if (savedTime) {
+    lastRun.textContent = "Last updated: " + savedTime;
 }
 
 // Wire up buttons
