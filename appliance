@@ -1,16 +1,16 @@
-/var/log/auth.log /var/log/ufw.log /var/log/cockpit/*.log /var/log/samba/*.log {
-    daily
-    missingok
-    rotate 30
-    compress
-    delaycompress
-    notifempty
-    create 644 root adm
-    sharedscripts
-    postrotate
-        systemctl reload ssh.service > /dev/null 2>&1 || true
-        systemctl reload ufw.service > /dev/null 2>&1 || true
-        systemctl reload cockpit.service > /dev/null 2>&1 || true
-        systemctl reload smbd.service > /dev/null 2>&1 || true
-    endscript
-}
+/var/log / cockpit/*.log /var/log/samba/*.log {
+      daily
+      missingok
+      rotate 30
+      compress
+      delaycompress
+      notifempty
+      create 644 root adm
+      sharedscripts
+      postrotate
+          systemctl reload ssh.service > /dev/null 2>&1 || true
+          systemctl reload ufw.service > /dev/null 2>&1 || true
+          systemctl reload cockpit.service > /dev/null 2>&1 || true
+          systemctl reload smbd.service > /dev/null 2>&1 || true
+      endscript
+  }
