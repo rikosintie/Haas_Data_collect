@@ -118,22 +118,20 @@ gh_get_asset_url() {
 
     local url=""
 
-    case "$target" in
-        *aarch64*|*arm64*)
-            url=$(echo "$json" | jq -r '
-                .assets[]
-                | select(.name | test("arm64|aarch64|linux-arm"))
-                | .browser_download_url
-            ' | head -n1)
-            ;;
-        *x86_64*)
-            url=$(echo "$json" | jq -r '
-                .assets[]
-                | select(.name | test("x86_64|amd64"))
-                | .browser_download_url
-            ' | head -n1)
-            ;;
-    esac
+    # MUST prioritize Linux builds first
+    if [[ "$target" == *aarch64* || "$target" == *arm64* ]]; then
+        url=$(echo "$json" | jq -r '
+            .assets[]
+            | select(.name | test("linux.*(arm64|aarch64)"))
+            | .browser_download_url
+        ' | head -n1)
+    else
+        url=$(echo "$json" | jq -r '
+            .assets[]
+            | select(.name | test("linux.*(x86_64|amd64)"))
+            | .browser_download_url
+        ' | head -n1)
+    fi
 
     echo "$url"
 }
