@@ -116,28 +116,22 @@ gh_get_asset_url() {
     local json
     json=$(curl -fsSL "https://api.github.com/repos/$repo/releases/latest")
 
-    # Try strict match first
-    local url
-    url=$(echo "$json" | jq -r \
-        ".assets[] | select(.name | test(\"$target\")) | .browser_download_url" \
-        | head -n1)
+    local url=""
 
-    if [[ -n "$url" ]]; then
-        echo "$url"
-        return 0
-    fi
-
-    # Fallback: looser Linux + arch matching
     case "$target" in
-        aarch64-unknown-linux-gnu)
-            url=$(echo "$json" | jq -r \
-                '.assets[] | select(.name | test("linux.*(arm64|aarch64)")) | .browser_download_url' \
-                | head -n1)
+        *aarch64*|*arm64*)
+            url=$(echo "$json" | jq -r '
+                .assets[]
+                | select(.name | test("arm64|aarch64|linux-arm"))
+                | .browser_download_url
+            ' | head -n1)
             ;;
-        x86_64-unknown-linux-gnu)
-            url=$(echo "$json" | jq -r \
-                '.assets[] | select(.name | test("linux.*(amd64|x86_64)")) | .browser_download_url' \
-                | head -n1)
+        *x86_64*)
+            url=$(echo "$json" | jq -r '
+                .assets[]
+                | select(.name | test("x86_64|amd64"))
+                | .browser_download_url
+            ' | head -n1)
             ;;
     esac
 
