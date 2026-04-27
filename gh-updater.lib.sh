@@ -113,10 +113,35 @@ gh_get_asset_url() {
     local repo="$1"
     local target="$2"
 
-    curl -fsSL "https://api.github.com/repos/$repo/releases/latest" \
-        | jq -r \
+    local json
+    json=$(curl -fsSL "https://api.github.com/repos/$repo/releases/latest")
+
+    # Try strict match first
+    local url
+    url=$(echo "$json" | jq -r \
         ".assets[] | select(.name | test(\"$target\")) | .browser_download_url" \
-        | head -n1
+        | head -n1)
+
+    if [[ -n "$url" ]]; then
+        echo "$url"
+        return 0
+    fi
+
+    # Fallback: looser Linux + arch matching
+    case "$target" in
+        aarch64-unknown-linux-gnu)
+            url=$(echo "$json" | jq -r \
+                '.assets[] | select(.name | test("linux.*(arm64|aarch64)")) | .browser_download_url' \
+                | head -n1)
+            ;;
+        x86_64-unknown-linux-gnu)
+            url=$(echo "$json" | jq -r \
+                '.assets[] | select(.name | test("linux.*(amd64|x86_64)")) | .browser_download_url' \
+                | head -n1)
+            ;;
+    esac
+
+    echo "$url"
 }
 
 # =========================
@@ -229,6 +254,9 @@ gh_install_inventory() {
     echo ""
     echo "[INFO] Installing $count tools from $file"
 
+    # 👇 ADD THIS
+    local failures=0
+
     for i in $(seq 0 $((count - 1))); do
         local repo binary version_cmd
 
@@ -239,9 +267,19 @@ gh_install_inventory() {
         echo ""
         echo "[ITEM $((i+1))/$count] $repo ($binary)"
 
-        gh_install "$repo" "$binary" "$version_cmd"
+        # 👇 CHANGE THIS LINE
+        if ! gh_install "$repo" "$binary" "$version_cmd"; then
+            echo "[WARN] Failed: $repo ($binary)"
+            failures=$((failures + 1))
+        fi
     done
 
     echo ""
-    echo "[COMPLETE] Inventory installation finished"
+
+    # 👇 ADD THIS SUMMARY
+    if [[ $failures -gt 0 ]]; then
+        echo "[COMPLETE] Finished with $failures failure(s)"
+    else
+        echo "[COMPLETE] All tools installed successfully"
+    fi
 }
