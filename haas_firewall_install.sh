@@ -18,7 +18,6 @@
 #   - Copies the service files to  /etc/systemd/system/
 #      - haas-firewall.service
 #      - haas-firewall.timer
-#   - Copies appliance to /etc/logrotate.d/
 #      - Changes ownership to chown root:root
 #      - sets permissions to chmod 644
 #     Copies csvlens binary to /usr/local/sbin
@@ -305,12 +304,7 @@ sudo cp "$REPO_DIR/update-check.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/update-system.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/csvlens" /usr/local/sbin/
 sudo cp "$REPO_DIR/ssh_port.sh" /usr/local/sbin
-sudo cp "$REPO_DIR/appliance" /etc/logrotate.d/
 sudo cp "$REPO_DIR/issue.net" /etc/issue.net
-
-# Set permissions for logrotate
-sudo chown root:root /etc/logrotate.d/appliance
-sudo chmod 644 /etc/logrotate.d/appliance
 
 # change the pre-login banner in /etc/ssh/sshd_config to point to /etc/issue.net
 #sudo sed -i 's|^#Banner none|Banner /etc/issue.net|' /etc/ssh/sshd_config
