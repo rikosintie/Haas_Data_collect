@@ -111,27 +111,65 @@ gh_latest_version() {
 # =========================
 gh_get_asset_url() {
     local repo="$1"
-    local target="$2"
-
     local json
     json=$(curl -fsSL "https://api.github.com/repos/$repo/releases/latest")
 
-    local url=""
+    local arch pattern1 pattern2 pattern3
 
-    # MUST prioritize Linux builds first
-    if [[ "$target" == *aarch64* || "$target" == *arm64* ]]; then
-        url=$(echo "$json" | jq -r '
-            .assets[]
-            | select(.name | test("linux.*(arm64|aarch64)"))
-            | .browser_download_url
-        ' | head -n1)
-    else
-        url=$(echo "$json" | jq -r '
-            .assets[]
-            | select(.name | test("linux.*(x86_64|amd64)"))
-            | .browser_download_url
-        ' | head -n1)
+    case "$(uname -m)" in
+        aarch64|arm64)
+            pattern1="aarch64.*linux.*gnu"
+            pattern2="aarch64.*linux.*musl"
+            pattern3="aarch64.*linux"
+            ;;
+        x86_64)
+            pattern1="x86_64.*linux.*gnu"
+            pattern2="x86_64.*linux.*musl"
+            pattern3="x86_64.*linux"
+            ;;
+        *)
+            echo ""
+            return 1
+            ;;
+    esac
+
+    # -----------------------------
+    # PRIORITY 1: gnu build
+    # -----------------------------
+    local url
+    url=$(echo "$json" | jq -r \
+        ".assets[]
+        | select(.name | test(\"$pattern1\"))
+        | .browser_download_url" \
+        | head -n1)
+
+    if [[ -n "$url" ]]; then
+        echo "$url"
+        return 0
     fi
+
+    # -----------------------------
+    # PRIORITY 2: musl build
+    # -----------------------------
+    url=$(echo "$json" | jq -r \
+        ".assets[]
+        | select(.name | test(\"$pattern2\"))
+        | .browser_download_url" \
+        | head -n1)
+
+    if [[ -n "$url" ]]; then
+        echo "$url"
+        return 0
+    fi
+
+    # -----------------------------
+    # PRIORITY 3: any linux build
+    # -----------------------------
+    url=$(echo "$json" | jq -r \
+        ".assets[]
+        | select(.name | test(\"$pattern3\"))
+        | .browser_download_url" \
+        | head -n1)
 
     echo "$url"
 }
