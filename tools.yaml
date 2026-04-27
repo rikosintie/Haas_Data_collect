@@ -1,0 +1,9 @@
+tools:
+  - repo: YS-L/csvlens
+    binary: csvlens
+
+  - repo: bensadeh/tailspin
+    binary: tspin
+
+  - repo: sharkdp/bat
+    binary: bat
