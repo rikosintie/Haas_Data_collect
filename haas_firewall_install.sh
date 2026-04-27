@@ -18,11 +18,9 @@
 #   - Copies the service files to  /etc/systemd/system/
 #      - haas-firewall.service
 #      - haas-firewall.timer
-#      - Changes ownership to chown root:root
-#      - sets permissions to chmod 644
 #     Copies csvlens binary to /usr/local/sbin
-#   - Installs the latest nmap
 #   - Installs systemd firewall service + timer
+#   - Installs the Link Layer Discovery Protocol daemon (lldpd) for network visibility
 #   - Installs Samba server and updates /etc/samba/smb.conf
 #   - Adds the "haas" user to Samba, and creates a "HaasGroup"
 #       sets security and creates the "[Haas]" share
@@ -483,8 +481,10 @@ echo ""
 echo ""
 sleep 3
 
+################################################################################
+
 ########################################
-# Install Nala
+# Install Nala package manager
 ########################################
 echo ""
 echo ""
@@ -523,6 +523,7 @@ else
 fi
 sleep 5
 
+################################################################################
 
 if sudo nala install tree -y; then
     TREE_VERSION=$(tree --version | head -n1 | awk '{print $2}')
@@ -549,6 +550,36 @@ else
     echo ""
     exit 0
 fi
+
+################################################################################
+
+if sudo nala install lldpd -y; then
+    LLDPD_VERSION=$(lldpd -v | head -n1 | awk '{print $1}')
+    sudo nala upgrade -y
+    echo ""
+    echo ""
+    echo "#############################################"
+    echo "#                                           #"
+    echo -e "#     ✅ ${CYAN}LLDPD $LLDPD_VERSION installed...${RESET}           #"
+    echo "#                                           #"
+    echo "#############################################"
+    echo ""
+    echo ""
+    sleep 3
+else
+    echo ""
+    echo ""
+    echo "###########################################################"
+    echo "#                                                         #"
+    echo -e "#   ⚠️ ${YELLOW}Failed to install the lldpd command. Skipping...${RESET}    #"
+    echo "#                                                         #"
+    echo "###########################################################"
+    echo ""
+    echo ""
+    exit 0
+fi
+
+################################################################################
 
 echo ""
 echo ""
