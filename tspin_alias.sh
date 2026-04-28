@@ -13,7 +13,10 @@ alias t-cockpit='sudo journalctl -u cockpit -f | tspin'
 alias t-health='sudo journalctl -u smbd -u ssh -u cockpit -f | tspin'
 alias t-samba='sudo tail -f /var/log/samba/log.smbd | tspin'
 alias t-ssh='sudo tail -f /var/log/auth.log | tspin'
-alias t-ufw='sudo tail -f /var/log/ufw.log | tspin'
+# log for UFW with filtering for multicast traffic
+alias t-ufw='sudo grep -E 'UFW ' /var/log/syslog | grep -Ev 'DST=224\.' | tspin'
+# live log for UFW with filtering for multicast traffic
+alias t-ufwl='sudo tail -f /var/log/syslog | grep -E 'UFW ' | grep -Ev 'DST=224\.' | tspin'
 "
 
 # Check if already added to avoid duplicates, then append
