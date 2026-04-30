@@ -304,5 +304,10 @@ else
   echo ""
   apply_ufw_rules "$CSV_FILE"
 fi
-
+echo ""
+echo "#########################################"
+echo "#           Updated UFW rules           #"
+echo "#########################################"
+echo ""
+sudo ufw status numbered | sort -k5
 exit 0
