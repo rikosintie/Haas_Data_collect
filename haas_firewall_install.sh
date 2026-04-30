@@ -616,62 +616,6 @@ else
     exit 0
 fi
 
-
-echo ""
-echo ""
-echo "#################################################"
-echo "#                                               #"
-echo -e "#      ${CYAN}Installing Fresh CLI Text Editor...${RESET}      #"
-echo "#                                               #"
-echo "#################################################"
-echo ""
-echo ""
-
-# 1. Attempt to get the download URL and install in one safe block
-if ARCH_URL=$(curl -s https://api.github.com/repos/sinelaw/fresh/releases/latest | grep "browser_download_url.*_$(dpkg --print-architecture)\.deb" | cut -d '"' -f 4) && [ -n "$ARCH_URL" ]; then
-
-    if curl -sL "$ARCH_URL" -o fresh-editor.deb && sudo dpkg -i fresh-editor.deb; then
-        echo ""
-        echo ""
-        echo "###########################################################"
-        echo "#                                                         #"
-        echo -e "#         ✅ ${CYAN}Fresh Editor installed successfully.${RESET}         #"
-        echo "#                                                         #"
-        echo "###########################################################"
-        echo ""
-        echo ""
-    else
-        echo ""
-        echo ""
-        echo "##########################################################################"
-        echo "#                                                                        #"
-        echo -e "#  ⚠️ ${YELLOW}Failed to install Fresh Editor .deb package. Continuing script...${RESET}  #"
-        echo "#                                                                        #"
-        echo "##########################################################################"
-        echo ""
-        echo ""
-        exit 0
-    fi
-
-else
-    echo ""
-    echo ""
-    echo "################################################################################################"
-    echo "#                                                                                              #"
-    echo -e" #    ⚠️ ${YELLOW}Could not find a Fresh Editor release for $(dpkg --print-architecture). Skipping...{RESET}    #"
-    echo "#                                                                                              #"
-    echo "################################################################################################"
-    echo ""
-    echo ""
-    exit 0
-fi
-
-# 2. Cleanup (the -f ensures this won't error if the file was never made)
-rm -f fresh-editor.deb
-echo ""
-sleep 3
-# echo [OK] Fresh Editor installation attempted.
-
 ########################################
 # Install micro text editor
 ########################################
