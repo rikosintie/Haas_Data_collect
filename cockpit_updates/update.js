@@ -6,6 +6,7 @@ const lastRun = document.getElementById("lastRun");
 const checkBtn = document.getElementById("checkBtn");
 const updateBtn = document.getElementById("updateBtn");
 const rebootBtn = document.getElementById("rebootBtn");
+const syncToolsBtn = document.getElementById("syncToolsBtn");
 
 function setStatus(text, cls) {
     statusBox.className = "status " + cls;
@@ -16,6 +17,7 @@ function disableButtons(state) {
     checkBtn.disabled = state;
     updateBtn.disabled = state;
     rebootBtn.disabled = state;
+    syncToolsBtn.disabled = state;
 }
 
 function renderTable(data) {
@@ -89,6 +91,28 @@ function runUpdate() {
         });
 }
 
+function syncTools() {
+    disableButtons(true);
+    output.textContent = "Syncing tools from GitHub...\n";
+
+    cockpit.spawn(["/usr/local/sbin/install-tools.sh"], { superuser: "require", err: "message" })
+        .stream(function(data) {
+            output.textContent += data;
+            output.scrollTop = output.scrollHeight;
+        })
+        .done(function() {
+            output.textContent += "\nSync complete.\n";
+            output.scrollTop = output.scrollHeight;
+        })
+        .fail(function(ex, data) {
+            output.textContent += "\nERROR: " + (ex.message || JSON.stringify(ex));
+            if (data) output.textContent += "\n" + data;
+        })
+        .always(function() {
+            disableButtons(false);
+        });
+}
+
 function rebootSystem() {
     if (!confirm("Are you sure you want to reboot the system?")) return;
 
@@ -108,6 +132,7 @@ if (savedTime) {
 checkBtn.addEventListener("click", checkUpdates);
 updateBtn.addEventListener("click", runUpdate);
 rebootBtn.addEventListener("click", rebootSystem);
+syncToolsBtn.addEventListener("click", syncTools);
 
 // Auto check on load
 checkUpdates();
