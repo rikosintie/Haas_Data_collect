@@ -7,3 +7,6 @@ tools:
 
   - repo: sharkdp/bat
     binary: bat
+
+  - repo: sinelaw/fresh
+    binary: fresh
