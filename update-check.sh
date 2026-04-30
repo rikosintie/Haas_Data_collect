@@ -1,16 +1,19 @@
 #!/bin/bash
 
-apt update -qq
+# Suppress all apt update output, including the "N packages can be upgraded" summary
+apt-get update -qq >/dev/null 2>&1
 
-# Simulate upgrade to find packages that would actually install.
-# Unlike 'apt list --upgradable', this excludes deferred/phased packages
-# that apt upgrade will not install.
-INST_LINES=$(apt-get upgrade -s 2>/dev/null | grep "^Inst")
-COUNT=$(echo "$INST_LINES" | grep -c "^Inst" 2>/dev/null || echo 0)
+# Simulate upgrade to determine what would actually be installed.
+# The summary line "N upgraded" is the authoritative count — it respects
+# phased/deferred packages the same way a real apt upgrade does.
+SIMULATE=$(apt-get upgrade -s 2>/dev/null)
 
-if [ "$COUNT" -gt 0 ]; then
-    # Format as package|version for the table display
-    echo "$INST_LINES" | awk '{
+UPGRADED=$(echo "$SIMULATE" | grep -E "^[0-9]+ upgraded" | awk '{print $1}')
+UPGRADED=${UPGRADED:-0}
+
+if [ "$UPGRADED" -gt 0 ]; then
+    # Output package|version lines for the table display
+    echo "$SIMULATE" | grep "^Inst" | awk '{
         pkg = $2
         for (i = 3; i <= NF; i++) {
             if (substr($i, 1, 1) == "(") {
