@@ -14,7 +14,7 @@ This site has blazing fast search. Use the search bar in the top-right to find t
 
 ----------------------------------------------------------------
 
-![screenshot](../docs/img/serach.png)
+![screenshot](img/search.png)
 
 ----------------------------------------------------------------
 
