@@ -100,9 +100,9 @@ function startUfwLive() {
               " | grep --line-buffered -E '" + typeFilter + "'" +
               " | grep --line-buffered -Ev 'DST=224\\.'";
 
+    startLiveLog(["bash", "-c", cmd], label);
     isUfwLive = true;
     setUfwFilterEnabled(true);
-    startLiveLog(["bash", "-c", cmd], label);
 }
 
 function showStaticLog(args, label) {
