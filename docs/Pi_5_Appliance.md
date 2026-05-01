@@ -65,6 +65,8 @@ chmod +x /home/$USER/Haas_Data_collect/setup_user.sh
 
 There is no output from these commands.
 
+----------------------------------------------------------------
+
 !!! Note
     The 2 in 2775 sets the `setgid` bit, basically set group ID, which ensures that all locally created files also inherit the HaasGroup. Without this bit set, files created locally on the Raspberry Pi 5 appliance would get owner and group IDs of the user that created the file. The `setgid` bit is located in the fourth character of the permissions string (the execute position of the group permissions).
 
@@ -111,7 +113,7 @@ You will need to build a list of users that will need to access the shares. In t
 |     Username    | Role and Responsibility                                                                                     |
 |:---------------:|-------------------------------------------------------------------------------------------------------------|
 |     haassvc     | The limited permission account used on the Haas CNC control                                                 |
-|     haassvc2    | An account for the customer to manage the Raspberry Pi 5                                                    |
+|     mspadmin    | An account for the customer to manage the Raspberry Pi 5                                                    |
 | Michael Hubbard | The administrator for the Raspberry Pi 5                                                                    |
 |  Manuel Chavez  | CNC Setup technician. Needs to review the CNC Programs from his Windows desktop and review the spreadsheets |
 | Robert Goodwin  | Operations. Needs access to the `cnc_logs` directory to move files                                          |
@@ -238,80 +240,6 @@ Configuration complete for rgoodwin.
 Verifying user configuration:
 uid=1004(rgoodwin) gid=1005(rgoodwin) groups=1005(rgoodwin),1002(HaasGroup)
 
-```
-
-----------------------------------------------------------------
-Here is the code for the setup_user.sh script:
-
-```bash linenums='1' hl_lines='1'
-#!/bin/bash
-
-# Function to create a new system user with specific configurations (e.g., Samba, group membership)
-# Usage: create_samba_user <username>
-create_samba_user() {
-    # Check if exactly one argument (the username) was provided
-    if [ "$#" -ne 1 ]; then
-        echo "Error: Usage requires exactly one argument: create_samba_user <username>" >&2
-        return 1
-    fi
-
-    local USERNAME="$1"
-    local GROUP_NAME="HaasGroup"
-
-    echo "Attempting to create and configure user: $USERNAME"
-
-    # 1. Create the system user without a home directory and a nologin shell
-    # Error trapping: '|| { ...; return 1; }' stops execution if a command fails
-    sudo useradd -M -s /usr/sbin/nologin "$USERNAME" || {
-        echo "Error creating system user $USERNAME. User may already exist or permissions issue." >&2
-        return 1
-    }
-    echo "System user $USERNAME created."
-
-    # 2. Set the system password (will prompt for a new password interactively)
-    # The user running this script will be prompted by 'passwd' to set the password.
-    sudo passwd "$USERNAME" || {
-        echo "Error setting system password for $USERNAME." >&2
-        return 1
-    }
-
-    # 3. Add user to Samba database and set the Samba password
-    # The user running this script will be prompted by 'smbpasswd' to set the Samba password.
-    sudo smbpasswd -a "$USERNAME" || {
-        echo "Error adding user to Samba database $USERNAME." >&2
-        # Clean up the system user if Samba setup fails
-        sudo userdel "$USERNAME"
-        return 1
-    }
-
-    # 4. Enable the Samba account
-    sudo smbpasswd -e "$USERNAME" || {
-        echo "Error enabling Samba account for $USERNAME." >&2
-        sudo userdel "$USERNAME"
-        return 1
-    }
-
-    # 5. Add the user to the specified group (e.g., HaasGroup)
-    # Note: Ensure 'HaasGroup' exists on your system beforehand.
-    sudo usermod -aG "$GROUP_NAME" "$USERNAME" || {
-        echo "Warning: Failed to add $USERNAME to the group $GROUP_NAME. Proceeding anyway." >&2
-    }
-
-    echo "Configuration complete for $USERNAME."
-
-    # 6. Display the final user ID/group information for verification
-    echo "Verifying user configuration:"
-    id "$USERNAME"
-}
-
-create_samba_user "$@"
-
-# --- Example Usage ---
-# To run this function, save the script (e.g., as setup_user.sh),
-# make it executable (chmod +x setup_user.sh), and run it.
-
-# Example 1: Create user 'jdoe'
-# create_samba_user jdoe
 ```
 
 ----------------------------------------------------------------
