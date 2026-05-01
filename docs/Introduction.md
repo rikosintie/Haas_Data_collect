@@ -45,7 +45,7 @@ Machine2,2025-12-04 11:27:07,“265-4183”,“X2”,251204,112707
 
 ----------------------------------------------------------------
 
-The biggest hurdle to running the script in production is that the computer with the script has to be powered up and logged into. For testing, that isn't a big barrier but for 24/7/365 operations that is a problem. The next section of this guide shows how to [Build a Raspberry Pi 5 appliance](build_pi_5_appliance/build_an_appliance.md) running Ubuntu 24.04.3 that creates a `service` to start the script on boot. No one has to be logged into the appliance for data to be collected. The total cost for an 8GB Raspberry Pi 5 with a 256GB NVME drive, PoE power supply and industrial case is around $200.00. The Raspberry Pi 5 draws around 25W of power so the OpEx cost is minimal.
+The biggest hurdle to running the script in production is that the computer with the script has to be powered up and logged into. For testing, that isn't a big barrier but for 24/7/365 operations that is a problem. The next section of this guide shows how to [Build an appliance](build_pi_5_appliance/build_an_appliance.md) running Ubuntu 24.04 that creates a `service` to start the script on boot. No one has to be logged into the appliance for data to be collected. The total cost for an 8GB Raspberry Pi 5 with a 256GB NVME drive, PoE power supply and industrial case is around $200.00. The Raspberry Pi 5 draws around 25W of power so the OpEx cost is minimal.
 
 The appliance is built from the ground up to be secure. Ubuntu can be configured to automatically download security updates, the firewall is enabled and configured during installation and only ports:
 
@@ -57,7 +57,7 @@ are exposed to just the users that need access. In other words, the appliance is
 
 **Can I use a repurposed PC?**
 
-What about using an out of service Intel/AMD based PC? Yes, the code for the appliance will run on the Raspberry Pi 5 or any Intel/AMD x86 computer. The code would also run on an Intel based Mac that is running Ubuntu 24.04.
+What about using an out of service Intel/AMD based PC? Yes, the code for the appliance will run on the Raspberry Pi 5 or any Intel/AMD x86 computer. The code would also run on an Intel based Mac that is running Ubuntu 24.04. A virtual machine (VM) can also be used if your company uses ESXi, HyperV, KVM or Proxmox.
 
 ----------------------------------------------------------------
 
