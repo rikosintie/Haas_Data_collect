@@ -8,6 +8,16 @@ const updateBtn = document.getElementById("updateBtn");
 const rebootBtn = document.getElementById("rebootBtn");
 const syncToolsBtn = document.getElementById("syncToolsBtn");
 
+const cockpitLogBtn = document.getElementById("cockpitLogBtn");
+const sshLogBtn = document.getElementById("sshLogBtn");
+const sambaLogBtn = document.getElementById("sambaLogBtn");
+const authLogBtn = document.getElementById("authLogBtn");
+const ufwLogBtn = document.getElementById("ufwLogBtn");
+const ufwLiveBtn = document.getElementById("ufwLiveBtn");
+const stopLogBtn = document.getElementById("stopLogBtn");
+
+var liveLogProcess = null;
+
 function setStatus(text, cls) {
     statusBox.className = "status " + cls;
     statusBox.textContent = text;
@@ -18,6 +28,61 @@ function disableButtons(state) {
     updateBtn.disabled = state;
     rebootBtn.disabled = state;
     syncToolsBtn.disabled = state;
+    cockpitLogBtn.disabled = state;
+    sshLogBtn.disabled = state;
+    sambaLogBtn.disabled = state;
+    authLogBtn.disabled = state;
+    ufwLogBtn.disabled = state;
+    ufwLiveBtn.disabled = state;
+    if (state) stopLogBtn.disabled = true;
+}
+
+function stopLiveLog() {
+    if (liveLogProcess) {
+        liveLogProcess.close("terminated");
+        liveLogProcess = null;
+    }
+    stopLogBtn.disabled = true;
+}
+
+function startLiveLog(args, label) {
+    stopLiveLog();
+    output.textContent = "--- " + label + " (live) ---\n";
+    output.scrollTop = 0;
+    stopLogBtn.disabled = false;
+
+    liveLogProcess = cockpit.spawn(args, { superuser: "require", err: "message" })
+        .stream(function(data) {
+            output.textContent += data;
+            output.scrollTop = output.scrollHeight;
+        })
+        .done(function() {
+            output.textContent += "\n[Stream ended]\n";
+            liveLogProcess = null;
+            stopLogBtn.disabled = true;
+        })
+        .fail(function(ex) {
+            if (ex.problem !== "terminated") {
+                output.textContent += "\nERROR: " + (ex.message || JSON.stringify(ex));
+            }
+            liveLogProcess = null;
+            stopLogBtn.disabled = true;
+        });
+}
+
+function showStaticLog(args, label) {
+    stopLiveLog();
+    output.textContent = "--- " + label + " ---\n";
+
+    cockpit.spawn(args, { superuser: "require", err: "message" })
+        .done(function(data) {
+            output.textContent += data || "(no output)";
+            output.scrollTop = output.scrollHeight;
+        })
+        .fail(function(ex, data) {
+            output.textContent += "\nERROR: " + (ex.message || JSON.stringify(ex));
+            if (data) output.textContent += "\n" + data;
+        });
 }
 
 function renderTable(data) {
@@ -128,11 +193,59 @@ if (savedTime) {
     lastRun.textContent = "Last updated: " + savedTime;
 }
 
-// Wire up buttons
+// Wire up system buttons
 checkBtn.addEventListener("click", checkUpdates);
 updateBtn.addEventListener("click", runUpdate);
 rebootBtn.addEventListener("click", rebootSystem);
 syncToolsBtn.addEventListener("click", syncTools);
+
+// Wire up log buttons
+cockpitLogBtn.addEventListener("click", function() {
+    startLiveLog(
+        ["bash", "-c", "journalctl -u cockpit -n 50 -f --no-pager | grep -v 'gnutls_handshake failed'"],
+        "Cockpit Log"
+    );
+});
+
+sshLogBtn.addEventListener("click", function() {
+    startLiveLog(
+        ["journalctl", "-u", "ssh", "-n", "50", "-f", "--no-pager"],
+        "SSH Log"
+    );
+});
+
+sambaLogBtn.addEventListener("click", function() {
+    startLiveLog(
+        ["journalctl", "-u", "smbd", "-n", "50", "-f", "--no-pager"],
+        "Samba Log"
+    );
+});
+
+authLogBtn.addEventListener("click", function() {
+    startLiveLog(
+        ["tail", "-n", "50", "-f", "/var/log/auth.log"],
+        "Auth Log"
+    );
+});
+
+ufwLogBtn.addEventListener("click", function() {
+    showStaticLog(
+        ["bash", "-c", "grep -E 'UFW ' /var/log/syslog | grep -Ev 'DST=224\\.'"],
+        "UFW Log (all, multicast filtered)"
+    );
+});
+
+ufwLiveBtn.addEventListener("click", function() {
+    startLiveLog(
+        ["bash", "-c", "tail -f /var/log/syslog | grep --line-buffered -E 'UFW ' | grep --line-buffered -Ev 'DST=224\\.'"],
+        "UFW Live (multicast filtered)"
+    );
+});
+
+stopLogBtn.addEventListener("click", function() {
+    stopLiveLog();
+    output.textContent += "\n[Stopped]\n";
+});
 
 // Auto check on load
 checkUpdates();
