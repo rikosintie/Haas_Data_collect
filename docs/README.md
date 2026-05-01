@@ -23,7 +23,7 @@ Some suggestions for searching:
 - **cockpit**
 - **firewall**
 - **group**
-- **install**sudo smbstatus --user=haas
+- **install**
 - **Permission**
 - **samba**
 - **share**
