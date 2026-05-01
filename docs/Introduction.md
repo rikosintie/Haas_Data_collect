@@ -1,6 +1,6 @@
 # Introduction to the Haas Data Collect Project
 
-![screenshot](img/Tux-Raspbery-Pi.resized.jpeg)
+![screenshot](img/Tux-Raspbery-Pi3.resized.jpeg)
 
 ----------------------------------------------------------------
 
