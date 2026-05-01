@@ -12,7 +12,6 @@ const cockpitLogBtn = document.getElementById("cockpitLogBtn");
 const sshLogBtn = document.getElementById("sshLogBtn");
 const sambaLogBtn = document.getElementById("sambaLogBtn");
 const authLogBtn = document.getElementById("authLogBtn");
-const ufwLogBtn = document.getElementById("ufwLogBtn");
 const ufwLiveBtn = document.getElementById("ufwLiveBtn");
 const stopLogBtn = document.getElementById("stopLogBtn");
 
@@ -32,7 +31,6 @@ function disableButtons(state) {
     sshLogBtn.disabled = state;
     sambaLogBtn.disabled = state;
     authLogBtn.disabled = state;
-    ufwLogBtn.disabled = state;
     ufwLiveBtn.disabled = state;
     if (state) stopLogBtn.disabled = true;
 }
@@ -228,18 +226,30 @@ authLogBtn.addEventListener("click", function() {
     );
 });
 
-ufwLogBtn.addEventListener("click", function() {
-    showStaticLog(
-        ["bash", "-c", "grep -E 'UFW ' /var/log/syslog | grep -Ev 'DST=224\\.'"],
-        "UFW Log (all, multicast filtered)"
-    );
-});
-
 ufwLiveBtn.addEventListener("click", function() {
-    startLiveLog(
-        ["bash", "-c", "tail -f /var/log/syslog | grep --line-buffered -E 'UFW ' | grep --line-buffered -Ev 'DST=224\\.'"],
-        "UFW Live (multicast filtered)"
-    );
+    var filter = document.querySelector("input[name='ufwFilter']:checked").value;
+    var typeFilter;
+    var label;
+
+    if (filter === "block") {
+        typeFilter = "UFW BLOCK";
+        label = "UFW Live — BLOCK";
+    } else if (filter === "allow") {
+        typeFilter = "UFW ALLOW";
+        label = "UFW Live — ALLOW";
+    } else if (filter === "audit") {
+        typeFilter = "UFW AUDIT";
+        label = "UFW Live — Audit";
+    } else {
+        typeFilter = "UFW ";
+        label = "UFW Live — All";
+    }
+
+    var cmd = "tail -f /var/log/syslog" +
+              " | grep --line-buffered -E '" + typeFilter + "'" +
+              " | grep --line-buffered -Ev 'DST=224\\.'";
+
+    startLiveLog(["bash", "-c", cmd], label);
 });
 
 stopLogBtn.addEventListener("click", function() {

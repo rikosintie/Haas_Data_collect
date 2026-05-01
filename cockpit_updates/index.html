@@ -21,15 +21,20 @@
     <button id="syncToolsBtn">Sync Tools</button>
 
     <hr>
-    <h3>Logs</h3>
+    <h1>Logs</h1>
     <div id="logButtons">
         <button id="cockpitLogBtn">Cockpit</button>
         <button id="sshLogBtn">SSH</button>
         <button id="sambaLogBtn">Samba</button>
         <button id="authLogBtn">Auth</button>
-        <button id="ufwLogBtn">UFW Log</button>
         <button id="ufwLiveBtn">UFW Live</button>
         <button id="stopLogBtn" disabled>Stop</button>
+    </div>
+    <div id="ufwFilter">
+        <label><input type="radio" name="ufwFilter" value="all" checked> All</label>
+        <label><input type="radio" name="ufwFilter" value="block"> BLOCK</label>
+        <label><input type="radio" name="ufwFilter" value="allow"> ALLOW</label>
+        <label><input type="radio" name="ufwFilter" value="audit"> Audit</label>
     </div>
 
     <div id="tableContainer"></div>
