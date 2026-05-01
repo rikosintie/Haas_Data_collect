@@ -17,6 +17,7 @@ const stopLogBtn = document.getElementById("stopLogBtn");
 
 var liveLogProcess = null;
 var isUfwLive = false;
+var logSessionId = 0;
 
 function setUfwFilterEnabled(state) {
     document.querySelectorAll("input[name='ufwFilter']").forEach(function(r) {
@@ -42,7 +43,8 @@ function disableButtons(state) {
     if (state) stopLogBtn.disabled = true;
 }
 
-function onLiveLogEnd() {
+function onLiveLogEnd(session) {
+    if (logSessionId !== session) return;
     liveLogProcess = null;
     stopLogBtn.disabled = true;
     isUfwLive = false;
@@ -50,8 +52,9 @@ function onLiveLogEnd() {
 }
 
 function stopLiveLog() {
+    logSessionId++;  // invalidate all callbacks from the previous stream
     if (liveLogProcess) {
-        liveLogProcess.close("terminated");
+        try { liveLogProcess.close("terminated"); } catch(e) { /* ignore */ }
         liveLogProcess = null;
     }
     stopLogBtn.disabled = true;
@@ -60,7 +63,9 @@ function stopLiveLog() {
 }
 
 function startLiveLog(args, label) {
-    stopLiveLog();
+    stopLiveLog();                  // bumps logSessionId, kills old process
+    var mySession = logSessionId;   // capture this stream's session
+
     output.textContent = "--- " + label + " (live) ---\n";
     output.scrollTop = 0;
     stopLogBtn.disabled = false;
@@ -68,20 +73,23 @@ function startLiveLog(args, label) {
     liveLogProcess = cockpit.spawn(args, { superuser: "require", err: "message" });
 
     liveLogProcess.stream(function(data) {
+        if (logSessionId !== mySession) return;  // stale — silently discard
         output.textContent += data;
         output.scrollTop = output.scrollHeight;
     });
 
     liveLogProcess.done(function() {
+        if (logSessionId !== mySession) return;
         output.textContent += "\n[Stream ended]\n";
-        onLiveLogEnd();
+        onLiveLogEnd(mySession);
     });
 
     liveLogProcess.fail(function(ex) {
+        if (logSessionId !== mySession) return;
         if (ex.problem !== "terminated") {
             output.textContent += "\nERROR: " + (ex.message || JSON.stringify(ex));
         }
-        onLiveLogEnd();
+        onLiveLogEnd(mySession);
     });
 }
 
