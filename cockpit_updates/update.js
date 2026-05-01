@@ -87,23 +87,26 @@ function startLiveLog(args, label) {
 
 function startUfwLive() {
     var filter = document.querySelector("input[name='ufwFilter']:checked").value;
-    var typeFilter, label;
+    var grepPattern, label;
 
     if (filter === "block") {
-        typeFilter = "UFW BLOCK"; label = "UFW Live — BLOCK";
+        grepPattern = "UFW BLOCK"; label = "UFW Live — BLOCK";
     } else if (filter === "allow") {
-        typeFilter = "UFW ALLOW"; label = "UFW Live — ALLOW";
+        grepPattern = "UFW ALLOW"; label = "UFW Live — ALLOW";
     } else if (filter === "audit") {
-        typeFilter = "UFW AUDIT"; label = "UFW Live — Audit";
+        grepPattern = "UFW AUDIT"; label = "UFW Live — Audit";
     } else {
-        typeFilter = "UFW "; label = "UFW Live — All";
+        grepPattern = "\\[UFW"; label = "UFW Live — All";
     }
 
-    var cmd = "tail -f /var/log/syslog" +
-              " | grep --line-buffered -E '" + typeFilter + "'" +
-              " | grep --line-buffered -Ev 'DST=224\\.'";
-
-    startLiveLog(["bash", "-c", cmd], label);
+    // Use journalctl --grep instead of tail|grep pipes.
+    // A single process is reliably terminated by .close(); piped
+    // child processes inherited bash's stdout and keep writing
+    // to the channel even after bash is killed.
+    startLiveLog(
+        ["journalctl", "-f", "--no-pager", "--grep=" + grepPattern],
+        label
+    );
     isUfwLive = true;
     setUfwFilterEnabled(true);
 }
@@ -240,7 +243,7 @@ syncToolsBtn.addEventListener("click", syncTools);
 // Wire up log buttons
 cockpitLogBtn.addEventListener("click", function() {
     startLiveLog(
-        ["bash", "-c", "journalctl -u cockpit -n 50 -f --no-pager | grep -v 'gnutls_handshake failed'"],
+        ["journalctl", "-u", "cockpit", "-n", "50", "-f", "--no-pager"],
         "Cockpit Log"
     );
 });
