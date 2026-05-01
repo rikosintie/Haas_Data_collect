@@ -10,12 +10,20 @@ The code for the project can be found at this [Github repository](https://github
 
 ## Finding information quickly
 
-This site has blazing fast search. Use the search bar in the top-right to find topics instantly. Some suggestions for searching:
+This site has blazing fast search. Use the search bar in the top-right to find topics instantly. The slider switches between dark/light mode. But, the images don't update so dark mode an look odd.
+
+----------------------------------------------------------------
+
+![screenshot](../docs/img/serach.png)
+
+----------------------------------------------------------------
+
+Some suggestions for searching:
 
 - **cockpit**
 - **firewall**
 - **group**
-- **install**
+- **install**sudo smbstatus --user=haas
 - **Permission**
 - **samba**
 - **share**
