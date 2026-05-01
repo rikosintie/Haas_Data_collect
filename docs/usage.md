@@ -299,7 +299,7 @@ python haas_logger2.py --port 5052 --name "Machine1"
 
 ## Start up files
 
-If you have several Haas machines and want to collect data from all of them it gets tiresome to type the script command for each machine. I have created two Windows batch files that you can modify or your own use.
+If you have several Haas machines and want to collect data from all of them, it gets tiresome to type the script command for each machine. I have created two Windows batch files that you can modify or your own use.
 
 **This batch file uses the Windows cmd.exe to open a new cmd process for each machine:**
 
