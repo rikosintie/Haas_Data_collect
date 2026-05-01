@@ -65,21 +65,24 @@ function startLiveLog(args, label) {
     output.scrollTop = 0;
     stopLogBtn.disabled = false;
 
-    liveLogProcess = cockpit.spawn(args, { superuser: "require", err: "message" })
-        .stream(function(data) {
-            output.textContent += data;
-            output.scrollTop = output.scrollHeight;
-        })
-        .done(function() {
-            output.textContent += "\n[Stream ended]\n";
-            onLiveLogEnd();
-        })
-        .fail(function(ex) {
-            if (ex.problem !== "terminated") {
-                output.textContent += "\nERROR: " + (ex.message || JSON.stringify(ex));
-            }
-            onLiveLogEnd();
-        });
+    liveLogProcess = cockpit.spawn(args, { superuser: "require", err: "message" });
+
+    liveLogProcess.stream(function(data) {
+        output.textContent += data;
+        output.scrollTop = output.scrollHeight;
+    });
+
+    liveLogProcess.done(function() {
+        output.textContent += "\n[Stream ended]\n";
+        onLiveLogEnd();
+    });
+
+    liveLogProcess.fail(function(ex) {
+        if (ex.problem !== "terminated") {
+            output.textContent += "\nERROR: " + (ex.message || JSON.stringify(ex));
+        }
+        onLiveLogEnd();
+    });
 }
 
 function startUfwLive() {
