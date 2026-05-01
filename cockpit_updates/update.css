@@ -79,14 +79,29 @@ hr {
 }
 
 #ufwFilter {
-    display: flex;
+    display: inline-flex;
     gap: 20px;
     margin-top: 10px;
+    padding: 6px 14px 10px 14px;
+    border: 2px solid black;
+    border-radius: 4px;
     font-size: 14px;
+}
+
+#ufwFilter legend {
+    padding: 0 6px;
+    font-weight: bold;
+    font-size: 13px;
 }
 
 #ufwFilter label {
     cursor: pointer;
+}
+
+#ufwFilter input:disabled + span,
+#ufwFilter label:has(input:disabled) {
+    opacity: 0.4;
+    cursor: not-allowed;
 }
 
 pre {

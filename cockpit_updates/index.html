@@ -30,12 +30,13 @@
         <button id="ufwLiveBtn">UFW Live</button>
         <button id="stopLogBtn" disabled>Stop</button>
     </div>
-    <div id="ufwFilter">
-        <label><input type="radio" name="ufwFilter" value="all" checked> All</label>
-        <label><input type="radio" name="ufwFilter" value="block"> BLOCK</label>
-        <label><input type="radio" name="ufwFilter" value="allow"> ALLOW</label>
-        <label><input type="radio" name="ufwFilter" value="audit"> Audit</label>
-    </div>
+    <fieldset id="ufwFilter">
+        <legend>Filter Firewall Log</legend>
+        <label><input type="radio" name="ufwFilter" value="all" checked disabled> All</label>
+        <label><input type="radio" name="ufwFilter" value="block" disabled> BLOCK</label>
+        <label><input type="radio" name="ufwFilter" value="allow" disabled> ALLOW</label>
+        <label><input type="radio" name="ufwFilter" value="audit" disabled> Audit</label>
+    </fieldset>
 
     <div id="tableContainer"></div>
 

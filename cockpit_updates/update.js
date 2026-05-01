@@ -16,6 +16,13 @@ const ufwLiveBtn = document.getElementById("ufwLiveBtn");
 const stopLogBtn = document.getElementById("stopLogBtn");
 
 var liveLogProcess = null;
+var isUfwLive = false;
+
+function setUfwFilterEnabled(state) {
+    document.querySelectorAll("input[name='ufwFilter']").forEach(function(r) {
+        r.disabled = !state;
+    });
+}
 
 function setStatus(text, cls) {
     statusBox.className = "status " + cls;
@@ -35,12 +42,21 @@ function disableButtons(state) {
     if (state) stopLogBtn.disabled = true;
 }
 
+function onLiveLogEnd() {
+    liveLogProcess = null;
+    stopLogBtn.disabled = true;
+    isUfwLive = false;
+    setUfwFilterEnabled(false);
+}
+
 function stopLiveLog() {
     if (liveLogProcess) {
         liveLogProcess.close("terminated");
         liveLogProcess = null;
     }
     stopLogBtn.disabled = true;
+    isUfwLive = false;
+    setUfwFilterEnabled(false);
 }
 
 function startLiveLog(args, label) {
@@ -56,16 +72,37 @@ function startLiveLog(args, label) {
         })
         .done(function() {
             output.textContent += "\n[Stream ended]\n";
-            liveLogProcess = null;
-            stopLogBtn.disabled = true;
+            onLiveLogEnd();
         })
         .fail(function(ex) {
             if (ex.problem !== "terminated") {
                 output.textContent += "\nERROR: " + (ex.message || JSON.stringify(ex));
             }
-            liveLogProcess = null;
-            stopLogBtn.disabled = true;
+            onLiveLogEnd();
         });
+}
+
+function startUfwLive() {
+    var filter = document.querySelector("input[name='ufwFilter']:checked").value;
+    var typeFilter, label;
+
+    if (filter === "block") {
+        typeFilter = "UFW BLOCK"; label = "UFW Live — BLOCK";
+    } else if (filter === "allow") {
+        typeFilter = "UFW ALLOW"; label = "UFW Live — ALLOW";
+    } else if (filter === "audit") {
+        typeFilter = "UFW AUDIT"; label = "UFW Live — Audit";
+    } else {
+        typeFilter = "UFW "; label = "UFW Live — All";
+    }
+
+    var cmd = "tail -f /var/log/syslog" +
+              " | grep --line-buffered -E '" + typeFilter + "'" +
+              " | grep --line-buffered -Ev 'DST=224\\.'";
+
+    isUfwLive = true;
+    setUfwFilterEnabled(true);
+    startLiveLog(["bash", "-c", cmd], label);
 }
 
 function showStaticLog(args, label) {
@@ -226,30 +263,15 @@ authLogBtn.addEventListener("click", function() {
     );
 });
 
-ufwLiveBtn.addEventListener("click", function() {
-    var filter = document.querySelector("input[name='ufwFilter']:checked").value;
-    var typeFilter;
-    var label;
+ufwLiveBtn.addEventListener("click", startUfwLive);
 
-    if (filter === "block") {
-        typeFilter = "UFW BLOCK";
-        label = "UFW Live — BLOCK";
-    } else if (filter === "allow") {
-        typeFilter = "UFW ALLOW";
-        label = "UFW Live — ALLOW";
-    } else if (filter === "audit") {
-        typeFilter = "UFW AUDIT";
-        label = "UFW Live — Audit";
-    } else {
-        typeFilter = "UFW ";
-        label = "UFW Live — All";
-    }
-
-    var cmd = "tail -f /var/log/syslog" +
-              " | grep --line-buffered -E '" + typeFilter + "'" +
-              " | grep --line-buffered -Ev 'DST=224\\.'";
-
-    startLiveLog(["bash", "-c", cmd], label);
+// Changing the filter while UFW Live is running auto-restarts the stream
+document.querySelectorAll("input[name='ufwFilter']").forEach(function(radio) {
+    radio.addEventListener("change", function() {
+        if (isUfwLive) {
+            startUfwLive();
+        }
+    });
 });
 
 stopLogBtn.addEventListener("click", function() {
