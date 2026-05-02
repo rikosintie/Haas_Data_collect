@@ -1,0 +1,9 @@
+{
+  "version": 0,
+  "tools": {
+    "manage-samba": {
+      "label": "Manage Samba",
+      "path": "index.html"
+    }
+  }
+}
