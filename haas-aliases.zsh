@@ -15,15 +15,17 @@ alias susers='sudo pdbedit -L 2>/dev/null | cut -d: -f1'
 # Display hass services
 alias haasserv='systemctl list-unit-files --type=service | grep haas'
 
-# Tailspin Aliases
+# Tailspin logging Aliases
 alias t-cockpit='sudo journalctl -u cockpit -f | tspin'
 alias t-health='sudo journalctl -u smbd -u ssh -u cockpit -f | tspin'
 alias t-samba='sudo journalctl -u smbd -u -f | tspin'
 alias t-ssh='sudo tail -f /var/log/auth.log | tspin'
+
 # log for UFW with filtering for multicast traffic
-alias t-ufw='journalctl -f --no-pager --grep=BLOCK | grep -Ev 'DST=224\.' | tspin'
-# live log for UFW with filtering for multicast traffic
-alias t-ufwl='(){journalctl -f --no-pager --grep=$1 | grep -Ev 'DST=224\.' | tspin}'
+alias t-ufw='journalctl -f --no-pager | grep -Ev 'DST=224\.' | tspin'
+
+# UFW use BLOCK, ALLOW, or AUDIT to filter
+alias t-ufwf='(){journalctl -f --no-pager --grep=$1 | grep -Ev 'DST=224\.' | tspin}'
 
 #Directory aliases
 alias haas-log='cd /var/log/'
