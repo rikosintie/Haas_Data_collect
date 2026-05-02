@@ -18,12 +18,12 @@ alias haasserv='systemctl list-unit-files --type=service | grep haas'
 # Tailspin Aliases
 alias t-cockpit='sudo journalctl -u cockpit -f | tspin'
 alias t-health='sudo journalctl -u smbd -u ssh -u cockpit -f | tspin'
-alias t-samba='sudo tail -f /var/log/samba/log.smbd | tspin'
+alias t-samba='sudo journalctl -u smbd -u -f | tspin'
 alias t-ssh='sudo tail -f /var/log/auth.log | tspin'
 # log for UFW with filtering for multicast traffic
-alias t-ufw='sudo grep -E 'UFW ' /var/log/syslog | grep -Ev 'DST=224\.' | tspin'
+alias t-ufw='journalctl -f --no-pager --grep=BLOCK | grep -Ev 'DST=224\.' | tspin'
 # live log for UFW with filtering for multicast traffic
-alias t-ufwl='sudo tail -f /var/log/syslog | grep -E 'UFW ' | grep -Ev 'DST=224\.' | tspin'
+alias t-ufwl='journalctl -f --no-pager --grep=$1 | grep -Ev 'DST=224\.' | tspin'
 
 #Directory aliases
 alias haas-log='cd /var/log/'
