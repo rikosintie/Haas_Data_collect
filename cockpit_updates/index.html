@@ -15,19 +15,19 @@
     <div id="status" class="status warn">Checking status...</div>
     <div class="meta" id="lastRun">Last updated: never</div>
 
-    <button id="checkBtn">Check</button>
-    <button id="updateBtn">Install</button>
-    <button id="rebootBtn">Reboot</button>
-    <button id="syncToolsBtn">Sync Tools</button>
+    <button id="checkBtn" title="Check for Ubuntu updates">Check</button>
+    <button id="updateBtn" title="Install updates from Ubuntu (Canonical)">Install</button>
+    <button id="rebootBtn" title="Immediately reboot the appliance">Reboot</button>
+    <button id="syncToolsBtn" title="Install or update 3rd party tools included with the appliance">Sync Tools</button>
 
     <hr>
     <h1>Logs</h1>
     <div id="logButtons">
-        <button id="cockpitLogBtn">Cockpit</button>
-        <button id="sshLogBtn">SSH</button>
-        <button id="sambaLogBtn">Samba</button>
-        <button id="authLogBtn">Auth</button>
-        <button id="ufwLiveBtn">Firewall</button>
+        <button id="cockpitLogBtn" title="Display the live Cockpit log">Cockpit</button>
+        <button id="sshLogBtn" title="Display the live SSH log">SSH</button>
+        <button id="sambaLogBtn" title="Display the live Samba log">Samba</button>
+        <button id="authLogBtn" title="Display the live authentication log">Auth</button>
+        <button id="ufwLiveBtn" title="Display the live UFW firewall log">Firewall</button>
         <button id="stopLogBtn" disabled>Stop</button>
     </div>
     <fieldset id="ufwFilter">
