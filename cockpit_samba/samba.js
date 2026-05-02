@@ -188,7 +188,7 @@ displaySharesByUserBtn.addEventListener("click", function() {
 // ── Display Samba Users ───────────────────────────────────────────────────────
 
 displaySambaUsersBtn.addEventListener("click", function() {
-    runCommand(["pdbedit", "-L", "-v"], "Samba Users (pdbedit)");
+    runCommand(["bash", "-c", "pdbedit -L 2>/dev/null | cut -d: -f1"], "Samba Users");
 });
 
 // ── Display Linux Users ───────────────────────────────────────────────────────
