@@ -294,21 +294,26 @@ echo ""
 # check /var/log permissions and fix if needed (prevents issues with logging from scripts)
 fix_var_log_perms
 
-sudo cp "$REPO_DIR/configure_ufw_from_csv.sh" /usr/local/sbin/
-sudo cp "$REPO_DIR/validate_users_csv.sh" /usr/local/sbin/
-sudo cp "$REPO_DIR/rollback_csv.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/build-nmap.sh" /usr/local/sbin/
-sudo cp "$REPO_DIR/update-check.sh" /usr/local/sbin/
-sudo cp "$REPO_DIR/update-system.sh" /usr/local/sbin/
+sudo cp "$REPO_DIR/configure_ufw_from_csv.sh" /usr/local/sbin/
+sudo cp "$REPO_DIR/gh-updater.lib.sh" /usr/local/sbin/
+sudo cp "$REPO_DIR/install-tools.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/list_shares.sh" /usr/local/sbin
 sudo cp "$REPO_DIR/list_shares_csv.sh" /usr/local/sbin
+sudo cp "$REPO_DIR/rollback_csv.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/ssh_port.sh" /usr/local/sbin
+sudo cp "$REPO_DIR/tools.yaml" /usr/local/sbin/
+sudo cp "$REPO_DIR/tools.yaml" /usr/local/sbin/
+sudo cp "$REPO_DIR/update-check.sh" /usr/local/sbin/
+sudo cp "$REPO_DIR/update-system.sh" /usr/local/sbin/
+sudo cp "$REPO_DIR/validate_users_csv.sh" /usr/local/sbin/
+
+# copy the pre-login banner to /etc/issue.net so it can be referenced in the sshd config.
 sudo cp "$REPO_DIR/issue.net" /etc/issue.net
 
-# change the pre-login banner in /etc/ssh/sshd_config to point to /etc/issue.net
-#sudo sed -i 's|^#Banner none|Banner /etc/issue.net|' /etc/ssh/sshd_config
-# Disable direct root SSH login
-#sudo sed -i 's|^[[:space:]]*#\?PermitRootLogin .*|PermitRootLogin no|' /etc/ssh/sshd_config
+########################################
+# Create custom SSH hardening config
+########################################
 echo ""
 echo ""
 echo "############################################################"
@@ -362,7 +367,6 @@ EOF
 sudo systemctl restart ssh
 
 # Verify the banner setting in sshd_config
-# if [ -f /etc/issue.net ] && grep -q "^Banner" /etc/ssh/sshd_config && sudo sshd -t; then
 if [ -f /etc/issue.net ] && grep -q "^Banner" /etc/ssh/sshd_config.d/99-haas-hardening.conf && sudo sshd -t; then
     echo ""
     echo ""
@@ -407,6 +411,7 @@ sudo chmod +x /usr/local/sbin/update-check.sh
 sudo chmod +x /usr/local/sbin/update-system.sh
 sudo chmod +x /usr/local/sbin/validate_users_csv.sh
 
+# scripts in the Haas_Data_collect repo (not copied to /usr/local/sbin)
 sudo chmod +x "$REPO_DIR/haas_firewall_uninstall.sh"
 sudo chmod +x "$REPO_DIR/lshares.sh"
 sudo chmod +x "$REPO_DIR/manage_users.sh"
@@ -414,7 +419,6 @@ sudo chmod +x "$REPO_DIR/smb_verify.sh"
 sudo chmod +x "$REPO_DIR/ssh_port.sh"
 sudo chmod +x "$REPO_DIR/ssh_validate.sh"
 sudo chmod +x "$REPO_DIR/tspin_alias.sh"
-
 
 
 if [[ ! -x /usr/local/sbin/configure_ufw_from_csv.sh ]]; then
