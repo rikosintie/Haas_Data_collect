@@ -3,7 +3,7 @@
 # This systemd service is responsible for applying the UFW firewall
 # configuration based on the CSV at:
 #
-#   /home/mhubbard/Haas_Data_collect/users.csv
+#   /home/haas/Haas_Data_collect/users.csv
 #
 # It runs the oneshot script:
 #   /usr/local/sbin/configure_ufw_from_csv.sh

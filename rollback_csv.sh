@@ -23,8 +23,8 @@ set -euo pipefail
 # PATH CONFIGURATION
 ########################################
 
-BACKUP_DIR="/home/mhubbard/Haas_Data_collect/backups"
-TARGET_CSV="/home/mhubbard/Haas_Data_collect/users.csv"
+BACKUP_DIR="/home/haas/Haas_Data_collectbackups"
+TARGET_CSV="/home/haas/Haas_Data_collectusers.csv"
 
 ########################################
 # INPUT VALIDATION

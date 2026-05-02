@@ -1,9 +1,9 @@
 (function() {
     const cockpit = window.cockpit;
-    
+
     document.addEventListener("DOMContentLoaded", function() {
         console.log("Page loaded, initializing...");
-        
+
         const output = document.getElementById("output");
         const backupInput = document.getElementById("backup-name");
         const statusIndicator = document.getElementById("status-indicator");
@@ -15,13 +15,13 @@
         const userGroups = document.getElementById("user-groups");
         const userShell = document.getElementById("user-shell");
         const fwToggle = document.getElementById("fw-toggle");
-        
+
         if (!fwToggle) {
             console.error("fw-toggle button not found!");
         } else {
             console.log("fw-toggle button found:", fwToggle);
         }
-        
+
         // Get user information
         cockpit.user().then(function(user) {
             console.log("User object:", user);  // Add this line to see what's in the object
@@ -33,24 +33,24 @@
             console.error("Error getting user info:", error);
             userName.textContent = "Error loading user info";
         });
-        
+
         // Function to update toggle button text based on status indicator
         function updateToggleButton() {
             if (!statusIndicator || !fwToggle) {
                 console.error("updateToggleButton: Missing elements", statusIndicator, fwToggle);
                 return;
             }
-            
+
             const bgColor = window.getComputedStyle(statusIndicator).backgroundColor;
             console.log("updateToggleButton: bgColor =", bgColor);
-            
+
             // Parse RGB values
             const rgbMatch = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
             if (rgbMatch) {
                 const r = parseInt(rgbMatch[1]);
                 const g = parseInt(rgbMatch[2]);
                 const b = parseInt(rgbMatch[3]);
-                
+
                 // Green is around rgb(92, 185, 92) - allow small variance
                 if (r > 80 && r < 100 && g > 175 && g < 195 && b > 80 && b < 100) {
                     // Firewall is enabled
@@ -60,7 +60,7 @@
                     fwToggle.style.color = "white";
                     console.log("Button set to: Disable Firewall (for testing)");
                 }
-                // Red is around rgb(217, 83, 79) 
+                // Red is around rgb(217, 83, 79)
                 else if (r > 200 && r < 230 && g > 70 && g < 100 && b > 70 && b < 100) {
                     // Firewall is disabled
                     fwToggle.textContent = "Enable Firewall";
@@ -77,21 +77,21 @@
                 }
             }
         }
-        
+
         // Toggle button click handler
         fwToggle.addEventListener("click", function() {
             const bgColor = window.getComputedStyle(statusIndicator).backgroundColor;
             const rgbMatch = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-            
+
             if (!rgbMatch) {
                 alert("Cannot toggle firewall - status unknown");
                 return;
             }
-            
+
             const r = parseInt(rgbMatch[1]);
             const g = parseInt(rgbMatch[2]);
             const b = parseInt(rgbMatch[3]);
-            
+
             // Green - firewall is enabled
             if (r > 80 && r < 100 && g > 175 && g < 195 && b > 80 && b < 100) {
                 if (!confirm("WARNING: Disabling the firewall will remove ALL rules!\n\nThe appliance will be vulnerable to attack!\n\nAre you absolutely sure?")) {
@@ -123,13 +123,13 @@
                 alert("Cannot toggle firewall - status unknown");
             }
         });
-        
+
         // Function to update firewall status
         function updateFirewallStatus() {
             cockpit.spawn(["ufw", "status"], { superuser: "require", err: "out" })
                 .then(function(output) {
                     const isActive = output.toLowerCase().includes("status: active");
-                    
+
                     if (isActive) {
                         statusIndicator.style.backgroundColor = "#5cb85c";
                         statusText.textContent = "Firewall: ENABLED";
@@ -139,17 +139,17 @@
                         statusText.textContent = "Firewall: DISABLED";
                         statusDetail.textContent = "Warning: No protection";
                     }
-                    
+
                     // Update toggle button text
                     setTimeout(updateToggleButton, 100);
-                    
+
                     // Get numbered rules
                     return cockpit.spawn(["ufw", "status", "numbered"], { superuser: "require", err: "out" });
                 })
                 .then(function(rulesOutput) {
                     const lines = rulesOutput.split('\n');
                     const ruleLines = lines.filter(line => line.includes('['));
-                    
+
                     if (ruleLines.length > 0) {
                         let formattedRules = "To                         Action      From\n";
                         formattedRules += "--                         ------      ----\n";
@@ -166,20 +166,20 @@
                     activeRules.textContent = "Unable to retrieve rules.";
                 });
         }
-        
+
         // Update status immediately and then every 2 seconds
         updateFirewallStatus();
         setInterval(updateFirewallStatus, 2000);
-        
+
         // Clear output
         document.getElementById("btn-clear").addEventListener("click", function() {
             output.textContent = "Output will appear here...\n";
         });
-        
+
         // Helper to run commands
         function runCommand(args, label) {
             output.textContent = "Running: " + label + "\nCommand: " + args.join(" ") + "\n\n";
-            
+
             cockpit.spawn(args, { superuser: "require", err: "out" })
                 .stream(function(data) {
                     output.textContent += data;
@@ -194,12 +194,12 @@
                     output.scrollTop = output.scrollHeight;
                 });
         }
-        
+
         // Button 1: Dry-run
         document.getElementById("btn-dry-run").addEventListener("click", function() {
             runCommand(["/usr/local/sbin/configure_ufw_from_csv.sh", "--dry-run"], "Dry-run firewall update");
         });
-        
+
         // Button 2: Compare
         document.getElementById("btn-compare").addEventListener("click", function() {
             var csvPath = document.getElementById("compare-csv-path").value.trim();
@@ -209,19 +209,19 @@
             }
             runCommand(["/usr/local/sbin/configure_ufw_from_csv.sh", "--compare", csvPath], "Compare firewall rules against " + csvPath);
         });
-        
+
         // Button 3: Show rules
         document.getElementById("btn-show-rules").addEventListener("click", function() {
             runCommand(["/usr/local/sbin/configure_ufw_from_csv.sh", "--show-rules"], "Show current UFW rules");
         });
-        
+
         // Button 4: Reset firewall
         document.getElementById("btn-reset").addEventListener("click", function() {
             if (!confirm("This will reset ALL firewall rules! Are you sure?")) {
                 return;
             }
             output.textContent = "Resetting firewall...\n";
-            
+
             cockpit.spawn(["/bin/bash", "-c", "echo 'y' | ufw reset"], { superuser: "require", err: "out" })
                 .stream(function(data) {
                     output.textContent += data;
@@ -236,7 +236,7 @@
                     output.scrollTop = output.scrollHeight;
                 });
         });
-        
+
         // Button 5: Apply firewall changes
         document.getElementById("btn-apply").addEventListener("click", function() {
             const useCustom = document.getElementById("use-custom-csv").checked;
@@ -272,36 +272,36 @@
                     output.scrollTop = output.scrollHeight;
                 });
         });
-        
+
         // Button 6: Edit CSV
         document.getElementById("btn-edit-csv").addEventListener("click", function() {
-            const csvPath = "/home/mhubbard/test/Haas_Data_collect/users.csv";
+            const csvPath = "/home/haas/Haas_Data_collect/users.csv";
             output.textContent = "Loading " + csvPath + "...\n";
-            
+
             cockpit.file(csvPath, { superuser: "require" })
                 .read()
                 .then(function(content) {
                     const textarea = document.createElement("textarea");
                     textarea.className = "csv-editor";
                     textarea.value = content;
-                    
+
                     const saveBtn = document.createElement("button");
                     saveBtn.textContent = "Save Changes";
                     saveBtn.className = "btn";
-                    
+
                     const cancelBtn = document.createElement("button");
                     cancelBtn.textContent = "Cancel";
                     cancelBtn.className = "btn";
-                    
+
                     const btnContainer = document.createElement("div");
                     btnContainer.className = "button-row";
                     btnContainer.appendChild(saveBtn);
                     btnContainer.appendChild(cancelBtn);
-                    
+
                     output.innerHTML = "";
                     output.appendChild(textarea);
                     output.appendChild(btnContainer);
-                    
+
                     saveBtn.addEventListener("click", function() {
                         cockpit.file(csvPath, { superuser: "require" })
                             .replace(textarea.value)
@@ -312,7 +312,7 @@
                                 output.textContent = "Error saving file: " + error + "\n";
                             });
                     });
-                    
+
                     cancelBtn.addEventListener("click", function() {
                         output.textContent = "Edit cancelled.\n";
                     });
@@ -321,36 +321,36 @@
                     output.textContent = "Error reading file: " + error + "\n";
                 });
         });
-        
+
         // Button 6b: Edit conf file
         document.getElementById("btn-edit-conf").addEventListener("click", function() {
             const confPath = "/etc/haas-firewall.conf";
             output.textContent = "Loading " + confPath + "...\n";
-            
+
             cockpit.file(confPath, { superuser: "require" })
                 .read()
                 .then(function(content) {
                     const textarea = document.createElement("textarea");
                     textarea.className = "csv-editor";
                     textarea.value = content;
-                    
+
                     const saveBtn = document.createElement("button");
                     saveBtn.textContent = "Save Changes";
                     saveBtn.className = "btn";
-                    
+
                     const cancelBtn = document.createElement("button");
                     cancelBtn.textContent = "Cancel";
                     cancelBtn.className = "btn";
-                    
+
                     const btnContainer = document.createElement("div");
                     btnContainer.className = "button-row";
                     btnContainer.appendChild(saveBtn);
                     btnContainer.appendChild(cancelBtn);
-                    
+
                     output.innerHTML = "";
                     output.appendChild(textarea);
                     output.appendChild(btnContainer);
-                    
+
                     saveBtn.addEventListener("click", function() {
                         cockpit.file(confPath, { superuser: "require" })
                             .replace(textarea.value)
@@ -361,7 +361,7 @@
                                 output.textContent = "Error saving file: " + error + "\n";
                             });
                     });
-                    
+
                     cancelBtn.addEventListener("click", function() {
                         output.textContent = "Edit cancelled.\n";
                     });
@@ -370,7 +370,7 @@
                     output.textContent = "Error reading file: " + error + "\n";
                 });
         });
-        
+
         // Button 7: Rollback
         document.getElementById("btn-rollback").addEventListener("click", function() {
             const backupName = backupInput.value.trim();
@@ -380,7 +380,7 @@
             }
             runCommand(["/usr/local/sbin/rollback_csv.sh", backupName], "Rollback from " + backupName);
         });
-        
+
         console.log("All buttons initialized successfully");
     });
 })();
