@@ -2,10 +2,11 @@ const output             = document.getElementById("output");
 const confEditor         = document.getElementById("confEditor");
 const panelLabel         = document.getElementById("panelLabel");
 
-const editConfBtn          = document.getElementById("editConfBtn");
-const saveRestartBtn       = document.getElementById("saveRestartBtn");
-const displaySharesBtn     = document.getElementById("displaySharesBtn");
-const displaySambaUsersBtn = document.getElementById("displaySambaUsersBtn");
+const editConfBtn           = document.getElementById("editConfBtn");
+const saveRestartBtn        = document.getElementById("saveRestartBtn");
+const displaySharesBtn      = document.getElementById("displaySharesBtn");
+const displaySharesCsvBtn   = document.getElementById("displaySharesCsvBtn");
+const displaySambaUsersBtn  = document.getElementById("displaySambaUsersBtn");
 const displayLinuxUsersBtn = document.getElementById("displayLinuxUsersBtn");
 const clearOutputBtn       = document.getElementById("clearOutputBtn");
 const displaySharesByUserBtn = document.getElementById("displaySharesByUserBtn");
@@ -35,36 +36,39 @@ function showEditorPanel(content) {
 
 // Disable all buttons (used while a command is running)
 function lockAll() {
-    editConfBtn.disabled          = true;
-    saveRestartBtn.disabled       = true;
-    displaySharesBtn.disabled     = true;
-    displaySambaUsersBtn.disabled = true;
-    displayLinuxUsersBtn.disabled = true;
-    clearOutputBtn.disabled       = true;
+    editConfBtn.disabled            = true;
+    saveRestartBtn.disabled         = true;
+    displaySharesBtn.disabled       = true;
+    displaySharesCsvBtn.disabled    = true;
+    displaySambaUsersBtn.disabled   = true;
+    displayLinuxUsersBtn.disabled   = true;
+    clearOutputBtn.disabled         = true;
     displaySharesByUserBtn.disabled = true;
 }
 
 // Normal output mode — all view buttons enabled, Save & Restart disabled
 function unlockNormal() {
     editMode = false;
-    editConfBtn.disabled          = false;
-    saveRestartBtn.disabled       = true;
-    displaySharesBtn.disabled     = false;
-    displaySambaUsersBtn.disabled = false;
-    displayLinuxUsersBtn.disabled = false;
-    clearOutputBtn.disabled       = false;
+    editConfBtn.disabled            = false;
+    saveRestartBtn.disabled         = true;
+    displaySharesBtn.disabled       = false;
+    displaySharesCsvBtn.disabled    = false;
+    displaySambaUsersBtn.disabled   = false;
+    displayLinuxUsersBtn.disabled   = false;
+    clearOutputBtn.disabled         = false;
     displaySharesByUserBtn.disabled = false;
 }
 
 // Edit mode — only Save & Restart and Clear Output active
 function unlockEditMode() {
     editMode = true;
-    editConfBtn.disabled          = true;
-    saveRestartBtn.disabled       = false;
-    displaySharesBtn.disabled     = true;
-    displaySambaUsersBtn.disabled = true;
-    displayLinuxUsersBtn.disabled = true;
-    clearOutputBtn.disabled       = false;   // acts as Cancel
+    editConfBtn.disabled            = true;
+    saveRestartBtn.disabled         = false;
+    displaySharesBtn.disabled       = true;
+    displaySharesCsvBtn.disabled    = true;
+    displaySambaUsersBtn.disabled   = true;
+    displayLinuxUsersBtn.disabled   = true;
+    clearOutputBtn.disabled         = false;   // acts as Cancel
     displaySharesByUserBtn.disabled = true;
 }
 
@@ -159,6 +163,12 @@ saveRestartBtn.addEventListener("click", function() {
 
 displaySharesBtn.addEventListener("click", function() {
     runCommand(["/usr/local/sbin/list_shares.sh"], "Samba Shares");
+});
+
+// ── Display Shares CSV ────────────────────────────────────────────────────────
+
+displaySharesCsvBtn.addEventListener("click", function() {
+    runCommand(["/usr/local/sbin/list_shares_csv.sh"], "Samba Shares (CSV)");
 });
 
 // ── Display Shares by Username ────────────────────────────────────────────────
