@@ -48,6 +48,33 @@ button:disabled {
     cursor: not-allowed;
 }
 
+/* CSS tooltips */
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 100;
+}
+
+[data-tooltip]:hover::after {
+    opacity: 1;
+}
+
 table {
     border-collapse: collapse;
     margin-top: 20px;
