@@ -2,7 +2,7 @@
   "version": 0,
   "tools": {
     "update-appliance": {
-      "label": "Appliance Updates",
+      "label": "Updates - Logs",
       "path": "index.html"
     }
   }
