@@ -131,6 +131,7 @@ sleep 3
 BACKUP_DIR="$REPO_DIR/backups"
 COCKPIT_SRC="$REPO_DIR/cockpit_firewall"
 COCKPIT_UPDATE_SRC="$REPO_DIR/cockpit_updates"
+COCKPIT_SAMBA_SRC="$REPO_DIR/cockpit_samba"
 CSV_PATH="$REPO_DIR/users.csv"
 
 
@@ -285,7 +286,7 @@ echo ""
 echo ""
 echo "############################################################"
 echo "#                                                          #"
-echo -e "#  ${CYAN}[*] Installing firewall scripts into /usr/local/sbin...${RESET} #"
+echo -e "#  ${CYAN}[*] Installing appliance scripts into /usr/local/sbin...${RESET} #"
 echo "#                                                          #"
 echo "############################################################"
 echo ""
@@ -1044,18 +1045,17 @@ sleep 3
 # INSTALL COCKPIT FIREWALL EXTENSION
 ########################################
 
+echo ""
+echo ""
+echo "#########################################################################"
+echo "#                                                                       #"
+echo -e "#  ${CYAN}Installing Cockpit Firewall extension to $COCKPIT_DST...${RESET}  #"
+echo "#                                                                       #"
+echo "#########################################################################"
+echo ""
+echo ""
+
 COCKPIT_DST="/usr/share/cockpit/haas-firewall"
-
-echo ""
-echo ""
-echo "#########################################################################"
-echo "#                                                                       #"
-echo -e "#  ${CYAN}Installing Cockpit extension to $COCKPIT_DST...${RESET}  #"
-echo "#                                                                       #"
-echo "#########################################################################"
-echo ""
-echo ""
-
 sudo mkdir -p "$COCKPIT_DST"
 sudo cp "$COCKPIT_SRC"/* "$COCKPIT_DST"/
 
@@ -1077,7 +1077,7 @@ echo ""
 echo ""
 echo "###########################################################"
 echo "#                                                         #"
-echo -e "#  ${CYAN}✅ Cockpit extension installed and Cockpit restarted.${RESET}  #"
+echo -e "#  ${CYAN}✅ Cockpit Firewall extension installed and Cockpit restarted.${RESET}  #"
 echo "#                                                         #"
 echo "###########################################################"
 echo ""
@@ -1088,13 +1088,14 @@ echo ""
 echo ""
 echo "###########################################################"
 echo "#                                                         #"
-echo -e "#          ${YELLOW} ⚠️ Cockpit extension not installed.{RESET}           #"
+echo -e "#          ${YELLOW} ⚠️ Cockpit Firewall extension not installed.{RESET}           #"
 echo "#                                                         #"
 echo "###########################################################"
 echo ""
 echo ""
 fi
 sleep 3
+
 echo ""
 echo ""
 
@@ -1103,9 +1104,6 @@ echo ""
 # INSTALL COCKPIT UPDATES EXTENSION
 ########################################
 
-COCKPIT_UPDATE_DST="/usr/share/cockpit/update-appliance"
-mkdir -p /usr/share/cockpit/update-appliance
-sudo cp "$COCKPIT_UPDATE_SRC"/* "$COCKPIT_UPDATE_DST"/
 
 echo ""
 echo ""
@@ -1117,6 +1115,7 @@ echo "##########################################################################
 echo ""
 echo ""
 
+COCKPIT_UPDATE_DST="/usr/share/cockpit/update-appliance"
 sudo mkdir -p "$COCKPIT_UPDATE_DST"
 sudo cp "$COCKPIT_UPDATE_SRC"/* "$COCKPIT_UPDATE_DST"/
 
@@ -1160,6 +1159,58 @@ echo ""
 fi
 sleep 3
 
+########################################
+# INSTALL COCKPIT SAMBA EXTENSION
+########################################
+
+echo ""
+echo ""
+echo "###############################################################################"
+echo "#                                                                             #"
+echo -e "#  ${CYAN}Installing Cockpit Samba extension to $COCKPIT_SAMBA_DST...${RESET}        #"
+echo "#                                                                             #"
+echo "###############################################################################"
+echo ""
+echo ""
+
+COCKPIT_SAMBA_DST="/usr/share/cockpit/manage-samba"
+sudo mkdir -p "$COCKPIT_SAMBA_DST"
+sudo cp "$COCKPIT_SAMBA_SRC"/{index.html,samba.js,samba.css,manifest.json} "$COCKPIT_SAMBA_DST"/
+
+echo ""
+echo ""
+echo "#####################################################"
+echo "#                                                   #"
+echo -e "#  ${CYAN}[*] Restarting Cockpit...${RESET}                        #"
+echo "#                                                   #"
+echo "#####################################################"
+echo ""
+echo ""
+
+if [[ -f "$COCKPIT_SAMBA_DST/index.html" ]]; then
+
+echo ""
+echo ""
+echo "###########################################################"
+echo "#                                                         #"
+echo -e "#  ${CYAN}✅ Cockpit extension SAMBA installed and Cockpit restarted.${RESET}  #"
+echo "#                                                         #"
+echo "###########################################################"
+echo ""
+echo ""
+
+else
+echo ""
+echo ""
+echo "#################################################################"
+echo "#                                                               #"
+echo -e "#          ${YELLOW} ⚠️ Cockpit SAMBA extension not installed.{RESET}                 #"
+echo "#                                                               #"
+echo "#################################################################"
+echo ""
+echo ""
+fi
+sleep 3
 
 ########################################
 # ENSURE BACKUP DIRECTORY EXISTS
