@@ -18,7 +18,6 @@
 #   - Copies the service files to  /etc/systemd/system/
 #      - haas-firewall.service
 #      - haas-firewall.timer
-#     Copies csvlens binary to /usr/local/sbin
 #   - Installs systemd firewall service + timer
 #   - Installs the Link Layer Discovery Protocol daemon (lldpd) for network visibility
 #   - Installs Samba server and updates /etc/samba/smb.conf
@@ -301,7 +300,6 @@ sudo cp "$REPO_DIR/rollback_csv.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/build-nmap.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/update-check.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/update-system.sh" /usr/local/sbin/
-sudo cp "$REPO_DIR/csvlens" /usr/local/sbin/
 sudo cp "$REPO_DIR/list_shares.sh" /usr/local/sbin
 sudo cp "$REPO_DIR/list_shares_csv.sh" /usr/local/sbin
 sudo cp "$REPO_DIR/ssh_port.sh" /usr/local/sbin
@@ -399,12 +397,13 @@ sleep 3
 
 sudo chmod +x /usr/local/sbin/build-nmap.sh
 sudo chmod +x /usr/local/sbin/configure_ufw_from_csv.sh
-sudo chmod +x /usr/local/sbin/csvlens
 sudo chmod +x /usr/local/sbin/rollback_csv.sh
 sudo chmod +x /usr/local/sbin/ssh_port.sh
 sudo chmod +x /usr/local/sbin/validate_users_csv.sh
 sudo chmod +x /usr/local/sbin/update-check.sh
 sudo chmod +x /usr/local/sbin/update-system.sh
+sudo chmod +x /usr/local/sbin/list_shares.sh
+sudo chmod +x /usr/local/sbin/list_shares_csv.sh
 sudo chmod +x "$REPO_DIR/lshares.sh"
 sudo chmod +x "$REPO_DIR/manage_users.sh"
 sudo chmod +x "$REPO_DIR/smb_verify.sh"
