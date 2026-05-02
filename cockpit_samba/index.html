@@ -13,12 +13,12 @@
     <h1>Manage Samba</h1>
 
     <div id="actionButtons">
-        <button id="editConfBtn" data-tooltip="Open smb.conf in the editor below">Edit smb.conf</button>
-        <button id="saveRestartBtn" data-tooltip="Save editor changes to smb.conf and restart the Samba service" disabled>Save &amp; Restart</button>
+        <button id="editConfBtn" data-tooltip="Open smb.conf in the editor">Edit smb.conf</button>
+        <button id="saveRestartBtn" data-tooltip="Save changes to smb.conf and restart the Samba service" disabled>Save &amp; Restart</button>
         <button id="displaySharesBtn" data-tooltip="Display the Samba shares from smb.conf">Display Shares</button>
         <button id="displaySambaUsersBtn" data-tooltip="List all users in the Samba database">Samba Users</button>
         <button id="displayLinuxUsersBtn" data-tooltip="Display local user accounts defined in Linux">Linux Users</button>
-        <button id="clearOutputBtn" data-tooltip="Clear the editor and output window">Clear Output</button>
+        <button id="clearOutputBtn" data-tooltip="Clear the output window">Clear Output</button>
     </div>
 
     <div id="userRow">
@@ -26,12 +26,11 @@
         <button id="displaySharesByUserBtn" data-tooltip="Display active Samba sessions for the specified user">Shares by User</button>
     </div>
 
-    <div id="editorSection">
-        <div id="editorLabel">smb.conf — edit below, then click Save &amp; Restart</div>
+    <div id="panelLabel"></div>
+    <div id="panel">
         <textarea id="confEditor" spellcheck="false"></textarea>
+        <pre id="output">Ready.</pre>
     </div>
-
-    <pre id="output">Ready.</pre>
 
     <script src="samba.js"></script>
 

@@ -1,6 +1,6 @@
-const output        = document.getElementById("output");
-const confEditor    = document.getElementById("confEditor");
-const editorSection = document.getElementById("editorSection");
+const output             = document.getElementById("output");
+const confEditor         = document.getElementById("confEditor");
+const panelLabel         = document.getElementById("panelLabel");
 
 const editConfBtn          = document.getElementById("editConfBtn");
 const saveRestartBtn       = document.getElementById("saveRestartBtn");
@@ -13,26 +13,66 @@ const usernameInput        = document.getElementById("usernameInput");
 
 const SMB_CONF = "/etc/samba/smb.conf";
 
-// ── helpers ──────────────────────────────────────────────────────────────────
+var editMode = false;
 
-function setAllDisabled(state) {
-    editConfBtn.disabled          = state;
-    saveRestartBtn.disabled       = state ? true : !editorSection.style.display || editorSection.style.display === "none";
-    displaySharesBtn.disabled     = state;
-    displaySambaUsersBtn.disabled = state;
-    displayLinuxUsersBtn.disabled = state;
-    clearOutputBtn.disabled       = state;
-    displaySharesByUserBtn.disabled = state;
+// ── panel helpers ─────────────────────────────────────────────────────────────
+
+function showOutputPanel(text) {
+    confEditor.style.display = "none";
+    output.style.display = "block";
+    if (text !== undefined) output.textContent = text;
+    panelLabel.textContent = "";
 }
 
-function showOutput(text) {
-    output.className = "";
-    output.textContent = text;
+function showEditorPanel(content) {
+    output.style.display = "none";
+    confEditor.style.display = "block";
+    confEditor.value = content;
+    panelLabel.textContent = "smb.conf — edit below, then click Save & Restart";
 }
+
+// ── button state helpers ──────────────────────────────────────────────────────
+
+// Disable all buttons (used while a command is running)
+function lockAll() {
+    editConfBtn.disabled          = true;
+    saveRestartBtn.disabled       = true;
+    displaySharesBtn.disabled     = true;
+    displaySambaUsersBtn.disabled = true;
+    displayLinuxUsersBtn.disabled = true;
+    clearOutputBtn.disabled       = true;
+    displaySharesByUserBtn.disabled = true;
+}
+
+// Normal output mode — all view buttons enabled, Save & Restart disabled
+function unlockNormal() {
+    editMode = false;
+    editConfBtn.disabled          = false;
+    saveRestartBtn.disabled       = true;
+    displaySharesBtn.disabled     = false;
+    displaySambaUsersBtn.disabled = false;
+    displayLinuxUsersBtn.disabled = false;
+    clearOutputBtn.disabled       = false;
+    displaySharesByUserBtn.disabled = false;
+}
+
+// Edit mode — only Save & Restart and Clear Output active
+function unlockEditMode() {
+    editMode = true;
+    editConfBtn.disabled          = true;
+    saveRestartBtn.disabled       = false;
+    displaySharesBtn.disabled     = true;
+    displaySambaUsersBtn.disabled = true;
+    displayLinuxUsersBtn.disabled = true;
+    clearOutputBtn.disabled       = false;   // acts as Cancel
+    displaySharesByUserBtn.disabled = true;
+}
+
+// ── run a command and show result in the output panel ─────────────────────────
 
 function runCommand(args, label) {
-    setAllDisabled(true);
-    showOutput("Running: " + label + "...\n");
+    lockAll();
+    showOutputPanel("Running: " + label + "...\n");
 
     cockpit.spawn(args, { superuser: "require", err: "message" })
         .done(function(data) {
@@ -43,38 +83,29 @@ function runCommand(args, label) {
             if (data) output.textContent += "\n" + data;
         })
         .always(function() {
-            setAllDisabled(false);
+            unlockNormal();
         });
 }
 
 // ── Edit smb.conf ─────────────────────────────────────────────────────────────
 
 editConfBtn.addEventListener("click", function() {
-    setAllDisabled(true);
-    showOutput("Loading " + SMB_CONF + "...");
+    lockAll();
+    showOutputPanel("Loading " + SMB_CONF + "...");
 
     cockpit.file(SMB_CONF, { superuser: "require" }).read()
         .done(function(content) {
             if (content === null) {
-                showOutput("ERROR: Could not read " + SMB_CONF);
-                setAllDisabled(false);
+                showOutputPanel("ERROR: Could not read " + SMB_CONF);
+                unlockNormal();
                 return;
             }
-            confEditor.value = content;
-            editorSection.style.display = "block";
-            saveRestartBtn.disabled = false;
-            showOutput("smb.conf loaded. Edit above, then click Save & Restart.");
+            showEditorPanel(content);
+            unlockEditMode();
         })
         .fail(function(ex) {
-            showOutput("ERROR reading " + SMB_CONF + ": " + (ex.message || JSON.stringify(ex)));
-        })
-        .always(function() {
-            editConfBtn.disabled          = false;
-            displaySharesBtn.disabled     = false;
-            displaySambaUsersBtn.disabled = false;
-            displayLinuxUsersBtn.disabled = false;
-            clearOutputBtn.disabled       = false;
-            displaySharesByUserBtn.disabled = false;
+            showOutputPanel("ERROR reading " + SMB_CONF + ": " + (ex.message || JSON.stringify(ex)));
+            unlockNormal();
         });
 });
 
@@ -83,12 +114,14 @@ editConfBtn.addEventListener("click", function() {
 saveRestartBtn.addEventListener("click", function() {
     var content = confEditor.value;
     if (!content.trim()) {
-        showOutput("ERROR: Editor is empty — not saving.");
+        output.textContent = "ERROR: Editor is empty — not saving.";
+        showOutputPanel("ERROR: Editor is empty — not saving.");
+        unlockNormal();
         return;
     }
 
-    setAllDisabled(true);
-    showOutput("Saving " + SMB_CONF + "...\n");
+    lockAll();
+    showOutputPanel("Saving " + SMB_CONF + "...\n");
 
     cockpit.file(SMB_CONF, { superuser: "require" }).replace(content)
         .done(function() {
@@ -107,18 +140,18 @@ saveRestartBtn.addEventListener("click", function() {
                             if (data) output.textContent += "\n" + data;
                         })
                         .always(function() {
-                            setAllDisabled(false);
+                            unlockNormal();
                         });
                 })
                 .fail(function(ex, data) {
                     output.textContent += "ERROR restarting smbd: " + (ex.message || JSON.stringify(ex));
                     if (data) output.textContent += "\n" + data;
-                    setAllDisabled(false);
+                    unlockNormal();
                 });
         })
         .fail(function(ex) {
             output.textContent += "ERROR saving file: " + (ex.message || JSON.stringify(ex));
-            setAllDisabled(false);
+            unlockNormal();
         });
 });
 
@@ -133,11 +166,11 @@ displaySharesBtn.addEventListener("click", function() {
 displaySharesByUserBtn.addEventListener("click", function() {
     var username = usernameInput.value.trim();
     if (!username) {
-        showOutput("ERROR: Enter a username first.");
+        showOutputPanel("ERROR: Enter a username first.");
         return;
     }
-    setAllDisabled(true);
-    showOutput("Querying active sessions for: " + username + "...\n");
+    lockAll();
+    showOutputPanel("Querying active sessions for: " + username + "...\n");
 
     cockpit.spawn(["smbstatus", "--user=" + username], { superuser: "require", err: "message" })
         .done(function(data) {
@@ -148,7 +181,7 @@ displaySharesByUserBtn.addEventListener("click", function() {
             if (data) output.textContent += "\n" + data;
         })
         .always(function() {
-            setAllDisabled(false);
+            unlockNormal();
         });
 });
 
@@ -161,16 +194,15 @@ displaySambaUsersBtn.addEventListener("click", function() {
 // ── Display Linux Users ───────────────────────────────────────────────────────
 
 displayLinuxUsersBtn.addEventListener("click", function() {
-    setAllDisabled(true);
-    showOutput("Loading Linux users...\n");
+    lockAll();
+    showOutputPanel("Loading Linux users...\n");
 
-    // getent passwd | awk filters to UID 1000-60000 (local human accounts)
     cockpit.spawn(
         ["bash", "-c", "getent passwd | awk -F: '$3 >= 1000 && $3 < 60000 {printf \"%-20s UID:%-6s GID:%-6s %s\\n\", $1, $3, $4, $6}'"],
         { superuser: "require", err: "message" }
     )
         .done(function(data) {
-            output.textContent = "--- Linux Local User Accounts ---\n\n";
+            output.textContent  = "--- Linux Local User Accounts ---\n\n";
             output.textContent += "Username             UID    GID    Home\n";
             output.textContent += "─────────────────────────────────────────────────────\n";
             output.textContent += (data || "(none found)");
@@ -180,15 +212,13 @@ displayLinuxUsersBtn.addEventListener("click", function() {
             if (data) output.textContent += "\n" + data;
         })
         .always(function() {
-            setAllDisabled(false);
+            unlockNormal();
         });
 });
 
 // ── Clear Output ──────────────────────────────────────────────────────────────
 
 clearOutputBtn.addEventListener("click", function() {
-    confEditor.value = "";
-    editorSection.style.display = "none";
-    saveRestartBtn.disabled = true;
-    showOutput("Ready.");
+    showOutputPanel("Ready.");
+    unlockNormal();
 });
