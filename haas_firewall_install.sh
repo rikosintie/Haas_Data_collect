@@ -397,20 +397,24 @@ sleep 3
 
 sudo chmod +x /usr/local/sbin/build-nmap.sh
 sudo chmod +x /usr/local/sbin/configure_ufw_from_csv.sh
-sudo chmod +x /usr/local/sbin/rollback_csv.sh
-sudo chmod +x /usr/local/sbin/ssh_port.sh
-sudo chmod +x /usr/local/sbin/validate_users_csv.sh
-sudo chmod +x /usr/local/sbin/update-check.sh
-sudo chmod +x /usr/local/sbin/update-system.sh
+sudo chmod +x /usr/local/sbin/gh-updater.lib.sh
+sudo chmod +x /usr/local/sbin/install_tools.sh
 sudo chmod +x /usr/local/sbin/list_shares.sh
 sudo chmod +x /usr/local/sbin/list_shares_csv.sh
+sudo chmod +x /usr/local/sbin/rollback_csv.sh
+sudo chmod +x /usr/local/sbin/ssh_port.sh
+sudo chmod +x /usr/local/sbin/update-check.sh
+sudo chmod +x /usr/local/sbin/update-system.sh
+sudo chmod +x /usr/local/sbin/validate_users_csv.sh
+
+sudo chmod +x "$REPO_DIR/haas_firewall_uninstall.sh"
 sudo chmod +x "$REPO_DIR/lshares.sh"
 sudo chmod +x "$REPO_DIR/manage_users.sh"
 sudo chmod +x "$REPO_DIR/smb_verify.sh"
 sudo chmod +x "$REPO_DIR/ssh_port.sh"
 sudo chmod +x "$REPO_DIR/ssh_validate.sh"
 sudo chmod +x "$REPO_DIR/tspin_alias.sh"
-sudo chmod +x "$REPO_DIR/tspin_setup.sh"
+
 
 
 if [[ ! -x /usr/local/sbin/configure_ufw_from_csv.sh ]]; then
