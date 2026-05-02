@@ -34,7 +34,7 @@ alias haas-firewall='cd /usr/share/cockpit/haas-firewall/'
 alias haas-samba='cd /usr/share/cockpit/manage-samba/'
 alias haas-updates='cd /usr/share/cockpit/update-appliance/'
 alias haas-systemd() {
-    'cd /etc/systemd/system/'
-    'ls -l haas-*.service'
+    cd /etc/systemd/system/
+    ls -l haas-*.service
 }
 alias haas-sshd='cd /etc/ssh/sshd_config.d/'
