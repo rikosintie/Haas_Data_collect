@@ -302,6 +302,8 @@ sudo cp "$REPO_DIR/build-nmap.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/update-check.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/update-system.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/csvlens" /usr/local/sbin/
+sudo cp "$REPO_DIR/list_shares.sh" /usr/local/sbin
+sudo cp "$REPO_DIR/list_shares_csv.sh" /usr/local/sbin
 sudo cp "$REPO_DIR/ssh_port.sh" /usr/local/sbin
 sudo cp "$REPO_DIR/issue.net" /etc/issue.net
 
