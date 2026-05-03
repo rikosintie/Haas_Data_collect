@@ -1,12 +1,6 @@
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
-
 # Path to your Oh My Zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
-# Set name of the theme to load --- if set to "random", it will
-# load a random theme each time Oh My Zsh is loaded, in which case,
-# to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 # ZSH_THEME="robbyrussell"
 ZSH_THEME="duellj"
@@ -55,6 +49,7 @@ fi
 
 # open ~/.zshrc using the default editor specified in $EDITOR
 alias ec="$EDITOR $HOME/.zshrc"
+
 # rerun ~/.zshrc after making changes
 alias sc="exec zsh"
 
@@ -65,45 +60,9 @@ alias sc="exec zsh"
 # plugins, and themes. Aliases can be placed here, though Oh My Zsh
 # users are encouraged to define aliases within a top-level file in
 # the $ZSH_CUSTOM folder, with .zsh extension. Examples:
-# - $ZSH_CUSTOM/aliases.zsh
-# - $ZSH_CUSTOM/macos.zsh
+$ZSH_CUSTOM/haas-aliases.zsh
+# ==== custom aliases are stored in ~/.oh-my-zsh/custom/haas-aliases.zsh  ====
 # For a full list of active aliases, run `alias`.
-#
-
-# "path" shows current path, one element per line.
-# If an argument is supplied, grep for it.
-path() {
-    test -n "$1" && {
-        echo $PATH | perl -p -e "s/:/\n/g;" | grep -i "$1"
-    } || {
-        echo $PATH | perl -p -e "s/:/\n/g;"
-    }
-}
-
-# Create a new directory and enter it
-mkd() {
-    mkdir -p "$@"
-    cd "$@" || exit
-}
-
-# export PATH="$HOME/.cargo/bin:$PATH"
-# [ -f "$HOME/Haas_Data_collect/tspin_alias.sh" ] && source "$HOME/Haas_Data_collect/tspin_alias.sh"
-
-# Display Samaba Shares
-smb-shares() {
-    while IFS= read -r line; do
-        if [[ "$line" ==
-
-\[*\]
-
- ]]; then
-            name="$line"
-        fi
-        if [[ "$line" == *path\ =* ]]; then
-            echo "$name    $line"
-        fi
-    done < /etc/samba/smb.conf
-}
 
 # Must be last line in the .zshrc file
 source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
