@@ -12,8 +12,15 @@
 #   - Installs firewall scripts into /usr/local/sbin
 #        build-nmap.sh
 #        configure_ufw_from_csv.sh
+#        gh-updater.lib.sh
+#        install-tools.sh
+#        list_shares.sh
+#        list_shares_csv.sh
 #        rollback_csv.sh
 #        ssh_port.sh
+#        tools.yaml
+#        update-check.sh
+#        update-system.sh
 #        validate_users_csv.sh
 #   - Copies the service files to  /etc/systemd/system/
 #      - haas-firewall.service
@@ -25,11 +32,11 @@
 #       sets security and creates the "[Haas]" share
 #   - Reads initial_users.csv and creates the Linux/Samba users
 #   - Installs custom Haas_firewall Cockpit extension
+#   - Installs custom updates-logs Cockpit extension
+#   - Installs custom Samba Cockpit extension
 #   - Installs the nala package manager
 #   - Installs the linux tree command
 #   - Installs pip
-#   - Installs the "micro" cli text editor
-#   - Installs the "fresh" cli text editor
 #   - Creates the backup directory in the repo
 #   - Triggers an initial firewall configuration via systemd
 #
@@ -412,6 +419,7 @@ sudo chmod +x /usr/local/sbin/update-system.sh
 sudo chmod +x /usr/local/sbin/validate_users_csv.sh
 
 # scripts in the Haas_Data_collect repo (not copied to /usr/local/sbin)
+sudo chmod +x "$REPO_DIR/setup_zsh.sh"
 sudo chmod +x "$REPO_DIR/haas_firewall_uninstall.sh"
 sudo chmod +x "$REPO_DIR/lshares.sh"
 sudo chmod +x "$REPO_DIR/manage_users.sh"
@@ -1218,6 +1226,40 @@ echo "#                                                               #"
 echo "#################################################################"
 echo ""
 echo ""
+fi
+sleep 3
+
+########################################
+# INSTALL ZSH + OH MY ZSH
+########################################
+
+echo ""
+echo ""
+echo "#######################################################"
+echo "#                                                     #"
+echo -e "#      ${CYAN}Installing zsh + Oh My Zsh for haas user${RESET}      #"
+echo "#                                                     #"
+echo "#######################################################"
+echo ""
+echo ""
+
+if bash "$REPO_DIR/setup_zsh.sh" "$REPO_DIR"; then
+    echo ""
+    echo "###########################################################"
+    echo "#                                                         #"
+    echo -e "#      ✅ ${CYAN}zsh configured successfully for haas user${RESET}      #"
+    echo "#                                                         #"
+    echo "###########################################################"
+    echo ""
+else
+    echo ""
+    echo "###########################################################"
+    echo "#                                                         #"
+    echo -e "#   ⚠️ ${YELLOW}zsh setup failed — bash remains the default shell${RESET}   #"
+    echo -e "#   ${CYAN}Run manually: sudo bash $REPO_DIR/setup_zsh.sh $REPO_DIR${RESET}"
+    echo "#                                                         #"
+    echo "###########################################################"
+    echo ""
 fi
 sleep 3
 
