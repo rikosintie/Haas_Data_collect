@@ -1,7 +1,13 @@
 # Example aliases
+# use an underscore to preface sudo
 alias _='sudo '
+
+# Run tree in human-readable format
 alias treeh='tree -h'
-alias treed='treed -dh'
+
+#Run tree with directories first
+alias treed='tree -dh'
+
 alias cat='batcat'
 # export BAT_THEME="Coldark-Cold"
 export BAT_THEME="zenburn"
@@ -40,3 +46,35 @@ haas-systemd() {
     ls -l haas-*
     }
 alias haas-sshd='cd /etc/ssh/sshd_config.d/'
+
+# "path" shows current path, one element per line.
+# If an argument is supplied, grep for it.
+path() {
+    test -n "$1" && {
+        echo $PATH | perl -p -e "s/:/\n/g;" | grep -i "$1"
+    } || {
+        echo $PATH | perl -p -e "s/:/\n/g;"
+    }
+}
+
+# Create a new directory and enter it
+mkd() {
+    mkdir -p "$@"
+    cd "$@" || exit
+}
+
+# Display Samaba Shares
+smb-shares() {
+    while IFS= read -r line; do
+        if [[ "$line" ==
+
+\[*\]
+
+ ]]; then
+            name="$line"
+        fi
+        if [[ "$line" == *path\ =* ]]; then
+            echo "$name    $line"
+        fi
+    done < /etc/samba/smb.conf
+}
