@@ -10,11 +10,19 @@
         const statusText = document.getElementById("status-text");
         const statusDetail = document.getElementById("status-detail");
         const activeRules = document.getElementById("active-rules");
+        const rulesHeading = document.getElementById("rules-heading");
         const userName = document.getElementById("user-name");
         const userId = document.getElementById("user-id");
         const userGroups = document.getElementById("user-groups");
         const userShell = document.getElementById("user-shell");
         const fwToggle = document.getElementById("fw-toggle");
+        const fwLiveBtn = document.getElementById("fwLiveBtn");
+        const stopLogBtn = document.getElementById("stopLogBtn");
+
+        // Live log state
+        var liveLogProcess = null;
+        var isUfwLive = false;
+        var logSessionId = 0;
 
         if (!fwToggle) {
             console.error("fw-toggle button not found!");
@@ -147,6 +155,9 @@
                     return cockpit.spawn(["ufw", "status", "numbered"], { superuser: "require", err: "out" });
                 })
                 .then(function(rulesOutput) {
+                    // Don't overwrite the live log display
+                    if (isUfwLive) return;
+
                     const lines = rulesOutput.split('\n');
                     const ruleLines = lines.filter(line => line.includes('['));
 
@@ -379,6 +390,104 @@
                 return;
             }
             runCommand(["/usr/local/sbin/rollback_csv.sh", backupName], "Rollback from " + backupName);
+        });
+
+        // ── UFW filter radio helper ────────────────────────────────────────────
+        function setUfwFilterEnabled(state) {
+            document.querySelectorAll("input[name='ufwFilter']").forEach(function(r) {
+                r.disabled = !state;
+            });
+        }
+
+        // ── Stop live log ──────────────────────────────────────────────────────
+        function stopLiveLog() {
+            logSessionId++;
+            if (liveLogProcess) {
+                try { liveLogProcess.close("terminated"); } catch(e) {}
+                liveLogProcess = null;
+            }
+            stopLogBtn.disabled = true;
+            isUfwLive = false;
+            setUfwFilterEnabled(false);
+            rulesHeading.textContent = "Active Firewall Rules";
+            // Refresh the rules now that the log is stopped
+            updateFirewallStatus();
+        }
+
+        // ── Start UFW live log ─────────────────────────────────────────────────
+        function startUfwLive() {
+            var filter = document.querySelector("input[name='ufwFilter']:checked").value;
+            var grepPattern, label;
+
+            if (filter === "block") {
+                grepPattern = "UFW BLOCK"; label = "UFW Live — BLOCK";
+            } else if (filter === "allow") {
+                grepPattern = "UFW ALLOW"; label = "UFW Live — ALLOW";
+            } else if (filter === "audit") {
+                grepPattern = "UFW AUDIT"; label = "UFW Live — Audit";
+            } else {
+                grepPattern = "\\[UFW"; label = "UFW Live — All";
+            }
+
+            // Bump session ID and kill any existing stream
+            logSessionId++;
+            if (liveLogProcess) {
+                try { liveLogProcess.close("terminated"); } catch(e) {}
+                liveLogProcess = null;
+            }
+            var mySession = logSessionId;
+
+            activeRules.textContent = "--- " + label + " (live) ---\n";
+            activeRules.scrollTop = 0;
+            rulesHeading.textContent = "Firewall Log (live)";
+            stopLogBtn.disabled = false;
+            isUfwLive = true;
+            setUfwFilterEnabled(true);
+
+            liveLogProcess = cockpit.spawn(
+                ["journalctl", "-f", "--no-pager", "--grep=" + grepPattern],
+                { superuser: "require", err: "message" }
+            );
+
+            liveLogProcess.stream(function(data) {
+                if (logSessionId !== mySession) return;
+                activeRules.textContent += data;
+                activeRules.scrollTop = activeRules.scrollHeight;
+            });
+
+            liveLogProcess.done(function() {
+                if (logSessionId !== mySession) return;
+                activeRules.textContent += "\n[Stream ended]\n";
+                stopLogBtn.disabled = true;
+                isUfwLive = false;
+                setUfwFilterEnabled(false);
+                rulesHeading.textContent = "Active Firewall Rules";
+            });
+
+            liveLogProcess.fail(function(ex) {
+                if (logSessionId !== mySession) return;
+                if (ex.problem !== "terminated") {
+                    activeRules.textContent += "\nERROR: " + (ex.message || JSON.stringify(ex));
+                }
+                stopLogBtn.disabled = true;
+                isUfwLive = false;
+                setUfwFilterEnabled(false);
+                rulesHeading.textContent = "Active Firewall Rules";
+            });
+        }
+
+        fwLiveBtn.addEventListener("click", startUfwLive);
+
+        stopLogBtn.addEventListener("click", function() {
+            stopLiveLog();
+            activeRules.textContent += "\n[Stopped]\n";
+        });
+
+        // Changing the filter while live auto-restarts the stream
+        document.querySelectorAll("input[name='ufwFilter']").forEach(function(radio) {
+            radio.addEventListener("change", function() {
+                if (isUfwLive) startUfwLive();
+            });
         });
 
         console.log("All buttons initialized successfully");

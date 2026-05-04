@@ -37,8 +37,19 @@
                 </div>
             </div>
         </div>
+        <div class="log-controls">
+            <button id="fwLiveBtn" class="btn">Firewall Log</button>
+            <button id="stopLogBtn" class="btn" disabled>Stop</button>
+        </div>
+        <fieldset id="ufwFilter">
+            <legend>Filter Firewall Log</legend>
+            <label><input type="radio" name="ufwFilter" value="all" checked disabled> All</label>
+            <label><input type="radio" name="ufwFilter" value="block" disabled> BLOCK</label>
+            <label><input type="radio" name="ufwFilter" value="allow" disabled> ALLOW</label>
+            <label><input type="radio" name="ufwFilter" value="audit" disabled> Audit</label>
+        </fieldset>
         <div>
-            <h3 class="rules-heading">Active Firewall Rules</h3>
+            <h3 id="rules-heading" class="rules-heading">Active Firewall Rules</h3>
             <pre id="active-rules" class="active-rules">Loading rules...</pre>
         </div>
     </div>
