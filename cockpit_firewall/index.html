@@ -28,7 +28,7 @@
                 <div id="status-detail" class="status-detail"></div>
             </div>
             <div class="user-info-container">
-                <button id="fw-toggle" class="btn btn-toggle">Checking...</button>
+                <button id="fw-toggle" class="btn btn-toggle" data-tooltip="For security PLEASE re-enable the firewall after troubleshooting">Checking...</button>
                 <div class="user-info">
                     <div><strong>Username:</strong> <span id="user-name">Loading...</span></div>
                     <div><strong>User ID:</strong> <span id="user-id">-</span></div>
@@ -38,8 +38,8 @@
             </div>
         </div>
         <div class="log-controls">
-            <button id="fwLiveBtn" class="btn">Firewall Log</button>
-            <button id="stopLogBtn" class="btn" disabled>Stop</button>
+            <button id="fwLiveBtn" class="btn" data-tooltip="Display the live UFW firewall log">Firewall Log</button>
+            <button id="stopLogBtn" class="btn" disabled data-tooltip="Stop the firewall log output">Stop</button>
         </div>
         <fieldset id="ufwFilter">
             <legend>Filter Firewall Log</legend>
@@ -58,13 +58,13 @@
         <h2>Simulate / Compare</h2>
         <p>These operations do not make persistent changes to the firewall.</p>
         <div class="button-row">
-            <button id="btn-dry-run" class="btn">Simulate Firewall Update (Dry-Run)</button>
-            <button id="btn-show-rules" class="btn">Show Current UFW Rules</button>
-            <button id="btn-edit-csv" class="btn">Edit users.csv</button>
-            <button id="btn-edit-conf" class="btn">Edit conf file</button>
+            <button id="btn-dry-run" class="btn" data-tooltip="Simulate rules from users.csv without making changes">Simulate Firewall Update (Dry-Run)</button>
+            <button id="btn-show-rules" class="btn" data-tooltip="List current rules with descriptions">Show Current UFW Rules</button>
+            <button id="btn-edit-csv" class="btn" data-tooltip="Edit ~/Haas_Data_collect/users.csv">Edit users.csv</button>
+            <button id="btn-edit-conf" class="btn" data-tooltip="Edit /etc/haas-firewall.conf">Edit conf file</button>
         </div>
         <div class="button-row compare-row">
-            <button id="btn-compare" class="btn">Compare Current vs Planned Rules</button>
+            <button id="btn-compare" class="btn" data-tooltip="List rules from new csv file vs current rules">Compare Current vs Planned Rules</button>
             <input type="text"
                    id="compare-csv-path"
                    class="wide"
@@ -103,8 +103,8 @@
         </div>
 
         <div class="button-row">
-            <button id="btn-reset" class="btn btn-warning">Reset Firewall Only</button>
-            <button id="btn-apply" class="btn btn-danger">Apply Firewall Changes</button>
+            <button id="btn-reset" class="btn btn-warning" data-tooltip="Deletes all custom firewall rules">Reset Firewall Only</button>
+            <button id="btn-apply" class="btn btn-danger" data-tooltip="Apply users.csv or a custom csv file to the firewall">Apply Firewall Changes</button>
         </div>
     </div>
 
@@ -117,7 +117,7 @@
         <label for="backup-name">Backup filename (e.g. users_2025-01-13_12-00-00.csv)</label>
         <input type="text" id="backup-name" placeholder="Enter backup filename">
         <div class="button-row mt-1">
-            <button id="btn-rollback" class="btn">Rollback CSV</button>
+            <button id="btn-rollback" class="btn" data-tooltip="Select a csv backup to rollback to">Rollback CSV</button>
         </div>
     </div>
 
