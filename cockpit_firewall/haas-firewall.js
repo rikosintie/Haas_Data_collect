@@ -382,12 +382,10 @@
                 });
         });
 
-        // Button: List Backups
+        // Button: List Backups — populates dropdown only, does not touch the Output box
         document.getElementById("btn-list-backups").addEventListener("click", function() {
             var backupList = document.getElementById("backup-list");
-            output.textContent = "Reading backup directory from /etc/haas-firewall.conf...\n";
 
-            // Parse BACKUP_DIR from the conf file
             cockpit.spawn(
                 ["bash", "-c", "grep -E '^BACKUP_DIR=' /etc/haas-firewall.conf | cut -d'\"' -f2"],
                 { superuser: "require", err: "message" }
@@ -395,10 +393,10 @@
             .then(function(backupDir) {
                 backupDir = backupDir.trim();
                 if (!backupDir) {
-                    output.textContent += "ERROR: BACKUP_DIR not found in /etc/haas-firewall.conf\n";
+                    backupList.innerHTML = "<option value=\"\">ERROR: BACKUP_DIR not set in haas-firewall.conf</option>";
+                    backupList.classList.remove("hidden");
                     return;
                 }
-                output.textContent += "Backup directory: " + backupDir + "\n\n";
 
                 return cockpit.spawn(["ls", "-1t", backupDir], { superuser: "require", err: "message" })
                     .then(function(files) {
@@ -406,27 +404,25 @@
                             return f.endsWith(".csv");
                         });
 
+                        backupList.innerHTML = "<option value=\"\">— select a backup file —</option>";
+
                         if (fileList.length === 0) {
-                            output.textContent += "No CSV backup files found in " + backupDir + "\n";
-                            backupList.classList.add("hidden");
-                            return;
+                            backupList.innerHTML = "<option value=\"\">No CSV backups found in " + backupDir + "</option>";
+                        } else {
+                            fileList.forEach(function(f) {
+                                var opt = document.createElement("option");
+                                opt.value = f;
+                                opt.textContent = f;
+                                backupList.appendChild(opt);
+                            });
                         }
 
-                        // Rebuild the select options
-                        backupList.innerHTML = "<option value=\"\">— select a backup file —</option>";
-                        fileList.forEach(function(f) {
-                            var opt = document.createElement("option");
-                            opt.value = f;
-                            opt.textContent = f;
-                            backupList.appendChild(opt);
-                        });
                         backupList.classList.remove("hidden");
-
-                        output.textContent += fileList.length + " backup(s) found:\n" + fileList.join("\n") + "\n";
                     });
             })
             .catch(function(ex) {
-                output.textContent += "ERROR: " + (ex.message || JSON.stringify(ex)) + "\n";
+                backupList.innerHTML = "<option value=\"\">ERROR: " + (ex.message || JSON.stringify(ex)) + "</option>";
+                backupList.classList.remove("hidden");
             });
         });
 
