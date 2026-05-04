@@ -114,8 +114,14 @@
             Restore a previous CSV backup from:
             <code>BACKUP_DIR</code> as defined in <code>/etc/haas-firewall.conf</code>.
         </p>
+        <div class="button-row mt-1">
+            <button id="btn-list-backups" class="btn" data-tooltip="List available CSV backups from BACKUP_DIR">List Backups</button>
+        </div>
+        <select id="backup-list" class="backup-select hidden">
+            <option value="">— select a backup file —</option>
+        </select>
         <label for="backup-name">Backup filename (e.g. users_2025-01-13_12-00-00.csv)</label>
-        <input type="text" id="backup-name" placeholder="Enter backup filename">
+        <input type="text" id="backup-name" placeholder="Enter backup filename or select above">
         <div class="button-row mt-1">
             <button id="btn-rollback" class="btn" data-tooltip="Select a csv backup to rollback to">Rollback CSV</button>
         </div>

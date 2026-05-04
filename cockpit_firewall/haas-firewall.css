@@ -298,6 +298,24 @@ input[type="checkbox"] {
     margin-right: 8px;
 }
 
+/* Backup file selector */
+.backup-select {
+    display: block;
+    width: 100%;
+    max-width: 500px;
+    padding: 0.4rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.hidden {
+    display: none !important;
+}
+
 /* CSV Editor */
 .csv-editor {
     width: 100%;
