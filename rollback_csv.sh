@@ -11,8 +11,8 @@
 #   sudo ./rollback_csv.sh users_2025-01-13_12-00-00.csv
 #
 # DESIGN:
-#   - Backups are stored in BACKUP_DIR.
-#   - Active CSV is located at TARGET_CSV.
+#   - Backups are stored in BACKUP_DIR (from /etc/haas-firewall.conf).
+#   - Active CSV is located at CSV_PATH (from /etc/haas-firewall.conf).
 #   - This script does NOT trigger the firewall update; it only restores
 #     the CSV. The operator can then manually run the service or script.
 #
@@ -20,11 +20,30 @@
 set -euo pipefail
 
 ########################################
-# PATH CONFIGURATION
+# LOAD CONFIGURATION
 ########################################
 
-BACKUP_DIR="/home/haas/Haas_Data_collectbackups"
-TARGET_CSV="/home/haas/Haas_Data_collectusers.csv"
+CONFIG_FILE="/etc/haas-firewall.conf"
+
+if [[ ! -f "$CONFIG_FILE" ]]; then
+    echo "[ERROR] Configuration file not found: $CONFIG_FILE"
+    exit 1
+fi
+
+# shellcheck source=/dev/null
+source "$CONFIG_FILE"
+
+if [[ -z "${BACKUP_DIR:-}" ]]; then
+    echo "[ERROR] BACKUP_DIR is not set in $CONFIG_FILE"
+    exit 1
+fi
+
+if [[ -z "${CSV_PATH:-}" ]]; then
+    echo "[ERROR] CSV_PATH is not set in $CONFIG_FILE"
+    exit 1
+fi
+
+TARGET_CSV="$CSV_PATH"
 
 ########################################
 # INPUT VALIDATION
@@ -44,9 +63,14 @@ BACKUP_FILE="$BACKUP_DIR/$BACKUP_FILENAME"
 ########################################
 
 if [[ ! -f "$BACKUP_FILE" ]]; then
+    echo ""
+    echo "======"
     echo "[ERROR] Backup file not found:"
     echo "        $BACKUP_FILE"
     echo "        Use 'ls $BACKUP_DIR' to see available backups."
+    echo ""
+    echo "[ERROR]"
+    echo "======"
     exit 1
 fi
 
