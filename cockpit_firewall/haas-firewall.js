@@ -382,6 +382,9 @@
                 });
         });
 
+        // Tracks the resolved backup directory for use by the change handler
+        var currentBackupDir = "";
+
         // Button: List Backups — populates dropdown only, does not touch the Output box
         document.getElementById("btn-list-backups").addEventListener("click", function() {
             var backupList = document.getElementById("backup-list");
@@ -397,6 +400,8 @@
                     backupList.classList.remove("hidden");
                     return;
                 }
+
+                currentBackupDir = backupDir;
 
                 return cockpit.spawn(["ls", "-1t", backupDir], { superuser: "require", err: "message" })
                     .then(function(files) {
@@ -426,12 +431,26 @@
             });
         });
 
-        // Selecting from the dropdown populates the text input
+        // Selecting from the dropdown populates the text input and previews the file
         document.getElementById("backup-list").addEventListener("change", function() {
             var selected = this.value;
-            if (selected) {
-                document.getElementById("backup-name").value = selected;
-            }
+            if (!selected) return;
+
+            document.getElementById("backup-name").value = selected;
+
+            if (!currentBackupDir) return;
+
+            var fullPath = currentBackupDir + "/" + selected;
+            output.textContent = "Previewing: " + fullPath + "\n\n";
+
+            cockpit.file(fullPath, { superuser: "require" }).read()
+                .then(function(content) {
+                    output.textContent = "--- Preview: " + selected + " ---\n\n" + (content || "(empty file)");
+                    output.scrollTop = 0;
+                })
+                .catch(function(ex) {
+                    output.textContent = "ERROR reading " + fullPath + ": " + (ex.message || JSON.stringify(ex));
+                });
         });
 
         // Button 7: Rollback
