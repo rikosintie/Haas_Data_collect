@@ -182,6 +182,21 @@
         updateFirewallStatus();
         setInterval(updateFirewallStatus, 2000);
 
+        // Resolve BACKUP_DIR from conf and show it in the Rollback section label
+        cockpit.spawn(
+            ["bash", "-c", "grep -E '^BACKUP_DIR=' /etc/haas-firewall.conf | cut -d'\"' -f2"],
+            { superuser: "require", err: "message" }
+        )
+        .then(function(dir) {
+            dir = dir.trim();
+            var el = document.getElementById("backup-dir-display");
+            el.textContent = dir || "BACKUP_DIR (not set)";
+            if (dir) currentBackupDir = dir;
+        })
+        .catch(function() {
+            document.getElementById("backup-dir-display").textContent = "BACKUP_DIR (error reading conf)";
+        });
+
         // Clear output
         document.getElementById("btn-clear").addEventListener("click", function() {
             output.textContent = "Output will appear here...\n";
