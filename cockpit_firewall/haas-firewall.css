@@ -231,6 +231,12 @@ h1 {
     border: 1px solid #444;
 }
 
+/* Output section — no border, no heading, sits flush below sections */
+.output-section {
+    margin-bottom: 1.5rem;
+    margin-top: 0.25rem;
+}
+
 /* Output controls */
 .output-controls {
     display: flex;
