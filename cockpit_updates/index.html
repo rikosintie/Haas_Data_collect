@@ -28,8 +28,14 @@
         <button id="sambaLogBtn" data-tooltip="Display the live Samba log">Samba</button>
         <button id="authLogBtn" data-tooltip="Display the live authentication log">Auth</button>
         <button id="ufwLiveBtn" data-tooltip="Display the live UFW firewall log">Firewall</button>
+        <button id="scriptsLogBtn" data-tooltip="CNC machines with Connection refused">Scripts</button>
         <button id="stopLogBtn" disabled>Stop</button>
     </div>
+    <fieldset id="scriptsFilter">
+        <legend>Filter Scripts Log</legend>
+        <label>IP <input type="text" id="scriptsIpFilter" placeholder="e.g. 192.168.10.141" size="18"></label>
+        <label>Port <input type="text" id="scriptsPortFilter" placeholder="e.g. 5053" size="6"></label>
+    </fieldset>
     <fieldset id="ufwFilter">
         <legend>Filter Firewall Log</legend>
         <label><input type="radio" name="ufwFilter" value="all" checked disabled> All</label>

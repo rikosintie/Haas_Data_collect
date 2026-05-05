@@ -13,6 +13,7 @@ const sshLogBtn = document.getElementById("sshLogBtn");
 const sambaLogBtn = document.getElementById("sambaLogBtn");
 const authLogBtn = document.getElementById("authLogBtn");
 const ufwLiveBtn = document.getElementById("ufwLiveBtn");
+const scriptsLogBtn = document.getElementById("scriptsLogBtn");
 const stopLogBtn = document.getElementById("stopLogBtn");
 
 var liveLogProcess = null;
@@ -40,6 +41,7 @@ function disableButtons(state) {
     sambaLogBtn.disabled = state;
     authLogBtn.disabled = state;
     ufwLiveBtn.disabled = state;
+    scriptsLogBtn.disabled = state;
     if (state) stopLogBtn.disabled = true;
 }
 
@@ -278,6 +280,32 @@ authLogBtn.addEventListener("click", function() {
 });
 
 ufwLiveBtn.addEventListener("click", startUfwLive);
+
+scriptsLogBtn.addEventListener("click", function() {
+    var ip   = document.getElementById("scriptsIpFilter").value.trim();
+    var port = document.getElementById("scriptsPortFilter").value.trim();
+
+    var pattern, label;
+
+    if (ip && port) {
+        pattern = "python3.*" + ip + ":" + port;
+        label   = "Scripts Log (" + ip + ":" + port + ")";
+    } else if (ip) {
+        pattern = "python3.*" + ip;
+        label   = "Scripts Log (" + ip + ")";
+    } else if (port) {
+        pattern = "python3.*:" + port;
+        label   = "Scripts Log (port " + port + ")";
+    } else {
+        pattern = "python3";
+        label   = "Scripts Log";
+    }
+
+    startLiveLog(
+        ["journalctl", "-f", "--no-pager", "--grep=" + pattern],
+        label
+    );
+});
 
 // Changing the filter while UFW Live is running auto-restarts the stream
 document.querySelectorAll("input[name='ufwFilter']").forEach(function(radio) {
