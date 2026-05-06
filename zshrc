@@ -45,12 +45,6 @@ else
   export EDITOR='micro'
 fi
 
-# open ~/.zshrc using the default editor specified in $EDITOR
-alias ec="$EDITOR $HOME/.zshrc"
-
-# rerun ~/.zshrc after making changes
-alias sc="exec zsh"
-
 # Compilation flags
 # export ARCHFLAGS="-arch $(uname -m)"
 
