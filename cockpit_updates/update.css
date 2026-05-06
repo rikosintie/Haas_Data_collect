@@ -169,6 +169,11 @@ hr {
     color: #888;
 }
 
+#scriptsFilter input[type="text"]:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
 pre {
     background: #111;
     color: #0f0;

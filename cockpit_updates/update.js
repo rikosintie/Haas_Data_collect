@@ -18,12 +18,18 @@ const stopLogBtn = document.getElementById("stopLogBtn");
 
 var liveLogProcess = null;
 var isUfwLive = false;
+var isScriptsLive = false;
 var logSessionId = 0;
 
 function setUfwFilterEnabled(state) {
     document.querySelectorAll("input[name='ufwFilter']").forEach(function(r) {
         r.disabled = !state;
     });
+}
+
+function setScriptsFilterEnabled(state) {
+    document.getElementById("scriptsIpFilter").disabled = !state;
+    document.getElementById("scriptsPortFilter").disabled = !state;
 }
 
 function setStatus(text, cls) {
@@ -50,7 +56,9 @@ function onLiveLogEnd(session) {
     liveLogProcess = null;
     stopLogBtn.disabled = true;
     isUfwLive = false;
+    isScriptsLive = false;
     setUfwFilterEnabled(false);
+    setScriptsFilterEnabled(false);
 }
 
 function stopLiveLog() {
@@ -61,7 +69,9 @@ function stopLiveLog() {
     }
     stopLogBtn.disabled = true;
     isUfwLive = false;
+    isScriptsLive = false;
     setUfwFilterEnabled(false);
+    setScriptsFilterEnabled(false);
 }
 
 function startLiveLog(args, label) {
@@ -301,10 +311,13 @@ scriptsLogBtn.addEventListener("click", function() {
         label   = "Scripts Log";
     }
 
+    // -n 50 shows the last 50 matching entries immediately (same as other log buttons)
     startLiveLog(
-        ["journalctl", "-f", "--no-pager", "--grep=" + pattern],
+        ["journalctl", "-n", "50", "-f", "--no-pager", "--grep=" + pattern],
         label
     );
+    isScriptsLive = true;
+    setScriptsFilterEnabled(true);
 });
 
 // Changing the filter while UFW Live is running auto-restarts the stream
