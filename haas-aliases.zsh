@@ -18,7 +18,7 @@ alias lusers='awk -F: '\''$3 >= 1000 {print $1}'\'' /etc/passwd'
 # Display Samba users
 alias susers='sudo pdbedit -L 2>/dev/null | cut -d: -f1'
 
-# Display hass services
+# Display haas services
 alias haasserv='systemctl list-unit-files --type=service | grep haas'
 
 # Tailspin logging Aliases
@@ -34,18 +34,34 @@ alias t-ufw='journalctl -f --no-pager | grep -Ev 'DST=224\.' | tspin'
 alias t-ufwf='(){journalctl -f --no-pager --grep=$1 | grep -Ev 'DST=224\.' | tspin}'
 
 #Directory aliases
-alias haas-log='cd /var/log/'
-alias haas-fw-conf='sudo fresh /etc/haas-firewall.conf'
-alias haas-repo='cd /home/haas/Haas_Data_collect/'
 alias haas-bin='cd /usr/local/sbin'
 alias haas-firewall='cd /usr/share/cockpit/haas-firewall/'
+alias haas-fw-conf='sudo fresh /etc/haas-firewall.conf'
+alias haas-log='cd /var/log/'
+alias haas-repo='cd /home/haas/Haas_Data_collect/'
 alias haas-samba='cd /usr/share/cockpit/manage-samba/'
 alias haas-updates='cd /usr/share/cockpit/update-appliance/'
 haas-systemd() {
     cd /etc/systemd/system/
     ls -l haas-*
     }
+
+# List haas python3 services logs
+journalctl -f --no-pager | grep -E 'python3' | tspin
+
+#CD to the sshd_config.d directory where the custom ssh files
 alias haas-sshd='cd /etc/ssh/sshd_config.d/'
+
+# open ~/.zshrc using the default editor specified in $EDITOR
+alias ec="$EDITOR $HOME/.zshrc"
+
+# open ~/.oh-my-zsh/custom/haas-aliases.zsh
+alias ec1='$EDITOR ~/.oh-my-zsh/custom/haas-aliases.zsh'
+
+# rerun ~/.zshrc after making changes
+alias sc="exec zsh"
+
+# Functions
 
 # "path" shows current path, one element per line.
 # If an argument is supplied, grep for it.
