@@ -161,16 +161,14 @@ hr {
     padding: 3px 6px;
     border: 1px solid #666;
     border-radius: 3px;
-    background: #1a1a1a;
-    color: #eee;
-}
-
-#scriptsFilter input[type="text"]::placeholder {
-    color: #888;
+    background: #fff;
+    color: #111;
 }
 
 #scriptsFilter input[type="text"]:disabled {
-    opacity: 0.4;
+    background: #555;
+    color: #999;
+    border-color: #444;
     cursor: not-allowed;
 }
 
