@@ -51,6 +51,14 @@ function disableButtons(state) {
     if (state) stopLogBtn.disabled = true;
 }
 
+var activeLogBtn = null;
+
+function setActiveLogBtn(btn) {
+    if (activeLogBtn) activeLogBtn.classList.remove("active");
+    activeLogBtn = btn || null;
+    if (activeLogBtn) activeLogBtn.classList.add("active");
+}
+
 function onLiveLogEnd(session) {
     if (logSessionId !== session) return;
     liveLogProcess = null;
@@ -59,6 +67,7 @@ function onLiveLogEnd(session) {
     isScriptsLive = false;
     setUfwFilterEnabled(false);
     setScriptsFilterEnabled(false);
+    setActiveLogBtn(null);
 }
 
 function stopLiveLog() {
@@ -72,6 +81,7 @@ function stopLiveLog() {
     isScriptsLive = false;
     setUfwFilterEnabled(false);
     setScriptsFilterEnabled(false);
+    setActiveLogBtn(null);
 }
 
 function startLiveLog(args, label) {
@@ -129,6 +139,36 @@ function startUfwLive() {
     );
     isUfwLive = true;
     setUfwFilterEnabled(true);
+    setActiveLogBtn(ufwLiveBtn);
+}
+
+function startScriptsLive() {
+    var ip   = document.getElementById("scriptsIpFilter").value.trim();
+    var port = document.getElementById("scriptsPortFilter").value.trim();
+
+    var pattern, label;
+
+    if (ip && port) {
+        pattern = ip + ":" + port;
+        label   = "Scripts Log (" + ip + ":" + port + ")";
+    } else if (ip) {
+        pattern = ip;
+        label   = "Scripts Log (" + ip + ")";
+    } else if (port) {
+        pattern = ":" + port;
+        label   = "Scripts Log (port " + port + ")";
+    } else {
+        label   = "Scripts Log";
+    }
+
+    // -t python3 filters by syslog identifier (process name field, not message body).
+    // --grep= is added only when IP/port filtering is needed (searches message content).
+    var args = ["journalctl", "-t", "python3", "-n", "50", "-f", "--no-pager"];
+    if (ip || port) args.push("--grep=" + pattern);
+    startLiveLog(args, label);
+    isScriptsLive = true;
+    setScriptsFilterEnabled(true);
+    setActiveLogBtn(scriptsLogBtn);
 }
 
 function showStaticLog(args, label) {
@@ -266,6 +306,7 @@ cockpitLogBtn.addEventListener("click", function() {
         ["journalctl", "-u", "cockpit", "-n", "50", "-f", "--no-pager"],
         "Cockpit Log"
     );
+    setActiveLogBtn(cockpitLogBtn);
 });
 
 sshLogBtn.addEventListener("click", function() {
@@ -273,6 +314,7 @@ sshLogBtn.addEventListener("click", function() {
         ["journalctl", "-u", "ssh", "-n", "50", "-f", "--no-pager"],
         "SSH Log"
     );
+    setActiveLogBtn(sshLogBtn);
 });
 
 sambaLogBtn.addEventListener("click", function() {
@@ -280,6 +322,7 @@ sambaLogBtn.addEventListener("click", function() {
         ["journalctl", "-u", "smbd", "-n", "50", "-f", "--no-pager"],
         "Samba Log"
     );
+    setActiveLogBtn(sambaLogBtn);
 });
 
 authLogBtn.addEventListener("click", function() {
@@ -287,43 +330,27 @@ authLogBtn.addEventListener("click", function() {
         ["tail", "-n", "50", "-f", "/var/log/auth.log"],
         "Auth Log"
     );
+    setActiveLogBtn(authLogBtn);
 });
 
 ufwLiveBtn.addEventListener("click", startUfwLive);
 
-scriptsLogBtn.addEventListener("click", function() {
-    var ip   = document.getElementById("scriptsIpFilter").value.trim();
-    var port = document.getElementById("scriptsPortFilter").value.trim();
-
-    var pattern, label;
-
-    if (ip && port) {
-        pattern = ip + ":" + port;
-        label   = "Scripts Log (" + ip + ":" + port + ")";
-    } else if (ip) {
-        pattern = ip;
-        label   = "Scripts Log (" + ip + ")";
-    } else if (port) {
-        pattern = ":" + port;
-        label   = "Scripts Log (port " + port + ")";
-    } else {
-        label   = "Scripts Log";
-    }
-
-    // -t python3 filters by syslog identifier (process name field, not message body).
-    // --grep= is added only when IP/port filtering is needed (searches message content).
-    var args = ["journalctl", "-t", "python3", "-n", "50", "-f", "--no-pager"];
-    if (ip || port) args.push("--grep=" + pattern);
-    startLiveLog(args, label);
-    isScriptsLive = true;
-    setScriptsFilterEnabled(true);
-});
+scriptsLogBtn.addEventListener("click", startScriptsLive);
 
 // Changing the filter while UFW Live is running auto-restarts the stream
 document.querySelectorAll("input[name='ufwFilter']").forEach(function(radio) {
     radio.addEventListener("change", function() {
         if (isUfwLive) {
             startUfwLive();
+        }
+    });
+});
+
+// Changing IP/Port while Scripts is live auto-restarts the stream
+["scriptsIpFilter", "scriptsPortFilter"].forEach(function(id) {
+    document.getElementById(id).addEventListener("change", function() {
+        if (isScriptsLive) {
+            startScriptsLive();
         }
     });
 });
