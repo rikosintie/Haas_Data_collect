@@ -167,14 +167,14 @@ hr {
     padding: 3px 6px;
     border: 1px solid #666;
     border-radius: 3px;
-    background: #fff;
-    color: #111;
+}
+
+#scriptsFilter label:has(input:disabled) {
+    opacity: 0.4;
+    cursor: not-allowed;
 }
 
 #scriptsFilter input[type="text"]:disabled {
-    background: #555;
-    color: #999;
-    border-color: #444;
     cursor: not-allowed;
 }
 
