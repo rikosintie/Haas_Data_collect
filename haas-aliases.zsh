@@ -1,4 +1,10 @@
-# Example aliases
+# Custom aliases
+
+# open ~/.zshrc in using the default editor specified in $EDITOR
+alias ec="$EDITOR $HOME/.zshrc"
+# rerun ~/.zshrc after making changes
+alias sc="exec zsh"
+
 # use an underscore to preface sudo
 alias _='sudo '
 
