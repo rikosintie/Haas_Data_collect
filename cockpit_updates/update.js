@@ -298,24 +298,23 @@ scriptsLogBtn.addEventListener("click", function() {
     var pattern, label;
 
     if (ip && port) {
-        pattern = "python3.*" + ip + ":" + port;
+        pattern = ip + ":" + port;
         label   = "Scripts Log (" + ip + ":" + port + ")";
     } else if (ip) {
-        pattern = "python3.*" + ip;
+        pattern = ip;
         label   = "Scripts Log (" + ip + ")";
     } else if (port) {
-        pattern = "python3.*:" + port;
+        pattern = ":" + port;
         label   = "Scripts Log (port " + port + ")";
     } else {
-        pattern = "python3";
         label   = "Scripts Log";
     }
 
-    // -n 50 shows the last 50 matching entries immediately (same as other log buttons)
-    startLiveLog(
-        ["journalctl", "-n", "50", "-f", "--no-pager", "--grep=" + pattern],
-        label
-    );
+    // -t python3 filters by syslog identifier (process name field, not message body).
+    // --grep= is added only when IP/port filtering is needed (searches message content).
+    var args = ["journalctl", "-t", "python3", "-n", "50", "-f", "--no-pager"];
+    if (ip || port) args.push("--grep=" + pattern);
+    startLiveLog(args, label);
     isScriptsLive = true;
     setScriptsFilterEnabled(true);
 });
