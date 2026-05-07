@@ -44,9 +44,28 @@
         <label>Port <input type="text" id="scriptsPortFilter" placeholder="e.g. 5053" size="6" disabled></label>
     </fieldset>
 
+    <hr>
+    <h1>Services</h1>
+    <div id="servicesButtons">
+        <button id="serviceStateBtn" data-tooltip="View Haas service status">Service State</button>
+        <button id="editServicesBtn" data-tooltip="Edit Haas service files">Edit Services</button>
+    </div>
+    <select id="servicesList" class="services-select hidden">
+        <option value="">— select a service file —</option>
+    </select>
+
     <div id="tableContainer"></div>
 
     <pre id="output"></pre>
+
+    <div id="serviceEditorSection" class="hidden">
+        <div id="serviceEditorLabel"></div>
+        <textarea id="serviceEditorArea"></textarea>
+        <div class="editor-buttons">
+            <button id="saveServiceBtn">Save &amp; Reload</button>
+            <button id="cancelServiceEditBtn">Cancel</button>
+        </div>
+    </div>
 
     <script src="update.js"></script>
 

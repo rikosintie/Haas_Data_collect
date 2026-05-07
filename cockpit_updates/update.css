@@ -178,6 +178,27 @@ hr {
     cursor: not-allowed;
 }
 
+.hidden {
+    display: none !important;
+}
+
+#servicesButtons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.services-select {
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 4px 6px;
+    font-size: 14px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    max-width: 420px;
+}
+
 pre {
     background: #111;
     color: #0f0;
@@ -186,4 +207,36 @@ pre {
     min-height: 300px;
     height: calc(100vh - 350px);
     overflow: auto;
+}
+
+#serviceEditorSection {
+    margin-top: 20px;
+}
+
+#serviceEditorLabel {
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 6px;
+}
+
+#serviceEditorArea {
+    display: block;
+    width: 100%;
+    height: calc(100vh - 420px);
+    min-height: 280px;
+    font-family: monospace;
+    font-size: 13px;
+    padding: 8px;
+    border: 1px solid #555;
+    border-radius: 3px;
+    background: #1a1a1a;
+    color: #eee;
+    box-sizing: border-box;
+    resize: vertical;
+}
+
+.editor-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
 }

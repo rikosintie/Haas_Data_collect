@@ -16,6 +16,17 @@ const ufwLiveBtn = document.getElementById("ufwLiveBtn");
 const scriptsLogBtn = document.getElementById("scriptsLogBtn");
 const stopLogBtn = document.getElementById("stopLogBtn");
 
+const serviceStateBtn      = document.getElementById("serviceStateBtn");
+const editServicesBtn      = document.getElementById("editServicesBtn");
+const servicesList         = document.getElementById("servicesList");
+const serviceEditorSection = document.getElementById("serviceEditorSection");
+const serviceEditorArea    = document.getElementById("serviceEditorArea");
+const serviceEditorLabel   = document.getElementById("serviceEditorLabel");
+const saveServiceBtn       = document.getElementById("saveServiceBtn");
+const cancelServiceEditBtn = document.getElementById("cancelServiceEditBtn");
+
+var currentServicePath = null;
+
 var liveLogProcess = null;
 var isUfwLive = false;
 var isScriptsLive = false;
@@ -49,6 +60,29 @@ function disableButtons(state) {
     ufwLiveBtn.disabled = state;
     scriptsLogBtn.disabled = state;
     if (state) stopLogBtn.disabled = true;
+    serviceStateBtn.disabled = state;
+    editServicesBtn.disabled = state;
+}
+
+// Show the service editor, hiding the output <pre>
+function showServiceEditor(path, content) {
+    currentServicePath = path;
+    serviceEditorLabel.textContent = path + " — edit below, then click Save & Reload";
+    serviceEditorArea.value = content;
+    output.classList.add("hidden");
+    serviceEditorSection.classList.remove("hidden");
+    // Lock system/log buttons while editing; keep save/cancel accessible
+    disableButtons(true);
+    saveServiceBtn.disabled = false;
+    cancelServiceEditBtn.disabled = false;
+}
+
+// Hide the service editor, restoring the output <pre>
+function hideServiceEditor() {
+    serviceEditorSection.classList.add("hidden");
+    output.classList.remove("hidden");
+    currentServicePath = null;
+    disableButtons(false);
 }
 
 var activeLogBtn = null;
@@ -358,6 +392,122 @@ document.querySelectorAll("input[name='ufwFilter']").forEach(function(radio) {
 stopLogBtn.addEventListener("click", function() {
     stopLiveLog();
     output.textContent += "\n[Stopped]\n";
+});
+
+// ── Service State ─────────────────────────────────────────────────────────────
+
+serviceStateBtn.addEventListener("click", function() {
+    stopLiveLog();
+    setActiveLogBtn(serviceStateBtn);
+    output.textContent = "--- Haas Service Status ---\n";
+
+    cockpit.spawn(
+        ["bash", "-c", "systemctl list-unit-files --type=service | grep haas"],
+        { superuser: "require", err: "message" }
+    )
+        .done(function(data) {
+            output.textContent += data || "(no haas services found)";
+        })
+        .fail(function(ex, data) {
+            output.textContent += "\nERROR: " + (ex.message || JSON.stringify(ex));
+            if (data) output.textContent += "\n" + data;
+        })
+        .always(function() {
+            setActiveLogBtn(null);
+        });
+});
+
+// ── Edit Services ─────────────────────────────────────────────────────────────
+
+editServicesBtn.addEventListener("click", function() {
+    stopLiveLog();
+    setActiveLogBtn(editServicesBtn);
+
+    servicesList.innerHTML = "<option value=\"\">— loading... —</option>";
+    servicesList.classList.remove("hidden");
+
+    cockpit.spawn(
+        ["bash", "-c", "ls /etc/systemd/system/haas-*.service 2>/dev/null"],
+        { superuser: "require", err: "message" }
+    )
+        .done(function(data) {
+            var files = data.trim() ? data.trim().split("\n") : [];
+            servicesList.innerHTML = "<option value=\"\">— select a service file —</option>";
+            if (files.length === 0) {
+                servicesList.innerHTML = "<option value=\"\">No haas-*.service files found</option>";
+            } else {
+                files.forEach(function(f) {
+                    f = f.trim();
+                    var opt = document.createElement("option");
+                    opt.value = f;
+                    opt.textContent = f.replace("/etc/systemd/system/", "");
+                    servicesList.appendChild(opt);
+                });
+            }
+        })
+        .fail(function(ex) {
+            servicesList.innerHTML = "<option value=\"\">Error: " + (ex.message || "failed to list files") + "</option>";
+        });
+});
+
+servicesList.addEventListener("change", function() {
+    var path = servicesList.value;
+    if (!path) return;
+
+    output.textContent = "Loading " + path + "...\n";
+
+    cockpit.file(path, { superuser: "require" })
+        .read()
+        .done(function(content) {
+            if (content === null) {
+                output.textContent = "ERROR: Could not read " + path + "\n";
+                return;
+            }
+            showServiceEditor(path, content);
+        })
+        .fail(function(ex) {
+            output.textContent = "ERROR reading " + path + ": " + (ex.message || JSON.stringify(ex)) + "\n";
+        });
+});
+
+// ── Save & Reload daemon ──────────────────────────────────────────────────────
+
+saveServiceBtn.addEventListener("click", function() {
+    var content = serviceEditorArea.value;
+    if (!content.trim()) {
+        output.textContent = "ERROR: Editor is empty — not saving.\n";
+        hideServiceEditor();
+        return;
+    }
+
+    var path = currentServicePath;
+    hideServiceEditor();
+    output.textContent = "Saving " + path + "...\n";
+
+    cockpit.file(path, { superuser: "require" })
+        .replace(content)
+        .done(function() {
+            output.textContent += "Saved. Running systemctl daemon-reload...\n";
+
+            cockpit.spawn(["systemctl", "daemon-reload"], { superuser: "require", err: "message" })
+                .done(function() {
+                    output.textContent += "daemon-reload complete.\n";
+                    output.textContent += "Restart the service to apply changes.\n";
+                })
+                .fail(function(ex, data) {
+                    output.textContent += "daemon-reload failed: " + (ex.message || JSON.stringify(ex)) + "\n";
+                    if (data) output.textContent += data;
+                });
+        })
+        .fail(function(ex) {
+            output.textContent += "ERROR saving file: " + (ex.message || JSON.stringify(ex)) + "\n";
+        });
+});
+
+cancelServiceEditBtn.addEventListener("click", function() {
+    hideServiceEditor();
+    output.textContent = "Edit cancelled.\n";
+    setActiveLogBtn(null);
 });
 
 // Auto check on load
