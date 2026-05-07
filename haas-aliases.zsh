@@ -58,6 +58,9 @@ haas-systemd() {
     ls -l haas-*
     }
 
+# Runs sshd -T with a grep for just the custom settings
+alias haas-sshc="sudo sshd -T | grep -E 'permitrootlogin|passwordauthentication|pubkeyauthentication|challengeresponseauthentication|permitemptypasswords|^banner|x11f|macs|^kexalgorithms|hostkey|pubbkeyauth|^port|^maxa|^maxse|grace|allowt|allowa|lastlog|strictm'"
+
 # Edit the haas SSH hardening configuration file
 alias haas-sshd='sudo fresh /etc/ssh/sshd_config.d/99-haas-hardening.conf'
 
