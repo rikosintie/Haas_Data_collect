@@ -68,6 +68,7 @@ alias haas-fw-conf='sudo fresh /etc/haas-firewall.conf'
 alias haas-log='cd /var/log'
 alias haas-repo='cd /home/haas/Haas_Data_collect'
 alias haas-samba='cd /usr/share/cockpit/manage-samba'
+alias haas-ssh='cd /etc/ssh/sshd_config.d'
 alias haas-systemd='cd /etc/systemd/system'
 alias haas-updates='cd /usr/share/cockpit/update-appliance'
 ```
