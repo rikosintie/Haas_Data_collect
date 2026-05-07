@@ -2,6 +2,7 @@
 
 # open ~/.zshrc in using the default editor specified in $EDITOR
 alias ec="$EDITOR $HOME/.zshrc"
+
 # rerun ~/.zshrc after making changes
 alias sc="exec zsh"
 
@@ -39,6 +40,9 @@ alias t-ufw='journalctl -f --no-pager | grep -Ev 'DST=224\.' | tspin'
 # UFW use BLOCK, ALLOW, or AUDIT to filter
 alias t-ufwf='(){journalctl -f --no-pager --grep=$1 | grep -Ev 'DST=224\.' | tspin}'
 
+# List haas python3 services logs
+alias t-python3='journalctl -f --no-pager | grep -E 'python3' | tspin'
+
 #Directory aliases
 alias haas-bin='cd /usr/local/sbin'
 alias haas-firewall='cd /usr/share/cockpit/haas-firewall/'
@@ -46,14 +50,11 @@ alias haas-fw-conf='sudo fresh /etc/haas-firewall.conf'
 alias haas-log='cd /var/log/'
 alias haas-repo='cd /home/haas/Haas_Data_collect/'
 alias haas-samba='cd /usr/share/cockpit/manage-samba/'
+alias haas-system='cd /etc/systemd/system'
 alias haas-updates='cd /usr/share/cockpit/update-appliance/'
-haas-systemd() {
-    cd /etc/systemd/system/
-    ls -l haas-*
-    }
 
-# List haas python3 services logs
-journalctl -f --no-pager | grep -E 'python3' | tspin
+# Edit the haas SSH hardening configuration file
+alias haas-sshd='fresh /etc/systemd/system/99-haas-hardening.conf'
 
 #CD to the sshd_config.d directory where the custom ssh files
 alias haas-sshd='cd /etc/ssh/sshd_config.d/'
