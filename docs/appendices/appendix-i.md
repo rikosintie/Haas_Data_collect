@@ -12,7 +12,7 @@ These `aliases` and `functions` allow you to:
 - output the complete path, one element per line
 - make a directory and switch to it.
 
-I wrote a book on using Ubuntu for network engineering, the chapter [Build a Great Terminal](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal) dives deeper into setting up a terminal. Here is a link to it: [Build a Great Terminal](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal/)
+I wrote a book on using Ubuntu for network engineering, the chapter [Build a Great Terminal](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal){target="_blank} dives deeper into setting up a terminal. Here is a link to it: [Build a Great Terminal](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal/){target="_blank}
 
 You don't have to be logged in over ssh to use the terminal. The Cockpit management webpage has a terminal built in. You access the cockpit page at:
 
@@ -62,7 +62,7 @@ Here are the aliases for directories:
 ```bash
 alias haas-bin='cd /usr/local/sbin'
 alias haas-firewall='cd /usr/share/cockpit/haas-firewall'
-alias haas-fw-conf='sudo fresh /etc/haas-firewall.conf'
+alias haas-fw-conf='sudo fresh /etc/ssh/sshd_config.d/haas-firewall.conf'
 alias haas-log='cd /var/log'
 alias haas-repo='cd /home/haas/Haas_Data_collect'
 alias haas-samba='cd /usr/share/cockpit/manage-samba'
@@ -140,7 +140,7 @@ The `haas-fw-conf` alias opens the configuration file in the `fresh` editor.
 Below is the alias:
 
 ```bash
-alias haas-fw-conf='sudo fresh /etc/haas-firewall.conf'
+alias haas-fw-conf='sudo fresh /etc/ssh/sshd_config.d/haas-firewall.conf'
 ```
 
 ----------------------------------------------------------------
