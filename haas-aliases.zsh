@@ -62,7 +62,7 @@ haas-systemd() {
 alias haas-sshd='sudo fresh /etc/ssh/sshd_config.d/99-haas-hardening.conf'
 
 #CD to the sshd_config.d directory where the custom ssh files
-alias haas-sshd='cd /etc/ssh/sshd_config.d/'
+alias haas-ssh='cd /etc/ssh/sshd_config.d/'
 
 # open ~/.zshrc using the default editor specified in $EDITOR
 alias ec="$EDITOR $HOME/.zshrc"
