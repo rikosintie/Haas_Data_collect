@@ -45,13 +45,15 @@ haas [tab]
 ```bash title='Command Output'
 haas-bin
 haas-firewall
+haas-fw-conf
 haas-log
 haas-repo
 haas-samba
-haas-updates
-haas-fw-conf
+haas-ssh
+haas-sshc
 haas-sshd
-haas-system
+haas-systemd
+haas-updates
 haasserv
 ```
 
@@ -62,7 +64,7 @@ Here are the aliases for directories:
 ```bash
 alias haas-bin='cd /usr/local/sbin'
 alias haas-firewall='cd /usr/share/cockpit/haas-firewall'
-alias haas-fw-conf='sudo fresh /etc/ssh/sshd_config.d/haas-firewall.conf'
+alias haas-fw-conf='sudo fresh /etc/haas-firewall.conf'
 alias haas-log='cd /var/log'
 alias haas-repo='cd /home/haas/Haas_Data_collect'
 alias haas-samba='cd /usr/share/cockpit/manage-samba'
@@ -79,7 +81,7 @@ The following aliases and functions help you:
 - List the state of the haas services
 - List the haas services files found in /etc/systemd/system
 - Edit the haas-firewall.conf file located in /etc/haas-firewall.conf
-- Edit the ssh custom config file located in /etc/systemd
+- Edit the ssh custom config file located in /etc/ssh/sshd_config.d
 - Output logs from the data collection scripts
 
 ### haas service state
@@ -140,7 +142,7 @@ The `haas-fw-conf` alias opens the configuration file in the `fresh` editor.
 Below is the alias:
 
 ```bash
-alias haas-fw-conf='sudo fresh /etc/ssh/sshd_config.d/haas-firewall.conf'
+alias haas-fw-conf='sudo fresh /etc/haas-firewall.conf'
 ```
 
 ----------------------------------------------------------------
@@ -156,7 +158,54 @@ You can also edit the file using the Cockpit Firewall extension from a browser.
 The command `haas-sshd` alias opens /etc/ssh/sshd_config.d/99-haas-hardening.conf file in the fresh editor. Make sure you use `ctrl+s` to save the file if you make edits. You must restart the ssh daemon using `sudo systemctl restart ssh` or the changes will not be active.
 
 ```bash
-alias haas-sshd='fresh /etc/ssh/sshd_config.d/99-haas-hardening.conf'
+alias haas-sshd='sudo fresh /etc/ssh/sshd_config.d/99-haas-hardening.conf'
+```
+
+----------------------------------------------------------------
+
+### CD to ssh config directory
+
+```bash
+alias haas-ssh='cd /etc/ssh/sshd_config.d'
+```
+
+----------------------------------------------------------------
+
+### List custom ssh settings
+
+`haas-sshc`. This alias is really long! It runs `sshd -T` but `greps` out the custom settings. It's worth running `sshd -T` and the alias to see all the settings and then just the custom settings.
+
+```bash
+alias haas-sshc="sudo sshd -T | grep -E 'permitrootlogin|passwordauthentication|pubkeyauthentication|challengeresponseauthentication|permitemptypasswords|^banner|x11f|macs|^kexalgorithms|hostkey|pubbkeyauth|^port|^maxa|^maxse|grace|allowt|allowa|lastlog|strictm'"
+```
+
+```bash
+┌─[haas@haas] - [/etc/ssh/sshd_config.d] - [3807]
+└─[$] haas-sshc
+```
+
+```bash title='Command Output'
+port 22
+logingracetime 30
+maxauthtries 3
+maxsessions 2
+permitrootlogin no
+pubkeyauthentication yes
+passwordauthentication yes
+printlastlog yes
+x11forwarding no
+strictmodes yes
+permitemptypasswords no
+allowtcpforwarding no
+allowagentforwarding no
+macs hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,umac-128-etm@openssh.com
+banner /etc/issue.net
+hostkeyagent none
+kexalgorithms curve25519-sha256,curve25519-sha256@libssh.org
+hostkeyalgorithms ssh-ed25519,ssh-ed25519-cert-v01@openssh.com
+hostkey /etc/ssh/ssh_host_rsa_key
+hostkey /etc/ssh/ssh_host_ecdsa_key
+hostkey /etc/ssh/ssh_host_ed25519_key
 ```
 
 ----------------------------------------------------------------
@@ -280,12 +329,10 @@ mkd() {
 
 ```bash
 /usr/share/cockpit/update-appliance
-haas-updates
 ```
 
 ```bash
 /usr/share/cockpit/manage-samba
-haas
 ```
 
 ----------------------------------------------------------------

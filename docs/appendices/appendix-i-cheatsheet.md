@@ -16,6 +16,8 @@ Type `haas` then press `Tab` to list all haas aliases.
 | `haas-log` | `/var/log` |
 | `haas-repo` | `/home/haas/Haas_Data_collect` |
 | `haas-samba` | `/usr/share/cockpit/manage-samba` |
+| `haas-ssh` | `/etc/ssh/sshd_config.d` |
+| `haas-systemd` | `/etc/systemd/system` |
 | `haas-updates` | `/usr/share/cockpit/update-appliance` |
 
 ---
@@ -25,8 +27,9 @@ Type `haas` then press `Tab` to list all haas aliases.
 | Alias | Command | Purpose |
 |---|---|---|
 | `haasserv` | `systemctl list-unit-files --type=service \| grep haas` | List all haas service states |
-| `haas-fw-conf` | `sudo fresh /etc/ssh/sshd_config.d/haas-firewall.conf` | Edit firewall config |
-| `haas-sshd` | `fresh /etc/ssh/sshd_config.d/99-haas-hardening.conf` | Edit SSH hardening config |
+| `haas-fw-conf` | `sudo fresh /etc/haas-firewall.conf` | Edit firewall config |
+| `haas-sshd` | `sudo fresh /etc/ssh/sshd_config.d/99-haas-hardening.conf` | Edit SSH hardening config |
+| `haas-sshc` | `sudo sshd -T \| grep -E '...'` | Show custom SSH settings only |
 | `t-python3` | `journalctl -f --no-pager \| grep -E 'python3' \| tspin` | Tail CNC script logs (allow ~2 min) |
 
 ---
@@ -39,7 +42,7 @@ Changes to `/etc/systemd/system/` and lists all `haas-*` files.
 
 ```bash
 haas-systemd() {
-    cd /etc/systemd/system/
+    cd /etc/systemd/system
     ls -l haas-*
 }
 ```
@@ -63,17 +66,17 @@ mkd machines/vf2ss/cnc_logs    # creates full path and switches to it
 
 | Path | Purpose |
 |---|---|
-| `/home/haas/Haas_Data_collect/machines/` | CNC machine data directories |
-| `/etc/systemd/system/` | haas-*.service and haas-*.timer files |
-| `/usr/local/sbin/` | All appliance scripts |
+| `/home/haas/Haas_Data_collect/machines` | CNC machine data directories |
+| `/etc/systemd/system` | haas-*.service and haas-*.timer files |
+| `/usr/local/sbin` | All appliance scripts |
 | `/etc/samba/smb.conf` | Samba configuration |
-| `/var/log/samba/` | Samba log files (one per connected machine) |
+| `/var/log/samba` | Samba log files (one per connected machine) |
 | `/etc/haas-firewall.conf` | Firewall configuration |
 | `/etc/ssh/sshd_config.d/99-haas-hardening.conf` | SSH hardening config |
 | `/etc/issue.net` | Pre-login banner |
 | `/usr/share/cockpit/haas-firewall` | Cockpit Firewall extension |
-| `/usr/share/cockpit/update-appliance/` | Cockpit System Updates extension |
-| `/usr/share/cockpit/manage-samba/` | Cockpit Samba extension |
+| `/usr/share/cockpit/update-appliance` | Cockpit System Updates extension |
+| `/usr/share/cockpit/manage-samba` | Cockpit Samba extension |
 
 ---
 
@@ -103,9 +106,9 @@ mkd machines/vf2ss/cnc_logs    # creates full path and switches to it
 
 **Terminal:**
 ```bash
-t-python3                                         # all CNC script logs
-journalctl -t python3 -f --no-pager              # same, using syslog identifier
-journalctl -t python3 -f --no-pager --grep="192.168.10.141:5053"  # filter by IP:port
+t-python3                                                         # all CNC script logs
+journalctl -t python3 -f --no-pager                              # same, using syslog identifier
+journalctl -t python3 -f --no-pager --grep="192.168.10.141:5053" # filter by IP:port
 ```
 
 **Cockpit:** System Updates page → **Scripts** button (supports IP and port filters)
@@ -121,3 +124,12 @@ systemctl status haas-<machinename>.service
 ```
 
 Or use the Cockpit System Updates page → **Edit Services** button (daemon-reload runs automatically on save).
+
+---
+
+## After Editing the SSH Config
+
+```bash
+sudo systemctl restart ssh
+systemctl status ssh
+```
