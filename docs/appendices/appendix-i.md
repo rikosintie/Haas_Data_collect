@@ -61,7 +61,7 @@ alias haas-updates='cd /usr/share/cockpit/update-appliance/'
 
 ## Additional Aliases - Functions
 
-The following aliases and functions help you manage the:
+The following aliases and functions help you:
 
 - List the state of the haas services
 - List the haas services files found in /etc/systemd/system
@@ -96,7 +96,7 @@ haas-vf5ss.service                           enabled         enabled
 
 ### List the haas system files
 
-`haas-systemd` is a function. It changes to the `/etc/systemd/system/` directory and then lists the custom `haas` service files. This is very useful if you more than 5-6 CNC machines. It's very easy to forget what you named the service file.
+`haas-systemd` is a function. It changes to the `/etc/systemd/system/` directory and then lists the custom `haas` service files. This is very useful if you have more than 5-6 CNC machines. It's very easy to forget what you named the service file.
 
 ```bash
 haas-systemd() {
@@ -224,7 +224,7 @@ mkd() {
 
 ----------------------------------------------------------------
 
-CNC Machine shares are located under:
+### CNC Machine directories are located under
 
 ```bash
 /home/haas/Haas_Data_collect/machines
@@ -232,7 +232,7 @@ CNC Machine shares are located under:
 
 ----------------------------------------------------------------
 
-Custom SSH config file is located here:
+### Custom SSH config file is located here
 
 ```hash
 /etc/ssh/sshd_config.d/99-haas-hardening.conf
@@ -240,7 +240,7 @@ Custom SSH config file is located here:
 
 ----------------------------------------------------------------
 
-Cockpit Extensions are located here:
+### Cockpit Extensions are located here
 
 ```bash
 /usr/share/cockpit/haas-firewall
@@ -256,7 +256,7 @@ Cockpit Extensions are located here:
 
 ----------------------------------------------------------------
 
-Prelogin banner is located here:
+### Prelogin banner is located here
 
 ```bash
 /etc/issue.net
@@ -264,7 +264,8 @@ Prelogin banner is located here:
 
 ----------------------------------------------------------------
 
-**Samba**
+### Samba files
+
 Configuration file location
 
 ```bash
@@ -279,7 +280,8 @@ Log files for each machine that connected
 
 ----------------------------------------------------------------
 
-**Systemd services**
+### Systemd services
+
 The service files for each CNC machine and the firewall are located here:
 
 ```bash
@@ -288,7 +290,8 @@ The service files for each CNC machine and the firewall are located here:
 
 ----------------------------------------------------------------
 
-**System Scripts**
+### System Scripts
+
 All system scripts for the appliance are located here:
 
 ```bash
@@ -297,30 +300,20 @@ All system scripts for the appliance are located here:
 
 ----------------------------------------------------------------
 
-## Ensure noble-updates is in sources (may be missing on Raspberry Pi Ubuntu images)
-
-if ! grep -q "noble-updates" /etc/apt/sources.list.d/ubuntu.sources; then
-    echo "noble-updates not found, adding to sources..."
-    sudo sed -i 's/Suites: noble$/Suites: noble noble-updates/' /etc/apt/sources.list.d/ubuntu.sources
-fi
-
 ## Scripts
 
-build-nmap.sh
-configure_ufw_from_csv.sh
-gh-updater.lib.sh
-haas_firewall_install.sh
-haas_firewall_uninstall.sh
-install-tools.sh
-lshares.sh
-manage_users.sh
-rollback_csv.sh
-setup_user.sh
-smb_verify.sh
-ssh_port.sh
-ssh_validate.sh
-tspin_alias.sh
-tspin_setup.sh
-update-check.sh
-update-system.sh
-validate_users_csv.sh
+- build-nmap.sh
+- configure_ufw_from_csv.sh
+- gh-updater.lib.sh
+- haas_firewall_install.sh
+- haas_firewall_uninstall.sh
+- install-tools.sh
+- lshares.sh
+- manage_users.sh
+- rollback_csv.sh
+- smb_verify.sh
+- ssh_port.sh
+- ssh_validate.sh
+- update-check.sh
+- update-system.sh
+- validate_users_csv.sh
