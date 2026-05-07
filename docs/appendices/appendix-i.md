@@ -49,14 +49,13 @@ Here are the aliases for directories:
 
 ```bash
 alias haas-bin='cd /usr/local/sbin'
-alias haas-firewall='cd /usr/share/cockpit/haas-firewall/'
+alias haas-firewall='cd /usr/share/cockpit/haas-firewall'
 alias haas-fw-conf='sudo fresh /etc/haas-firewall.conf'
-alias haas-log='cd /var/log/'
-alias haas-repo='cd /home/haas/Haas_Data_collect/'
-alias haas-firewall='cd /usr/share/cockpit/haas_firewall'
-alias haas-samba='cd /usr/share/cockpit/manage-samba/'
+alias haas-log='cd /var/log'
+alias haas-repo='cd /home/haas/Haas_Data_collect'
+alias haas-samba='cd /usr/share/cockpit/manage-samba'
 alias haas-systemd='cd /etc/systemd/system'
-alias haas-updates='cd /usr/share/cockpit/update-appliance/'
+alias haas-updates='cd /usr/share/cockpit/update-appliance'
 ```
 
 ----------------------------------------------------------------
@@ -145,7 +144,7 @@ You can also edit the file using the Cockpit Firewall extension from a browser.
 The command `haas-sshd` alias opens /etc/ssh/sshd_config.d/99-haas-hardening.conf file in the fresh editor. Make sure you use `ctrl+s` to save the file if you make edits. You must restart the ssh daemon using `sudo systemctl restart ssh` or the changes will not be active.
 
 ```bash
-alias haas-sshd='fresh /etc/systemd/system/99-haas-hardening.conf'
+alias haas-sshd='fresh /etc/ssh/sshd_config.d/99-haas-hardening.conf'
 ```
 
 ----------------------------------------------------------------
@@ -269,10 +268,12 @@ mkd() {
 
 ```bash
 /usr/share/cockpit/update-appliance
+haas-updates
 ```
 
 ```bash
 /usr/share/cockpit/manage-samba
+haas
 ```
 
 ----------------------------------------------------------------
