@@ -29,6 +29,7 @@ nav:
     - SMB Protocols: 'appendices/appendix-f.md'
     - Troubleshooting: 'appendices/appendix-g.md'
     - Bluetooth keyboard: 'appendices/appendix-h.md'
+    - Custom aliases: 'appendices/appendix-i.md'
 
 
 theme:
