@@ -10,13 +10,19 @@ The Linux shell allows a mix of `aliases` and `functions` to simplify common tas
 - output the complete path, one elemenet per line
 - make a directory and switch to it.
 
-I wrote a book on using Ubuntu for network engineering this chapter dives deeper on setting up a great terminal. Here is a link to it: [Build a Great Terminal](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal/#install-oh-my-zsh)
+I wrote a book on using Ubuntu for network engineering, [Build a Great Terminal](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal/#install-oh-my-zsh) dives deeper into setting up a great terminal. Here is a link to it: [Build a Great Terminal](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal/#install-oh-my-zsh)
 
 You don't have to be logged in over ssh to use the terminal. The Cockpit management webpage has a terminal built in. You access the cockpit page at `https://<appliance_ip>:9090` or `http://dns_name:9090` if your appliance is registered in DNS (recommended). To edit the `haas-aliases.zsh` file, enter `ec1` at the terminal prompt. There is an alias defined that opens it in the `fresh` editor.
 
 ----------------------------------------------------------------
 
 ![screenshot](../img/cockpit_terminal.resized.png)
+
+----------------------------------------------------------------
+
+## A shell cheat sheet
+
+If you want to skip the details and dive right in, here is a [Shell Cheat sheet](../appendices/appendix-i-cheatsheet.md){target="_blank} that is easy to use and covers all of the topics in this appendix.
 
 ----------------------------------------------------------------
 
@@ -67,7 +73,7 @@ The following aliases and functions help you:
 - List the state of the haas services
 - List the haas services files found in /etc/systemd/system
 - Edit the haas-firewall.conf file located in /etc/haas-firewall.conf
-- Edit the ssh custom config file located in /etc/systemd/
+- Edit the ssh custom config file located in /etc/systemd
 - Output logs from the data collection scripts
 
 ### haas service state
@@ -101,7 +107,7 @@ haas-vf5ss.service                           enabled         enabled
 
 ```bash
 haas-systemd() {
-    cd /etc/systemd/system/
+    cd /etc/systemd/system
     ls -l haas-*
     }
 ```
@@ -297,7 +303,7 @@ Configuration file location
 Log files for each machine that connected
 
 ```bash
-/var/log/samba/
+/var/log/samba
 ```
 
 ----------------------------------------------------------------
@@ -307,7 +313,7 @@ Log files for each machine that connected
 The service files for each CNC machine and the firewall are located here:
 
 ```bash
-/etc/systemd/system/
+/etc/systemd/system
 ```
 
 ----------------------------------------------------------------
