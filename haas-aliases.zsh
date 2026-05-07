@@ -46,12 +46,17 @@ alias t-python3='journalctl -f --no-pager | grep -E 'python3' | tspin'
 #Directory aliases
 alias haas-bin='cd /usr/local/sbin'
 alias haas-firewall='cd /usr/share/cockpit/haas-firewall/'
-alias haas-fw-conf='sudo fresh /etc/haas-firewall.conf'
+alias haas-fw-conf='sudo fresh /etc/ssh/sshd_config.d/haas-firewall.conf'
 alias haas-log='cd /var/log/'
 alias haas-repo='cd /home/haas/Haas_Data_collect/'
 alias haas-samba='cd /usr/share/cockpit/manage-samba/'
 alias haas-system='cd /etc/systemd/system'
 alias haas-updates='cd /usr/share/cockpit/update-appliance/'
+
+haas-systemd() {
+    cd /etc/systemd/system/
+    ls -l haas-*
+    }
 
 # Edit the haas SSH hardening configuration file
 alias haas-sshd='fresh /etc/systemd/system/99-haas-hardening.conf'
