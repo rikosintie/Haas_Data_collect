@@ -30,6 +30,7 @@ nav:
     - Troubleshooting: 'appendices/appendix-g.md'
     - Bluetooth keyboard: 'appendices/appendix-h.md'
     - Custom aliases: 'appendices/appendix-i.md'
+    - Shell Cheatsheet: 'appendices/appendix-i-cheatsheet.md'
 
 
 theme:
