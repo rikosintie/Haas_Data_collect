@@ -1,18 +1,24 @@
 # Directories and aliases
 
-The Linux shell allows a mix of `aliases` and `functions` to simplify common tasks. The zsh shell (terminal) on the appliance has several custom `aliases` and `functions` in the file `/home/haas/.oh-my-zsh/custom/haas-aliases.zsh`. These `aliases` and `functions` allow you to:
+The Linux shell allows a mix of `aliases` and `functions` to simplify common tasks. The zsh shell (terminal) on the appliance has several custom `aliases` and `functions` in the file `/home/haas/.oh-my-zsh/custom/haas-aliases.zsh`. To edit the `haas-aliases.zsh` file, enter `ec1` at the terminal prompt. There is an alias defined that opens it in the `fresh` editor.
+
+These `aliases` and `functions` allow you to:
 
 - Jump to important directories without having to remember the full path
 - List the custom `haas` service files in the `/etc/systemd/system/` directory
 - View the status of the custom `haas` services.
 - Edit the firewall configuration file in `/etc/haas-firewall.conf`
 - View the files in the cockpit extension directories
-- output the complete path, one elemenet per line
+- output the complete path, one element per line
 - make a directory and switch to it.
 
-I wrote a book on using Ubuntu for network engineering, [Build a Great Terminal](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal/#install-oh-my-zsh) dives deeper into setting up a great terminal. Here is a link to it: [Build a Great Terminal](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal/#install-oh-my-zsh)
+I wrote a book on using Ubuntu for network engineering, the chapter [Build a Great Terminal](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal) dives deeper into setting up a terminal. Here is a link to it: [Build a Great Terminal](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal/)
 
-You don't have to be logged in over ssh to use the terminal. The Cockpit management webpage has a terminal built in. You access the cockpit page at `https://<appliance_ip>:9090` or `http://dns_name:9090` if your appliance is registered in DNS (recommended). To edit the `haas-aliases.zsh` file, enter `ec1` at the terminal prompt. There is an alias defined that opens it in the `fresh` editor.
+You don't have to be logged in over ssh to use the terminal. The Cockpit management webpage has a terminal built in. You access the cockpit page at:
+
+- `https://<appliance_ip>:9090`
+or
+- `http://dns_name:9090` if your appliance is registered in DNS (recommended).
 
 ----------------------------------------------------------------
 
