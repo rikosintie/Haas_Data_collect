@@ -10,6 +10,8 @@ The Linux shell allows a mix of `aliases` and `functions` to simplify common tas
 - output the complete path, one elemenet per line
 - make a directory and switch to it.
 
+I wrote a book on using Ubuntu for network engineering this chapter dives deeper on setting up a great terminal. Here is a link to it: [Build a Great Terminal](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal/#install-oh-my-zsh)
+
 You don't have to be logged in over ssh to use the terminal. The Cockpit management webpage has a terminal built in. You access the cockpit page at `https://<appliance_ip>:9090` or `http://dns_name:9090` if your appliance is registered in DNS (recommended). To edit the `haas-aliases.zsh` file, enter `ec1` at the terminal prompt. There is an alias defined that opens it in the `fresh` editor.
 
 ----------------------------------------------------------------
@@ -211,12 +213,31 @@ path() {
 
 ### Make a directory and switch to it
 
+This script uses `mkdir -p` to create a directory, and if necessary, the parent path, then switches to the directory. THe function saves several steps when creating the CNC machine folders under the `machines` directory.
 
+You can switch to the `machines` folder, then use `mkd` as shown in teh example below.
 
+```bash
 mkd() {
     mkdir -p "$@"
     cd "$@" || exit
 }
+```
+
+#### Example
+
+```bash linenums='1' hl_lines='1'
+┌─[haas@haas] - [~/Haas_Data_collect/machines] - [3715]
+└─[$] pwd
+/home/haas/Haas_Data_collect/machines
+```
+
+```bash hl_lines='2 5' title='Command Output'
+┌─[haas@haas] - [~/Haas_Data_collect/machines] - [3717]
+└─[$] mkd 01_test/cnc_logs
+┌─[haas@haas] - [~/Haas_Data_collect/machines/01_test/cnc_logs] - [3718]
+└─[$]
+```
 
 ----------------------------------------------------------------
 
