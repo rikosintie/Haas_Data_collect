@@ -302,6 +302,67 @@ mkd() {
 
 ----------------------------------------------------------------
 
+### Tree aliases
+
+The tree command is useful when review the CNC directories.
+
+#### treeh
+
+The `treeh` alias displays all of the files in a directory using a `Human Readable` format. That means KB, MB instead of bytes. The alias uses `-h` for human readable and `--dirsfirst` to sort directories. If you don't like that just enter `ec` in the terminal, scroll down to the alias and delete the `--dirsfirst` option.
+
+alias treeh='tree -h --dirsfirst'
+
+```bash linenums='1' hl_lines='1'
+┌─[haas@haas] - [~/Haas_Data_collect] - [3839]
+└─[$] treeh
+```
+
+```bash title='Command Output'
+├── [ 12K]  backups
+│   ├── [ 301]  users_2026-02-16_00-00-07.csv
+│   ├── [ 301]  users_2026-02-16_21-20-35.csv
+.
+. Output truncated
+.
+├── [ 215]  users1.csv
+├── [4.4K]  validate_users_csv.sh
+└── [2.0K]  zshrc
+
+23 directories, 399 files
+```
+
+----------------------------------------------------------------
+
+#### treed
+
+The `treed` alias displays all of the directories using a `Human Readable` format. That means KB, MB instead of bytes. The alias uses `-dh` for human readable, directories only  and `--dirsfirst` to sort directories. If you don't like that just enter `ec` in the terminal, scroll down to the alias and delete the `--dirsfirst` option.
+
+
+`alias treed='tree -dh --dirsfirst'`
+
+```bash hl_lines='2'
+┌─[haas@haas] - [~/Haas_Data_collect/machines] - [3842]
+└─[$] treed
+```
+
+```bash title='Command Output'
+[4.0K]  .
+├── [4.0K]  01_test
+│   └── [4.0K]  cnc_logs
+├── [4.0K]  minimill
+│   └── [4.0K]  cnc_logs
+├── [4.0K]  st30
+│   └── [4.0K]  cnc_logs
+├── [4.0K]  st30l
+│   └── [4.0K]  cnc_logs
+└── [4.0K]  st40
+    └── [4.0K]  cnc_logs
+
+11 directories
+```
+
+----------------------------------------------------------------
+
 ## Important Directories
 
 ----------------------------------------------------------------
