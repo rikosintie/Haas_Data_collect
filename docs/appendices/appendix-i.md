@@ -77,17 +77,17 @@ alias haas-updates='cd /usr/share/cockpit/update-appliance'
 
 ## Additional Aliases - Functions
 
-The following aliases and functions help you:
+The following aliases and functions will help you:
 
 - List the state of the haas services
-- List the haas services files found in /etc/systemd/system
+- List the haas service files found in /etc/systemd/system
 - Edit the haas-firewall.conf file located in /etc/haas-firewall.conf
 - Edit the ssh custom config file located in /etc/ssh/sshd_config.d
 - Output logs from the data collection scripts
 
 ### haas service state
 
-The appliance uses several `systemd services` to accomplish its mission. The `haasserv` alias lists the status of all services that start with `haas`. It's important that you preface all CNC service files with `haas` or they will not be listed.
+The appliance uses several `systemd services` to accomplish its mission. The `haasserv` alias lists the status of all services that start with `haas`. It's important that you preface all CNC service files with haas when you create them or they will not be listed.
 
 Below is the alias:
 
@@ -112,7 +112,7 @@ haas-vf5ss.service                           enabled         enabled
 
 ### List the haas system files
 
-`haas-systemd` is a function. It changes to the `/etc/systemd/system/` directory and then lists the custom `haas` service files. This is very useful if you have more than 5-6 CNC machines. It's very easy to forget what you named the service file.
+`haas-systemd` is a function. It changes to the `/etc/systemd/system/` directory and then lists the custom `haas` service files. This is very useful if you have more than 5-6 CNC machines. It's easy to forget what you named the service file.
 
 ```bash
 haas-systemd() {
@@ -156,7 +156,7 @@ You can also edit the file using the Cockpit Firewall extension from a browser.
 
 ### Edit the ssh config file
 
-The command `haas-sshd` alias opens /etc/ssh/sshd_config.d/99-haas-hardening.conf file in the fresh editor. Make sure you use `ctrl+s` to save the file if you make edits. You must restart the ssh daemon using `sudo systemctl restart ssh` or the changes will not be active.
+The `haas-sshd` alias opens the `/etc/ssh/sshd_config.d/99-haas-hardening.conf` file in the fresh editor. Make sure you use `ctrl+s` to save the file if you make edits. You must restart the ssh daemon using `sudo systemctl restart ssh` or the changes will not be active.
 
 ```bash
 alias haas-sshd='sudo fresh /etc/ssh/sshd_config.d/99-haas-hardening.conf'
@@ -213,7 +213,7 @@ hostkey /etc/ssh/ssh_host_ed25519_key
 
 ### Show the script logs
 
-The scripts run constantly after they are installed with a service file. The `t-python3` alias opens the Linux journal and limits the output to `python3`. Machines that are working correctly don't generate logs. Machines that don't accept the script's connection request will create a log similar to this:
+The scripts run constantly after they are installed with a service file. `journalctl` is a powerful utility for querying and dis­play­ing event logs or [logfiles](https://www.ionos.com/digitalguide/online-marketing/web-analytics/log-files-recording-computer-processes/) under Linux. The `t-python3` alias opens the Linux journalctl subsystem and limits the output to python3. Machines that are working correctly don't generate logs. Machines that don't accept the script's connection request will create a log similar to this:
 
 ```bash
 May 06 15:06:49 haas python3[141790]: [VF2SS] Connection refused. Machine may be offline or not accepting connections.
@@ -230,7 +230,7 @@ alias t-python3='journalctl -f --no-pager | grep -E 'python3' | tspin'
 !!! Note
     It can take up to 2 minutes for the log to be displayed.
 
-You an also see the logs in the Cockpit `Updates-Logs` extension. One advantage of the cockpit extension is that there is a filter for `ip address` and `port` so you can look at just one machine.
+You an also see the logs in the Cockpit `Updates-Logs` extension. One advantage of the cockpit extension is that there is a filter for `ip address` and `port` so you can look at just one machine. To open cockpit, enter `https://<appliance_ip>:9090` into a browser.
 
 ----------------------------------------------------------------
 
