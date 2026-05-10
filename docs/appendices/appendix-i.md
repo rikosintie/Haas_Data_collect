@@ -32,9 +32,9 @@ If you want to skip the details and dive right in, here is a [Shell Cheat sheet]
 
 ----------------------------------------------------------------
 
-## List Aliases
+## Aliases
 
-You can type "haas' and tap the `tab' key to get a list of all the haas aliases that are built in.
+You can type `haas` and tap the `tab' key to get a list of the haas aliases for changing directories, listing key files and checking the state of the haas service files. These aliases are added during installation..
 
 ```bash
 haas [tab]
@@ -75,7 +75,7 @@ alias haas-updates='cd /usr/share/cockpit/update-appliance'
 
 ----------------------------------------------------------------
 
-## Additional Aliases - Functions
+## Aliases for managing - troubleshooting
 
 The following aliases and functions will help you:
 
@@ -84,6 +84,9 @@ The following aliases and functions will help you:
 - Edit the haas-firewall.conf file located in /etc/haas-firewall.conf
 - Edit the ssh custom config file located in /etc/ssh/sshd_config.d
 - Output logs from the data collection scripts
+- Output logs from `cockpit`, `Samba` and `ssh`
+- List the Linux users
+- List the Samba users
 
 ### haas service state
 
@@ -211,20 +214,40 @@ hostkey /etc/ssh/ssh_host_ed25519_key
 
 ----------------------------------------------------------------
 
-### Show the script logs
+### Output logs
 
-The scripts run constantly after they are installed with a service file. `journalctl` is a powerful utility for querying and dis­play­ing event logs or [logfiles](https://www.ionos.com/digitalguide/online-marketing/web-analytics/log-files-recording-computer-processes/) under Linux. The `t-python3` alias opens the Linux journalctl subsystem and limits the output to python3. Machines that are working correctly don't generate logs. Machines that don't accept the script's connection request will create a log similar to this:
+The Linux `journalctl` utility is a powerful tool for querying and dis­play­ing event logs or [logfiles](https://www.ionos.com/digitalguide/online-marketing/web-analytics/log-files-recording-computer-processes/) under Linux.
+
+The aliases for displaying logs start with `t-`. You can enter `t-` and press tab so get a list of all aliases for logs. I use the `t-` for aliases that are used for troubleshooting. I started that on HPE Procurve switches to create a kind of menu for customers. I kept it here because it segments the `haas` aliases and the trouble shooting aliases.
 
 ```bash
-May 06 15:06:49 haas python3[141790]: [VF2SS] Connection refused. Machine may be offline or not accepting connections.
-May 06 15:06:49 haas python3[141790]: [VF2SS] Reconnecting in 5 seconds...
-May 06 15:06:49 haas python3[141790]: [VF2SS] Attempting to connect to 192.168.10.141:5053...
+┌─[haas@haas] - [/etc/ssh/sshd_config.d] - [3857]
+└─[$] t-
 ```
+
+```bash title='Command Output'
+t-cockpit  t-health   t-python3  t-samba    t-ssh      t-ufw      t-ufwf
+```
+
+----------------------------------------------------------------
+
+#### Script data collection logs
+
+The data collection scripts run constantly after they are installed with a service file. The `t-python3` alias opens the Linux journalctl subsystem and limits the output to python3. Machines that are working correctly don't generate logs. Machines that don't accept the script's connection request will create a log similar to this:
 
 Here is the alias:
 
-```bash
-alias t-python3='journalctl -f --no-pager | grep -E 'python3' | tspin'
+`alias t-python3='journalctl -f --no-pager | grep -E 'python3' | tspin'`
+
+```bash linenums='1' hl_lines='1'
+┌─[haas@haas] - [~/Haas_Data_collect] - [3892]
+└─[$] t-python3
+```
+
+```bash title='Command Output'
+May 06 15:06:49 haas python3[141790]: [VF2SS] Connection refused. Machine may be offline or not accepting connections.
+May 06 15:06:49 haas python3[141790]: [VF2SS] Reconnecting in 5 seconds...
+May 06 15:06:49 haas python3[141790]: [VF2SS] Attempting to connect to 192.168.10.141:5053...
 ```
 
 !!! Note
@@ -235,6 +258,55 @@ You an also see the logs in the Cockpit `Updates-Logs` extension. One advantage 
 ----------------------------------------------------------------
 
 ![screenshot](../img/script-logs.resized.png)
+
+----------------------------------------------------------------
+
+#### UFW firewall Logs
+
+The Linux `Uncomplicated Firewall (UFW)` is used to protect the appliance from unauthorized access based on `ip address` and `port number`. The `t-ufw` alias uses the `jounalctl` utility to display UFW logs. It filters out multicast traffic since UFW on the appliance is set to deny by default which includes multicast. The appliance isn't running any services that depend on multicast.
+
+If you suspect that the appliance is under attach you can use this alias to monitor the firewall logs.
+
+Here is the alias:
+
+`alias t-ufw='journalctl -f --no-pager | grep -Ev 'DST=224\.' | grep -E 'UFW' | tspin`
+
+t-ufw example
+
+```bash hl_lines='2'
+┌─[haas@haas] - [~/Haas_Data_collect] - [3863]
+└─[$] t-ufw
+```
+
+```bash title='Command Output'
+May 08 22:23:15 haas kernel: [UFW BLOCK] IN=eth0 OUT= MAC=88:a2:9e:43:4d:de:00:0c:29:e0:a4:db:08:00 SRC=192.168.10.223 DST=192.168.10.122 LEN=60 TOS=0x00 PREC=0x00 TTL=64 ID=42339 DF PROTO=TCP SPT=54264 DPT=5052 WINDOW=64240 RES=0x00 SYN URGP=0
+May 08 22:23:16 haas kernel: [UFW ALLOW] IN= OUT=eth0 SRC=192.168.10.141 DST=192.168.10.143 LEN=60 TOS=0x00 PREC=0x00 TTL=64 ID=19567 DF PROTO=TCP SPT=36036 DPT=5055 WINDOW=64240 RES=0x00 SYN URGP=0
+```
+
+----------------------------------------------------------------
+
+#### UFW Logs with filter
+
+The `t-ufwf` alias allows you to include a filter. The valid filters are:
+
+- ALLOW - Show only packets that were allowed
+- AUDIT - Logging is set to `High` on the UFW firewall so some packets that are not malicious get logged
+- BLOCK - You will use this most of the time to see machines that didn't accept the connection request from the data logging script
+
+Here is the alias:
+
+`alias t-ufwf='(){journalctl -f --no-pager --grep=$1 | grep -Ev 'DST=224\.' | tspin}'`
+
+t-ufwf example
+
+```bash linenums='1' hl_lines='1'
+┌─[haas@haas] - [~/Haas_Data_collect] - [3888]
+└─[$] t-ufwf BLOCK
+```
+
+```bash title='Command Output'
+
+```
 
 ----------------------------------------------------------------
 
@@ -272,7 +344,7 @@ path() {
 
 ----------------------------------------------------------------
 
-### Make a directory and switch to it
+### Make a directory
 
 This script uses `mkdir -p` to create a directory, and if necessary, the parent path, then switches to the directory. THe function saves several steps when creating the CNC machine folders under the `machines` directory.
 
