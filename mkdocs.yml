@@ -19,6 +19,7 @@ nav:
       - Create Directories-Shares: 'build_pi_5_appliance/directories_shares.md'
       - Update the Appliance: 'build_pi_5_appliance/updating_appliance.md'
       - Firewall Configuration: 'build_pi_5_appliance/firewall_configuration.md'
+      - Trouble Shooting: 'build_pi_5_appliance/TS_cockpit.md'
   - Appendices:
     - Introduction: 'appendices/intro.md'
     - Securing the Appliance: 'appendices/appendix-a.md'
