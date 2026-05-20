@@ -320,6 +320,7 @@ sudo cp "$REPO_DIR/tools.yaml" /usr/local/sbin/
 sudo cp "$REPO_DIR/update-check.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/update-system.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/validate_users_csv.sh" /usr/local/sbin/
+sudo cp "$REPO_DIR/90-updates-clean /etc/update-motd.d/90-updates-clean
 
 # copy the pre-login banner to /etc/issue.net so it can be referenced in the sshd config.
 sudo cp "$REPO_DIR/issue.net" /etc/issue.net
@@ -423,6 +424,7 @@ sudo chmod +x /usr/local/sbin/ssh_port.sh
 sudo chmod +x /usr/local/sbin/update-check.sh
 sudo chmod +x /usr/local/sbin/update-system.sh
 sudo chmod +x /usr/local/sbin/validate_users_csv.sh
+sudo chmod +x /etc/update-motd.d/90-updates-clean
 
 # scripts in the Haas_Data_collect repo (not copied to /usr/local/sbin)
 sudo chmod +x "$REPO_DIR/setup_zsh.sh"
