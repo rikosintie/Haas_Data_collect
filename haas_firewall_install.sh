@@ -70,6 +70,12 @@ YELLOW="\e[1;33m" # ${YELLOW}
 RED="\e[1;31m" # ${RED}
 RESET="\e[0m" # ${RESET}
 
+# Check for root FIRST
+if [[ $EUID -ne 0 ]]; then
+  echo -e "${RED}[ERROR] This script must be run as root${RESET}" >&2
+  exit 1
+fi
+
 fix_var_log_perms() {
     perms=$(stat -c "%a" /var/log)
     owner=$(stat -c "%U" /var/log)
@@ -92,12 +98,12 @@ fix_var_log_perms() {
     fi
 }
 
-
-# Check for root FIRST
-if [[ $EUID -ne 0 ]]; then
-  echo -e "${RED}[ERROR] This script must be run as root${RESET}" >&2
-  exit 1
-fi
+# === remove the ubuntu ESM and K8 boot messages ======
+# Disable these scripts
+sudo chmod -x /etc/update-motd.d/90-updates-available
+sudo chmod -x /etc/update-motd.d/50-motd-news
+sudo chmod -x /etc/update-motd.d/80-livepatch
+sudo chmod -x /etc/update-motd.d/91-contract-ua-esm-status
 
 set -euo pipefail
 
