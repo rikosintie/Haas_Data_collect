@@ -9,22 +9,16 @@ alias haas-susers='sudo pdbedit -L 2>/dev/null | cut -d: -f1'
 # Display haas services
 alias haas-services='systemctl list-unit-files --type=service | grep haas'
 
-# Tailspin logging Aliases
-# list cockpit logs colorized with tspin
-alias t-cockpit='sudo journalctl -u cockpit -f | tspin'
-# list logs for Samba, ssh and cockpit colorized with tspin
-alias t-health='sudo journalctl -u smbd -u ssh -u cockpit -f | tspin'
-# list samba logs colorized with tspin
-alias t-samba='sudo journalctl -u smbd -u -f | tspin'
-# list ssh logs colorized with tspin
-alias t-ssh='sudo tail -f /var/log/auth.log | tspin'
-# List haas python3 services logs
-alias t-python3='journalctl -f --no-pager | grep -E 'python3' | tspin'
-# Lost logs for UFW with filtering for multicast traffic
-alias t-ufw='journalctl -f --no-pager | grep -Ev 'DST=224\.' | grep -E 'UFW' | tspin'
-# List logs for UFW with filter - BLOCK, ALLOW, or AUDIT
-# exmample: t-ufwf BLOCK
-alias t-ufwf='(){journalctl -f --no-pager --grep=$1 | grep -Ev 'DST=224\.' | tspin}'
+
+alias t-cockpit='sudo journalctl -u cockpit -f | tspin' # cockpit logs colorized with tspin
+alias t-health='sudo journalctl -u smbd -u ssh -u cockpit -f | tspin' # logs for Samba, ssh and cockpit colorized with tspin
+alias t-samba='sudo journalctl -u smbd -u -f | tspin' # samba logs colorized with tspin
+alias t-ssh='sudo tail -f /var/log/auth.log | tspin' # ssh logs colorized with tspin
+alias t-python3='journalctl -f --no-pager | grep -E 'python3' | tspin' # haas data collection script logs
+
+alias t-ufw='journalctl -f --no-pager | grep -Ev 'DST=224\.' | grep -E 'UFW' | tspin' # UFW with filtering for multicast traffic
+# example: t-ufwf BLOCK
+alias t-ufwf='(){journalctl -f --no-pager --grep=$1 | grep -Ev 'DST=224\.' | tspin}' # UFW with filter - BLOCK, ALLOW, or AUDIT
 
 #Directory aliases
 alias haas-bin='cd /usr/local/sbin'
@@ -39,7 +33,53 @@ alias haas-updates='cd /usr/share/cockpit/update-appliance/'
 alias haas-fw-conf='sudo fresh /etc/haas-firewall.conf'
 
 # Runs sshd -T with a grep for just the custom settings
-alias haas-sshc="sudo sshd -T | grep -E 'permitrootlogin|passwordauthentication|pubkeyauthentication|challengeresponseauthentication|permitemptypasswords|^banner|x11f|macs|^kexalgorithms|hostkey|pubbkeyauth|^port|^maxa|^maxse|grace|allowt|allowa|lastlog|strictm'"
+haas-sshc() {
+  sudo sshd -T | grep -E '^(permitrootlogin|passwordauthentication|pubkeyauthentication|challengeresponseauthentication|permitemptypasswords|banner|x11forwarding|macs|kexalgorithms|hostkey|pubkeyacceptedalgorithms|port|maxauthtries|maxsessions|logingracetime|allowtcpforwarding|allowagentforwarding|printlastlog|strictmodes)'
+}
+
+
+haas-sshc-diff() {
+  local RUNNING="/tmp/haas-sshd-running.$$"
+  local HARDENED="/tmp/haas-sshd-hardening.$$"
+
+  # Same pattern used by haas-sshc
+  local PATTERN='^(permitrootlogin|passwordauthentication|pubkeyauthentication|challengeresponseauthentication|permitemptypasswords|banner|x11forwarding|macs|kexalgorithms|hostkey|pubkeyacceptedalgorithms|port|maxauthtries|maxsessions|logingracetime|allowtcpforwarding|allowagentforwarding|printlastlog|strictmodes)'
+
+  # Running config (filtered)
+  sudo sshd -T | grep -E "$PATTERN" | sort > "$RUNNING"
+
+  # Hardening file (filtered)
+  sudo sshd -T -f /etc/ssh/sshd_config.d/99-haas-hardening.conf \
+    | grep -E "$PATTERN" | sort > "$HARDENED"
+
+  echo "Comparing SSH security directives:"
+  echo "  Running config vs Haas hardening file"
+  echo
+
+  if ! diff -u "$HARDENED" "$RUNNING"; then
+    echo
+    echo "Differences detected."
+  else
+    echo "No differences in monitored SSH directives."
+  fi
+
+  rm -f "$RUNNING" "$HARDENED"
+}
+
+haas-sshc-diff-verbose
+                       – Side‑by‑side comparison of SSH security settings.
+                         Shows differences between:
+                           • Running sshd configuration (sshd -T)
+                           • Haas hardening file
+                         Only compares critical security directives such as:
+                           permitrootlogin, passwordauthentication,
+                           pubkeyauthentication, x11forwarding, macs,
+                           kexalgorithms, hostkey, port, maxauthtries,
+                           maxsessions, allowtcpforwarding, strictmodes, etc.
+                         Output is shown in a clean left/right diff view:
+                           Left  = Hardening file
+                           Right = Running config
+                         Useful for visual verification and drift detection.
 
 # Edit the haas SSH hardening configuration file
 alias haas-sshd='sudo fresh /etc/ssh/sshd_config.d/99-haas-hardening.conf'
@@ -75,7 +115,7 @@ haas-lldp-stats() {
 }
 
 # show lldp running-configuration
-haas-lldp-stats() {
+haas-lldp-running() {
     show running-configuration
 }
 
@@ -106,22 +146,6 @@ t-ufwf() {
 
 }
 
-# "path" shows current path, one element per line.
-# If an argument is supplied, grep for it.
-path() {
-    test -n "$1" && {
-        echo $PATH | perl -p -e "s/:/\n/g;" | grep -i "$1"
-    } || {
-        echo $PATH | perl -p -e "s/:/\n/g;"
-    }
-}
-
-# Create a new directory and enter it
-mkd() {
-    mkdir -p "$@"
-    cd "$@" || exit
-}
-
 haas-help() {
   echo "=============================="
   echo "        Haas Commands"
@@ -129,16 +153,16 @@ haas-help() {
 
   echo
   echo "== Aliases =="
-  alias | grep -E '^(haas|t-)' | sed 's/^/  /' || echo "  (none found)"
+  alias | grep -E '^(haas|t-)' | sort | sed 's/^/  /' || echo "  (none found)"
+
 
   echo
   echo "== Functions =="
-  print -l ${(k)functions} | grep -E '^(haas|t-)' | sed 's/^/  /' || echo "  (none found)"
+  print -l ${(k)functions} | grep -E '^(haas|t-)' | sort | sed 's/^/  /' || echo "  (none found)"
 
   echo
   echo "Run 'haas-docs' for detailed descriptions."
 }
-
 
 haas-docs() {
   cat <<'EOF'
@@ -188,16 +212,60 @@ treed              – tree -dh --dirsfirst
 FUNCTIONS
 ---------
 
-haas-lldp-neighbors   – Show LLDP neighbors
-haas-lldp-interface   – Show LLDP interfaces
 haas-lldp-chassis     – Show LLDP chassis info
+haas-lldp-interface   – Show LLDP interfaces
+haas-lldp-neighbors   – Show LLDP neighbors
 haas-lldp-stats       – Show LLDP statistics
-haas-systemd          – List Haas systemd units
 haas-smb-shares       – Display Samba shares + paths
+haas-sshc             – Display only Haas‑relevant SSH daemon settings
+                        Filters sshd -T output to show security‑critical directives:
+                       - allowagentforwarding
+                       - allowtcpforwarding
+                       - banner
+                       - challengeresponseauthentication
+                       - hostkey
+                       - kexalgorithms
+                       - logingracetime
+                       - macs
+                       - maxauthtries
+                       - maxsessions
+                       - passwordauthentication
+                       - permitrootlogin
+                       - permitemptypasswords
+                       - port
+                       - printlastlog
+                       - pubkeyacceptedalgorithms
+                       - pubkeyauthentication
+                       - strictmodes
+                       - x11forwarding
+haas-sshc-diff       – Compare running SSH daemon settings with the Haas
+                       hardening configuration file. Highlights differences
+                       between:
+                         • sshd -T (effective running configuration)
+                         • /etc/ssh/sshd_config.d/99-haas-hardening.conf
+                       Useful for verifying that hardening rules are applied
+                       correctly and detecting drift after updates or manual
+                       edits.
+haas-sshc-diff-verbose
+                       – Side‑by‑side comparison of SSH security settings.
+                         Shows differences between:
+                           • Running sshd configuration (sshd -T)
+                           • Haas hardening file
+                         Only compares critical security directives such as:
+                           permitrootlogin, passwordauthentication,
+                           pubkeyauthentication, x11forwarding, macs,
+                           kexalgorithms, hostkey, port, maxauthtries,
+                           maxsessions, allowtcpforwarding, strictmodes, etc.
+                         Output is shown in a clean left/right diff view:
+                           Left  = Hardening file
+                           Right = Running config
+                         Useful for visual verification and drift detection.
+haas-systemd          – List Haas systemd units
 
 EOF
 }
 
+#========== General Aliases and Functions ==========
 # open ~/.zshrc using the default editor specified in $EDITOR
 alias ec="$EDITOR $HOME/.zshrc"
 
@@ -213,5 +281,22 @@ alias _='sudo '
 alias cat='batcat'
 # export BAT_THEME="Coldark-Cold"
 export BAT_THEME="zenburn"
+
+# shows current path, one element per line.
+# If an argument is supplied, grep for it.
+# example path sbin
+path() {
+    test -n "$1" && {
+        echo $PATH | perl -p -e "s/:/\n/g;" | grep -i "$1"
+    } || {
+        echo $PATH | perl -p -e "s/:/\n/g;"
+    }
+}
+
+# Create a new directory and enter it
+mkd() {
+    mkdir -p "$@"
+    cd "$@" || exit
+}
 
 # end
