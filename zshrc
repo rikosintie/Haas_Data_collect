@@ -53,8 +53,13 @@ fi
 # users are encouraged to define aliases within a top-level file in
 # the $ZSH_CUSTOM folder, with .zsh extension. Examples:
 # $ZSH_CUSTOM/haas-aliases.zsh
-# ==== custom aliases are stored in ~/.oh-my-zsh/custom/haas-aliases.zsh  ====
+
+# == custom aliases for the appliance ares stored in
+# == ~/.oh-my-zsh/custom/haas-aliases.zsh  ===
 # For a full list of active aliases, run `alias`.
+# For a list of active Haas aliases, run haas-help or haas-docs.
+
+eval "$(zoxide init zsh)"
 
 # Must be last line in the .zshrc file
 source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
