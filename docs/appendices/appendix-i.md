@@ -34,27 +34,38 @@ If you want to skip the details and dive right in, here is a [Shell Cheat sheet]
 
 ## Aliases
 
-You can type `haas` and tap the `tab' key to get a list of the haas aliases for changing directories, listing key files and checking the state of the haas service files. These aliases are added during installation..
+You can type `haas-` and tap the `tab' key to get a list of the haas aliases for changing directories, listing key files and checking the state of the haas service files. These aliases are added during installation..
 
 ```bash
-haas [tab]
+haas- [tab]
 ```
 
 ----------------------------------------------------------------
 
 ```bash title='Command Output'
 haas-bin
+haas-docs
 haas-firewall
 haas-fw-conf
+haas-help
+haas-list-functions
+haas-lldp-chassis
+haas-lldp-interface
+haas-lldp-neighbors
+haas-lldp-stats
 haas-log
 haas-repo
 haas-samba
+haas-services
+haas-smb-shares
 haas-ssh
 haas-sshc
+haas-sshc-diff
+haas-sshc-diff-verbose
 haas-sshd
+haas-system
 haas-systemd
 haas-updates
-haasserv
 ```
 
 ----------------------------------------------------------------
@@ -62,15 +73,22 @@ haasserv
 Here are the aliases for directories:
 
 ```bash
-alias haas-bin='cd /usr/local/sbin'
-alias haas-firewall='cd /usr/share/cockpit/haas-firewall'
-alias haas-fw-conf='sudo fresh /etc/haas-firewall.conf'
-alias haas-log='cd /var/log'
-alias haas-repo='cd /home/haas/Haas_Data_collect'
-alias haas-samba='cd /usr/share/cockpit/manage-samba'
-alias haas-ssh='cd /etc/ssh/sshd_config.d'
-alias haas-systemd='cd /etc/systemd/system'
-alias haas-updates='cd /usr/share/cockpit/update-appliance'
+alias | grep ^haas
+```
+
+```bash title='Command Output'
+haas-bin='cd /usr/local/sbin'
+haas-firewall='cd /usr/share/cockpit/haas-firewall/'
+haas-fw-conf='sudo fresh /etc/haas-firewall.conf'
+haas-list-functions='print -l ${(k)functions} | grep ^haas | sort'
+haas-log='cd /var/log/'
+haas-repo='cd /home/haas/Haas_Data_collect/'
+haas-samba='cd /usr/share/cockpit/manage-samba/'
+haas-services='systemctl list-unit-files --type=service | grep haas'
+haas-ssh='cd /etc/ssh/sshd_config.d/'
+haas-sshd='sudo fresh /etc/ssh/sshd_config.d/99-haas-hardening.conf'
+haas-system='cd /etc/systemd/system'
+haas-updates='cd /usr/share/cockpit/update-appliance/'
 ```
 
 ----------------------------------------------------------------
@@ -94,11 +112,11 @@ The appliance uses several `systemd services` to accomplish its mission. The `ha
 
 Below is the alias:
 
-`alias haasserv='systemctl list-unit-files --type=service | grep haas'`
+`alias haas-services='systemctl list-unit-files --type=service | grep haas'`
 
 ```bash hl_lines='2'
 ┌─[haas@haas] - [/usr/share/cockpit] - [3659]
-└─[$] haasserv
+└─[$] haas-services
 ```
 
 ```bash title='Command Output'
@@ -317,6 +335,7 @@ This is an incredibly useful function! Sometimes a command just wont run or isn'
 ```bash
 # "path" shows current path, one element per line.
 # If an argument is supplied, grep for it.
+# example path sbin
 path() {
     test -n "$1" && {
         echo $PATH | perl -p -e "s/:/\n/g;" | grep -i "$1"
@@ -340,6 +359,20 @@ path() {
 /usr/games
 /usr/local/games
 /snap/bin
+```
+
+----------------------------------------------------------------
+
+Search the path for `sbin`
+
+```bash hl_lines='1'
+path sbin
+```
+
+```bash title='Command Output'
+/usr/local/sbin
+/usr/sbin
+/sbin
 ```
 
 ----------------------------------------------------------------
