@@ -190,8 +190,8 @@ t-ufwf() {
     set -- "$DEFAULT_FILTER"
   fi
 
-  # Normalize to uppercase (case-insensitive mode)
-  local FILTER="${1^^}"
+  # Normalize to uppercase (Zsh syntax)
+  local FILTER="${1:u}"
 
   # Validate filter
   if [[ ! " ${VALID_FILTERS[*]} " =~ " ${FILTER} " ]]; then
@@ -206,6 +206,7 @@ t-ufwf() {
     | grep -Ev 'DST=224\.' \
     | tspin
 }
+
 
 haas-help() {
   echo "=============================="
