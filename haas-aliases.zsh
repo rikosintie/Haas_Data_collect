@@ -17,8 +17,9 @@ alias t-ssh='sudo tail -f /var/log/auth.log | tspin' # ssh logs colorized with t
 alias t-python3='journalctl -f --no-pager | grep -E 'python3' | tspin' # haas data collection script logs
 
 alias t-ufw='journalctl -f --no-pager | grep -Ev 'DST=224\.' | grep -E 'UFW' | tspin' # UFW with filtering for multicast traffic
+
 # example: t-ufwf BLOCK
-alias t-ufwf='(){journalctl -f --no-pager --grep=$1 | grep -Ev 'DST=224\.' | tspin}' # UFW with filter - BLOCK, ALLOW, or AUDIT
+# alias t-ufwf='(){journalctl -f --no-pager --grep=$1 | grep -Ev 'DST=224\.' | tspin}' # UFW with filter - BLOCK, ALLOW, or AUDIT
 
 # Directory aliases
 alias haas-bin='cd /usr/local/sbin' # Haas custom scripts for appliance management
@@ -170,7 +171,6 @@ haas-smb-shares() {
 # UFW use BLOCK, ALLOW, or AUDIT to filter
 t-ufwf() {
     journalctl -f --no-pager --grep=$1 | grep -Ev 'DST=224\.' | tspin
-
 }
 
 haas-help() {
