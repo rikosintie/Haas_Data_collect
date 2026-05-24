@@ -18,9 +18,6 @@ alias t-python3='journalctl -f --no-pager | grep -E 'python3' | tspin' # haas da
 
 alias t-ufw='journalctl -f --no-pager | grep -Ev 'DST=224\.' | grep -E 'UFW' | tspin' # UFW with filtering for multicast traffic
 
-# example: t-ufwf BLOCK
-# alias t-ufwf='(){journalctl -f --no-pager --grep=$1 | grep -Ev 'DST=224\.' | tspin}' # UFW with filter - BLOCK, ALLOW, or AUDIT
-
 # Directory aliases
 alias haas-bin='cd /usr/local/sbin' # Haas custom scripts for appliance management
 alias haas-firewall='cd /usr/share/cockpit/haas-firewall/' # The cockpit directory for the firewall extension
@@ -169,8 +166,45 @@ haas-smb-shares() {
 }
 
 # UFW use BLOCK, ALLOW, or AUDIT to filter
+#t-ufwf() {
+#    journalctl -f --no-pager --grep="$1" | grep -Ev 'DST=224\.' | tspin
+#}
+
 t-ufwf() {
-    journalctl -f --no-pager --grep=$1 | grep -Ev 'DST=224\.' | tspin
+  # Valid filters
+  local VALID_FILTERS=("BLOCK" "ALLOW" "AUDIT")
+
+  # Default filter
+  local DEFAULT_FILTER="BLOCK"
+
+  # If no argument provided, show usage and valid filters
+  if [[ -z "$1" ]]; then
+    echo "Usage: t-ufwf <BLOCK|ALLOW|AUDIT>"
+    echo "Example: t-ufwf BLOCK"
+    echo
+    echo "Valid filters:"
+    printf '  - %s\n' "${VALID_FILTERS[@]}"
+    echo
+    echo "Default: $DEFAULT_FILTER"
+    echo "Running with default filter..."
+    set -- "$DEFAULT_FILTER"
+  fi
+
+  # Normalize to uppercase (case-insensitive mode)
+  local FILTER="${1^^}"
+
+  # Validate filter
+  if [[ ! " ${VALID_FILTERS[*]} " =~ " ${FILTER} " ]]; then
+    echo "Invalid filter: $1"
+    echo "Valid filters:"
+    printf '  - %s\n' "${VALID_FILTERS[@]}"
+    return 1
+  fi
+
+  # Run filtered UFW logs
+  journalctl -f --no-pager --grep="$FILTER" \
+    | grep -Ev 'DST=224\.' \
+    | tspin
 }
 
 haas-help() {
@@ -212,7 +246,16 @@ t-samba            – Follow Samba logs
 t-ssh              – Follow SSH auth logs
 t-python3          – Follow python3 service logs
 t-ufw              – Follow UFW logs (filters multicast)
-t-ufwf <FILTER>    – Follow UFW logs filtered by BLOCK/ALLOW/AUDIT
+t-ufwf               – Follow UFW logs filtered by BLOCK, ALLOW, or AUDIT.
+                       Features:
+                         • Case‑insensitive filter matching
+                         • Usage guard with help message
+                         • Lists valid filters when input is missing or invalid
+                         • Defaults to BLOCK when no filter is provided
+                       Examples:
+                         t-ufwf BLOCK
+                         t-ufwf allow
+                         t-ufwf audit
 
 # Directory shortcuts
 haas-bin           – cd /usr/local/sbin
@@ -288,6 +331,23 @@ haas-sshc-diff-verbose
                            Right = Running config
                          Useful for visual verification and drift detection.
 haas-systemd          – List Haas systemd units
+
+LOGGING
+-------
+
+The appliance includes several helper commands for viewing system logs in a
+colorized, readable format using the tspin log viewer.
+
+t-cockpit           – Follow Cockpit logs
+t-health            – Follow smbd, ssh, and cockpit logs
+t-samba             – Follow Samba logs
+t-ssh               – Follow SSH authentication logs
+t-python3           – Follow Python3 service logs
+t-ufw               – Follow UFW logs (filters multicast)
+t-ufwf              – Follow UFW logs filtered by BLOCK/ALLOW/AUDIT
+                       (case‑insensitive, with usage guard and default filter)
+
+All logging commands stream live output and are colorized for readability.
 
 EOF
 }
