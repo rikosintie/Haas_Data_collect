@@ -1,4 +1,4 @@
-# Custom aliases
+# Custom zsh aliases
 
 # Display Linux users
 alias haas-lusers='awk -F: '\''$3 >= 1000 {print $1}'\'' /etc/passwd'
@@ -9,7 +9,7 @@ alias haas-susers='sudo pdbedit -L 2>/dev/null | cut -d: -f1'
 # Display haas services
 alias haas-services='systemctl list-unit-files --type=service | grep haas'
 
-
+# Troubleshooting aliases
 alias t-cockpit='sudo journalctl -u cockpit -f | tspin' # cockpit logs colorized with tspin
 alias t-health='sudo journalctl -u smbd -u ssh -u cockpit -f | tspin' # logs for Samba, ssh and cockpit colorized with tspin
 alias t-samba='sudo journalctl -u smbd -u -f | tspin' # samba logs colorized with tspin
@@ -20,24 +20,31 @@ alias t-ufw='journalctl -f --no-pager | grep -Ev 'DST=224\.' | grep -E 'UFW' | t
 # example: t-ufwf BLOCK
 alias t-ufwf='(){journalctl -f --no-pager --grep=$1 | grep -Ev 'DST=224\.' | tspin}' # UFW with filter - BLOCK, ALLOW, or AUDIT
 
-#Directory aliases
-alias haas-bin='cd /usr/local/sbin'
-alias haas-firewall='cd /usr/share/cockpit/haas-firewall/'
-alias haas-log='cd /var/log/'
-alias haas-repo='cd /home/haas/Haas_Data_collect/'
-alias haas-samba='cd /usr/share/cockpit/manage-samba/'
-alias haas-system='cd /etc/systemd/system'
-alias haas-updates='cd /usr/share/cockpit/update-appliance/'
+# Directory aliases
+alias haas-bin='cd /usr/local/sbin' # Haas custom scripts for appliance management
+alias haas-firewall='cd /usr/share/cockpit/haas-firewall/' # The cockpit directory for the firewall extension
+alias haas-log='cd /var/log/' # The appliance log files directory
+alias haas-repo='cd /home/haas/Haas_Data_collect/' # The appliance repo directory
+alias haas-samba='cd /usr/share/cockpit/manage-samba/' # The cockpit directory for the samba extension
+alias haas-ssh='cd /etc/ssh/sshd_config.d/' # the sshd_config.d directory for te ssh customization file
+alias haas-system='cd /etc/systemd/system' # The haas service files
+alias haas-updates='cd /usr/share/cockpit/update-appliance/' # The cockpit directory for the update/logs extension
+
+# List all haas functions
+alias haas-list-functions='print -l ${(k)functions} | grep '^haas' | sort'
 
 # Open the firewall configuration file in the default editor with sudo permissions
 alias haas-fw-conf='sudo fresh /etc/haas-firewall.conf'
 
 # Runs sshd -T with a grep for just the custom settings
 haas-sshc() {
-  sudo sshd -T | grep -E '^(permitrootlogin|passwordauthentication|pubkeyauthentication|challengeresponseauthentication|permitemptypasswords|banner|x11forwarding|macs|kexalgorithms|hostkey|pubkeyacceptedalgorithms|port|maxauthtries|maxsessions|logingracetime|allowtcpforwarding|allowagentforwarding|printlastlog|strictmodes)'
+  sudo sshd -T |
+    grep -E '^(permitrootlogin|passwordauthentication|pubkeyauthentication|challengeresponseauthentication|permitemptypasswords|banner|x11forwarding|macs|kexalgorithms|hostkey|pubkeyacceptedalgorithms|port|maxauthtries|maxsessions|logingracetime|allowtcpforwarding|allowagentforwarding|printlastlog|strictmodes)' |
+    column -t
 }
 
-
+# Show any differences between the running ssh config and /etc/ssh/sshd_config.d/99-haas-hardening.conf
+# this should return "No differences in monitored SSH directives."
 haas-sshc-diff() {
   local RUNNING="/tmp/haas-sshd-running.$$"
   local HARDENED="/tmp/haas-sshd-hardening.$$"
@@ -66,20 +73,40 @@ haas-sshc-diff() {
   rm -f "$RUNNING" "$HARDENED"
 }
 
-haas-sshc-diff-verbose
-                       – Side‑by‑side comparison of SSH security settings.
-                         Shows differences between:
-                           • Running sshd configuration (sshd -T)
-                           • Haas hardening file
-                         Only compares critical security directives such as:
-                           permitrootlogin, passwordauthentication,
-                           pubkeyauthentication, x11forwarding, macs,
-                           kexalgorithms, hostkey, port, maxauthtries,
-                           maxsessions, allowtcpforwarding, strictmodes, etc.
-                         Output is shown in a clean left/right diff view:
-                           Left  = Hardening file
-                           Right = Running config
-                         Useful for visual verification and drift detection.
+# Show any differences between the running ssh config and /etc/ssh/sshd_config.d/99-haas-hardening.conf
+# This will return vervose output.
+haas-sshc-diff-verbose() {
+  local RUNNING="/tmp/haas-sshd-running.$$"
+  local HARDENED="/tmp/haas-sshd-hardening.$$"
+  local PATTERN='^(permitrootlogin|passwordauthentication|pubkeyauthentication|challengeresponseauthentication|permitemptypasswords|banner|x11forwarding|macs|kexalgorithms|hostkey|pubkeyacceptedalgorithms|port|maxauthtries|maxsessions|logingracetime|allowtcpforwarding|allowagentforwarding|printlastlog|strictmodes)'
+
+  # Running config (filtered)
+  sudo sshd -T | grep -E "$PATTERN" | sort > "$RUNNING"
+
+  # Hardening file (filtered)
+  sudo sshd -T -f /etc/ssh/sshd_config.d/99-haas-hardening.conf 2>/dev/null \
+    | grep -E "$PATTERN" | sort > "$HARDENED"
+
+  echo "============================================================"
+  echo "   SSHD SECURITY SETTINGS — VERBOSE SIDE‑BY‑SIDE VIEW"
+  echo "============================================================"
+  echo "Left  = Haas Hardening File"
+  echo "Right = Running sshd Configuration"
+  echo
+
+  # ALWAYS show both sides, even if identical
+  diff -y "$HARDENED" "$RUNNING" || true
+
+  echo
+  echo "Legend:"
+  echo "  <   Value differs (hardening file)"
+  echo "  >   Value differs (running config)"
+  echo "  |   Values differ on same directive"
+  echo "  (blank) Values match"
+  echo
+
+  rm -f "$RUNNING" "$HARDENED"
+}
 
 # Edit the haas SSH hardening configuration file
 alias haas-sshd='sudo fresh /etc/ssh/sshd_config.d/99-haas-hardening.conf'
@@ -93,8 +120,8 @@ alias treeh='tree -h --dirsfirst'
 #Run tree with directories first
 alias treed='tree -dh --dirsfirst'
 
+# Custom Haas Functions
 
-# Functions
 # show network neighbors
 haas-lldp-neighbors() {
     lldpcli show neighbors
