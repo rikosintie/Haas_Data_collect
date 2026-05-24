@@ -39,6 +39,7 @@
 #   - Installs pip
 #   - Creates the backup directory in the repo
 #   - Triggers an initial firewall configuration via systemd
+#   - Removes the ubuntu ESM and K8 boot messages from the boot menu
 #
 # It does NOT modify or delete anything inside the repo.
 #
@@ -148,16 +149,23 @@ CSV_PATH="$REPO_DIR/users.csv"
 
 
 REQUIRED_FILES=(
+  "build-nmap.sh"
   "configure_ufw_from_csv.sh"
+  "gh-updater.lib.sh"
+  "install-tools.sh"
+  "issue.net"
+  "list_shares.sh"
+  "list_shares_csv.sh"
+  "rollback_csv.sh"
+  "ssh_port.sh"
+  "tools.yaml"
+  "update-check.sh"
+  "update-system.sh"
   "validate_users_csv.sh"
   "haas-firewall.service"
   "haas-firewall.timer"
-  "update-check.sh"
-  "update-system.sh"
-  "rollback_csv.sh"
-  "build-nmap.sh"
-  "ssh_port.sh"
-  "issue.net"
+  "99-custom-function"
+  "90-updates-clean"
 )
 
 echo ""
@@ -311,19 +319,17 @@ sudo cp "$REPO_DIR/build-nmap.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/configure_ufw_from_csv.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/gh-updater.lib.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/install-tools.sh" /usr/local/sbin/
+sudo cp "$REPO_DIR/issue.net" /etc/issue.net
 sudo cp "$REPO_DIR/list_shares.sh" /usr/local/sbin
 sudo cp "$REPO_DIR/list_shares_csv.sh" /usr/local/sbin
 sudo cp "$REPO_DIR/rollback_csv.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/ssh_port.sh" /usr/local/sbin
 sudo cp "$REPO_DIR/tools.yaml" /usr/local/sbin/
-sudo cp "$REPO_DIR/tools.yaml" /usr/local/sbin/
 sudo cp "$REPO_DIR/update-check.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/update-system.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/validate_users_csv.sh" /usr/local/sbin/
-sudo cp "$REPO_DIR/90-updates-clean /etc/update-motd.d/90-updates-clean
-
-# copy the pre-login banner to /etc/issue.net so it can be referenced in the sshd config.
-sudo cp "$REPO_DIR/issue.net" /etc/issue.net
+sudo cp "$REPO_DIR/90-updates-clean /etc/update-motd.d/90-updates-clean"
+sudo cp "$REPO_DIR/99-custom-function /etc/update-motd.d/99-custom-function"
 
 ########################################
 # Create custom SSH hardening config
