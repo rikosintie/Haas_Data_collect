@@ -477,7 +477,7 @@ sudo nano /etc/systemd/system/haas-st40.service
 This will open `haas-st40.service` in the built in `nano` editor.
 
 !!! Note
-    For whatever reason, `nano` doesn't use the normal text editor keys. If you are brand new to Linux, use this tutorial to learn nano - [The beginners guide to Nano the Linux command line text editor](https://www.howtogeek.com/42980/the-beginners-guide-to-nano-the-linux-command-line-text-editor/)
+    For whatever reason, `nano` doesn't use the normal text editor keys. If you are brand new to Linux, use this tutorial to learn nano - [The beginners guide to Nano the Linux command line text editor](https://www.howtogeek.com/42980/the-beginners-guide-to-nano-the-linux-command-line-text-editor/). There is also a [Nano Cheatshett](https://www.nano-editor.org/dist/latest/cheatsheet.html){target=_blank} that is very useful.
 
 The [Fresh Editor](https://github.com/Nsoro-Allan/fresh-editor?tab=readme-ov-file#installation) is installed if you used the installation script. The homepage for the Fresh Editor is [Fresh](https://sinelaw.github.io/fresh/). I find it easier to use than `nano` because it uses the same key bindings as most GUI editors.
 
