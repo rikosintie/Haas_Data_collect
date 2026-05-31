@@ -479,6 +479,54 @@ This will open `haas-st40.service` in the built in `nano` editor.
 !!! Note
     For whatever reason, `nano` doesn't use the normal text editor keys. If you are brand new to Linux, use this tutorial to learn nano - [The beginners guide to Nano the Linux command line text editor](https://www.howtogeek.com/42980/the-beginners-guide-to-nano-the-linux-command-line-text-editor/). There is also a [Nano Cheatshett](https://www.nano-editor.org/dist/latest/cheatsheet.html){target=_blank} that is very useful.
 
+----------------------------------------------------------------
+
+| **File handling**      |                                  | **Moving around**    |                                    |
+|------------------------|----------------------------------|----------------------|------------------------------------|
+| Ctrl+S                 | Save current file                | ←                    | One character backward             |
+| Ctrl+O                 | Offer to write file ("Save as")  | →                    | One character forward              |
+| Ctrl+R                 | Insert a file into current one   | Ctrl+←               | One word backward                  |
+| Ctrl+X                 | Close buffer, exit from nano     | Ctrl+→               | One word forward                   |
+|                        |                                  | Ctrl+A               | To start of line                   |
+| **Editing**            |                                  | Ctrl+E               | To end of line                     |
+| Ctrl+K                 | Cut current line into cutbuffer  | Ctrl+P               | One line up                        |
+| Alt+6                  | Copy current line into cutbuffer | Ctrl+N               | One line down                      |
+| Ctrl+U                 | Paste contents of cutbuffer      | Ctrl+↑               | To previous block                  |
+| Ctrl+]                 | Complete current word            | Ctrl+↓               | To next block                      |
+| Alt+3                  | Comment/uncomment line/region    | Alt+Home             | To first row in viewport           |
+| Alt+U                  | Undo last action                 | Alt+End              | To last row in viewport            |
+| Alt+E                  | Redo last undone action          | Ctrl+Y               | One page up                        |
+|                        |                                  | Ctrl+V               | One page down                      |
+| **Search and replace** |                                  | Alt+\                | To top of buffer                   |
+| Ctrl+B                 | Start backward search            | Alt+/                | To end of buffer                   |
+| Ctrl+F                 | Start forward search             |                      |                                    |
+| Alt+B                  | Find next occurrence backward    | **Special movement** |                                    |
+| Alt+F                  | Find next occurrence forward     | Alt+G                | Go to a specified line             |
+| Alt+R                  | Start a replacing session        | Alt+]                | Go to complementary bracket        |
+|                        |                                  | Alt+<                | Scroll viewport to the left        |
+| **Deletion**           |                                  | Alt+>                | Scroll viewport to the right       |
+| Ctrl+H                 | Delete character before cursor   | Alt+↑                | Scroll viewport up                 |
+| Ctrl+D                 | Delete character under cursor    | Alt+↓                | Scroll viewport down               |
+| Alt+Bsp                | Delete word to the left          | Ctrl+L               | Center the current line            |
+| Ctrl+Del               | Delete word to the right         | Alt+←                | Switch to preceding buffer         |
+| Alt+Del                | Delete current line              | Alt+→                | Switch to succeeding buffer        |
+|                        |                                  |                      |                                    |
+| **Operations**         |                                  | **Information**      |                                    |
+| Ctrl+T                 | Execute some command             | Ctrl+C               | Report cursor position             |
+| Ctrl+T Ctrl+S          | Run a spell check                | Alt+D                | Report line/word/character counts  |
+| Ctrl+T Ctrl+Y          | Run a syntax check               | Ctrl+G               | Display help text                  |
+| Ctrl+T Ctrl+O          | Run a formatter                  |                      |                                    |
+| Tab                    | Indent marked region             | **Various**          |                                    |
+| Shift+Tab              | Unindent marked region           | Alt+A                | Set or unset the mark              |
+| Ctrl+J                 | Justify paragraph or region      | Alt+C                | Turn constant position info on/off |
+| Alt+J                  | Justify entire buffer            | Alt+N                | Turn line numbers on/off           |
+| Alt+T                  | Cut until end of buffer          | Alt+P                | Turn visible whitespace on/off     |
+| Alt+V                  | Enter next keystroke verbatim    | Alt+S                | Turn softwrapping on/off           |
+| Alt+:                  | Start/stop recording of macro    | Alt+X                | Hide/unhide the help lines         |
+| Alt+;                  | Replay macro                     | Alt+Z                | Hide/unhide the info bars          |
+
+----------------------------------------------------------------
+
 The [Fresh Editor](https://github.com/Nsoro-Allan/fresh-editor?tab=readme-ov-file#installation) is installed if you used the installation script. The homepage for the Fresh Editor is [Fresh](https://sinelaw.github.io/fresh/). I find it easier to use than `nano` because it uses the same key bindings as most GUI editors.
 
 ----------------------------------------------------------------
