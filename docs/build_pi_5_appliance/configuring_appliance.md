@@ -476,6 +476,43 @@ sudo nano /etc/systemd/system/haas-st40.service
 
 This will open `haas-st40.service` in the built in `nano` editor.
 
+```bash hl_lines='2'
+┌─[haas@haas] - [~/Haas_Data_collect] - [4331]
+└─[$] nano haas-st40.service
+```
+
+```bash title='Command Output'
+[Unit]
+Description=Logger for ST40
+After=network.target
+
+[Service]
+User=haas
+WorkingDirectory=/home/haas/Haas_Data_collect/machines/st40
+ExecStart=/usr/bin/python3 /home/haas/Haas_Data_collect/haas_logger2.py -a -t 192.168.10.133 --port 5054 --name st40
+Type=idle
+
+[Install]
+WantedBy=multi-user.target
+```
+
+----------------------------------------------------------------
+
+#### What you need to modify
+
+- **Description** - The description is shown when you check the status of the service. Change to something that makes sense in your environment.
+- **WorkingDirectory** - The directory where Python will save the data files.
+- **ExecStart** - This is where the table of names, ports, IP addresses comes in handy. Replace:
+  - ip address
+  - port
+  - name
+
+With your values
+
+**Nothing else needs to be changed in the service file.**
+
+----------------------------------------------------------------
+
 !!! Note
     For whatever reason, `nano` doesn't use the normal text editor keys. If you are brand new to Linux, use this tutorial to learn nano - [The beginners guide to Nano the Linux command line text editor](https://www.howtogeek.com/42980/the-beginners-guide-to-nano-the-linux-command-line-text-editor/). There is also a [Nano Cheatshett](https://www.nano-editor.org/dist/latest/cheatsheet.html){target=_blank} that is very useful.
 
@@ -534,15 +571,6 @@ The [Fresh Editor](https://github.com/Nsoro-Allan/fresh-editor?tab=readme-ov-fil
 **If you installed the desktop version of Ubuntu**, you can use the GUI Gnome Text Editor GUI to edit the files by running:
 
 `sudo gnome-text-editor /etc/systemd/system/haas-st40.service`
-
-----------------------------------------------------------------
-
-#### What you need to modify
-
-- **Description** - The description is shown when you check the status of the service. Change to something that makes sense in your environment
-- **ExecStart** - This is where the table of names, ports, IP addresses comes in handy.
-
-**Nothing else needs to be changed in the service file.**
 
 ----------------------------------------------------------------
 
