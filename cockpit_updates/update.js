@@ -529,29 +529,38 @@ saveServiceBtn.addEventListener("click", function() {
         cockpit.file(path, { superuser: "require" })
             .replace(content)
             .done(function() {
-                output.textContent += "Saved. Running systemctl daemon-reload...\n";
-                cockpit.spawn(["systemctl", "daemon-reload"], { superuser: "require", err: "message" })
+                var workDir = "/home/haas/Haas_Data_collect/machines/" + machine;
+                output.textContent += "Saved. Creating " + workDir + "...\n";
+                cockpit.spawn(["mkdir", "-p", workDir], { superuser: "require", err: "message" })
                     .done(function() {
-                        output.textContent += "daemon-reload complete. Enabling " + serviceName + "...\n";
-                        cockpit.spawn(["systemctl", "enable", serviceName], { superuser: "require", err: "message" })
+                        output.textContent += "Directory ready. Running systemctl daemon-reload...\n";
+                        cockpit.spawn(["systemctl", "daemon-reload"], { superuser: "require", err: "message" })
                             .done(function() {
-                                output.textContent += "Enabled. Starting " + serviceName + "...\n";
-                                cockpit.spawn(["systemctl", "start", serviceName], { superuser: "require", err: "message" })
+                                output.textContent += "daemon-reload complete. Enabling " + serviceName + "...\n";
+                                cockpit.spawn(["systemctl", "enable", serviceName], { superuser: "require", err: "message" })
                                     .done(function() {
-                                        output.textContent += serviceName + " started successfully.\n";
+                                        output.textContent += "Enabled. Starting " + serviceName + "...\n";
+                                        cockpit.spawn(["systemctl", "start", serviceName], { superuser: "require", err: "message" })
+                                            .done(function() {
+                                                output.textContent += serviceName + " started successfully.\n";
+                                            })
+                                            .fail(function(ex, data) {
+                                                output.textContent += "start failed: " + (ex.message || JSON.stringify(ex)) + "\n";
+                                                if (data) output.textContent += data;
+                                            });
                                     })
                                     .fail(function(ex, data) {
-                                        output.textContent += "start failed: " + (ex.message || JSON.stringify(ex)) + "\n";
+                                        output.textContent += "enable failed: " + (ex.message || JSON.stringify(ex)) + "\n";
                                         if (data) output.textContent += data;
                                     });
                             })
                             .fail(function(ex, data) {
-                                output.textContent += "enable failed: " + (ex.message || JSON.stringify(ex)) + "\n";
+                                output.textContent += "daemon-reload failed: " + (ex.message || JSON.stringify(ex)) + "\n";
                                 if (data) output.textContent += data;
                             });
                     })
                     .fail(function(ex, data) {
-                        output.textContent += "daemon-reload failed: " + (ex.message || JSON.stringify(ex)) + "\n";
+                        output.textContent += "mkdir failed: " + (ex.message || JSON.stringify(ex)) + "\n";
                         if (data) output.textContent += data;
                     });
             })
