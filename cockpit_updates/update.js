@@ -18,6 +18,7 @@ const stopLogBtn = document.getElementById("stopLogBtn");
 
 const serviceStateBtn      = document.getElementById("serviceStateBtn");
 const editServicesBtn      = document.getElementById("editServicesBtn");
+const createServiceBtn     = document.getElementById("createServiceBtn");
 const servicesList         = document.getElementById("servicesList");
 const serviceEditorSection = document.getElementById("serviceEditorSection");
 const serviceEditorArea    = document.getElementById("serviceEditorArea");
@@ -26,6 +27,7 @@ const saveServiceBtn       = document.getElementById("saveServiceBtn");
 const cancelServiceEditBtn = document.getElementById("cancelServiceEditBtn");
 
 var currentServicePath = null;
+var isCreatingService = false;
 
 var liveLogProcess = null;
 var isUfwLive = false;
@@ -62,6 +64,7 @@ function disableButtons(state) {
     if (state) stopLogBtn.disabled = true;
     serviceStateBtn.disabled = state;
     editServicesBtn.disabled = state;
+    createServiceBtn.disabled = state;
 }
 
 // Show the service editor, hiding the output <pre>
@@ -470,6 +473,29 @@ servicesList.addEventListener("change", function() {
         });
 });
 
+// ── Create Service ────────────────────────────────────────────────────────────
+
+var SERVICE_TEMPLATE = [
+    "[Unit]",
+    "Description=<description>",
+    "After=network.target",
+    "",
+    "[Service]",
+    "User=haas",
+    "WorkingDirectory=/home/haas/Haas_Data_collect/machines/<machine>",
+    "ExecStart=/usr/bin/python3 /home/haas/Haas_Data_collect/haas_logger2.py -a -t <ip_address> --port <port> --name <machine>",
+    "Type=idle",
+    "",
+    "[Install]",
+    "WantedBy=multi-user.target"
+].join("\n");
+
+createServiceBtn.addEventListener("click", function() {
+    stopLiveLog();
+    isCreatingService = true;
+    showServiceEditor("New service — replace all <placeholders>", SERVICE_TEMPLATE);
+});
+
 // ── Save & Reload daemon ──────────────────────────────────────────────────────
 
 saveServiceBtn.addEventListener("click", function() {
@@ -477,6 +503,61 @@ saveServiceBtn.addEventListener("click", function() {
     if (!content.trim()) {
         output.textContent = "ERROR: Editor is empty — not saving.\n";
         hideServiceEditor();
+        return;
+    }
+
+    if (isCreatingService) {
+        if (/<\w/.test(content)) {
+            output.textContent = "ERROR: Replace all <placeholders> before saving.\n";
+            output.classList.remove("hidden");
+            return;
+        }
+        var wdMatch = content.match(/WorkingDirectory=.*\/machines\/(\S+)/);
+        if (!wdMatch) {
+            output.textContent = "ERROR: Could not determine machine name from WorkingDirectory line.\n";
+            output.classList.remove("hidden");
+            return;
+        }
+        var machine = wdMatch[1];
+        var serviceName = "haas-" + machine + ".service";
+        var path = "/etc/systemd/system/" + serviceName;
+
+        isCreatingService = false;
+        hideServiceEditor();
+        output.textContent = "Saving " + path + "...\n";
+
+        cockpit.file(path, { superuser: "require" })
+            .replace(content)
+            .done(function() {
+                output.textContent += "Saved. Running systemctl daemon-reload...\n";
+                cockpit.spawn(["systemctl", "daemon-reload"], { superuser: "require", err: "message" })
+                    .done(function() {
+                        output.textContent += "daemon-reload complete. Enabling " + serviceName + "...\n";
+                        cockpit.spawn(["systemctl", "enable", serviceName], { superuser: "require", err: "message" })
+                            .done(function() {
+                                output.textContent += "Enabled. Starting " + serviceName + "...\n";
+                                cockpit.spawn(["systemctl", "start", serviceName], { superuser: "require", err: "message" })
+                                    .done(function() {
+                                        output.textContent += serviceName + " started successfully.\n";
+                                    })
+                                    .fail(function(ex, data) {
+                                        output.textContent += "start failed: " + (ex.message || JSON.stringify(ex)) + "\n";
+                                        if (data) output.textContent += data;
+                                    });
+                            })
+                            .fail(function(ex, data) {
+                                output.textContent += "enable failed: " + (ex.message || JSON.stringify(ex)) + "\n";
+                                if (data) output.textContent += data;
+                            });
+                    })
+                    .fail(function(ex, data) {
+                        output.textContent += "daemon-reload failed: " + (ex.message || JSON.stringify(ex)) + "\n";
+                        if (data) output.textContent += data;
+                    });
+            })
+            .fail(function(ex) {
+                output.textContent += "ERROR saving file: " + (ex.message || JSON.stringify(ex)) + "\n";
+            });
         return;
     }
 
@@ -505,6 +586,7 @@ saveServiceBtn.addEventListener("click", function() {
 });
 
 cancelServiceEditBtn.addEventListener("click", function() {
+    isCreatingService = false;
     hideServiceEditor();
     output.textContent = "Edit cancelled.\n";
     setActiveLogBtn(null);
