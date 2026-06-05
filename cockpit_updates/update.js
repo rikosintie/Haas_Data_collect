@@ -19,6 +19,7 @@ const stopLogBtn = document.getElementById("stopLogBtn");
 const serviceStateBtn      = document.getElementById("serviceStateBtn");
 const editServicesBtn      = document.getElementById("editServicesBtn");
 const createServiceBtn     = document.getElementById("createServiceBtn");
+const deleteServiceBtn     = document.getElementById("deleteServiceBtn");
 const servicesList         = document.getElementById("servicesList");
 const serviceEditorSection = document.getElementById("serviceEditorSection");
 const serviceEditorArea    = document.getElementById("serviceEditorArea");
@@ -28,6 +29,7 @@ const cancelServiceEditBtn = document.getElementById("cancelServiceEditBtn");
 
 var currentServicePath = null;
 var isCreatingService = false;
+var serviceListMode = "edit"; // "edit" or "delete"
 
 var liveLogProcess = null;
 var isUfwLive = false;
@@ -65,6 +67,7 @@ function disableButtons(state) {
     serviceStateBtn.disabled = state;
     editServicesBtn.disabled = state;
     createServiceBtn.disabled = state;
+    deleteServiceBtn.disabled = state;
 }
 
 // Show the service editor, hiding the output <pre>
@@ -420,12 +423,9 @@ serviceStateBtn.addEventListener("click", function() {
         });
 });
 
-// ── Edit Services ─────────────────────────────────────────────────────────────
+// ── Shared: populate the services dropdown ────────────────────────────────────
 
-editServicesBtn.addEventListener("click", function() {
-    stopLiveLog();
-    setActiveLogBtn(editServicesBtn);
-
+function populateServicesList() {
     servicesList.innerHTML = "<option value=\"\">— loading... —</option>";
     servicesList.classList.remove("hidden");
 
@@ -451,12 +451,84 @@ editServicesBtn.addEventListener("click", function() {
         .fail(function(ex) {
             servicesList.innerHTML = "<option value=\"\">Error: " + (ex.message || "failed to list files") + "</option>";
         });
+}
+
+// ── Edit Services ─────────────────────────────────────────────────────────────
+
+editServicesBtn.addEventListener("click", function() {
+    stopLiveLog();
+    setActiveLogBtn(editServicesBtn);
+    serviceListMode = "edit";
+    populateServicesList();
+});
+
+// ── Delete Service ────────────────────────────────────────────────────────────
+
+deleteServiceBtn.addEventListener("click", function() {
+    stopLiveLog();
+    setActiveLogBtn(deleteServiceBtn);
+    serviceListMode = "delete";
+    populateServicesList();
 });
 
 servicesList.addEventListener("change", function() {
     var path = servicesList.value;
     if (!path) return;
 
+    if (serviceListMode === "delete") {
+        var name = path.replace("/etc/systemd/system/", "");
+        if (!confirm("Delete " + name + "? This cannot be undone.")) {
+            servicesList.value = "";
+            return;
+        }
+
+        output.classList.remove("hidden");
+        output.textContent = "Stopping " + name + "...\n";
+        disableButtons(true);
+
+        cockpit.spawn(["systemctl", "stop", name], { superuser: "require", err: "message" })
+            .done(function() {
+                output.textContent += "Stopped. Disabling " + name + "...\n";
+                cockpit.spawn(["systemctl", "disable", name], { superuser: "require", err: "message" })
+                    .done(function() {
+                        output.textContent += "Disabled. Removing " + path + "...\n";
+                        cockpit.spawn(["rm", path], { superuser: "require", err: "message" })
+                            .done(function() {
+                                output.textContent += "Removed. Running systemctl daemon-reload...\n";
+                                cockpit.spawn(["systemctl", "daemon-reload"], { superuser: "require", err: "message" })
+                                    .done(function() {
+                                        output.textContent += name + " deleted successfully.\n";
+                                        disableButtons(false);
+                                        populateServicesList();
+                                    })
+                                    .fail(function(ex, data) {
+                                        output.textContent += "daemon-reload failed: " + (ex.message || JSON.stringify(ex)) + "\n";
+                                        if (data) output.textContent += data;
+                                        disableButtons(false);
+                                        populateServicesList();
+                                    });
+                            })
+                            .fail(function(ex, data) {
+                                output.textContent += "rm failed: " + (ex.message || JSON.stringify(ex)) + "\n";
+                                if (data) output.textContent += data;
+                                disableButtons(false);
+                            });
+                    })
+                    .fail(function(ex, data) {
+                        output.textContent += "disable failed: " + (ex.message || JSON.stringify(ex)) + "\n";
+                        if (data) output.textContent += data;
+                        disableButtons(false);
+                    });
+            })
+            .fail(function(ex, data) {
+                output.textContent += "stop failed: " + (ex.message || JSON.stringify(ex)) + "\n";
+                if (data) output.textContent += data;
+                disableButtons(false);
+            });
+        return;
+    }
+
+    // edit mode
     output.textContent = "Loading " + path + "...\n";
 
     cockpit.file(path, { superuser: "require" })
