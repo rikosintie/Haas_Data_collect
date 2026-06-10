@@ -62,6 +62,24 @@
 
     <div id="serviceEditorSection" class="hidden">
         <div id="serviceEditorLabel"></div>
+        <div id="createServiceForm" class="hidden">
+            <div class="csf-field">
+                <label for="svcDescription">Description</label>
+                <input type="text" id="svcDescription" placeholder="Haas Python logger for MACHINE">
+            </div>
+            <div class="csf-field">
+                <label for="svcName">Machine Name</label>
+                <input type="text" id="svcName" placeholder="e.g. minimill">
+            </div>
+            <div class="csf-field">
+                <label for="svcIpAddress">IP Address</label>
+                <input type="text" id="svcIpAddress" placeholder="e.g. 192.168.10.143">
+            </div>
+            <div class="csf-field">
+                <label for="svcPort">Port</label>
+                <input type="text" id="svcPort" placeholder="e.g. 5055">
+            </div>
+        </div>
         <textarea id="serviceEditorArea"></textarea>
         <div class="editor-buttons">
             <button id="saveServiceBtn">Save &amp; Reload</button>

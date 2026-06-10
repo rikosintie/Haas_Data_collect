@@ -240,3 +240,31 @@ pre {
     gap: 8px;
     margin-top: 8px;
 }
+
+#createServiceForm {
+    margin-bottom: 16px;
+}
+
+.csf-field {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.csf-field label {
+    width: 130px;
+    font-size: 14px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.csf-field input[type="text"] {
+    font-size: 14px;
+    padding: 6px 10px;
+    border: 1px solid #555;
+    border-radius: 3px;
+    background: #1a1a1a;
+    color: #eee;
+    width: 300px;
+}

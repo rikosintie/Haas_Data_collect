@@ -26,6 +26,11 @@ const serviceEditorArea    = document.getElementById("serviceEditorArea");
 const serviceEditorLabel   = document.getElementById("serviceEditorLabel");
 const saveServiceBtn       = document.getElementById("saveServiceBtn");
 const cancelServiceEditBtn = document.getElementById("cancelServiceEditBtn");
+const createServiceForm    = document.getElementById("createServiceForm");
+const svcDescription       = document.getElementById("svcDescription");
+const svcName              = document.getElementById("svcName");
+const svcIpAddress         = document.getElementById("svcIpAddress");
+const svcPort              = document.getElementById("svcPort");
 
 var currentServicePath = null;
 var isCreatingService = false;
@@ -86,9 +91,26 @@ function showServiceEditor(path, content) {
 // Hide the service editor, restoring the output <pre>
 function hideServiceEditor() {
     serviceEditorSection.classList.add("hidden");
+    createServiceForm.classList.add("hidden");
+    serviceEditorArea.classList.remove("hidden");
+    svcDescription.value = "";
+    svcName.value = "";
+    svcIpAddress.value = "";
+    svcPort.value = "";
     output.classList.remove("hidden");
     currentServicePath = null;
     disableButtons(false);
+}
+
+function showCreateServiceForm() {
+    serviceEditorLabel.textContent = "New service — fill in all fields, then click Save & Reload";
+    createServiceForm.classList.remove("hidden");
+    serviceEditorArea.classList.add("hidden");
+    output.classList.add("hidden");
+    serviceEditorSection.classList.remove("hidden");
+    disableButtons(true);
+    saveServiceBtn.disabled = false;
+    cancelServiceEditBtn.disabled = false;
 }
 
 var activeLogBtn = null;
@@ -565,32 +587,39 @@ var SERVICE_TEMPLATE = [
 createServiceBtn.addEventListener("click", function() {
     stopLiveLog();
     isCreatingService = true;
-    showServiceEditor("New service — replace all <placeholders>", SERVICE_TEMPLATE);
+    showCreateServiceForm();
 });
 
 // ── Save & Reload daemon ──────────────────────────────────────────────────────
 
 saveServiceBtn.addEventListener("click", function() {
-    var content = serviceEditorArea.value;
-    if (!content.trim()) {
-        output.textContent = "ERROR: Editor is empty — not saving.\n";
-        hideServiceEditor();
-        return;
-    }
-
     if (isCreatingService) {
-        if (/<\w/.test(content)) {
-            output.textContent = "ERROR: Replace all <placeholders> before saving.\n";
+        var description = svcDescription.value.trim();
+        var machine     = svcName.value.trim().toLowerCase();
+        var ipAddress   = svcIpAddress.value.trim();
+        var port        = svcPort.value.trim();
+
+        if (!description || !machine || !ipAddress || !port) {
+            output.textContent = "ERROR: All four fields are required.\n";
             output.classList.remove("hidden");
             return;
         }
-        var wdMatch = content.match(/WorkingDirectory=.*\/machines\/(\S+)/);
-        if (!wdMatch) {
-            output.textContent = "ERROR: Could not determine machine name from WorkingDirectory line.\n";
-            output.classList.remove("hidden");
-            return;
-        }
-        var machine = wdMatch[1];
+
+        var content = [
+            "[Unit]",
+            "Description=" + description,
+            "After=network.target",
+            "",
+            "[Service]",
+            "User=haas",
+            "WorkingDirectory=/home/haas/Haas_Data_collect/machines/" + machine,
+            "ExecStart=/usr/bin/python3 /home/haas/Haas_Data_collect/haas_logger2.py -a -t " + ipAddress + " --port " + port + " --name " + machine.toUpperCase(),
+            "Type=idle",
+            "",
+            "[Install]",
+            "WantedBy=multi-user.target"
+        ].join("\n");
+
         var serviceName = "haas-" + machine + ".service";
         var path = "/etc/systemd/system/" + serviceName;
 
@@ -646,6 +675,13 @@ saveServiceBtn.addEventListener("click", function() {
             .fail(function(ex) {
                 output.textContent += "ERROR saving file: " + (ex.message || JSON.stringify(ex)) + "\n";
             });
+        return;
+    }
+
+    var content = serviceEditorArea.value;
+    if (!content.trim()) {
+        output.textContent = "ERROR: Editor is empty — not saving.\n";
+        hideServiceEditor();
         return;
     }
 
