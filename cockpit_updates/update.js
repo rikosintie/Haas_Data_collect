@@ -615,6 +615,13 @@ saveServiceBtn.addEventListener("click", function() {
                                         cockpit.spawn(["systemctl", "start", serviceName], { superuser: "require", err: "message" })
                                             .done(function() {
                                                 output.textContent += serviceName + " started successfully.\n";
+                                                cockpit.spawn(["systemctl", "status", serviceName], { superuser: "require", err: "message" })
+                                                    .done(function(data) {
+                                                        output.textContent += data;
+                                                    })
+                                                    .fail(function(ex, data) {
+                                                        if (data) output.textContent += data;
+                                                    });
                                             })
                                             .fail(function(ex, data) {
                                                 output.textContent += "start failed: " + (ex.message || JSON.stringify(ex)) + "\n";
