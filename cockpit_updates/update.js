@@ -98,6 +98,7 @@ function hideServiceEditor() {
     svcIpAddress.value = "";
     svcPort.value = "";
     output.classList.remove("hidden");
+    servicesList.classList.add("hidden");
     currentServicePath = null;
     disableButtons(false);
 }
@@ -521,13 +522,13 @@ servicesList.addEventListener("change", function() {
                                     .done(function() {
                                         output.textContent += name + " deleted successfully.\n";
                                         disableButtons(false);
-                                        populateServicesList();
+                                        servicesList.classList.add("hidden");
                                     })
                                     .fail(function(ex, data) {
                                         output.textContent += "daemon-reload failed: " + (ex.message || JSON.stringify(ex)) + "\n";
                                         if (data) output.textContent += data;
                                         disableButtons(false);
-                                        populateServicesList();
+                                        servicesList.classList.add("hidden");
                                     });
                             })
                             .fail(function(ex, data) {
