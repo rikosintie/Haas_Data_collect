@@ -585,6 +585,25 @@ var SERVICE_TEMPLATE = [
     "WantedBy=multi-user.target"
 ].join("\n");
 
+// Real-time character filtering for Create Service fields
+svcName.addEventListener("input", function() {
+    var pos = svcName.selectionStart;
+    var cleaned = svcName.value.replace(/[^0-9a-zA-Z_-]/g, "");
+    if (cleaned !== svcName.value) {
+        svcName.value = cleaned;
+        svcName.setSelectionRange(pos - 1, pos - 1);
+    }
+});
+
+svcDescription.addEventListener("input", function() {
+    var pos = svcDescription.selectionStart;
+    var cleaned = svcDescription.value.replace(/[^0-9a-zA-Z_ -]/g, "");
+    if (cleaned !== svcDescription.value) {
+        svcDescription.value = cleaned;
+        svcDescription.setSelectionRange(pos - 1, pos - 1);
+    }
+});
+
 createServiceBtn.addEventListener("click", function() {
     stopLiveLog();
     isCreatingService = true;
@@ -602,6 +621,23 @@ saveServiceBtn.addEventListener("click", function() {
 
         if (!description || !machine || !ipAddress || !port) {
             output.textContent = "ERROR: All four fields are required.\n";
+            output.classList.remove("hidden");
+            return;
+        }
+
+        var ipParts = ipAddress.split(".");
+        var ipValid = ipParts.length === 4 && ipParts.every(function(p) {
+            return /^\d+$/.test(p) && parseInt(p, 10) >= 0 && parseInt(p, 10) <= 255;
+        });
+        if (!ipValid) {
+            output.textContent = "ERROR: IP address must be a valid IPv4 address (e.g. 192.168.10.143).\n";
+            output.classList.remove("hidden");
+            return;
+        }
+
+        var portNum = parseInt(port, 10);
+        if (!/^\d+$/.test(port) || portNum < 5001 || portNum > 5999) {
+            output.textContent = "ERROR: Port must be an integer between 5001 and 5999.\n";
             output.classList.remove("hidden");
             return;
         }
