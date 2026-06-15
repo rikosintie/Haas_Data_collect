@@ -604,6 +604,15 @@ svcDescription.addEventListener("input", function() {
     }
 });
 
+svcIpAddress.addEventListener("input", function() {
+    var pos = svcIpAddress.selectionStart;
+    var cleaned = svcIpAddress.value.replace(/[^0-9.]/g, "");
+    if (cleaned !== svcIpAddress.value) {
+        svcIpAddress.value = cleaned;
+        svcIpAddress.setSelectionRange(pos - 1, pos - 1);
+    }
+});
+
 createServiceBtn.addEventListener("click", function() {
     stopLiveLog();
     isCreatingService = true;
