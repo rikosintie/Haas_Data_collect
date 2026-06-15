@@ -262,9 +262,9 @@ pre {
 .csf-field input[type="text"] {
     font-size: 14px;
     padding: 6px 10px;
-    border: 1px solid #555;
+    border: 1px solid #888;
     border-radius: 3px;
-    background: #1a1a1a;
-    color: #eee;
+    background: #ffffff;
+    color: #111111;
     width: 300px;
 }
