@@ -687,6 +687,7 @@ saveServiceBtn.addEventListener("click", function() {
     }
 
     var path = currentServicePath;
+    var editedService = path.replace("/etc/systemd/system/", "");
     hideServiceEditor();
     output.textContent = "Saving " + path + "...\n";
 
@@ -697,8 +698,14 @@ saveServiceBtn.addEventListener("click", function() {
 
             cockpit.spawn(["systemctl", "daemon-reload"], { superuser: "require", err: "message" })
                 .done(function() {
-                    output.textContent += "daemon-reload complete.\n";
-                    output.textContent += "Restart the service to apply changes.\n";
+                    output.textContent += "daemon-reload complete. Restart the service to apply changes.\n";
+                    cockpit.spawn(["systemctl", "status", editedService], { superuser: "require", err: "message" })
+                        .done(function(data) {
+                            output.textContent += data;
+                        })
+                        .fail(function(ex, data) {
+                            if (data) output.textContent += data;
+                        });
                 })
                 .fail(function(ex, data) {
                     output.textContent += "daemon-reload failed: " + (ex.message || JSON.stringify(ex)) + "\n";
