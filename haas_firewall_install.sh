@@ -422,7 +422,7 @@ sleep 3
 sudo chmod +x /usr/local/sbin/build-nmap.sh
 sudo chmod +x /usr/local/sbin/configure_ufw_from_csv.sh
 sudo chmod +x /usr/local/sbin/gh-updater.lib.sh
-sudo chmod +x /usr/local/sbin/install_tools.sh
+sudo chmod +x /usr/local/sbin/install-tools.sh
 sudo chmod +x /usr/local/sbin/list_shares.sh
 sudo chmod +x /usr/local/sbin/list_shares_csv.sh
 sudo chmod +x /usr/local/sbin/rollback_csv.sh
@@ -514,6 +514,42 @@ echo ""
 sleep 3
 
 ################################################################################
+
+########################################
+# Install CLI tools from tools.yaml (csvlens, tspin, bat, fresh, spf, ...)
+########################################
+echo ""
+echo ""
+echo "#################################################"
+echo "#                                               #"
+echo -e "#     ${CYAN}Installing CLI tools from tools.yaml...${RESET}      #"
+echo "#                                               #"
+echo "#################################################"
+echo ""
+echo ""
+
+if sudo /usr/local/sbin/install-tools.sh; then
+    echo ""
+    echo ""
+    echo "####################################################"
+    echo "#                                                  #"
+    echo -e "#      ✅ ${CYAN}CLI tools installed.${RESET}                     #"
+    echo "#                                                  #"
+    echo "####################################################"
+    echo ""
+    echo ""
+else
+    echo ""
+    echo ""
+    echo "###########################################################"
+    echo "#                                                         #"
+    echo -e "#   ⚠️ ${YELLOW}One or more CLI tools failed to install. Continuing...${RESET}   #"
+    echo "#                                                         #"
+    echo "###########################################################"
+    echo ""
+    echo ""
+fi
+sleep 3
 
 ########################################
 # Install Nala package manager
