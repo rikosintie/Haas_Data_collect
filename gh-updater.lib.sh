@@ -113,18 +113,30 @@ gh_get_asset_url() {
     local json
     json=$(curl -fsSL "https://api.github.com/repos/$repo/releases/latest")
 
-    local arch pattern1 pattern2 pattern3
+    # Patterns are tried in priority order. Rust-style triples (gnu/musl)
+    # are preferred when present; Go-style arch names (amd64/arm64) are
+    # tried as a fallback since many repos (e.g. yorukot/superfile) only
+    # publish those.
+    local -a patterns
 
     case "$(uname -m)" in
         aarch64|arm64)
-            pattern1="aarch64.*linux.*gnu"
-            pattern2="aarch64.*linux.*musl"
-            pattern3="aarch64.*linux"
+            patterns=(
+                "aarch64.*linux.*gnu"
+                "aarch64.*linux.*musl"
+                "aarch64.*linux"
+                "linux.*arm64"
+                "arm64.*linux"
+            )
             ;;
         x86_64)
-            pattern1="x86_64.*linux.*gnu"
-            pattern2="x86_64.*linux.*musl"
-            pattern3="x86_64.*linux"
+            patterns=(
+                "x86_64.*linux.*gnu"
+                "x86_64.*linux.*musl"
+                "x86_64.*linux"
+                "linux.*amd64"
+                "amd64.*linux"
+            )
             ;;
         *)
             echo ""
@@ -132,45 +144,22 @@ gh_get_asset_url() {
             ;;
     esac
 
-    # -----------------------------
-    # PRIORITY 1: gnu build
-    # -----------------------------
-    local url
-    url=$(echo "$json" | jq -r \
-        ".assets[]
-        | select(.name | test(\"$pattern1\"))
-        | .browser_download_url" \
-        | head -n1)
+    local pattern url
+    for pattern in "${patterns[@]}"; do
+        url=$(echo "$json" | jq -r \
+            ".assets[]
+            | select(.name | test(\"$pattern\"))
+            | .browser_download_url" \
+            | head -n1)
 
-    if [[ -n "$url" ]]; then
-        echo "$url"
-        return 0
-    fi
+        if [[ -n "$url" ]]; then
+            echo "$url"
+            return 0
+        fi
+    done
 
-    # -----------------------------
-    # PRIORITY 2: musl build
-    # -----------------------------
-    url=$(echo "$json" | jq -r \
-        ".assets[]
-        | select(.name | test(\"$pattern2\"))
-        | .browser_download_url" \
-        | head -n1)
-
-    if [[ -n "$url" ]]; then
-        echo "$url"
-        return 0
-    fi
-
-    # -----------------------------
-    # PRIORITY 3: any linux build
-    # -----------------------------
-    url=$(echo "$json" | jq -r \
-        ".assets[]
-        | select(.name | test(\"$pattern3\"))
-        | .browser_download_url" \
-        | head -n1)
-
-    echo "$url"
+    echo ""
+    return 1
 }
 
 # =========================
