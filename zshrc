@@ -45,6 +45,10 @@ else
   export EDITOR='micro'
 fi
 
+# -i prompt before overwrite -v verbse
+alias cp='cp -iv'
+alias mv='mv -iv'
+
 # Compilation flags
 # export ARCHFLAGS="-arch $(uname -m)"
 
