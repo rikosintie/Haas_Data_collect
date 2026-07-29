@@ -10,3 +10,6 @@ tools:
 
   - repo: sinelaw/fresh
     binary: fresh
+
+  - repo: yorukot/superfile
+    binary: spf
