@@ -326,8 +326,8 @@ sudo cp "$REPO_DIR/tools.yaml" /usr/local/sbin/
 sudo cp "$REPO_DIR/update-check.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/update-system.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/validate_users_csv.sh" /usr/local/sbin/
-sudo cp "$REPO_DIR/90-updates-clean.sh" /etc/update-motd.d/90-updates-clean.sh
-sudo cp "$REPO_DIR/99-custom-function.sh" /etc/update-motd.d/99-custom-function.sh
+sudo cp "$REPO_DIR/90-updates-clean.sh" /etc/update-motd.d/90-updates-clean
+sudo cp "$REPO_DIR/99-custom-function.sh" /etc/update-motd.d/99-custom-function
 
 ########################################
 # Create custom SSH hardening config
@@ -417,6 +417,7 @@ sudo chmod +x /usr/local/sbin/update-check.sh
 sudo chmod +x /usr/local/sbin/update-system.sh
 sudo chmod +x /usr/local/sbin/validate_users_csv.sh
 sudo chmod +x /etc/update-motd.d/90-updates-clean
+sudo chmod +x /etc/update-motd.d/99-custom-function
 
 # scripts in the Haas_Data_collect repo (not copied to /usr/local/sbin)
 sudo chmod +x "$REPO_DIR/setup_zsh.sh"
