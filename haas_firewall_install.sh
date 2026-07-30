@@ -970,7 +970,6 @@ banner "${CYAN}[*] Restarting Cockpit...${RESET}"
 echo ""
 echo ""
 
-sudo systemctl enable --now cockpit
 sudo systemctl enable --now cockpit.socket
 sudo systemctl restart cockpit
 sudo systemctl restart cockpit.socket
@@ -1120,7 +1119,7 @@ echo "               /etc/systemd/system/haas-firewall.timer"
 echo "Cockpit UI:    /usr/share/cockpit/haas-firewall/"
 echo ""
 echo ""
-banner "---" "${CYAN}To enable a Haas subnet later, run:${RESET}" "---" "${GREEN} sudo nano $CONFIG_FILE${RESET}" "---" "${CYAN}set HAAS_MACHINES_SUBNET_V4=\\"<your_ipv4_subnet>\\" to your CNC machines' IPv4 subnet${RESET}" "---" "${CYAN}set HAAS_MACHINES_SUBNET_V6=\\"<your_ipv6_subnet>\\" to your CNC machines' IPv6 subnet (if applicable)${RESET}" "---"
+banner "---" "${CYAN}To enable a Haas subnet later, run:${RESET}" "---" "${GREEN} sudo nano $CONFIG_FILE${RESET}" "---" "${CYAN}set HAAS_MACHINES_SUBNET_V4=\"<your_ipv4_subnet>\" to your CNC machines' IPv4 subnet${RESET}" "---" "${CYAN}set HAAS_MACHINES_SUBNET_V6=\"<your_ipv6_subnet>\" to your CNC machines' IPv6 subnet (if applicable)${RESET}" "---"
 echo ""
 echo ""
 echo "Check firewall status with:"
