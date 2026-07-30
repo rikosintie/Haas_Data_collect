@@ -165,8 +165,8 @@ REQUIRED_FILES=(
   "validate_users_csv.sh"
   "haas-firewall.service"
   "haas-firewall.timer"
-  "99-custom-function"
-  "90-updates-clean"
+  "99-custom-function.sh"
+  "90-updates-clean.sh"
 )
 
 echo ""
@@ -329,8 +329,8 @@ sudo cp "$REPO_DIR/tools.yaml" /usr/local/sbin/
 sudo cp "$REPO_DIR/update-check.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/update-system.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/validate_users_csv.sh" /usr/local/sbin/
-sudo cp "$REPO_DIR/90-updates-clean /etc/update-motd.d/90-updates-clean"
-sudo cp "$REPO_DIR/99-custom-function /etc/update-motd.d/99-custom-function"
+sudo cp "$REPO_DIR/90-updates-clean.sh" /etc/update-motd.d/90-updates-clean.sh
+sudo cp "$REPO_DIR/99-custom-function.sh" /etc/update-motd.d/99-custom-function.sh
 
 ########################################
 # Create custom SSH hardening config
