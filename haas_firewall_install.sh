@@ -1113,6 +1113,8 @@ sleep 3
 # INSTALL COCKPIT FIREWALL EXTENSION
 ########################################
 
+COCKPIT_DST="/usr/share/cockpit/haas-firewall"
+
 echo ""
 echo ""
 echo "#########################################################################"
@@ -1123,7 +1125,6 @@ echo "#########################################################################"
 echo ""
 echo ""
 
-COCKPIT_DST="/usr/share/cockpit/haas-firewall"
 sudo mkdir -p "$COCKPIT_DST"
 sudo cp "$COCKPIT_SRC"/* "$COCKPIT_DST"/
 
@@ -1173,6 +1174,8 @@ echo ""
 ########################################
 
 
+COCKPIT_UPDATE_DST="/usr/share/cockpit/update-appliance"
+
 echo ""
 echo ""
 echo "###############################################################################"
@@ -1183,7 +1186,6 @@ echo "##########################################################################
 echo ""
 echo ""
 
-COCKPIT_UPDATE_DST="/usr/share/cockpit/update-appliance"
 sudo mkdir -p "$COCKPIT_UPDATE_DST"
 sudo cp "$COCKPIT_UPDATE_SRC"/* "$COCKPIT_UPDATE_DST"/
 
@@ -1231,6 +1233,8 @@ sleep 3
 # INSTALL COCKPIT SAMBA EXTENSION
 ########################################
 
+COCKPIT_SAMBA_DST="/usr/share/cockpit/manage-samba"
+
 echo ""
 echo ""
 echo "###############################################################################"
@@ -1241,7 +1245,6 @@ echo "##########################################################################
 echo ""
 echo ""
 
-COCKPIT_SAMBA_DST="/usr/share/cockpit/manage-samba"
 sudo mkdir -p "$COCKPIT_SAMBA_DST"
 sudo cp "$COCKPIT_SAMBA_SRC"/{index.html,samba.js,samba.css,manifest.json} "$COCKPIT_SAMBA_DST"/
 
