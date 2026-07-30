@@ -954,7 +954,7 @@ echo ""
 ########################################
 
 
-COCKPIT_UPDATE_DST="/usr/share/cockpit/update-appliance"
+COCKPIT_UPDATE_DST="/usr/share/cockpit/haas-update-appliance"
 
 echo ""
 echo ""
@@ -996,7 +996,7 @@ sleep 3
 # INSTALL COCKPIT SAMBA EXTENSION
 ########################################
 
-COCKPIT_SAMBA_DST="/usr/share/cockpit/manage-samba"
+COCKPIT_SAMBA_DST="/usr/share/cockpit/haas-samba"
 
 echo ""
 echo ""
@@ -1115,10 +1115,10 @@ if command -v zoxide >/dev/null 2>&1; then
         /usr/share/cockpit/haas-firewall/ \
         /var/log/ \
         /home/haas/Haas_Data_collect/ \
-        /usr/share/cockpit/manage-samba/ \
+        /usr/share/cockpit/haas-samba/ \
         /etc/ssh/sshd_config.d \
         /etc/systemd/system \
-        /usr/share/cockpit/update-appliance/
+        /usr/share/cockpit/haas-update-appliance/
     do
         sudo -H -u haas zoxide add "$dir"
     done
