@@ -44,7 +44,6 @@
 # It does NOT modify or delete anything inside the repo.
 #
 
-
 # | Color        | Code     | Example in Bash                  |
 # | ------------ | -------- | -------------------------------- |
 # | Black        | 30       | `\e[30m`                         |
@@ -78,6 +77,56 @@ if [[ $EUID -ne 0 ]]; then
   exit 1
 fi
 
+# Render a bordered, self-aligning banner. Each argument is one content
+# line and may include color vars (${CYAN}, ${RESET}, etc). Box width is
+# derived from the longest line's visible width (color escapes stripped),
+# so it can never fall out of alignment the way hand-padded boxes did.
+# Pass the literal string "---" as an argument to draw a full-width
+# dashed divider row instead of a text row.
+banner() {
+    local -a msgs=("$@")
+    local -a clean
+    local msg c len max=0 width border blank sep i pad padstr
+
+    for msg in "${msgs[@]}"; do
+        if [[ "$msg" == "---" ]]; then
+            clean+=("")
+            continue
+        fi
+        c=$(echo -e "$msg" | sed -E 's/\x1b\[[0-9;]+m//g')
+        clean+=("$c")
+        len=${#c}
+        if (( len > max )); then
+            max=$len
+        fi
+    done
+
+    width=$(( max + 4 ))
+
+    printf -v border '%*s' "$(( width + 2 ))" ''
+    border=${border// /#}
+
+    printf -v blank '%*s' "$width" ''
+    blank="#${blank}#"
+
+    printf -v sep '%*s' "$width" ''
+    sep="#${sep// /-}#"
+
+    echo "$border"
+    echo "$blank"
+    for i in "${!msgs[@]}"; do
+        if [[ "${msgs[$i]}" == "---" ]]; then
+            echo "$sep"
+            continue
+        fi
+        pad=$(( max - ${#clean[$i]} + 2 ))
+        printf -v padstr '%*s' "$pad" ''
+        echo -e "#  ${msgs[$i]}${padstr}#"
+    done
+    echo "$blank"
+    echo "$border"
+}
+
 fix_var_log_perms() {
     perms=$(stat -c "%a" /var/log)
     owner=$(stat -c "%U" /var/log)
@@ -89,11 +138,7 @@ fix_var_log_perms() {
         sudo chmod 755 /var/log
     else
         echo ""
-        echo "############################################################"
-        echo "#                                                          #"
-        echo -e "#     ${CYAN}[*] [OK] /var/log permissions correct...${RESET}   #"
-        echo "#                                                          #"
-        echo "############################################################"
+        banner "${CYAN}[*] [OK] /var/log permissions correct...${RESET}"
         echo ""
         echo ""
         # echo "[OK] /var/log permissions correct"
@@ -120,11 +165,7 @@ fi
 
 echo ""
 echo ""
-echo "#################################################"
-echo "#                                               #"
-echo -e "#      ${CYAN}[*]   DETECT REPO DIRECTORY ${RESET}             #"
-echo "#                                               #"
-echo "#################################################"
+banner "${CYAN}[*]   DETECT REPO DIRECTORY ${RESET}"
 echo ""
 REPO_DIR="$(pwd)"
 REPO_NAME="$(basename "$REPO_DIR")"
@@ -135,11 +176,7 @@ if [[ "$REPO_NAME" != "Haas_Data_collect" ]]; then
 fi
 
 echo ""
-echo "####################################################################"
-echo "                                                                   #"
-echo -e "#  ${CYAN}[*] Repo directory detected as: $REPO_DIR ${RESET}   #"
-echo "                                                                   #"
-echo "####################################################################"
+banner "${CYAN}[*] Repo directory detected as: $REPO_DIR ${RESET}"
 echo ""
 sleep 3
 
@@ -171,11 +208,7 @@ REQUIRED_FILES=(
 )
 
 echo ""
-echo "###################################################"
-echo "#                                                 #"
-echo -e "#     ${CYAN}[*] Verifying required files in repo...${RESET}     #"
-echo "#                                                 #"
-echo "###################################################"
+banner "${CYAN}[*] Verifying required files in repo...${RESET}"
 echo ""
 echo ""
 for f in "${REQUIRED_FILES[@]}"; do
@@ -190,32 +223,19 @@ done
 echo ""
 echo ""
 if [[ ! -f "$CSV_PATH" ]]; then
-  echo "##########################################################"
-  echo "#                                                        #"
-  echo -e "#       ${RED}[ERROR] CSV file not found at: $CSV_PATH${RESET}         #"
-  echo -e "#       ${CYAN}Create users.csv with header: username,ip_address,role${RESET} #"
-  echo "#                                                        #"
-  echo "##########################################################"
+  banner "${RED}[ERROR] CSV file not found at: $CSV_PATH${RESET}" "${CYAN}Create users.csv with header: username,ip_address,role${RESET}"
   sleep 3
   exit 1
 fi
 
 if [[ ! -d "$COCKPIT_SRC" ]]; then
-  echo "###########################################################"
-  echo "#                                                         #"
-  echo -e "#     ${YELLOW}[ERROR] Cockpit directory missing:${RESET}${CYAN} $COCKPIT_SRC ${RESET}     #"
-  echo "#                                                         #"
-  echo "###########################################################"
+  banner "${YELLOW}[ERROR] Cockpit directory missing:${RESET}${CYAN} $COCKPIT_SRC ${RESET}"
   exit 1
 fi
 
 for f in manifest.json index.html haas-firewall.js haas-firewall.css icon.png; do
   if [[ ! -f "$COCKPIT_SRC/$f" ]]; then
-    echo "###########################################################"
-    echo "#                                                         #"
-    echo -e "#      ${YELLOW}[ERROR] Missing Cockpit file:${RESET}${CYAN} $COCKPIT_SRC/$f ${RESET}      #"
-    echo "#                                                         #"
-    echo "###########################################################"
+    banner "${YELLOW}[ERROR] Missing Cockpit file:${RESET}${CYAN} $COCKPIT_SRC/$f ${RESET}"
     exit 1
   fi
 done
@@ -223,32 +243,20 @@ echo ""
 echo ""
 
 if [[ ! -d "$COCKPIT_UPDATE_SRC" ]]; then
-  echo "###########################################################"
-  echo "#                                                         #"
-  echo -e "#     ${YELLOW}[ERROR] Cockpit Update directory missing:${RESET}${CYAN} $COCKPIT_UPDATE_SRC ${RESET}     #"
-  echo "#                                                         #"
-  echo "###########################################################"
+  banner "${YELLOW}[ERROR] Cockpit Update directory missing:${RESET}${CYAN} $COCKPIT_UPDATE_SRC ${RESET}"
   exit 1
 fi
 
 for f in manifest.json index.html update.css update.js; do
   if [[ ! -f "$COCKPIT_UPDATE_SRC/$f" ]]; then
-    echo "###########################################################"
-    echo "#                                                         #"
-    echo -e "#      ${YELLOW}[ERROR] Missing Cockpit Update file:${RESET}${CYAN} $COCKPIT_UPDATE_SRC/$f ${RESET}      #"
-    echo "#                                                         #"
-    echo "###########################################################"
+    banner "${YELLOW}[ERROR] Missing Cockpit Update file:${RESET}${CYAN} $COCKPIT_UPDATE_SRC/$f ${RESET}"
     exit 1
   fi
 done
 
 
 echo ""
-echo "#################################################"
-echo "#                                               #"
-echo -e "#    ✅ ${CYAN}All required repo files are present.${RESET}    #"
-echo "#                                               #"
-echo "#################################################"
+banner "✅ ${CYAN}All required repo files are present.${RESET}"
 sleep 2
 echo ""
 echo ""
@@ -259,11 +267,7 @@ sleep 3
 
 CONFIG_FILE="/etc/haas-firewall.conf"
 echo ""
-echo "######################################################"
-echo "#                                                    #"
-echo -e "#  ${CYAN}[*] Writing config file: $CONFIG_FILE${RESET}  #"
-echo "#                                                    #"
-echo "######################################################"
+banner "${CYAN}[*] Writing config file: $CONFIG_FILE${RESET}"
 echo ""
 sudo bash -c "cat > '$CONFIG_FILE'" <<EOF
 # Haas Firewall Appliance Configuration
@@ -292,11 +296,7 @@ EOF
 sudo chmod 644 "$CONFIG_FILE"
 echo ""
 echo ""
-echo "####################################################"
-echo "#                                                  #"
-echo -e "#       ✅ ${CYAN}Firewall Config file written.${RESET}           #"
-echo "#                                                  #"
-echo "####################################################"
+banner "✅ ${CYAN}Firewall Config file written.${RESET}"
 echo ""
 echo ""
 
@@ -306,11 +306,7 @@ echo ""
 
 echo ""
 echo ""
-echo "############################################################"
-echo "#                                                          #"
-echo -e "#  ${CYAN}[*] Installing appliance scripts into /usr/local/sbin...${RESET} #"
-echo "#                                                          #"
-echo "############################################################"
+banner "${CYAN}[*] Installing appliance scripts into /usr/local/sbin...${RESET}"
 echo ""
 echo ""
 
@@ -338,11 +334,7 @@ sudo cp "$REPO_DIR/99-custom-function.sh" /etc/update-motd.d/99-custom-function.
 ########################################
 echo ""
 echo ""
-echo "############################################################"
-echo "#                                                          #"
-echo -e "#  ${CYAN}Updating /etc/ssh/sshd_config.d/99-haas-hardening.conf${RESET}  #"
-echo "#                                                          #"
-echo "############################################################"
+banner "${CYAN}Updating /etc/ssh/sshd_config.d/99-haas-hardening.conf${RESET}"
 echo ""
 echo ""
 # remove existing file if it exists.
@@ -392,21 +384,13 @@ sudo systemctl restart ssh
 if [ -f /etc/issue.net ] && grep -q "^Banner" /etc/ssh/sshd_config.d/99-haas-hardening.conf && sudo sshd -t; then
     echo ""
     echo ""
-    echo "################################################################"
-    echo "#                                                              #"
-    echo -e "#  ✅ ${CYAN}Success: /etc/issue.net exists and SSH config is valid.${RESET}  #"
-    echo "#                                                              #"
-    echo "################################################################"
+    banner "✅ ${CYAN}Success: /etc/issue.net exists and SSH config is valid.${RESET}"
     echo ""
     echo ""
 else
     echo ""
     echo ""
-    echo "#################################################################"
-    echo "#                                                               #"
-    echo -e "#         ❌ ${RED}Error: Missing file or invalid SSH config!${RESET}         #"
-    echo "#                                                               #"
-    echo "#################################################################"
+    banner "❌ ${RED}Error: Missing file or invalid SSH config!${RESET}"
     echo ""
     echo ""
 
@@ -448,11 +432,7 @@ sudo chmod +x "$REPO_DIR/tspin_alias.sh"
 if [[ ! -x /usr/local/sbin/configure_ufw_from_csv.sh ]]; then
   echo ""
   echo ""
-  echo "#################################################################"
-  echo "#                                                               #"
-  echo -e "#        ⚠️ ${YELLOW}Failed to install configure_ufw_from_csv.sh${RESET}         #"
-  echo "#                                                               #"
-  echo "#################################################################"
+  banner "⚠️ ${YELLOW}Failed to install configure_ufw_from_csv.sh${RESET}"
   echo ""
   echo ""
   exit 1
@@ -462,11 +442,7 @@ if [[ ! -x /usr/local/sbin/validate_users_csv.sh ]]; then
 
   echo ""
   echo ""
-  echo "#################################################################"
-  echo "#                                                               #"
-  echo -e "#          ⚠️ ${YELLOW}Failed to install validate_users_csv.sh${RESET}           #"
-  echo "#                                                               #"
-  echo "#################################################################"
+  banner "⚠️ ${YELLOW}Failed to install validate_users_csv.sh${RESET}"
   echo ""
   echo ""
   exit 1
@@ -474,11 +450,7 @@ fi
 sleep 3
 echo ""
 echo ""
-echo "####################################################"
-echo "#                                                  #"
-echo -e "#         ✅ ${CYAN}Firewall scripts installed.${RESET}           #"
-echo "#                                                  #"
-echo "####################################################"
+banner "✅ ${CYAN}Firewall scripts installed.${RESET}"
 echo ""
 echo ""
 sleep 3
@@ -488,11 +460,7 @@ sleep 3
 ########################################
 echo ""
 echo ""
-echo "#####################################################"
-echo "#                                                   #"
-echo -e "#      ${CYAN}Installing systemd service and timer...${RESET}      #"
-echo "#                                                   #"
-echo "#####################################################"
+banner "${CYAN}Installing systemd service and timer...${RESET}"
 echo ""
 echo ""
 sleep 3
@@ -506,11 +474,7 @@ sudo systemctl enable haas-firewall.service
 sudo systemctl enable --now haas-firewall.timer
 echo ""
 echo ""
-echo "###########################################################"
-echo "#                                                         #"
-echo -e "#   ✅ ${CYAN}Systemd service and timer installed and enabled.${RESET}   #"
-echo "#                                                         #"
-echo "###########################################################"
+banner "✅ ${CYAN}Systemd service and timer installed and enabled.${RESET}"
 echo ""
 echo ""
 sleep 3
@@ -522,32 +486,20 @@ sleep 3
 ########################################
 echo ""
 echo ""
-echo "#################################################"
-echo "#                                               #"
-echo -e "#     ${CYAN}Installing CLI tools from tools.yaml...${RESET}      #"
-echo "#                                               #"
-echo "#################################################"
+banner "${CYAN}Installing CLI tools from tools.yaml...${RESET}"
 echo ""
 echo ""
 
 if sudo /usr/local/sbin/install-tools.sh; then
     echo ""
     echo ""
-    echo "####################################################"
-    echo "#                                                  #"
-    echo -e "#      ✅ ${CYAN}CLI tools installed.${RESET}                     #"
-    echo "#                                                  #"
-    echo "####################################################"
+    banner "✅ ${CYAN}CLI tools installed.${RESET}"
     echo ""
     echo ""
 else
     echo ""
     echo ""
-    echo "###########################################################"
-    echo "#                                                         #"
-    echo -e "#   ⚠️ ${YELLOW}One or more CLI tools failed to install. Continuing...${RESET}   #"
-    echo "#                                                         #"
-    echo "###########################################################"
+    banner "⚠️ ${YELLOW}One or more CLI tools failed to install. Continuing...${RESET}"
     echo ""
     echo ""
 fi
@@ -558,11 +510,7 @@ sleep 3
 ########################################
 echo ""
 echo ""
-echo "####################################################"
-echo "#                                                  #"
-echo -e "#      ${CYAN}Installing the Nala Package Manager...${RESET}      #"
-echo "#                                                  #"
-echo "####################################################"
+banner "${CYAN}Installing the Nala Package Manager...${RESET}"
 echo ""
 echo ""
 
@@ -571,22 +519,14 @@ if sudo apt install nala -y; then
     sudo nala upgrade -y
     echo ""
     echo ""
-    echo "####################################################"
-    echo "#                                                  #"
-    echo -e "#      ✅ ${CYAN}$NALA_VERSION installed...${RESET}                 #"
-    echo "#                                                  #"
-    echo "####################################################"
+    banner "✅ ${CYAN}$NALA_VERSION installed...${RESET}"
     echo ""
     echo ""
     sleep 3
 else
     echo ""
     echo ""
-    echo "###########################################################"
-    echo "#                                                         #"
-    echo -e "#   ⚠️ ${YELLOW}Failed to install Nala package manager. Skipping${RESET}   #"
-    echo "#                                                         #"
-    echo "###########################################################"
+    banner "⚠️ ${YELLOW}Failed to install Nala package manager. Skipping${RESET}"
     echo ""
     echo ""
     exit 1
@@ -600,22 +540,14 @@ if sudo nala install tree -y; then
     sudo nala upgrade -y
     echo ""
     echo ""
-    echo "#############################################"
-    echo "#                                           #"
-    echo -e "#     ✅ ${CYAN}Tree $TREE_VERSION installed...${RESET}           #"
-    echo "#                                           #"
-    echo "#############################################"
+    banner "✅ ${CYAN}Tree $TREE_VERSION installed...${RESET}"
     echo ""
     echo ""
     sleep 3
 else
     echo ""
     echo ""
-    echo "###########################################################"
-    echo "#                                                         #"
-    echo -e "#   ⚠️ ${YELLOW}Failed to install the tree command. Skipping...${RESET}    #"
-    echo "#                                                         #"
-    echo "###########################################################"
+    banner "⚠️ ${YELLOW}Failed to install the tree command. Skipping...${RESET}"
     echo ""
     echo ""
     exit 0
@@ -628,22 +560,14 @@ if sudo nala install lldpd -y; then
     sudo nala upgrade -y
     echo ""
     echo ""
-    echo "#############################################"
-    echo "#                                           #"
-    echo -e "#     ✅ ${CYAN}LLDPD $LLDPD_VERSION installed...${RESET}           #"
-    echo "#                                           #"
-    echo "#############################################"
+    banner "✅ ${CYAN}LLDPD $LLDPD_VERSION installed...${RESET}"
     echo ""
     echo ""
     sleep 3
 else
     echo ""
     echo ""
-    echo "###########################################################"
-    echo "#                                                         #"
-    echo -e "#   ⚠️ ${YELLOW}Failed to install the lldpd command. Skipping...${RESET}    #"
-    echo "#                                                         #"
-    echo "###########################################################"
+    banner "⚠️ ${YELLOW}Failed to install the lldpd command. Skipping...${RESET}"
     echo ""
     echo ""
     exit 0
@@ -653,11 +577,7 @@ fi
 
 echo ""
 echo ""
-echo "########################################################"
-echo "#                                                      #"
-echo -e "#             ${CYAN}Installing Python pip package${RESET}            #"
-echo "#                                                      #"
-echo "########################################################"
+banner "${CYAN}Installing Python pip package${RESET}"
 echo ""
 echo ""
 
@@ -665,22 +585,14 @@ if sudo nala install python3-pip -y; then
     PIP_VERSION=$(python3 -m pip --version | head -n1 | awk '{print $2}')
     echo ""
     echo ""
-    echo "####################################################"
-    echo "#                                                  #"
-    echo -e "#      ✅ ${CYAN}Python pip $PIP_VERSION installed...${RESET}             #"
-    echo "#                                                  #"
-    echo "####################################################"
+    banner "✅ ${CYAN}Python pip $PIP_VERSION installed...${RESET}"
     echo ""
     echo ""
     sleep 3
 else
     echo ""
     echo ""
-    echo "###############################################################"
-    echo "#                                                             #"
-    echo -e "#       ⚠️ ${YELLOW}Failed to install Python pip. Skipping...${RESET}          #"
-    echo "#                                                             #"
-    echo "###############################################################"
+    banner "⚠️ ${YELLOW}Failed to install Python pip. Skipping...${RESET}"
     echo ""
     echo ""
     exit 0
@@ -691,11 +603,7 @@ fi
 ########################################
 echo ""
 echo ""
-echo "#################################################"
-echo "#                                               #"
-echo -e "#     ${CYAN}Installing the Micro cli text editor${RESET}      #"
-echo "#                                               #"
-echo "#################################################"
+banner "${CYAN}Installing the Micro cli text editor${RESET}"
 echo ""
 echo ""
 
@@ -703,21 +611,13 @@ if sudo apt install micro -y; then
     MICRO_VERSION=$(micro --version)
     echo ""
     echo ""
-    echo "##########################################################"
-    echo "#                                                        #"
-    echo -e "#      ✅ ${CYAN}micro text editor $MICRO_VERSION installed${RESET}    #"
-    echo "#                                                        #"
-    echo "##########################################################"
+    banner "✅ ${CYAN}micro text editor $MICRO_VERSION installed${RESET}"
     echo ""
     echo ""
 else
     echo ""
     echo ""
-    echo "####################################################################"
-    echo "#                                                                  #"
-    echo -e "# ⚠️ ${YELLOW}Failed to install micro cli text editor. Continuing Script...${RESET} #"
-    echo "#                                                                  #"
-    echo "####################################################################"
+    banner "⚠️ ${YELLOW}Failed to install micro cli text editor. Continuing Script...${RESET}"
     echo ""
     echo ""
     exit 0
@@ -728,32 +628,20 @@ fi
 ########################################
 echo ""
 echo ""
-echo "#################################################"
-echo "#                                               #"
-echo -e "#        ${CYAN}Installing inetutils-traceroute${RESET}        #"
-echo "#                                               #"
-echo "#################################################"
+banner "${CYAN}Installing inetutils-traceroute${RESET}"
 echo ""
 echo ""
 if sudo nala install inetutils-traceroute -y; then
     echo ""
     echo ""
-    echo "#################################################"
-    echo "#                                               #"
-    echo -e "#       ✅ ${CYAN}inetutils-traceroute installed${RESET}       #"
-    echo "#                                               #"
-    echo "#################################################"
+    banner "✅ ${CYAN}inetutils-traceroute installed${RESET}"
     echo ""
     echo ""
 sleep 3
 else
     echo ""
     echo ""
-    echo "#######################################################"
-    echo "#                                                     #"
-    echo -e "#  ⚠️ ${YELLOW}Failed to install inetutils. Continuing script${RESET}  #"
-    echo "#                                                     #"
-    echo "#######################################################"
+    banner "⚠️ ${YELLOW}Failed to install inetutils. Continuing script${RESET}"
     echo ""
     echo ""
     exit 0
@@ -764,11 +652,7 @@ fi
 ########################################
 echo ""
 echo ""
-echo "#################################################"
-echo "#                                               #"
-echo -e "#            ${CYAN}Installing Samba Server${RESET}            #"
-echo "#                                               #"
-echo "#################################################"
+banner "${CYAN}Installing Samba Server${RESET}"
 echo ""
 echo ""
 
@@ -776,11 +660,7 @@ echo ""
 if sudo apt install samba -y; then
     echo ""
     echo ""
-    echo "#######################################################"
-    echo "#                                                     #"
-    echo -e "#        ✅ ${CYAN}Samba Server installed successfully${RESET}       #"
-    echo "#                                                     #"
-    echo "#######################################################"
+    banner "✅ ${CYAN}Samba Server installed successfully${RESET}"
     echo ""
     echo ""
 
@@ -790,11 +670,7 @@ if sudo apt install samba -y; then
     # Create the HaasGroup
     echo ""
     echo ""
-    echo "#######################################################"
-    echo "#                                                     #"
-    echo -e "#             ${CYAN}Creating the Linux HaasGroup${RESET}            #"
-    echo "#                                                     #"
-    echo "#######################################################"
+    banner "${CYAN}Creating the Linux HaasGroup${RESET}"
     echo ""
     echo ""
     sudo groupadd HaasGroup 2>/dev/null || echo "HaasGroup already exists"
@@ -802,11 +678,7 @@ if sudo apt install samba -y; then
     # Create the haas user and add to HaasGroup
     echo ""
     echo ""
-    echo "#######################################################"
-    echo "#                                                     #"
-    echo -e "#  ${CYAN}Creating the Linux haas user and adding HaasGroup${RESET}  #"
-    echo "#                                                     #"
-    echo "#######################################################"
+    banner "${CYAN}Creating the Linux haas user and adding HaasGroup${RESET}"
     echo ""
     echo ""
     sudo useradd -m -G HaasGroup haas 2>/dev/null || echo "User haas already exists"
@@ -814,9 +686,7 @@ if sudo apt install samba -y; then
 # Add hass user to Samba HaasGroup
 echo ""
 echo ""
-echo "#########################################"
-echo -e "#         ${CYAN}Add haas user to Samba${RESET}        #"
-echo "#########################################"
+banner "${CYAN}Add haas user to Samba${RESET}"
 echo ""
 if pdbedit -L | cut -d: -f1 | grep -qx "haas"; then
     echo "Samba user haas already exists."
@@ -861,11 +731,7 @@ id "haas"
 
             if [ -n "$username" ] && [ -n "$password" ]; then
                 echo ""
-                echo "#######################################"
-                echo ""
-                echo -e "${CYAN}Creating user: $username       ${RESET}"
-                echo ""
-                echo "#######################################"
+                banner "${CYAN}Creating user: $username       ${RESET}"
                 # Create system user and add to HaasGroup. -M don't create home directory.
                 # -s /usr/sbin/nologin" No login shell, user is just for Samaba access.
                 sudo useradd -M -G HaasGroup -s /usr/sbin/nologin "$username" 2>/dev/null || echo "User $username already exists"
@@ -876,37 +742,21 @@ id "haas"
                 # Set Samba password non-interactively
                 echo -e "$password\n$password" | sudo smbpasswd -a "$username" -s
                 echo ""
-                echo "##############################################"
-                echo ""
-                echo -e "${CYAN}User $username created with Samba access  ${RESET}"
-                echo ""
-                echo "##############################################"
+                banner "${CYAN}User $username created with Samba access  ${RESET}"
                 echo ""
             fi
         done
 
         echo ""
         echo ""
-        echo "############################################################################################"
-        echo "#                                                                                          #"
-        echo -e "#     ${CYAN}All users from initial_users.csv have been processed${RESET}                                 #"
-        echo "#-----------------------------------------------------------                               #"
-        printf "#     ${RED}IMPORTANT${RESET}: Delete %s now for security!   #\n" "$USER_FILE"
-        echo "#                                                                                          #"
-        echo "############################################################################################"
+        banner "${CYAN}All users from initial_users.csv have been processed${RESET}" "---" "${RED}IMPORTANT${RESET}: Delete $USER_FILE now for security!"
         echo ""
         echo ""
         sleep 5
     else
         echo ""
         echo ""
-        echo "##########################################################"
-        echo "#                                                        #"
-        echo -e "#   ${YELLOW}Warning: initial_users.csv not found at $USER_FILE${RESET}   #"
-        echo "#--------------------------------------------------------#"
-        echo -e "#             ${CYAN}Skipping initial user creation${RESET}             #"
-        echo "#                                                        #"
-        echo "##########################################################"
+        banner "${YELLOW}Warning: initial_users.csv not found at $USER_FILE${RESET}" "---" "${CYAN}Skipping initial user creation${RESET}"
         echo ""
         echo ""
     fi
@@ -976,23 +826,13 @@ EOF
     if sudo testparm -s /etc/samba/smb.conf > /dev/null 2>&1; then
         echo ""
         echo ""
-        echo "##########################################################"
-        echo "#                                                        #"
-        echo -e "#            ${CYAN}Samba configuration is valid${RESET}                #"
-        echo "#                                                        #"
-        echo "##########################################################"
+        banner "${CYAN}Samba configuration is valid${RESET}"
         echo ""
         echo ""
     else
         echo ""
         echo ""
-        echo "##########################################################"
-        echo "#                                                        #"
-        echo -e "#      ${YELLOW}Warning: Samba configuration may have issues${RESET}      #"
-        echo "#--------------------------------------------------------#"
-        echo -e "#             ${CYAN}Running testparm for details:${RESET}              #"
-        echo "#                                                        #"
-        echo "##########################################################"
+        banner "${YELLOW}Warning: Samba configuration may have issues${RESET}" "---" "${CYAN}Running testparm for details:${RESET}"
         echo ""
         echo ""
         sudo testparm -s /etc/samba/smb.conf
@@ -1003,17 +843,7 @@ EOF
 
     echo ""
     echo ""
-    echo "##################################################"
-    echo "#                                                #"
-    echo -e "#     ${RED}Samba configured with security hardening:${RESET}  #"
-    echo "#------------------------------------------------#"
-    echo -e "#      ${CYAN} - SMBv2/SMBv3 only, no SMBv1${RESET}             #"
-    echo "#------------------------------------------------#"
-    echo -e "#      ${CYAN} - NetBIOS disabled${RESET}                       #"
-    echo "#------------------------------------------------#"
-    echo -e "#      ${CYAN} - Printing disabled${RESET}                      #"
-    echo "#                                                #"
-    echo "##################################################"
+    banner "${RED}Samba configured with security hardening:${RESET}" "---" "${CYAN} - SMBv2/SMBv3 only, no SMBv1${RESET}" "---" "${CYAN} - NetBIOS disabled${RESET}" "---" "${CYAN} - Printing disabled${RESET}"
     echo ""
     echo ""
 
@@ -1022,24 +852,12 @@ EOF
     sharenix="smb://$IP_ADDR/Haas"
 
 
-echo "#########################################################################"
-echo "#                                                                       #"
-echo -e "#          ${CYAN}✔ Samba share 'Haas' configured successfully${RESET}                 #"
-echo "#                                                                       #"
-printf "#  ${CYAN}Share for Windows is available at${RESET} ${GREEN}%s${RESET}\n" "$share"
-echo "#                                                                       #"
-printf "#  ${CYAN}Share for Mac/Linux is available at${RESET} ${GREEN}%s${RESET}\n" "$sharenix"
-echo "#                                                                       #"
-echo "#########################################################################"
+banner "${CYAN}✔ Samba share 'Haas' configured successfully${RESET}" "${CYAN}Share for Windows is available at${RESET} ${GREEN}${share}${RESET}" "${CYAN}Share for Mac/Linux is available at${RESET} ${GREEN}${sharenix}${RESET}"
 sleep 5
 else
     echo ""
     echo ""
-    echo "##########################################################"
-    echo "#                                                        #"
-    echo -e "#  ${YELLOW}⚠️ Failed to install Samba Server${RESET}            #"
-    echo "#                                                        #"
-    echo "##########################################################"
+    banner "${YELLOW}⚠️ Failed to install Samba Server${RESET}"
     echo ""
     echo ""
     exit 1
@@ -1048,21 +866,13 @@ sleep 5
 
 echo ""
 echo ""
-echo "#######################################################"
-echo "#                                                     #"
-echo -e "#  ${CYAN}Installing Samba Client${RESET}                            #"
-echo "#                                                     #"
-echo "#######################################################"
+banner "${CYAN}Installing Samba Client${RESET}"
 echo ""
 echo ""
 if sudo apt install smbclient -y; then
     echo ""
     echo ""
-    echo "#######################################################"
-    echo "#                                                     #"
-    echo -e "#  ${CYAN}✅ Samba Client installed successfully${RESET}             #"
-    echo "#                                                     #"
-    echo "#######################################################"
+    banner "${CYAN}✅ Samba Client installed successfully${RESET}"
     echo ""
     echo ""
 fi
@@ -1070,11 +880,7 @@ echo ""
 
 
 echo ""
-echo "################################################"
-echo "#                                              #"
-echo -e "#  ${CYAN}Installing Redhat Cockpit for management${RESET}    #"
-echo "#                                              #"
-echo "################################################"
+banner "${CYAN}Installing Redhat Cockpit for management${RESET}"
 echo ""
 echo ""
 
@@ -1086,25 +892,13 @@ if sudo nala install cockpit cockpit-pcp -y; then
     sudo systemctl restart cockpit
     echo ""
     echo ""
-    echo "#########################################################"
-    echo "#                                                       #"
-    echo -e "#  ${CYAN}✅ Cockpit installed successfully${RESET}                    #"
-    echo "#                                                       #"
-    echo -e "#  ${CYAN}Cockpit is running at${RESET}${GREEN} https://$(hostname -I | awk '{print $1}'):9090${RESET}    #"
-    echo "#                                                       #"
-    echo "#########################################################"
+    banner "${CYAN}✅ Cockpit installed successfully${RESET}" "${CYAN}Cockpit is running at${RESET}${GREEN} https://$(hostname -I | awk '{print $1}'):9090${RESET}"
     echo ""
     echo ""
 else
     echo ""
     echo ""
-    echo "##############################################################################"
-    echo "#                                                                            #"
-    echo -e "#                   ${YELLOW}⚠️ Failed to install Cockpit{RESET}                            #"
-    echo -e "#         ${CYAN}Review the messages on screen and troubleshoot with chatGPT${RESET}        #"
-    echo -e "#  ${CYAN}The script will continue, Cockpit is not needed for script functionality${RESET}  #"
-    echo "#                                                                            #"
-    echo "##############################################################################"
+    banner "${YELLOW}⚠️ Failed to install Cockpit${RESET}" "${CYAN}Review the messages on screen and troubleshoot with chatGPT${RESET}" "${CYAN}The script will continue, Cockpit is not needed for script functionality${RESET}"
     echo ""
     echo ""
 fi
@@ -1118,11 +912,7 @@ COCKPIT_DST="/usr/share/cockpit/haas-firewall"
 
 echo ""
 echo ""
-echo "#########################################################################"
-echo "#                                                                       #"
-echo -e "#  ${CYAN}Installing Cockpit Firewall extension to $COCKPIT_DST...${RESET}  #"
-echo "#                                                                       #"
-echo "#########################################################################"
+banner "${CYAN}Installing Cockpit Firewall extension to $COCKPIT_DST...${RESET}"
 echo ""
 echo ""
 
@@ -1131,11 +921,7 @@ sudo cp "$COCKPIT_SRC"/* "$COCKPIT_DST"/
 
 echo ""
 echo ""
-echo "#####################################################"
-echo "#                                                   #"
-echo -e "#  ${CYAN}[*] Restarting Cockpit...${RESET}                        #"
-echo "#                                                   #"
-echo "#####################################################"
+banner "${CYAN}[*] Restarting Cockpit...${RESET}"
 echo ""
 echo ""
 
@@ -1145,22 +931,14 @@ if [[ -f "$COCKPIT_DST/index.html" ]]; then
 
 echo ""
 echo ""
-echo "###########################################################"
-echo "#                                                         #"
-echo -e "#  ${CYAN}✅ Cockpit Firewall extension installed and Cockpit restarted.${RESET}  #"
-echo "#                                                         #"
-echo "###########################################################"
+banner "${CYAN}✅ Cockpit Firewall extension installed and Cockpit restarted.${RESET}"
 echo ""
 echo ""
 
 else
 echo ""
 echo ""
-echo "###########################################################"
-echo "#                                                         #"
-echo -e "#          ${YELLOW} ⚠️ Cockpit Firewall extension not installed.{RESET}           #"
-echo "#                                                         #"
-echo "###########################################################"
+banner "${YELLOW} ⚠️ Cockpit Firewall extension not installed.${RESET}"
 echo ""
 echo ""
 fi
@@ -1179,11 +957,7 @@ COCKPIT_UPDATE_DST="/usr/share/cockpit/update-appliance"
 
 echo ""
 echo ""
-echo "###############################################################################"
-echo "#                                                                             #"
-echo -e "#  ${CYAN}Installing Cockpit Update extension to $COCKPIT_UPDATE_DST...${RESET}        #"
-echo "#                                                                             #"
-echo "###############################################################################"
+banner "${CYAN}Installing Cockpit Update extension to $COCKPIT_UPDATE_DST...${RESET}"
 echo ""
 echo ""
 
@@ -1192,11 +966,7 @@ sudo cp "$COCKPIT_UPDATE_SRC"/* "$COCKPIT_UPDATE_DST"/
 
 echo ""
 echo ""
-echo "#####################################################"
-echo "#                                                   #"
-echo -e "#  ${CYAN}[*] Restarting Cockpit...${RESET}                        #"
-echo "#                                                   #"
-echo "#####################################################"
+banner "${CYAN}[*] Restarting Cockpit...${RESET}"
 echo ""
 echo ""
 
@@ -1209,22 +979,14 @@ if [[ -f "$COCKPIT_UPDATE_DST/index.html" ]]; then
 
 echo ""
 echo ""
-echo "###########################################################"
-echo "#                                                         #"
-echo -e "#  ${CYAN}✅ Cockpit extension Update installed and Cockpit restarted.${RESET}  #"
-echo "#                                                         #"
-echo "###########################################################"
+banner "${CYAN}✅ Cockpit extension Update installed and Cockpit restarted.${RESET}"
 echo ""
 echo ""
 
 else
 echo ""
 echo ""
-echo "#################################################################"
-echo "#                                                               #"
-echo -e "#          ${YELLOW} ⚠️ Cockpit Update extension not installed.{RESET}                 #"
-echo "#                                                               #"
-echo "#################################################################"
+banner "${YELLOW} ⚠️ Cockpit Update extension not installed.${RESET}"
 echo ""
 echo ""
 fi
@@ -1238,11 +1000,7 @@ COCKPIT_SAMBA_DST="/usr/share/cockpit/manage-samba"
 
 echo ""
 echo ""
-echo "###############################################################################"
-echo "#                                                                             #"
-echo -e "#  ${CYAN}Installing Cockpit Samba extension to $COCKPIT_SAMBA_DST...${RESET}        #"
-echo "#                                                                             #"
-echo "###############################################################################"
+banner "${CYAN}Installing Cockpit Samba extension to $COCKPIT_SAMBA_DST...${RESET}"
 echo ""
 echo ""
 
@@ -1251,11 +1009,7 @@ sudo cp "$COCKPIT_SAMBA_SRC"/{index.html,samba.js,samba.css,manifest.json} "$COC
 
 echo ""
 echo ""
-echo "#####################################################"
-echo "#                                                   #"
-echo -e "#  ${CYAN}[*] Restarting Cockpit...${RESET}                        #"
-echo "#                                                   #"
-echo "#####################################################"
+banner "${CYAN}[*] Restarting Cockpit...${RESET}"
 echo ""
 echo ""
 
@@ -1263,22 +1017,14 @@ if [[ -f "$COCKPIT_SAMBA_DST/index.html" ]]; then
 
 echo ""
 echo ""
-echo "###########################################################"
-echo "#                                                         #"
-echo -e "#  ${CYAN}✅ Cockpit extension SAMBA installed and Cockpit restarted.${RESET}  #"
-echo "#                                                         #"
-echo "###########################################################"
+banner "${CYAN}✅ Cockpit extension SAMBA installed and Cockpit restarted.${RESET}"
 echo ""
 echo ""
 
 else
 echo ""
 echo ""
-echo "#################################################################"
-echo "#                                                               #"
-echo -e "#          ${YELLOW} ⚠️ Cockpit SAMBA extension not installed.{RESET}                 #"
-echo "#                                                               #"
-echo "#################################################################"
+banner "${YELLOW} ⚠️ Cockpit SAMBA extension not installed.${RESET}"
 echo ""
 echo ""
 fi
@@ -1290,30 +1036,17 @@ sleep 3
 
 echo ""
 echo ""
-echo "#######################################################"
-echo "#                                                     #"
-echo -e "#      ${CYAN}Installing zsh + Oh My Zsh for haas user${RESET}      #"
-echo "#                                                     #"
-echo "#######################################################"
+banner "${CYAN}Installing zsh + Oh My Zsh for haas user${RESET}"
 echo ""
 echo ""
 
 if bash "$REPO_DIR/setup_zsh.sh" "$REPO_DIR"; then
     echo ""
-    echo "###########################################################"
-    echo "#                                                         #"
-    echo -e "#      ✅ ${CYAN}zsh configured successfully for haas user${RESET}      #"
-    echo "#                                                         #"
-    echo "###########################################################"
+    banner "✅ ${CYAN}zsh configured successfully for haas user${RESET}"
     echo ""
 else
     echo ""
-    echo "###########################################################"
-    echo "#                                                         #"
-    echo -e "#   ⚠️ ${YELLOW}zsh setup failed — bash remains the default shell${RESET}   #"
-    echo -e "#   ${CYAN}Run manually: sudo bash $REPO_DIR/setup_zsh.sh $REPO_DIR${RESET}"
-    echo "#                                                         #"
-    echo "###########################################################"
+    banner "⚠️ ${YELLOW}zsh setup failed — bash remains the default shell${RESET}" "${CYAN}Run manually: sudo bash $REPO_DIR/setup_zsh.sh $REPO_DIR${RESET}"
     echo ""
 fi
 sleep 3
@@ -1323,22 +1056,14 @@ sleep 3
 ########################################
 echo ""
 echo ""
-echo "########################################################################################"
-echo "#                                                                                      #"
-echo -e "#  ${CYAN}[*] Ensuring backup directory exists in repo: $BACKUP_DIR${RESET}  #"
-echo "#                                                                                      #"
-echo "########################################################################################"
+banner "${CYAN}[*] Ensuring backup directory exists in repo: $BACKUP_DIR${RESET}"
 echo ""
 echo ""
 mkdir -p "$BACKUP_DIR"
 
 echo ""
 echo ""
-echo "##################################"
-echo "#                                #"
-echo -e "#  ${CYAN}[OK] Backup directory ready.${RESET}  #"
-echo "#                                #"
-echo "##################################"
+banner "${CYAN}[OK] Backup directory ready.${RESET}"
 echo ""
 echo ""
 
@@ -1349,11 +1074,7 @@ sleep 3
 ########################################
 echo ""
 echo ""
-echo "#############################################################################"
-echo "#                                                                           #"
-echo -e "#  ${CYAN}[*] Running initial firewall configuration via haas-firewall.service...${RESET}  #"
-echo "#                                                                           #"
-echo "#############################################################################"
+banner "${CYAN}[*] Running initial firewall configuration via haas-firewall.service...${RESET}"
 echo ""
 echo ""
 
@@ -1361,11 +1082,7 @@ sudo systemctl start haas-firewall.service || true
 
 echo ""
 echo ""
-echo "####################################################"
-echo "#                                                  #"
-echo -e "#  ${CYAN}[SUCCESS] Haas Firewall installation complete.${RESET}  #"
-echo "#                                                  #"
-echo "####################################################"
+banner "${CYAN}[SUCCESS] Haas Firewall installation complete.${RESET}"
 echo ""
 echo ""
 
@@ -1386,11 +1103,7 @@ sudo chmod -R 2774 /home/haas/Haas_Data_collect
 # files also inherit the HaasGroup.
 echo ""
 echo ""
-echo "#####################################################"
-echo "#                                                   #"
-echo -e "#  ${CYAN}Save the following output for reference${RESET}          #"
-echo "#                                                   #"
-echo "#####################################################"
+banner "${CYAN}Save the following output for reference${RESET}"
 echo ""
 echo ""
 echo "Repo root:     $REPO_DIR"
@@ -1407,17 +1120,7 @@ echo "               /etc/systemd/system/haas-firewall.timer"
 echo "Cockpit UI:    /usr/share/cockpit/haas-firewall/"
 echo ""
 echo ""
-echo "##########################################################################################################"
-echo "#--------------------------------------------------------------------------------------------------------#"
-echo -e  "#  ${CYAN}To enable a Haas subnet later, run:${RESET}                                                                   #"
-echo "#--------------------------------------------------------------------------------------------------------#"
-echo -e  "# ${GREEN} sudo nano $CONFIG_FILE${RESET}                                                                     #"
-echo "#--------------------------------------------------------------------------------------------------------#"
-echo -e  "#  ${CYAN}set HAAS_MACHINES_SUBNET_V4=\"<your_ipv4_subnet>\" to your CNC machines' IPv4 subnet${RESET}                    #"
-echo "#--------------------------------------------------------------------------------------------------------#"
-echo -e  "#  ${CYAN}set HAAS_MACHINES_SUBNET_V6=\"<your_ipv6_subnet>\" to your CNC machines' IPv6 subnet (if applicable)${RESET}    #"
-echo "#--------------------------------------------------------------------------------------------------------#"
-echo "##########################################################################################################"
+banner "---" "${CYAN}To enable a Haas subnet later, run:${RESET}" "---" "${GREEN} sudo nano $CONFIG_FILE${RESET}" "---" "${CYAN}set HAAS_MACHINES_SUBNET_V4=\\"<your_ipv4_subnet>\\" to your CNC machines' IPv4 subnet${RESET}" "---" "${CYAN}set HAAS_MACHINES_SUBNET_V6=\\"<your_ipv6_subnet>\\" to your CNC machines' IPv6 subnet (if applicable)${RESET}" "---"
 echo ""
 echo ""
 echo "Check firewall status with:"
@@ -1428,29 +1131,17 @@ sudo ufw status numbered | sort -k5
 echo ""
 echo ""
 echo ""
-echo "##################################################"
-echo "#                                               #"
-echo -e "#     ${CYAN}[*] Checking reboot status...${RESET}   #"
-echo "#                                              #"
-echo "################################################"
+banner "${CYAN}[*] Checking reboot status...${RESET}"
 echo ""
 echo ""
 if [ -f /var/run/reboot-required ]; then
   echo ""
   echo ""
-  echo "###########################################"
-  echo "#                                         #"
-  echo -e "#     ${CYAN}[*] Reboot is required${RESET}   #"
-  echo "#                                         #"
-  echo "###########################################"
+  banner "${CYAN}[*] Reboot is required${RESET}"
   echo ""
 else
   echo ""
   echo ""
-  echo "###########################################"
-  echo "#                                         #"
-  echo -e "#     ${CYAN}[*] No reboot required${RESET}   #"
-  echo "#                                         #"
-  echo "###########################################"
+  banner "${CYAN}[*] No reboot required${RESET}"
   echo ""
 fi
