@@ -44,6 +44,7 @@
 # It does NOT modify or delete anything inside the repo.
 #
 
+
 # | Color        | Code     | Example in Bash                  |
 # | ------------ | -------- | -------------------------------- |
 # | Black        | 30       | `\e[30m`                         |
