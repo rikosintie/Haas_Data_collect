@@ -1152,6 +1152,12 @@ fi
 
 UFW_STATUS=$(sudo ufw status numbered | sort -k5)
 
+if command -v zoxide >/dev/null 2>&1; then
+    ZOXIDE_LIST=$(sudo -H -u haas zoxide query -l)
+else
+    ZOXIDE_LIST="(zoxide not installed)"
+fi
+
 SUMMARY_FILE="$REPO_DIR/haas-firewall-install-summary.txt"
 sudo bash -c "cat > '$SUMMARY_FILE'" <<EOF
 Haas Firewall Appliance - Install Summary
@@ -1177,6 +1183,9 @@ To enable a Haas subnet later, run:
 
 Current UFW rules:
 $UFW_STATUS
+
+Zoxide directories (haas user):
+$ZOXIDE_LIST
 EOF
 sudo chown haas:HaasGroup "$SUMMARY_FILE"
 sudo chmod 664 "$SUMMARY_FILE"
@@ -1208,6 +1217,10 @@ echo "sudo ufw status numbered"
 echo ""
 echo "Current UFW rules:"
 echo "$UFW_STATUS"
+echo ""
+echo ""
+echo "Zoxide directories (haas user):"
+echo "$ZOXIDE_LIST"
 echo ""
 echo ""
 banner "${GREEN}This summary was also saved to: $SUMMARY_FILE${RESET}"
