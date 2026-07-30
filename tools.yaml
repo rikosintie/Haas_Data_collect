@@ -13,3 +13,6 @@ tools:
 
   - repo: yorukot/superfile
     binary: spf
+
+  - repo:     ajeetdsouza/zoxide
+    binary: z
