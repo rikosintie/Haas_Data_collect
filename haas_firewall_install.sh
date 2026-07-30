@@ -100,11 +100,12 @@ fix_var_log_perms() {
 }
 
 # === remove the ubuntu ESM and K8 boot messages ======
-# Disable these scripts
-sudo chmod -x /etc/update-motd.d/90-updates-available
-sudo chmod -x /etc/update-motd.d/50-motd-news
-sudo chmod -x /etc/update-motd.d/80-livepatch
-sudo chmod -x /etc/update-motd.d/91-contract-ua-esm-status
+# Disable these scripts (skip any that don't exist on this image)
+for f in 90-updates-available 50-motd-news 80-livepatch 91-contract-ua-esm-status; do
+    if [[ -f "/etc/update-motd.d/$f" ]]; then
+        sudo chmod -x "/etc/update-motd.d/$f"
+    fi
+done
 
 set -euo pipefail
 
