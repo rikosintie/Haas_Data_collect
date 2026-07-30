@@ -248,7 +248,9 @@ gh_install() {
         return 1
     fi
 
-    gh_install_from_url "$url" "$bin"
+    if ! gh_install_from_url "$url" "$bin"; then
+        return 1
+    fi
 
     echo "[DONE] $bin updated to $latest"
 }
