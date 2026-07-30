@@ -387,4 +387,31 @@ mkd() {
     cd "$@" || exit
 }
 
+# Custom nano wrapper for Zsh with clean timestamped backups and auto-cleanup
+# if a file is edited with nano, a backup is created in the backups directory with a timestamp
+nano() {
+    local backup_dir="/home/haas/Haas_Data_collect/backups"
+
+    # Ensure backup directory exists
+    mkdir -p "$backup_dir"
+
+    # 1. Back up existing target files
+    for arg in "$@"; do
+        # Ignore options/flags (arguments starting with -)
+        if [[ "$arg" != -* ]] && [[ -f "$arg" ]]; then
+            local filename="$(basename "$arg")"
+            local timestamp="$(date +"%Y%m%d_%H%M%S")"
+
+            # Copy original file with timestamp (e.g., myfile_20260730_143500.bak)
+            cp -p "$arg" "$backup_dir/${filename}_${timestamp}.bak"
+        fi
+    done
+
+    # 2. Auto-delete backups older than 30 days
+    find "$backup_dir" -type f -name "*.bak" -mtime +30 -delete 2>/dev/null
+
+    # 3. Launch the real nano command
+    command nano "$@"
+}
+
 # end
