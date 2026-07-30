@@ -1101,6 +1101,30 @@ sudo chown -R haas:HaasGroup /home/haas/Haas_Data_collect
 sudo chmod -R 2774 /home/haas/Haas_Data_collect
 # The 2 in 2774 sets the setgid bit, which ensures that all locally created
 # files also inherit the HaasGroup.
+
+########################################
+# Populate zoxide database for the haas user
+########################################
+if command -v zoxide >/dev/null 2>&1; then
+    echo ""
+    echo ""
+    banner "${CYAN}[*] Populating zoxide database for haas user...${RESET}"
+    echo ""
+    for dir in \
+        /usr/local/sbin \
+        /usr/share/cockpit/haas-firewall/ \
+        /var/log/ \
+        /home/haas/Haas_Data_collect/ \
+        /usr/share/cockpit/manage-samba/ \
+        /etc/ssh/sshd_config.d \
+        /etc/systemd/system \
+        /usr/share/cockpit/update-appliance/
+    do
+        sudo -H -u haas zoxide add "$dir"
+    done
+    echo ""
+fi
+
 echo ""
 echo ""
 echo ""
