@@ -154,8 +154,8 @@ REQUIRED_FILES=(
   "gh-updater.lib.sh"
   "install-tools.sh"
   "issue.net"
-  "list_shares.sh"
-  "list_shares_csv.sh"
+  "cockpit_samba/list_shares.sh"
+  "cockpit_samba/list_shares_csv.sh"
   "rollback_csv.sh"
   "ssh_port.sh"
   "tools.yaml"
@@ -320,8 +320,8 @@ sudo cp "$REPO_DIR/configure_ufw_from_csv.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/gh-updater.lib.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/install-tools.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/issue.net" /etc/issue.net
-sudo cp "$REPO_DIR/list_shares.sh" /usr/local/sbin
-sudo cp "$REPO_DIR/list_shares_csv.sh" /usr/local/sbin
+sudo cp "$REPO_DIR/cockpit_samba/list_shares.sh" /usr/local/sbin
+sudo cp "$REPO_DIR/cockpit_samba/list_shares_csv.sh" /usr/local/sbin
 sudo cp "$REPO_DIR/rollback_csv.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/ssh_port.sh" /usr/local/sbin
 sudo cp "$REPO_DIR/tools.yaml" /usr/local/sbin/
