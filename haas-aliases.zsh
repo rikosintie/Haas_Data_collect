@@ -23,10 +23,10 @@ alias haas-bin='cd /usr/local/sbin' # Haas custom scripts for appliance manageme
 alias haas-firewall='cd /usr/share/cockpit/haas-firewall/' # The cockpit directory for the firewall extension
 alias haas-log='cd /var/log/' # The appliance log files directory
 alias haas-repo='cd /home/haas/Haas_Data_collect/' # The appliance repo directory
-alias haas-samba='cd /usr/share/cockpit/manage-samba/' # The cockpit directory for the samba extension
+alias haas-samba='cd /usr/share/cockpit/haas-samba/' # The cockpit directory for the samba extension
 alias haas-ssh='cd /etc/ssh/sshd_config.d/' # the sshd_config.d directory for te ssh customization file
 alias haas-system='cd /etc/systemd/system' # The haas service files
-alias haas-updates='cd /usr/share/cockpit/update-appliance/' # The cockpit directory for the update/logs extension
+alias haas-updates='cd /usr/share/cockpit/haas-update-appliance/' # The cockpit directory for the update/logs extension
 
 # List all haas functions
 alias haas-list-functions='print -l ${(k)functions} | grep '^haas' | sort'
@@ -263,10 +263,10 @@ haas-bin           – cd /usr/local/sbin
 haas-firewall      – cd /usr/share/cockpit/haas-firewall/
 haas-log           – cd /var/log/
 haas-repo          – cd /home/haas/Haas_Data_collect/
-haas-samba         – cd /usr/share/cockpit/manage-samba/
+haas-samba         – cd /usr/share/cockpit/haas-samba/
 haas-ssh           – cd to sshd_config.d directory
 haas-system        – cd /etc/systemd/system
-haas-updates       – cd /usr/share/cockpit/update-appliance/
+haas-updates       – cd /usr/share/cockpit/haas-update-appliance/
 
 # Firewall Config editing
 haas-fw-conf       – Edit firewall config with sudo
