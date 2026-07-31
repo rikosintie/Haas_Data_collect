@@ -237,7 +237,7 @@ sudo /usr/local/sbin/configure_ufw_from_csv.sh
 In the `Haas_Data_Collect` folder run the following:
 
 ```bash
-sudo ./haas_firewall_install.sh
+sudo ./haas-install.sh
 ```
 
 ⭐ What this installer guarantees

@@ -83,12 +83,12 @@ haas-fw-conf='sudo fresh /etc/haas-firewall.conf'
 haas-list-functions='print -l ${(k)functions} | grep ^haas | sort'
 haas-log='cd /var/log/'
 haas-repo='cd /home/haas/Haas_Data_collect/'
-haas-samba='cd /usr/share/cockpit/manage-samba/'
+haas-samba='cd /usr/share/cockpit/haas-samba/'
 haas-services='systemctl list-unit-files --type=service | grep haas'
 haas-ssh='cd /etc/ssh/sshd_config.d/'
 haas-sshd='sudo fresh /etc/ssh/sshd_config.d/99-haas-hardening.conf'
 haas-system='cd /etc/systemd/system'
-haas-updates='cd /usr/share/cockpit/update-appliance/'
+haas-updates='cd /usr/share/cockpit/haas-update-appliance/'
 ```
 
 ----------------------------------------------------------------
@@ -330,7 +330,7 @@ t-ufwf example
 
 ### Path function
 
-This is an incredibly useful function! Sometimes a command just wont run or isn't found. You can use teh `which` command to see where the executable is, then `path to see if the executable is in the path.
+This is an incredibly useful function! Sometimes a command just wont run or isn't found. You can use the `which` command to see where the executable is, then `path to see if the executable is in the path.
 
 ```bash
 # "path" shows current path, one element per line.
@@ -495,11 +495,11 @@ The `treed` alias displays all of the directories using a `Human Readable` forma
 ```
 
 ```bash
-/usr/share/cockpit/update-appliance
+/usr/share/cockpit/haas-update-appliance
 ```
 
 ```bash
-/usr/share/cockpit/manage-samba
+/usr/share/cockpit/haas-samba
 ```
 
 ----------------------------------------------------------------
@@ -553,7 +553,7 @@ All system scripts for the appliance are located here:
 - build-nmap.sh
 - configure_ufw_from_csv.sh
 - gh-updater.lib.sh
-- haas_firewall_install.sh
+- haas-install.sh
 - haas_firewall_uninstall.sh
 - install-tools.sh
 - lshares.sh

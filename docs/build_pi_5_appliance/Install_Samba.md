@@ -31,7 +31,7 @@ If you want use Active Directory integration there are plenty of blogs/YouTube V
 
 ## Install Samba Server
 
-The installation script, `haas_firewall_install.sh`, completes all of the steps needed to install Samba Server on the appliance. These instructions are provided for reference if you want to understand what installation script does.
+The installation script, `haas-install.sh`, completes all of the steps needed to install Samba Server on the appliance. These instructions are provided for reference if you want to understand what installation script does.
 
 If you plan to use the installation script and don't want to read the details of installing Samba Server jump to [The Directory Structure](../build_pi_5_appliance/directories_shares.md/#the-directory-structure) to learn about the directory structure that is needed.
 

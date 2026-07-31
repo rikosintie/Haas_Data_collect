@@ -2,7 +2,7 @@
 #
 # setup_zsh.sh — Install and configure zsh + Oh My Zsh for the haas user
 #
-# Called by haas_firewall_install.sh:
+# Called by haas-install.sh:
 #   bash "$REPO_DIR/setup_zsh.sh" "$REPO_DIR"
 #
 # Must be run as root (the parent install script already enforces this).
@@ -34,7 +34,7 @@ for f in zshrc haas-aliases.zsh; do
 done
 
 if ! id "$HAAS_USER" &>/dev/null; then
-    fail "User '$HAAS_USER' does not exist — run haas_firewall_install.sh first."
+    fail "User '$HAAS_USER' does not exist — run haas-install.sh first."
     exit 1
 fi
 

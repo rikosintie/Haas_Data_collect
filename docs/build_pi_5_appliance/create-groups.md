@@ -77,7 +77,7 @@ chmod +x /home/$USER/Haas_Data_collect/tspin_alias.sh
 chmod +x /home/$USER/Haas_Data_collect/rollback_csv.sh
 chmod +x /home/$USER/Haas_Data_collect/ssh_port.sh
 chmod +x /home/$USER/Haas_Data_collect/ssh_validate.sh
-chmod +x /home/$USER/Haas_Data_collect/haas_firewall_install.sh
+chmod +x /home/$USER/Haas_Data_collect/haas-install.sh
 ```
 
 There is no output from these commands.
@@ -106,7 +106,7 @@ The bash scripts in Haas_Data_collect:
 ```bash
 ~/Haas_Data_collect ‹main●›
 ╰─$ ls -l *.sh
--rwxrwsr-- 1 haas HaasGroup 45830 Mar 24 15:19 haas_firewall_install.sh
+-rwxrwsr-- 1 haas HaasGroup 45830 Mar 24 15:19 haas-install.sh
 -rwxrwsr-- 1 haas HaasGroup  2679 Feb 15 20:50 haas_firewall_uninstall.sh
 -rwxrwsr-- 1 haas HaasGroup   582 Feb 15 20:50 lshares.sh
 -rwxrwsr-- 1 haas HaasGroup  4366 Mar 22 18:36 manage_users.sh

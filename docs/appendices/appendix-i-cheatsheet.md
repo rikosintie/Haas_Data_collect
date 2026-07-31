@@ -15,10 +15,10 @@ Type `haas` then press `Tab` to list all haas aliases.
 | `haas-firewall` | `/usr/share/cockpit/haas-firewall` |
 | `haas-log` | `/var/log` |
 | `haas-repo` | `/home/haas/Haas_Data_collect` |
-| `haas-samba` | `/usr/share/cockpit/manage-samba` |
+| `haas-samba` | `/usr/share/cockpit/haas-samba` |
 | `haas-ssh` | `/etc/ssh/sshd_config.d` |
 | `haas-systemd` | `/etc/systemd/system` |
-| `haas-updates` | `/usr/share/cockpit/update-appliance` |
+| `haas-updates` | `/usr/share/cockpit/haas-update-appliance` |
 
 ---
 
@@ -75,8 +75,8 @@ mkd machines/vf2ss/cnc_logs    # creates full path and switches to it
 | `/etc/ssh/sshd_config.d/99-haas-hardening.conf` | SSH hardening config |
 | `/etc/issue.net` | Pre-login banner |
 | `/usr/share/cockpit/haas-firewall` | Cockpit Firewall extension |
-| `/usr/share/cockpit/update-appliance` | Cockpit System Updates extension |
-| `/usr/share/cockpit/manage-samba` | Cockpit Samba extension |
+| `/usr/share/cockpit/haas-update-appliance` | Cockpit System Updates extension |
+| `/usr/share/cockpit/haas-samba` | Cockpit Samba extension |
 
 ---
 
@@ -96,7 +96,7 @@ mkd machines/vf2ss/cnc_logs    # creates full path and switches to it
 | `ssh_validate.sh` | Validate SSH configuration |
 | `build-nmap.sh` | Build nmap from source |
 | `lshares.sh` | List Samba shares |
-| `haas_firewall_install.sh` | Install the Haas appliance stack |
+| `haas-install.sh` | Install the Haas appliance stack |
 | `haas_firewall_uninstall.sh` | Remove the Haas appliance stack |
 | `gh-updater.lib.sh` | GitHub release update library |
 

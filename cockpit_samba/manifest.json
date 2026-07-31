@@ -1,7 +1,7 @@
 {
   "version": 0,
   "tools": {
-    "manage-samba": {
+    "haas-samba": {
       "label": "Manage Samba",
       "path": "index.html"
     }

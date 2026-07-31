@@ -257,8 +257,8 @@ These risks are documented for MSP awareness. The script `smb_verify.sh` can be 
 The Open Source community is facing more and more supply chain attacks. The appliance has a limited number of packages installed besides Ubuntu itself. You can list the packages installed by the installation script using:
 
 ```bash linenums='1' hl_lines='1'
-grep -E '(apt|nala)[[:space:]]+install\b' haas_firewall_install.sh
-grep -E '\-f[[:space:]]+fresh-editor\b' haas_firewall_install.sh
+grep -E '(apt|nala)[[:space:]]+install\b' haas-install.sh
+grep -E '\-f[[:space:]]+fresh-editor\b' haas-install.sh
 ```
 
 ```bash title='Command Output'

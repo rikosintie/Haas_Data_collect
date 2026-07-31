@@ -131,7 +131,7 @@ Nano is a terminal text editor built into most Linux distributions and you will 
 nano ~/.nanorc
 ```
 
-Note hte `dot` in front of the file. In Mac/Linux that means it's a hidden file. You must include the do or nano won't read it.
+Note the `dot` in front of the file. In Mac/Linux that means it's a hidden file. You must include the do or nano won't read it.
 
 Paste the following into the file:
 
@@ -171,7 +171,7 @@ This also sets:
 
 ----------------------------------------------------------------
 
-Here is a screenshot of an Ubuntu server `netplan` yaml file after the nano updates:
+Here is a screenshot of an Ubuntu server `netplan` yaml file after the nano updates using `sudo nano /etc/netplan/50-cloud-init.yaml`:
 
 ![screenshot](../build_pi_5_appliance/img/nano-linter.resized.png)
 
@@ -630,7 +630,7 @@ You may want to buy two HSMs and keep one locked in a safe place.
 
 ## Use IPv6
 
-If you don't mind learning a little IPv6, you can SSH to the Pi over IPv6 even if it doesn't have an IPv4 address. This is only for the initial configuration of Ubuntu. Once you run the `haas_firewall_install.sh` script you are limited to IPv4. The reason is that the `configure_ufw_from_csv.sh` script doesn't support IPv6 for Administrators. As my dad used to say "Son, you ran out of talent on that one." I plan to add it in the future if there is demand for the feature.
+If you don't mind learning a little IPv6, you can SSH to the Pi over IPv6 even if it doesn't have an IPv4 address. This is only for the initial configuration of Ubuntu. Once you run the `haas-install.sh` script you are limited to IPv4. The reason is that the `configure_ufw_from_csv.sh` script doesn't support IPv6 for Administrators. As my dad used to say "Son, you ran out of talent on that one." I plan to add it in the future if there is demand for the feature.
 
 If you followed the Paulus blog, add `dhcp6: true` to the netplan yaml file
 

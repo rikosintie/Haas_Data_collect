@@ -65,7 +65,7 @@ cd Haas_Data_collect
 
 ## The installation script
 
-The repository includes a script named: `haas_firewall_install.sh`. The script does a lot of the heavy lifting to get the appliance up and running.
+The repository includes a script named: `haas-install.sh`. The script does a lot of the heavy lifting to get the appliance up and running.
 
 - Writes the `/etc/haas-firewall.conf` file that allows you to add a custom subnet for the Haas CNCs if your network uses segmentation. Allows you to set a custom SSH port for the firewall rules if your security policy requires it.
 - Installs the systemd firewall service + timer
@@ -360,7 +360,7 @@ If you are in the Desktop version of Ubuntu you can open the `Files` application
 
 ## The install script details
 
-The installation script `haas_firewall_install.sh` is written in `bash`, the native Linux language for system administration tasks. I have included comments for every section. You should review the script before running it so that you have an idea what it does.
+The installation script `haas-install.sh` is written in `bash`, the native Linux language for system administration tasks. I have included comments for every section. You should review the script before running it so that you have an idea what it does.
 
 Use the following to view the file if you are connected over ssh:
 
@@ -370,7 +370,7 @@ cat initial_users.csv
 ```
 
 **If you are in the Desktop version of Ubuntu**
-Open the `Files` application and right click on `haas_firewall_install.sh` and select `Open with text Editor`. That will open the file in `Gnome Text Editor`.
+Open the `Files` application and right click on `haas-install.sh` and select `Open with text Editor`. That will open the file in `Gnome Text Editor`.
 
 ### Run the installation script
 
@@ -378,25 +378,25 @@ In Linux, scripts have to be marked `eXecutable` before you can run them. The fi
 
 ```bash
 cd ~/haas/Haas_Data_collect
-ls -l haas_firewall_install.sh
+ls -l haas-install.sh
 ```
 
 ```bash title='Command Output'
-ls -l haas_firewall_install.sh
--rwxrwxr-x 1 mhubbard mhubbard 14347 Feb  5 15:12 haas_firewall_install.sh
+ls -l haas-install.sh
+-rwxrwxr-x 1 mhubbard mhubbard 14347 Feb  5 15:12 haas-install.sh
 ```
 
 If you don't see the `x` in the output, run the following:
 
 ```bash hl_lines='1'
-chmod +x haas_firewall_install.sh
+chmod +x haas-install.sh
 ```
 
 Execute the script using:
 
 ```bash
 cd ~/Haas_Data_collect
-./haas_firewall_install.sh
+./haas-install.sh
 ```
 
 There will be a lot of output as the script does it's job! Once it completes, review the output for any error messages. I don't expect any failures, the script has been tested on a Raspberry Pi 5 with an NVME drive, an Intel NUC running Ubuntu Desktop, a virtual machine running ubuntu Desktop.
@@ -478,7 +478,7 @@ This will open `haas-st40.service` in the built in `nano` editor.
 
 ```bash hl_lines='2'
 ┌─[haas@haas] - [~/Haas_Data_collect] - [4331]
-└─[$] nano haas-st40.service
+└─[$] sudo nano /etc/systemd/system/haas-st40.service
 ```
 
 ```bash title='Command Output'
@@ -500,6 +500,8 @@ WantedBy=multi-user.target
 
 #### What you need to modify
 
+To create a new service file, change the following values and save with a new filename.
+
 - **Description** - The description is shown when you check the status of the service. Change to something that makes sense in your environment.
 - **WorkingDirectory** - The directory where Python will save the data files.
 - **ExecStart** - This is where the table of names, ports, IP addresses comes in handy. Replace:
@@ -514,7 +516,7 @@ With your values
 ----------------------------------------------------------------
 
 !!! Note
-    For whatever reason, `nano` doesn't use the normal text editor keys. If you are brand new to Linux, use this tutorial to learn nano - [The beginners guide to Nano the Linux command line text editor](https://www.howtogeek.com/42980/the-beginners-guide-to-nano-the-linux-command-line-text-editor/). There is also a [Nano Cheatshett](https://www.nano-editor.org/dist/latest/cheatsheet.html){target=_blank} that is very useful.
+    For whatever reason, `nano` doesn't use the normal text editor keys. If you are brand new to Linux, use this tutorial to learn nano - [The beginners guide to Nano the Linux command line text editor](https://www.howtogeek.com/42980/the-beginners-guide-to-nano-the-linux-command-line-text-editor/). There is also a [Nano Cheat sheet](https://www.nano-editor.org/dist/latest/cheatsheet.html){target=_blank} that is very useful.
 
 ----------------------------------------------------------------
 
@@ -564,7 +566,7 @@ With your values
 
 ----------------------------------------------------------------
 
-The [Fresh Editor](https://github.com/Nsoro-Allan/fresh-editor?tab=readme-ov-file#installation) is installed if you used the installation script. The homepage for the Fresh Editor is [Fresh](https://sinelaw.github.io/fresh/). I find it easier to use than `nano` because it uses the same key bindings as most GUI editors.
+The [Fresh Editor](https://github.com/Nsoro-Allan/fresh-editor?tab=readme-ov-file#installation) is installed by the installation script. The homepage for the Fresh Editor is here: [Fresh](https://sinelaw.github.io/fresh/). I find it easier to use than `nano` because it uses the same key bindings as most GUI editors. Use `sudo nano /etc/systemd/system/haas-st40.service` to open the file in Fresh.
 
 ----------------------------------------------------------------
 
