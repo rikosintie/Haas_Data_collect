@@ -141,7 +141,7 @@ haas-lldp-stats() {
 
 # show lldp running-configuration
 haas-lldp-running() {
-    show running-configuration
+    lldpcli show running-configuration
 }
 
 haas-systemd() {
