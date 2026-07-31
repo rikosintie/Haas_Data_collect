@@ -27,8 +27,8 @@ share/python-wheels/
 MANIFEST
 
 # Mac DS files
-DS_Store
-DS_Store
+.DS_Store
+._.DS_Store
 
 # Fresh editor
 .fresh/
