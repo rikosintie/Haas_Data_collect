@@ -216,6 +216,10 @@ REQUIRED_FILES=(
   "haas-firewall.timer"
   "99-custom-function.sh"
   "90-updates-clean.sh"
+  "lshares.sh"
+  "manage_users.sh"
+  "smb_verify.sh"
+  "ssh_validate.sh"
 )
 
 echo ""
@@ -406,7 +410,7 @@ else
     echo ""
 
     [ ! -f /etc/issue.net ] && echo "   -> /etc/issue.net is missing."
-    ! grep -q "^Banner" /etc/ssh/sshd_config && echo "   -> Banner line not found in config."
+    ! grep -q "^Banner" /etc/ssh/sshd_config.d/99-haas-hardening.conf && echo "   -> Banner line not found in config."
     ! sudo sshd -t && echo "   -> sshd syntax error detected."
     exit 1
 fi
@@ -438,7 +442,6 @@ sudo chmod +x "$REPO_DIR/manage_users.sh"
 sudo chmod +x "$REPO_DIR/smb_verify.sh"
 sudo chmod +x "$REPO_DIR/ssh_port.sh"
 sudo chmod +x "$REPO_DIR/ssh_validate.sh"
-sudo chmod +x "$REPO_DIR/tspin_alias.sh"
 
 
 if [[ ! -x /usr/local/sbin/configure_ufw_from_csv.sh ]]; then
@@ -538,7 +541,7 @@ if sudo apt install nala -y; then
 else
     echo ""
     echo ""
-    banner "⚠️ ${YELLOW}Failed to install Nala package manager. Skipping${RESET}"
+    banner "❌ ${RED}Failed to install the Nala package manager.${RESET}" "${YELLOW}Cannot continue — tree, lldpd, pip, inetutils-traceroute, and Cockpit all install via nala.${RESET}"
     echo ""
     echo ""
     exit 1
@@ -562,7 +565,6 @@ else
     banner "⚠️ ${YELLOW}Failed to install the tree command. Skipping...${RESET}"
     echo ""
     echo ""
-    exit 0
 fi
 
 ################################################################################
@@ -582,7 +584,6 @@ else
     banner "⚠️ ${YELLOW}Failed to install the lldpd command. Skipping...${RESET}"
     echo ""
     echo ""
-    exit 0
 fi
 
 ################################################################################
@@ -607,7 +608,6 @@ else
     banner "⚠️ ${YELLOW}Failed to install Python pip. Skipping...${RESET}"
     echo ""
     echo ""
-    exit 0
 fi
 
 ########################################
@@ -619,7 +619,7 @@ banner "${CYAN}Installing the Micro cli text editor${RESET}"
 echo ""
 echo ""
 
-if sudo apt install micro -y; then
+if sudo nala install micro -y; then
     MICRO_VERSION=$(micro --version)
     echo ""
     echo ""
@@ -632,7 +632,6 @@ else
     banner "⚠️ ${YELLOW}Failed to install micro cli text editor. Continuing Script...${RESET}"
     echo ""
     echo ""
-    exit 0
 fi
 
 ########################################
@@ -656,7 +655,6 @@ else
     banner "⚠️ ${YELLOW}Failed to install inetutils. Continuing script${RESET}"
     echo ""
     echo ""
-    exit 0
 fi
 
 ########################################
@@ -669,7 +667,7 @@ echo ""
 echo ""
 
 # Install Samba
-if sudo apt install samba -y; then
+if sudo nala install samba -y; then
     echo ""
     echo ""
     banner "✅ ${CYAN}Samba Server installed successfully${RESET}"
@@ -707,14 +705,14 @@ else
     echo "Creating Samba user haas"
     sudo smbpasswd -a "haas" || {
         echo "Error adding user to Samba database haas." >&2
-        return 1
+        exit 1
     }
 fi
 
 # Ensure Samba account is enabled
 sudo smbpasswd -e "haas" || {
     echo "Error enabling Samba account for haas." >&2
-    return 1
+    exit 1
 }
 
 # Add user to HaasGroup
@@ -881,7 +879,7 @@ echo ""
 banner "${CYAN}Installing Samba Client${RESET}"
 echo ""
 echo ""
-if sudo apt install smbclient -y; then
+if sudo nala install smbclient -y; then
     echo ""
     echo ""
     banner "${CYAN}✅ Samba Client installed successfully${RESET}"
@@ -1023,6 +1021,8 @@ echo ""
 banner "${CYAN}[*] Restarting Cockpit...${RESET}"
 echo ""
 echo ""
+
+sudo systemctl restart cockpit
 
 if [[ -f "$COCKPIT_SAMBA_DST/index.html" ]]; then
 
