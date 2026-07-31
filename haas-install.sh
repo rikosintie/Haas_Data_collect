@@ -156,6 +156,17 @@ fix_var_log_perms() {
     fi
 }
 
+########################################
+# PRE-FLIGHT: confirm users.csv / initial_users.csv are correct
+# for THIS appliance before anything is actually installed.
+########################################
+echo ""
+echo ""
+banner "${YELLOW}[!] BEFORE YOU CONTINUE${RESET}" "---" "${CYAN}Review and update these two files for THIS appliance:${RESET}" "${GREEN}  users.csv${RESET}" "${GREEN}  initial_users.csv${RESET}" "---" "${YELLOW}Ctrl+C will stop this installer right now, before anything${RESET}" "${YELLOW}is installed or changed, so you can go edit them.${RESET}"
+echo ""
+read -rp "Press Enter to continue once these files are correct for this appliance... "
+echo ""
+
 # === remove the ubuntu ESM and K8 boot messages ======
 # Disable these scripts (skip any that don't exist on this image)
 for f in 90-updates-available 50-motd-news 80-livepatch 91-contract-ua-esm-status; do
