@@ -2,7 +2,7 @@
 
 ----------------------------------------------------------------
 
-![screenshot](../build_pi_5_appliance/img/cockpit-ts.png)
+![screenshot](../build_the_appliance/img/cockpit-ts.png)
 
 ## The firewall
 

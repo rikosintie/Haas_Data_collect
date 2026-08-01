@@ -13,7 +13,7 @@ You can connect a monitor and keyboard, but you still use terminal-only tools si
 
 ### Serial Console cable
 
-If you are building your appliance on a Raspberry Pi 5, I recommend purchasing the [serial console cable](../build_pi_5_appliance/build_an_appliance.md/#usb-serial-cable-for-the-raspberry-pi-5). It allows you to configure the Pi from your laptop if the Pi doesn't have an IP Address or you have locked yourself out with the firewall.
+If you are building your appliance on a Raspberry Pi 5, I recommend purchasing the [serial console cable](../build_the_appliance/build_an_appliance.md/#usb-serial-cable-for-the-raspberry-pi-5). It allows you to configure the Pi from your laptop if the Pi doesn't have an IP Address or you have locked yourself out with the firewall.
 
 ----------------------------------------------------------------
 
@@ -38,7 +38,7 @@ During the installation on a Raspberry Pi 5 or Intel box:
 
 The code in the rest of the setup expects the username to be haas, which creates a home directory at /home/haas, used in all the examples in the guide. When the appliance is ready for production, change the password to a long and complex password. Save it in a password manager so that you don't forget it.
 
-For ease of logging into the appliance, create ssh keys as shown here - [Use SSH Keys](../build_pi_5_appliance/installing_ubuntu.md/#use-ssh-keys).
+For ease of logging into the appliance, create ssh keys as shown here - [Use SSH Keys](../build_the_appliance/installing_ubuntu.md/#use-ssh-keys).
 
 ----------------------------------------------------------------
 
@@ -112,7 +112,7 @@ Here is a link to the official Canonical tutorial - [Install Ubuntu Desktop](htt
 
 When you get to this screen:
 
-![screenshot](../build_pi_5_appliance/img/Ubuntu-Install.resized.png)
+![screenshot](../build_the_appliance/img/Ubuntu-Install.resized.png)
 
 Select `Install Ubuntu` and click `next`.
 
@@ -173,7 +173,7 @@ This also sets:
 
 Here is a screenshot of an Ubuntu server `netplan` yaml file after the nano updates using `sudo nano /etc/netplan/50-cloud-init.yaml`:
 
-![screenshot](../build_pi_5_appliance/img/nano-linter.resized.png)
+![screenshot](../build_the_appliance/img/nano-linter.resized.png)
 
 ----------------------------------------------------------------
 
@@ -195,7 +195,7 @@ The desktop version uses a GUI to change IP address configuration. Go to the **s
 
 ----------------------------------------------------------------
 
-![Ubuntu Network settings](../build_pi_5_appliance/img/Ubuntu-Desktop-static.resized.png)
+![Ubuntu Network settings](../build_the_appliance/img/Ubuntu-Desktop-static.resized.png)
 
 ----------------------------------------------------------------
 

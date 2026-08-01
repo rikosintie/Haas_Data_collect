@@ -6,7 +6,7 @@ To share files between the CNC programmer and the machine control we have to cre
 
 ## The directory structure
 
-We will need the [table](../build_pi_5_appliance/directories_shares.md/#table-of-machines) we created earlier for reference. It's listed below for reference. The concept is to create a share on the `Haas_Data_collect` directory named `Haas`. This top level share will be able so see the entire directory structure when it's mapped to a Windows network drive. Operations personnel will map to this share so that they can pull spreadsheets from every machine.
+We will need the [table](../build_the_appliance/directories_shares.md/#table-of-machines) we created earlier for reference. It's listed below for reference. The concept is to create a share on the `Haas_Data_collect` directory named `Haas`. This top level share will be able so see the entire directory structure when it's mapped to a Windows network drive. Operations personnel will map to this share so that they can pull spreadsheets from every machine.
 
 Then create a directory/share for each Haas machine tool. The Haas machine tool share will be used:
 

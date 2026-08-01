@@ -11,15 +11,15 @@ nav:
   - Python: installing_python.md
   - Usage: usage.md
   - Appliance:
-      - Why build an_Appliance: 'build_pi_5_appliance/build_an_appliance.md'
-      - Installing Ubuntu: 'build_pi_5_appliance/installing_ubuntu.md'
-      - Creating the Appliance: 'build_pi_5_appliance/configuring_appliance.md'
-      - Create HaasGroup and Users: 'build_pi_5_appliance/create-groups.md'
-      - Install Samba: 'build_pi_5_appliance/Install_Samba.md'
-      - Create Directories-Shares: 'build_pi_5_appliance/directories_shares.md'
-      - Update the Appliance: 'build_pi_5_appliance/updating_appliance.md'
-      - Firewall Configuration: 'build_pi_5_appliance/firewall_configuration.md'
-      - Trouble Shooting: 'build_pi_5_appliance/TS_cockpit.md'
+      - Why build an_Appliance: 'build_the_appliance/build_an_appliance.md'
+      - Installing Ubuntu: 'build_the_appliance/installing_ubuntu.md'
+      - Creating the Appliance: 'build_the_appliance/configuring_appliance.md'
+      - Create HaasGroup and Users: 'build_the_appliance/create-groups.md'
+      - Install Samba: 'build_the_appliance/Install_Samba.md'
+      - Create Directories-Shares: 'build_the_appliance/directories_shares.md'
+      - Update the Appliance: 'build_the_appliance/updating_appliance.md'
+      - Firewall Configuration: 'build_the_appliance/firewall_configuration.md'
+      - Trouble Shooting: 'build_the_appliance/TS_cockpit.md'
   - Appendices:
     - Introduction: 'appendices/intro.md'
     - Securing the Appliance: 'appendices/appendix-a.md'

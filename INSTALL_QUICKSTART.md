@@ -1,7 +1,7 @@
 # Installation Quick Start
 
 This is the short version. For the full walkthrough (partitioning, Ubuntu
-install, networking, etc.) see the docs under `docs/build_pi_5_appliance/`.
+install, networking, etc.) see the docs under `docs/build_the_appliance/`.
 
 ## 1. Prerequisites
 
@@ -78,5 +78,5 @@ can live anywhere.
 - Re-running `sudo ./haas-install.sh` is safe — it's idempotent for most
   steps (existing users/groups/packages are detected and skipped).
 - Check firewall status any time with `sudo ufw status numbered`.
-- For deeper troubleshooting, see `docs/build_pi_5_appliance/` and
+- For deeper troubleshooting, see `docs/build_the_appliance/` and
   `docs/appendices/`.

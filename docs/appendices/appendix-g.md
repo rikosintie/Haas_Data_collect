@@ -36,7 +36,7 @@ The flowchart has the following three stages:
 - **Check Appliance firewall** - SSH to the appliance, run `sudo ufw status numbered | sort -k5` to list the appliance firewall rules
     1. Use `Cockpit` to manage the firewall from a browser `https://<appliance_ip>:9090`
     2. Use the `configure_ufw_from_csv.sh` script from the terminal - `sudo /usr/local/sbin/configure_ufw_from_csv.sh --show-rules`
-    3. See [The script options](../build_pi_5_appliance/firewall_configuration.md/#the-script-options){target="_blank"} for more information
+    3. See [The script options](../build_the_appliance/firewall_configuration.md/#the-script-options){target="_blank"} for more information
 - **Check W/S Firewall** - This is a low probability. By default Windows, Mac, Linux allow outbound traffic
 
 ----------------------------------------------------------------

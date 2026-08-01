@@ -85,7 +85,7 @@ Potential threats:
 - strict UFW rules
 - no Windows‑compatible remote execution surfaces.
 
-The appliance can be used with no Active Directory accounts. See [There are two trains of thoughts on usernames](../build_pi_5_appliance/configuring_appliance.md/#there-are-two-trains-of-thoughts-on-usernames) for more detail.
+The appliance can be used with no Active Directory accounts. See [There are two trains of thoughts on usernames](../build_the_appliance/configuring_appliance.md/#there-are-two-trains-of-thoughts-on-usernames) for more detail.
 
 ----------------------------------------------------------------
 
@@ -181,7 +181,7 @@ If any of these assumptions are violated, the risk profile changes.
 - OpenSSH 9.9 modern‑only crypto
 - legacy algorithms removed.
 
-See [In Wireshark](../build_pi_5_appliance/create-groups.md/#in-wireshark){target='_blank'} for details.
+See [In Wireshark](../build_the_appliance/create-groups.md/#in-wireshark){target='_blank'} for details.
 
 ----------------------------------------------------------------
 
@@ -195,7 +195,7 @@ See [In Wireshark](../build_pi_5_appliance/create-groups.md/#in-wireshark){targe
 - minimal services
 - no remote execution surfaces.
 
-If only local Linux accounts are used there is no risk. See [There are two trains of thoughts on usernames](../build_pi_5_appliance/configuring_appliance.md/#there-are-two-trains-of-thoughts-on-usernames)
+If only local Linux accounts are used there is no risk. See [There are two trains of thoughts on usernames](../build_the_appliance/configuring_appliance.md/#there-are-two-trains-of-thoughts-on-usernames)
 
 ----------------------------------------------------------------
 

@@ -129,9 +129,9 @@ Have eXecute so that you can run them.
 All users, whether they are a machine tool, a CNC programmer, or the Operations personnel, need a Linux and a Samba account. The installation script reads the file `initial_users.csv` and creates both the Linux and Samba users during the installation.
 
 !!! Note
-    You cannot create users that can log in over ssh using the `initial_users.csv` file. Use the `manage_users.sh` script - [Manage users by script](../build_pi_5_appliance/create-groups.md/#manage-users-by-script) to create users with ssh capability.
+    You cannot create users that can log in over ssh using the `initial_users.csv` file. Use the `manage_users.sh` script - [Manage users by script](../build_the_appliance/create-groups.md/#manage-users-by-script) to create users with ssh capability.
 
-To add users later you can follow these instructions or run the `manage_users.sh` script that is in the `Haas_Data_collect` directory. See [Manage users by script](../build_pi_5_appliance/create-groups.md/#manage-users-by-script) for instructions for the Manager Users script.
+To add users later you can follow these instructions or run the `manage_users.sh` script that is in the `Haas_Data_collect` directory. See [Manage users by script](../build_the_appliance/create-groups.md/#manage-users-by-script) for instructions for the Manager Users script.
 
 In this example I have:
 
@@ -659,7 +659,7 @@ Once you have `smb_ntlm_test.pcap` open in Wireshark, click the `edit` menu and 
 
 ----------------------------------------------------------------
 
-![screenshot](../build_pi_5_appliance/img/Wireshark.png)
+![screenshot](../build_the_appliance/img/Wireshark.png)
 
 ----------------------------------------------------------------
 
@@ -667,7 +667,7 @@ Look for the packets that are protocol `SMB` and info `Negotiate Protocol Respon
 
 ----------------------------------------------------------------
 
-![screenshot](../build_pi_5_appliance/img/Wireshark2.resized.png)
+![screenshot](../build_the_appliance/img/Wireshark2.resized.png)
 
 ----------------------------------------------------------------
 
