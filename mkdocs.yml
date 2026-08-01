@@ -23,6 +23,7 @@ nav:
   - Manage the appliance:
       - Firewall Control: 'manage_the_appliance/firewall.md'
       - Manage Samba: 'manage_the_appliance/samba.md'
+      - Updates - Logs: 'manage_the_appliance/updates.md'
   - Appendices:
     - Introduction: 'appendices/intro.md'
     - Securing the Appliance: 'appendices/appendix-a.md'
