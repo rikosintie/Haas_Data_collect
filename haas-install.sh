@@ -807,7 +807,6 @@ id "haas"
     # Authentication
     map to guest = Never
     ntlm auth = ntlmv2-only
-    lanman auth = no
 
     # Protocol Security - Force SMB2/SMB3 only
     client min protocol = SMB2
