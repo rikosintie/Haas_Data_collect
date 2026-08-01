@@ -102,8 +102,23 @@ haas-sshc-diff-verbose() {
   echo "Right = Running sshd Configuration"
   echo
 
-  # ALWAYS show both sides, even if identical
-  diff -y "$HARDENED" "$RUNNING" || true
+  # ALWAYS show both sides, even if identical.
+  # Color any row diff -y marks as differing. Its marker sits in the
+  # gutter between columns, preceded by a space and followed by either a
+  # tab or end-of-line — not surrounded by plain spaces on both sides,
+  # since diff -y pads with tabs, not spaces.
+  #   |  same directive, different value (yellow)
+  #   <  only in the hardening file (red)
+  #   >  only in the running config (red)
+  diff -y "$HARDENED" "$RUNNING" | while IFS= read -r line; do
+    if [[ "$line" =~ $'[ \t][|]([ \t]|$)' ]]; then
+      echo -e "${YELLOW}${line}${RESET}"
+    elif [[ "$line" =~ $'[ \t][<>]([ \t]|$)' ]]; then
+      echo -e "${RED}${line}${RESET}"
+    else
+      echo "$line"
+    fi
+  done
 
   echo
   echo "Legend:"
