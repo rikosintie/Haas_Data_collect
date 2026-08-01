@@ -223,6 +223,7 @@ haas-firewall-install-summary.txt
 # Files used to guide claude
 RAID.md
 RootCause.md
+claude-plugins.md
 docs/build_the_appliance/haas-history.txt
 image.png
 task- install.md
