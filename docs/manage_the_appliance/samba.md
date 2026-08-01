@@ -31,20 +31,20 @@ These are read-only and safe to click any time:
    panel. While editing, every other view button is disabled except
    **Save & Restart** and **Clear Output**.
 2. Make your changes directly in the text box.
-3. Click **Save & Restart** to write the file and restart `smbd`. The
-   output panel shows the restart result followed by
+3. Click **Save & Restart**. A confirmation dialog asks you to confirm
+   before anything is written. Confirming writes the file and restarts
+   `smbd` — the output panel shows the restart result followed by
    `systemctl status smbd`, so you can confirm the service came back up
    cleanly.
 4. Click **Clear Output** instead of saving to discard your edits and
    return to the output panel — it doubles as a Cancel button while in
    edit mode.
 
-!!! warning "No confirmation prompt"
-    Unlike the Firewall Control page, **Save & Restart** does not ask you
-    to confirm first — it saves and restarts `smbd` immediately. Double
-    check your edits before clicking it, especially syntax — an invalid
-    `smb.conf` will still be written and Samba will fail to restart with
-    it.
+!!! warning "Confirmation doesn't validate syntax"
+    The confirmation dialog only confirms intent — it doesn't check
+    whether your edits are valid. An invalid `smb.conf` will still be
+    written and Samba will fail to restart with it, so double-check your
+    changes before confirming.
 
 ## Clear Output
 

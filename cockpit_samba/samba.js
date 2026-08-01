@@ -124,6 +124,10 @@ saveRestartBtn.addEventListener("click", function() {
         return;
     }
 
+    if (!confirm("This will overwrite " + SMB_CONF + " and restart smbd. Continue?")) {
+        return;
+    }
+
     lockAll();
     showOutputPanel("Saving " + SMB_CONF + "...\n");
 
