@@ -115,7 +115,9 @@ haas-sshc-diff() {
     | grep -E "$PATTERN" | sort > "$HARDENED"
 
   echo "Comparing SSH security directives:"
-  echo "  Running config vs Haas hardening file"
+  echo "  Full config chain (sshd_config + includes) vs Haas hardening file alone"
+  echo -e "  ${YELLOW}Note: this detects directives overridden elsewhere in the config chain —${RESET}"
+  echo -e "  ${YELLOW}it does NOT tell you whether sshd has reloaded (see the check above).${RESET}"
   echo
 
   if ! diff -u "$HARDENED" "$RUNNING"; then
@@ -148,8 +150,10 @@ haas-sshc-diff-verbose() {
   echo -e "${CYAN}============================================================${RESET}"
   echo -e "${CYAN}   SSHD SECURITY SETTINGS — VERBOSE SIDE‑BY‑SIDE VIEW${RESET}"
   echo -e "${CYAN}============================================================${RESET}"
-  echo "Left  = Haas Hardening File"
-  echo "Right = Running sshd Configuration"
+  echo "Left  = Haas Hardening File (that file alone)"
+  echo "Right = Full Config Chain (sshd_config + includes, as currently on disk)"
+  echo -e "${YELLOW}Note: this detects directives overridden elsewhere in the config chain —${RESET}"
+  echo -e "${YELLOW}it does NOT tell you whether sshd has reloaded (see the check above).${RESET}"
   echo
 
   # ALWAYS show both sides, even if identical.
