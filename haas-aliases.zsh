@@ -1,5 +1,15 @@
 # Custom zsh aliases
 
+# Colors (same codes as haas-install.sh, but $'...' quoted so the
+# variables hold a real escape byte — works with plain `echo`, `echo -e`,
+# and `cat` heredocs alike, unlike a literal "\e[...m" string which only
+# `echo -e`/`printf` know how to interpret)
+CYAN=$'\e[1;36m'
+GREEN=$'\e[1;32m'
+YELLOW=$'\e[1;33m'
+RED=$'\e[1;31m'
+RESET=$'\e[0m'
+
 # Display Linux users
 alias haas-lusers='awk -F: '\''$3 >= 1000 {print $1}'\'' /etc/passwd'
 
@@ -12,7 +22,7 @@ alias haas-services='systemctl list-unit-files --type=service | grep haas'
 # Troubleshooting aliases
 alias t-cockpit='sudo journalctl -u cockpit -f | tspin' # cockpit logs colorized with tspin
 alias t-health='sudo journalctl -u smbd -u ssh -u cockpit -f | tspin' # logs for Samba, ssh and cockpit colorized with tspin
-alias t-samba='sudo journalctl -u smbd -u -f | tspin' # samba logs colorized with tspin
+alias t-samba='sudo journalctl -u smbd -f | tspin' # samba logs colorized with tspin
 alias t-ssh='sudo tail -f /var/log/auth.log | tspin' # ssh logs colorized with tspin
 alias t-python3='journalctl -f --no-pager | grep -E 'python3' | tspin' # haas data collection script logs
 
@@ -63,9 +73,9 @@ haas-sshc-diff() {
 
   if ! diff -u "$HARDENED" "$RUNNING"; then
     echo
-    echo "Differences detected."
+    echo -e "${RED}Differences detected.${RESET}"
   else
-    echo "No differences in monitored SSH directives."
+    echo -e "${GREEN}No differences in monitored SSH directives.${RESET}"
   fi
 
   rm -f "$RUNNING" "$HARDENED"
@@ -85,9 +95,9 @@ haas-sshc-diff-verbose() {
   sudo sshd -T -f /etc/ssh/sshd_config.d/99-haas-hardening.conf 2>/dev/null \
     | grep -E "$PATTERN" | sort > "$HARDENED"
 
-  echo "============================================================"
-  echo "   SSHD SECURITY SETTINGS — VERBOSE SIDE‑BY‑SIDE VIEW"
-  echo "============================================================"
+  echo -e "${CYAN}============================================================${RESET}"
+  echo -e "${CYAN}   SSHD SECURITY SETTINGS — VERBOSE SIDE‑BY‑SIDE VIEW${RESET}"
+  echo -e "${CYAN}============================================================${RESET}"
   echo "Left  = Haas Hardening File"
   echo "Right = Running sshd Configuration"
   echo
@@ -179,10 +189,10 @@ t-ufwf() {
 
   # If no argument provided, show usage and valid filters
   if [[ -z "$1" ]]; then
-    echo "Usage: t-ufwf <BLOCK|ALLOW|AUDIT>"
+    echo -e "${YELLOW}Usage: t-ufwf <BLOCK|ALLOW|AUDIT>${RESET}"
     echo "Example: t-ufwf BLOCK"
     echo
-    echo "Valid filters:"
+    echo -e "${CYAN}Valid filters:${RESET}"
     printf '  - %s\n' "${VALID_FILTERS[@]}"
     echo
     echo "Default: $DEFAULT_FILTER"
@@ -195,8 +205,8 @@ t-ufwf() {
 
   # Validate filter
   if [[ ! " ${VALID_FILTERS[*]} " =~ " ${FILTER} " ]]; then
-    echo "Invalid filter: $1"
-    echo "Valid filters:"
+    echo -e "${RED}Invalid filter: $1${RESET}"
+    echo -e "${CYAN}Valid filters:${RESET}"
     printf '  - %s\n' "${VALID_FILTERS[@]}"
     return 1
   fi
@@ -209,17 +219,17 @@ t-ufwf() {
 
 
 haas-help() {
-  echo "=============================="
-  echo "        Haas Commands"
-  echo "=============================="
+  echo -e "${CYAN}==============================${RESET}"
+  echo -e "${CYAN}        Haas Commands${RESET}"
+  echo -e "${CYAN}==============================${RESET}"
 
   echo
-  echo "== Aliases =="
+  echo -e "${CYAN}== Aliases ==${RESET}"
   alias | grep -E '^(haas|t-)' | sort | sed 's/^/  /' || echo "  (none found)"
 
 
   echo
-  echo "== Functions =="
+  echo -e "${CYAN}== Functions ==${RESET}"
   print -l ${(k)functions} | grep -E '^(haas|t-)' | sort | sed 's/^/  /' || echo "  (none found)"
 
   echo
@@ -227,13 +237,13 @@ haas-help() {
 }
 
 haas-docs() {
-  cat <<'EOF'
+  cat <<EOF
 
-==============================
-        Haas Documentation
-==============================
+${CYAN}==============================${RESET}
+${CYAN}        Haas Documentation${RESET}
+${CYAN}==============================${RESET}
 
-ALIASES
+${CYAN}ALIASES${RESET}
 -------
 
 haas-lusers        – List Linux users (UID >= 1000)
@@ -280,7 +290,7 @@ treeh              – tree -h --dirsfirst
 treed              – tree -dh --dirsfirst
 
 
-FUNCTIONS
+${CYAN}FUNCTIONS${RESET}
 ---------
 
 haas-lldp-chassis     – Show LLDP chassis info
@@ -333,7 +343,7 @@ haas-sshc-diff-verbose
                          Useful for visual verification and drift detection.
 haas-systemd          – List Haas systemd units
 
-LOGGING
+${CYAN}LOGGING${RESET}
 -------
 
 The appliance includes several helper commands for viewing system logs in a
