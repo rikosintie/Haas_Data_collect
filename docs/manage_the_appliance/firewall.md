@@ -1,0 +1,83 @@
+# Firewall Control
+
+----------------------------------------------------------------
+
+The `haas-install.sh` installer sets up a Cockpit extension for managing the
+appliance's firewall day to day, so you don't need SSH access for routine
+firewall work. Log into Cockpit at `https://<appliance-ip>:9090` and look
+for **Firewall Control** under **System** in the sidebar.
+
+----------------------------------------------------------------
+
+!!! Note "Unlock the page first"
+    Cockpit opens most pages in **🔒 Limited access** mode. Click that badge
+    at the top of the page (the gear icon on mobile) before any of the
+    buttons below will work.
+
+## Firewall Status Dashboard
+
+At the top of the page:
+
+- A colored status indicator (green = enabled, red = disabled) plus your
+  logged-in username, user ID, groups, and shell.
+- An **Enable Firewall** / **Disable Firewall (for testing)** toggle button
+  that reflects the current state. Both directions ask for confirmation
+  first — disabling warns that all rules are removed and the appliance
+  becomes vulnerable; enabling warns that you'll be disconnected if your
+  current IP isn't already covered by a rule in `users.csv`.
+- **Active Firewall Rules** — the live output of `ufw status numbered`,
+  refreshed automatically.
+
+### Firewall Log
+
+Click **Firewall Log** to stream the live UFW log (`journalctl -f`) into the
+rules pane, with radio filters for **All**, **BLOCK**, **ALLOW**, or
+**Audit** entries. Click **Stop** to end the stream and go back to showing
+the static rule list.
+
+## Simulate / Compare
+
+These buttons never make persistent changes — safe to use any time to
+check what *would* happen:
+
+| Button | What it does |
+|---|---|
+| Simulate Firewall Update (Dry-Run) | Runs `configure_ufw_from_csv.sh --dry-run` against the current `users.csv` |
+| Show Current UFW Rules | Runs `configure_ufw_from_csv.sh --show-rules` |
+| Edit users.csv | Opens `~/Haas_Data_collect/users.csv` in an inline editor (see below) |
+| Edit conf file | Opens `/etc/haas-firewall.conf` in an inline editor |
+| Compare Current vs Planned Rules | Runs `configure_ufw_from_csv.sh --compare <path>` against whatever CSV path you enter |
+
+The **Edit users.csv** / **Edit conf file** buttons load the file into a
+text box in place of the output pane, with **Save Changes** and **Cancel**
+buttons. Saving writes the file directly — it does not apply firewall
+changes by itself; use **Apply Firewall Changes** below for that.
+
+## Rollback Firewall Rules from a Backup
+
+Every time the firewall config is applied, a timestamped copy of the CSV is
+saved to the `BACKUP_DIR` configured in `/etc/haas-firewall.conf`.
+
+1. Click **List Backups** to populate the dropdown from that directory.
+2. Selecting a backup previews its contents in the output pane and fills
+   in the filename field.
+3. Click **Rollback CSV** to run `rollback_csv.sh` against that backup.
+
+## Apply Firewall Changes
+
+!!! warning "Makes persistent changes"
+    Everything above this section is read-only. This section actually
+    rewrites the firewall.
+
+- **Reset Firewall Only** — runs `ufw reset`, deleting all custom rules.
+  Asks for confirmation first.
+- **Apply Firewall Changes** — runs `configure_ufw_from_csv.sh` against
+  `users.csv` (or a custom CSV path, if you check **Use custom CSV file**
+  and provide one). Asks for confirmation, then checks the CSV file
+  actually exists before touching anything — if it doesn't, the firewall is
+  left untouched and you get an error instead.
+
+## Output pane
+
+Every command's output streams into the box at the bottom of the page.
+Click **Clear Output** at any time to reset it.
