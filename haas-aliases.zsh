@@ -188,9 +188,6 @@ haas-sshc-diff-verbose() {
 # Edit the haas SSH hardening configuration file
 alias haas-sshd='sudo fresh /etc/ssh/sshd_config.d/99-haas-hardening.conf'
 
-#CD to the sshd_config.d directory where the custom ssh files
-alias haas-ssh='cd /etc/ssh/sshd_config.d/'
-
 # Run tree in human-readable format
 alias treeh='tree -h --dirsfirst'
 

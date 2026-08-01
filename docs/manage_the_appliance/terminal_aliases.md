@@ -138,13 +138,3 @@ These aren't Haas-specific, but ship in the same file:
 | `path [filter]` | Print `$PATH`, one entry per line; optionally grep it |
 | `mkd <dir>` | `mkdir -p` and `cd` into it in one step |
 | `nano <file>` | Wrapped so every file you edit gets a timestamped backup in `backups/` first, with backups older than 30 days auto-pruned |
-
-----------------------------------------------------------------
-
-!!! note "Two things worth a look"
-    While reviewing this file: `t-samba` runs
-    `sudo journalctl -u smbd -u -f` — the trailing `-u` before `-f` looks
-    like a leftover from copy-pasting `t-health` and has no unit name
-    after it. Also, `haas-ssh` is defined twice (identically) — once in
-    the directory-shortcuts block and again further down. Neither breaks
-    anything today, but both are worth cleaning up.
