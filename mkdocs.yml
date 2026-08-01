@@ -20,6 +20,8 @@ nav:
       - Update the Appliance: 'build_the_appliance/updating_appliance.md'
       - Firewall Configuration: 'build_the_appliance/firewall_configuration.md'
       - Trouble Shooting: 'build_the_appliance/TS_cockpit.md'
+  - Manage the appliance:
+      - Firewall Control: 'manage_the_appliance/firewall.md'
   - Appendices:
     - Introduction: 'appendices/intro.md'
     - Securing the Appliance: 'appendices/appendix-a.md'
