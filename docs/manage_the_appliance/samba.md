@@ -32,19 +32,22 @@ These are read-only and safe to click any time:
    **Save & Restart** and **Clear Output**.
 2. Make your changes directly in the text box.
 3. Click **Save & Restart**. A confirmation dialog asks you to confirm
-   before anything is written. Confirming writes the file and restarts
-   `smbd` — the output panel shows the restart result followed by
-   `systemctl status smbd`, so you can confirm the service came back up
-   cleanly.
+   before anything is written. Confirming first validates your edits with
+   `testparm` — nothing is written or restarted yet. Only if that passes
+   does it write the file and restart `smbd`, and the output panel shows
+   the restart result followed by `systemctl status smbd`, so you can
+   confirm the service came back up cleanly.
 4. Click **Clear Output** instead of saving to discard your edits and
    return to the output panel — it doubles as a Cancel button while in
    edit mode.
 
-!!! warning "Confirmation doesn't validate syntax"
-    The confirmation dialog only confirms intent — it doesn't check
-    whether your edits are valid. An invalid `smb.conf` will still be
-    written and Samba will fail to restart with it, so double-check your
-    changes before confirming.
+!!! note "Invalid configs are rejected before anything is touched"
+    `testparm` checks your edits before `smb.conf` is overwritten. If it
+    finds a problem, the real config file is left untouched and `smbd` is
+    not restarted — the error from `testparm` is shown above the editor so
+    you can fix it and try again. Note that `testparm` only catches
+    *syntax* errors; it can't tell you whether a share definition actually
+    does what you intend.
 
 ## Clear Output
 

@@ -1,6 +1,7 @@
 const output             = document.getElementById("output");
 const confEditor         = document.getElementById("confEditor");
 const panelLabel         = document.getElementById("panelLabel");
+const validationMsg      = document.getElementById("validationMsg");
 
 const editConfBtn           = document.getElementById("editConfBtn");
 const saveRestartBtn        = document.getElementById("saveRestartBtn");
@@ -13,6 +14,7 @@ const displaySharesByUserBtn = document.getElementById("displaySharesByUserBtn")
 const usernameInput        = document.getElementById("usernameInput");
 
 const SMB_CONF = "/etc/samba/smb.conf";
+const SMB_CONF_VALIDATE_TMP_PREFIX = "/tmp/smb.conf.validate.";
 
 var editMode = false;
 
@@ -23,6 +25,7 @@ function showOutputPanel(text) {
     output.style.display = "block";
     if (text !== undefined) output.textContent = text;
     panelLabel.textContent = "";
+    validationMsg.classList.add("hidden");
 }
 
 function showEditorPanel(content) {
@@ -115,22 +118,9 @@ editConfBtn.addEventListener("click", function() {
 
 // ── Save smb.conf & restart Samba ────────────────────────────────────────────
 
-saveRestartBtn.addEventListener("click", function() {
-    var content = confEditor.value;
-    if (!content.trim()) {
-        output.textContent = "ERROR: Editor is empty — not saving.";
-        showOutputPanel("ERROR: Editor is empty — not saving.");
-        unlockNormal();
-        return;
-    }
-
-    if (!confirm("This will overwrite " + SMB_CONF + " and restart smbd. Continue?")) {
-        return;
-    }
-
-    lockAll();
-    showOutputPanel("Saving " + SMB_CONF + "...\n");
-
+// Writes the real smb.conf, restarts smbd, and shows status. Only called
+// after testparm has validated the content.
+function writeConfAndRestart(content) {
     cockpit.file(SMB_CONF, { superuser: "require" }).replace(content)
         .done(function() {
             output.textContent += "Saved. Restarting smbd...\n";
@@ -160,6 +150,54 @@ saveRestartBtn.addEventListener("click", function() {
         .fail(function(ex) {
             output.textContent += "ERROR saving file: " + (ex.message || JSON.stringify(ex));
             unlockNormal();
+        });
+}
+
+saveRestartBtn.addEventListener("click", function() {
+    var content = confEditor.value;
+    if (!content.trim()) {
+        output.textContent = "ERROR: Editor is empty — not saving.";
+        showOutputPanel("ERROR: Editor is empty — not saving.");
+        unlockNormal();
+        return;
+    }
+
+    if (!confirm("This will overwrite " + SMB_CONF + " and restart smbd. Continue?")) {
+        return;
+    }
+
+    // Stay on the editor panel during validation — if testparm rejects the
+    // config, the user's unsaved edits must still be there to fix, not the
+    // last-known-good file they'd get back from re-opening "Edit smb.conf".
+    lockAll();
+    validationMsg.classList.add("hidden");
+    panelLabel.textContent = "Validating configuration with testparm...";
+
+    var tmpPath = SMB_CONF_VALIDATE_TMP_PREFIX + Date.now();
+
+    cockpit.file(tmpPath).replace(content)
+        .done(function() {
+            cockpit.spawn(["testparm", "-s", tmpPath], { err: "message" })
+                .done(function() {
+                    cockpit.spawn(["rm", "-f", tmpPath]);
+                    showOutputPanel("Configuration OK. Saving " + SMB_CONF + "...\n");
+                    writeConfAndRestart(content);
+                })
+                .fail(function(ex, data) {
+                    cockpit.spawn(["rm", "-f", tmpPath]);
+                    validationMsg.textContent =
+                        "testparm rejected this configuration — nothing was saved or restarted:\n\n" +
+                        (data || ex.message || "(no details)");
+                    validationMsg.classList.remove("hidden");
+                    panelLabel.textContent = "smb.conf — edit below, then click Save & Restart";
+                    unlockEditMode();
+                });
+        })
+        .fail(function(ex) {
+            validationMsg.textContent = "ERROR writing temp file for validation: " + (ex.message || JSON.stringify(ex));
+            validationMsg.classList.remove("hidden");
+            panelLabel.textContent = "smb.conf — edit below, then click Save & Restart";
+            unlockEditMode();
         });
 });
 

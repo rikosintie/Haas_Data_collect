@@ -81,6 +81,25 @@ button:disabled {
     min-height: 18px;
 }
 
+.hidden {
+    display: none;
+}
+
+/* testparm validation feedback — shown above the editor, error state only */
+#validationMsg {
+    font-family: monospace;
+    font-size: 13px;
+    color: #ffb3b3;
+    background: #2a1414;
+    border: 1px solid #663333;
+    border-radius: 4px;
+    padding: 8px 10px;
+    margin: 0 0 8px 0;
+    max-height: 120px;
+    overflow: auto;
+    white-space: pre-wrap;
+}
+
 /* Single shared panel — textarea and pre occupy the same space */
 #panel {
     position: relative;
