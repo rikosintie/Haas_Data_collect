@@ -78,7 +78,8 @@ function disableButtons(state) {
 // Show the service editor, hiding the output <pre>
 function showServiceEditor(path, content) {
     currentServicePath = path;
-    serviceEditorLabel.textContent = path + " — edit below, then click Save & Reload";
+    serviceEditorLabel.textContent = path + " — edit below, then click Save & Restart";
+    saveServiceBtn.textContent = "Save & Restart";
     serviceEditorArea.value = content;
     output.classList.add("hidden");
     serviceEditorSection.classList.remove("hidden");
@@ -105,6 +106,7 @@ function hideServiceEditor() {
 
 function showCreateServiceForm() {
     serviceEditorLabel.textContent = "New service — fill in all fields, then click Save & Reload";
+    saveServiceBtn.textContent = "Save & Reload";
     createServiceForm.classList.remove("hidden");
     serviceEditorArea.classList.add("hidden");
     output.classList.add("hidden");
@@ -733,6 +735,11 @@ saveServiceBtn.addEventListener("click", function() {
 
     var path = currentServicePath;
     var editedService = path.replace("/etc/systemd/system/", "");
+
+    if (!confirm("This will overwrite " + path + " and restart " + editedService + ". Continue?")) {
+        return;
+    }
+
     hideServiceEditor();
     output.textContent = "Saving " + path + "...\n";
 
@@ -743,12 +750,20 @@ saveServiceBtn.addEventListener("click", function() {
 
             cockpit.spawn(["systemctl", "daemon-reload"], { superuser: "require", err: "message" })
                 .done(function() {
-                    output.textContent += "daemon-reload complete. Restart the service to apply changes.\n";
-                    cockpit.spawn(["systemctl", "status", editedService], { superuser: "require", err: "message" })
-                        .done(function(data) {
-                            output.textContent += data;
+                    output.textContent += "daemon-reload complete. Restarting " + editedService + "...\n";
+                    cockpit.spawn(["systemctl", "restart", editedService], { superuser: "require", err: "message" })
+                        .done(function() {
+                            output.textContent += editedService + " restarted.\n\n--- systemctl status ---\n";
+                            cockpit.spawn(["systemctl", "status", editedService], { superuser: "require", err: "message" })
+                                .done(function(data) {
+                                    output.textContent += data;
+                                })
+                                .fail(function(ex, data) {
+                                    if (data) output.textContent += data;
+                                });
                         })
                         .fail(function(ex, data) {
+                            output.textContent += "restart failed: " + (ex.message || JSON.stringify(ex)) + "\n";
                             if (data) output.textContent += data;
                         });
                 })
