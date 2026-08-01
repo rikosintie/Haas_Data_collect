@@ -22,6 +22,7 @@ nav:
       - Trouble Shooting: 'build_the_appliance/TS_cockpit.md'
   - Manage the appliance:
       - Firewall Control: 'manage_the_appliance/firewall.md'
+      - Manage Samba: 'manage_the_appliance/samba.md'
   - Appendices:
     - Introduction: 'appendices/intro.md'
     - Securing the Appliance: 'appendices/appendix-a.md'
