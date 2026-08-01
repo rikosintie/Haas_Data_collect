@@ -75,9 +75,23 @@ updates:
 |---|---|
 | `haas-sshc` | Prints just the security-relevant directives from `sshd -T` (the running config) |
 | `haas-sshc-diff` | Diffs the running config against the hardening file, filtered to the same directives. Prints "No differences in monitored SSH directives." when clean |
-| `haas-sshc-diff-verbose` | Same comparison, but always shows both sides side-by-side (`diff -y`), even when identical |
+| `haas-sshc-diff-verbose` | Same comparison, but always shows both sides side-by-side (`diff -y`), even when identical — actual differences are colored (yellow for a changed value, red for a directive only present on one side) |
+| `haas-sshc-stale` | Checks whether the hardening file has been edited more recently than sshd's last start/reload |
 
-Directives checked by all three: `permitrootlogin`,
+!!! Note "Why haas-sshc-stale exists"
+    `sshd -T` only ever reads config *files* — it has no way to see what
+    the live `sshd` process actually has loaded in memory. That means if
+    you edit the hardening file and run `haas-sshc-diff` without
+    reloading sshd first, both sides of the diff will already show your
+    new values and report no differences, even though the running
+    daemon hasn't picked up the change yet. `haas-sshc-stale` closes
+    that gap by comparing the file's modification time against sshd's
+    last start time and its last SIGHUP reload (from the journal) —
+    `haas-sshc-diff` and `haas-sshc-diff-verbose` both run it
+    automatically before comparing, and it tells you to
+    `sudo systemctl reload ssh` if the file is newer than either.
+
+Directives checked by all three diff commands: `permitrootlogin`,
 `passwordauthentication`, `pubkeyauthentication`,
 `challengeresponseauthentication`, `permitemptypasswords`, `banner`,
 `x11forwarding`, `macs`, `kexalgorithms`, `hostkey`,

@@ -51,9 +51,56 @@ haas-sshc() {
     column -t
 }
 
+# Warn if the SSH hardening file has been edited more recently than sshd
+# last (re)started or reloaded. sshd -T only ever reads config fresh from
+# disk — it has no idea what the live daemon actually has loaded in memory
+# — so haas-sshc-diff/-verbose can't detect "I edited the file but haven't
+# reloaded sshd yet" on their own. This checks it separately by comparing
+# the file's mtime against sshd's last start time (systemd) and last SIGHUP
+# reload (journal), whichever is more recent.
+haas-sshc-stale() {
+  local conf="/etc/ssh/sshd_config.d/99-haas-hardening.conf"
+  local file_mtime start_mtime reload_mtime last_applied
+
+  file_mtime=$(stat -c %Y "$conf" 2>/dev/null)
+  if [[ -z "$file_mtime" ]]; then
+    echo -e "${RED}ERROR: cannot stat $conf${RESET}"
+    return 1
+  fi
+
+  start_mtime=$(systemctl show ssh -p ActiveEnterTimestamp --value 2>/dev/null)
+  [[ -n "$start_mtime" ]] && start_mtime=$(date -d "$start_mtime" +%s 2>/dev/null)
+
+  reload_mtime=$(sudo journalctl -u ssh --no-pager -q -g 'Received SIGHUP' -n 1 --output=short-unix 2>/dev/null | awk '{print int($1)}')
+
+  last_applied="$start_mtime"
+  if [[ -n "$reload_mtime" ]] && (( reload_mtime > ${last_applied:-0} )); then
+    last_applied="$reload_mtime"
+  fi
+
+  if [[ -z "$last_applied" ]]; then
+    echo -e "${YELLOW}[WARN] Could not determine when sshd last (re)loaded its config — skipping staleness check.${RESET}"
+    return 1
+  fi
+
+  if (( file_mtime > last_applied )); then
+    echo -e "${RED}[STALE] $conf was modified after sshd last (re)loaded — the running daemon may not have your changes yet.${RESET}"
+    echo "  File modified:        $(date -d @$file_mtime)"
+    echo "  sshd last (re)loaded: $(date -d @$last_applied)"
+    echo -e "${YELLOW}Run: sudo systemctl reload ssh${RESET}"
+    return 1
+  fi
+
+  echo -e "${GREEN}[OK] sshd has (re)loaded since $conf was last modified.${RESET}"
+  return 0
+}
+
 # Show any differences between the running ssh config and /etc/ssh/sshd_config.d/99-haas-hardening.conf
 # this should return "No differences in monitored SSH directives."
 haas-sshc-diff() {
+  haas-sshc-stale
+  echo
+
   local RUNNING="/tmp/haas-sshd-running.$$"
   local HARDENED="/tmp/haas-sshd-hardening.$$"
 
@@ -84,6 +131,9 @@ haas-sshc-diff() {
 # Show any differences between the running ssh config and /etc/ssh/sshd_config.d/99-haas-hardening.conf
 # This will return vervose output.
 haas-sshc-diff-verbose() {
+  haas-sshc-stale
+  echo
+
   local RUNNING="/tmp/haas-sshd-running.$$"
   local HARDENED="/tmp/haas-sshd-hardening.$$"
   local PATTERN='^(permitrootlogin|passwordauthentication|pubkeyauthentication|challengeresponseauthentication|permitemptypasswords|banner|x11forwarding|macs|kexalgorithms|hostkey|pubkeyacceptedalgorithms|port|maxauthtries|maxsessions|logingracetime|allowtcpforwarding|allowagentforwarding|printlastlog|strictmodes)'
