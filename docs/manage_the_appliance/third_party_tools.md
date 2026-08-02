@@ -2,15 +2,53 @@
 
 ----------------------------------------------------------------
 
-`tools.yaml` lists a handful of small, single-purpose terminal tools that
-`install-tools.sh` downloads and installs for the `haas` user — the same
-script the **Sync Tools** button on the Updates - Logs page runs, so
+`/usr/local/sbin/tools.yaml` lists a handful of small, single-purpose terminal tools that `install-tools.sh` downloads and installs for the `haas` user — the same script the **Sync Tools** button on the Updates - Logs page runs, so
 `Sync Tools` is how you install these for the first time or pick up new
 releases later.
 
 None of these are required to run the appliance. They just make working
 in an SSH session noticeably more pleasant than stock `cat`, `less`, and
 `cd`.
+
+----------------------------------------------------------------
+
+Here are the tools currently installed by `install-tools.sh` when you click the "Sync Tools" button. If you want to add a tool:
+
+- From the tools GitHub.com page, verify that there are `Releases` published. The `Releases` menu is usually on the right side of the home page.
+- Copy github users name and the repository.
+- Run `fresh /usr/local/sbin/tools.yaml` to open the file
+- Create a blank line below the last entery
+- copy the format of the other tools `repo:`, `binary:` and enter the values from GitHub.
+- Save `ctrl+s` and exit `ctrl+q`
+- Click the `Sync Tools` button on the `Updates - Logs` Cockpit page
+
+If you make a mistake, the tool won't be installed and you will get a message in the display panel. Reopen the file and adjust based on the message in the display panel.
+
+```bash linenums='1' hl_lines='1'
+cat /usr/local/sbin/tools.yaml
+───────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+       │ File: /usr/local/sbin/tools.yaml
+───────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   1   │ tools:
+   2   │   - repo: YS-L/csvlens
+   3   │     binary: csvlens
+   4   │
+   5   │   - repo: bensadeh/tailspin
+   6   │     binary: tspin
+   7   │
+   8   │   - repo: sharkdp/bat
+   9   │     binary: bat
+  10   │
+  11   │   - repo: sinelaw/fresh
+  12   │     binary: fresh
+  13   │
+  14   │   - repo: yorukot/superfile
+  15   │     binary: spf
+  16   │
+  17   │   - repo: ajeetdsouza/zoxide
+  18   │     binary: zoxide
+
+```
 
 ----------------------------------------------------------------
 
@@ -113,7 +151,7 @@ systemctl cat haas-st40.service | bat -l ini
 
 ----------------------------------------------------------------
 
-More information is available on the [TailSpin GitHub page](https://github.com/bensadeh/tailspin) or on my [Ubuntu for Network Engineers Git book](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal/#bat-a-better-cat).
+More information is available on the [TailSpin GitHub page](https://github.com/bensadeh/tailspin){: target="_blank" rel="noopener" } or on my [Ubuntu for Network Engineers Git book](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal/#bat-a-better-cat){: target="_blank" rel="noopener" }.
 
 ----------------------------------------------------------------
 
@@ -138,7 +176,7 @@ whole pipeline as one line:
 tspin --exec='journalctl -u haas-st40 -f'
 ```
 
-More information is available on the [TailSpin GitHub page](https://github.com/bensadeh/tailspin).
+More information is available on the [TailSpin GitHub page](https://github.com/bensadeh/tailspin){: target="_blank" rel="noopener" }.
 
 ----------------------------------------------------------------
 
@@ -171,7 +209,7 @@ first:
 cat cnc_logs/*.csv | csvlens
 ```
 
-More information is available on the [csvlens GitHub page](https://github.com/ys-l/csvlens).
+More information is available on the [csvlens GitHub page](https://github.com/ys-l/csvlens){: target="_blank" rel="noopener" }.
 
 ----------------------------------------------------------------
 
@@ -193,7 +231,7 @@ It works the same way on anything else:
 sudo fresh /etc/samba/smb.conf
 ```
 
-More information is available on the [fresh GitHub page](https://github.com/sinelaw/fresh)
+More information is available on the [fresh GitHub page](https://github.com/sinelaw/fresh){: target="_blank" rel="noopener" }.
 
 ----------------------------------------------------------------
 
@@ -217,4 +255,4 @@ spf
 
 ----------------------------------------------------------------
 
-More information is available on the [Superfile GitHub page](https://github.com/yorukot/superfile)
+More information is available on the [Superfile GitHub page](https://github.com/yorukot/superfile){: target="_blank" rel="noopener" },
