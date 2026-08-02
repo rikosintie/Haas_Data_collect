@@ -20,10 +20,10 @@ These are read-only and safe to click any time:
 | Button | What it does |
 |---|---|
 | Display Shares | Runs `list_shares.sh` — lists the shares defined in `smb.conf` |
-| Shares CSV | Runs `list_shares_csv.sh` — same share list in CSV format |
+| Shares CSV | Runs `list_shares_csv.sh` — same share list in CSV format for use in Excel |
 | Samba Users | Lists every account in the Samba password database (`pdbedit -L`) |
 | Linux Users | Lists local Linux accounts with UID 1000–59999, showing UID, GID, and home directory |
-| Shares by User | Enter a username in the field next to the button, then click it to run `smbstatus --user=<name>` and show that user's active Samba sessions |
+| Shares by User | Enter a username in the field next to the button, then click it to run `smbstatus --user=<name>` and show that user's **active** Samba sessions |
 
 ## Edit smb.conf
 

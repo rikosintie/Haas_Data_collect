@@ -21,7 +21,19 @@ from this page (persisted across page reloads).
 | Check | Runs `update-check.sh` and refreshes the status banner and package table |
 | Install | Runs `update-system.sh` to install available Ubuntu updates, then automatically re-checks status afterward |
 | Reboot | Reboots the appliance immediately — asks for confirmation first |
-| Sync Tools | Runs `install-tools.sh` to install/update the CLI tools listed in `tools.yaml` (csvlens, tspin, bat, fresh, superfile, zoxide, ...) |
+| Sync Tools | Runs `install-tools.sh` to install/update the CLI tools listed in `/usr/local/sbin/tools.yaml` (csvlens, tspin, bat, fresh, superfile, zoxide, ...) |
+
+----------------------------------------------------------------
+
+### If a reboot is required
+
+A message will be displayed in the panel. If you are ready to reboot the appliance, click the `Reboot` button.
+
+----------------------------------------------------------------
+
+![screenshot](./img/cockpit-update-reboot-required.resized.png)
+
+----------------------------------------------------------------
 
 ## Logs
 
@@ -42,15 +54,21 @@ For the **Firewall** and **Scripts** logs, changing the filter while the
 stream is running automatically restarts it with the new filter applied
 — no need to stop and re-click.
 
+----------------------------------------------------------------
+
 ## Services
 
 Manages the `haas-*.service` systemd units that run the per-machine CNC
 data-collection scripts.
 
+----------------------------------------------------------------
+
 ### Service State
 
 Click **Service State** for a one-shot `systemctl list-unit-files`
 summary of every `haas-*` service and its current state.
+
+----------------------------------------------------------------
 
 ### Edit Services
 
@@ -62,6 +80,8 @@ summary of every `haas-*` service and its current state.
    followed by `systemctl status <service>` so you can confirm it's
    still healthy.
 4. **Cancel** discards your changes and returns to the log/output view.
+
+----------------------------------------------------------------
 
 ### Create Service
 
@@ -83,6 +103,8 @@ Address, Port) instead of a raw editor — this generates a new
   `daemon-reload`, `enable`, and `start` for the new service — the output
   pane shows each step, ending with `systemctl status` for the new
   service.
+
+----------------------------------------------------------------
 
 ### Delete Service
 
