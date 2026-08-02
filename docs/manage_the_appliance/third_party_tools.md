@@ -22,8 +22,8 @@ how often and how recently you've visited them, so a short fragment
 usually lands you exactly where you meant.
 
 `haas-install.sh` seeds the database with the same directories the
-`haas-*` aliases point to (`terminal_aliases.md`'s Directory Shortcuts
-table) — `/usr/local/sbin`, `/home/haas/Haas_Data_collect`, the Samba and
+`haas-*` aliases point to in the `terminal_aliases.md`'s Directory Shortcuts
+table [located here](terminal_aliases.md#directory-shortcuts){_target=blank} — `/usr/local/sbin`, `/home/haas/Haas_Data_collect`, the Samba and
 firewall Cockpit extension directories, `/etc/ssh/sshd_config.d`,
 `/etc/systemd/system`, and more — so `z` already knows about them on a
 fresh install, before you've ever visited them yourself.
@@ -67,21 +67,55 @@ line numbers, and a git-modified-lines gutter. `haas-aliases.zsh` already
 aliases plain `cat` to it (theme `zenburn`), so you get this automatically
 just by using `cat` — see `terminal_aliases.md`.
 
-Two things worth knowing beyond the alias:
+Three things worth knowing beyond the alias:
 
 Show non-printable characters (useful when a config file looks fine but
 behaves oddly — trailing whitespace, stray carriage returns, etc.):
 
-```
+```bash
 bat -A /etc/ssh/sshd_config.d/99-haas-hardening.conf
 ```
 
-Force a language for content that isn't a real file (e.g. piped output
-that doesn't have an extension to guess from):
+Show plain output
 
+```bash
+cat -p manifest.json
 ```
+
+```bash title='Command Output'
+{
+  "version": 0,
+  "tools": {
+    "haas-samba": {
+      "label": "Manage Samba",
+      "path": "index.html"
+    }
+  }
+}
+```
+
+----------------------------------------------------------------
+
+![screenshot](./img/cat-manifest.json.resized.png)
+
+----------------------------------------------------------------
+
+Force a language for content that isn't a real file (e.g. piped output
+that doesn't have an extension to guess from. In this case use the language for an "ini" file):
+
+```bash
 systemctl cat haas-st40.service | bat -l ini
 ```
+
+----------------------------------------------------------------
+
+![screenshot](./img/cat-service-file.resized.png)
+
+----------------------------------------------------------------
+
+More information is available on the [TailSpin GitHub page](https://github.com/bensadeh/tailspin) or on my [Ubuntu for Network Engineers Git book](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal/#bat-a-better-cat).
+
+----------------------------------------------------------------
 
 ## tspin (Tailspin) — colorize any log stream
 
@@ -93,20 +127,24 @@ just `journalctl`/`tail` piped through it.
 
 For anything those aliases don't already cover, pipe it through directly:
 
-```
+```bash
 journalctl -u haas-st40 -f | tspin
 ```
 
 Or let `tspin` run the command itself, which is equivalent but keeps the
 whole pipeline as one line:
 
-```
+```bash
 tspin --exec='journalctl -u haas-st40 -f'
 ```
 
+More information is available on the [TailSpin GitHub page](https://github.com/bensadeh/tailspin).
+
+----------------------------------------------------------------
+
 ## csvlens — browse CSV data like `less`, but tabular
 
-`haas_logger2.py` writes each machine's collected data as CSV under that
+`haas_logger2.py` writes each machine's collected data as a csv file under that
 machine's `cnc_logs/` directory (e.g.
 `machines/st40/cnc_logs/st40_1234.csv`). `csvlens` opens a file like that
 as a scrollable, searchable table instead of a wall of comma-separated
@@ -115,17 +153,27 @@ sorting.
 
 Open a machine's data file directly:
 
-```
+```bash
 z st40                     # zoxide jump into machines/st40
-csvlens cnc_logs/st40_1234.csv
+csvlens cnc_logs/st40_265-4190.csv
 ```
+
+----------------------------------------------------------------
+
+![screenshot](./img/csvlens.resized.png)
+
+----------------------------------------------------------------
 
 Or inspect the output of another command without writing it to disk
 first:
 
-```
+```bash
 cat cnc_logs/*.csv | csvlens
 ```
+
+More information is available on the [csvlens GitHub page](https://github.com/ys-l/csvlens).
+
+----------------------------------------------------------------
 
 ## fresh — a real terminal editor for config files
 
@@ -134,16 +182,20 @@ keybindings, mouse support, and syntax highlighting — a step up from
 `nano` for anything more involved than a one-line edit. `haas-aliases.zsh`
 already uses it for the two config files you're most likely to hand-edit:
 
-```
+```bash
 haas-fw-conf   # sudo fresh /etc/haas-firewall.conf
 haas-sshd      # sudo fresh /etc/ssh/sshd_config.d/99-haas-hardening.conf
 ```
 
 It works the same way on anything else:
 
-```
+```bash
 sudo fresh /etc/samba/smb.conf
 ```
+
+More information is available on the [fresh GitHub page](https://github.com/sinelaw/fresh)
+
+----------------------------------------------------------------
 
 ## spf (superfile) — a terminal file manager
 
@@ -155,6 +207,14 @@ rather than one `ls` at a time.
 
 Launch it in the current directory:
 
-```
+```bash
 spf
 ```
+
+----------------------------------------------------------------
+
+![screenshot](./img/superfile.resized.png)
+
+----------------------------------------------------------------
+
+More information is available on the [Superfile GitHub page](https://github.com/yorukot/superfile)
