@@ -70,8 +70,24 @@ can live anywhere.
     - Choose an available Drive letter
     - In the Folder field, enter: `\\<appliance-ip>\Haas`
     - Check Connect using different credentials (and check Reconnect at sign-in if you want it persistent).
-  - Mac - In `Finder` click on
-  - Linux - Open Files, click `Network` on the left, on the bottom left enter `smb://<appliance-ip>/Haas` and click `connect.
+    - Click Finish, then enter your Samba username and password when prompted.
+    - To map it immediately from the terminal to drive Z:
+      - net use Z: \\192.168.10.112\Haas /user:<username> <password> /persistent:yes
+  - Mac
+    - Open `Finder`
+    - Press Cmd + K (or go to Go > Connect to Server... in the menu bar).
+    - In the Server Address field, enter:
+      - smb://192.168.10.112/Haas
+    - Click Connect
+    - Select Registered User, enter your Samba username and password, and click Connect.
+    - Note: To make it auto-connect on boot, go to System Settings > General > Login Items, click the + button, and select the mounted Haas volume from your desktop/Finder sidebar.
+  - Linux
+    - Open your file manager (Files in Ubuntu).
+    - Click `Network` on the left
+    - At the bottom of the window that opens, you will see a box labeled Connect to Server
+    - Type in the SMB URL:
+      - `smb://<appliance-ip>/Haas`
+   - Click Connect and enter your credentials when prompted..
 - A full summary (paths, current UFW rules, zoxide entries) is printed at
   the very end and also saved to
   `<repo_dir>/haas-firewall-install-summary.txt` — save this before you
