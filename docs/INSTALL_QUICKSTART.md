@@ -128,19 +128,16 @@ The Haas NGC runs an embedded Linux stack under the hood and natively supports S
 
 ---
 
-- A full summary (paths, current UFW rules, zoxide entries) is printed at the very end and also saved to `<repo_dir>/haas-firewall-install-summary.txt` — save the onscreen summary before you close the SSH session, since the terminal output itself is gone once you disconnect. The `haas-install-summary.txt` file is permanent.
-- If the installer reports a reboot is required, reboot before relying on the firewall service using `sudo reboot now`.
-- A full summary (paths, current UFW rules, zoxide entries) is printed at
-  the very end and also saved to `<repo_dir>/haas-firewall-install-summary.txt` — save the onscreen summary before you close the SSH session, since the terminal output itself is gone once you disconnect. The `haas-install-summary.txt` file is permanent.
-- If the installer reports a reboot is required, reboot before relying on
-  the firewall service using `sudo reboot now`.
-
----
-
 !!! warning "⚠️ Common Gotchas on Haas NGC"
     - **Case Sensitivity:** SMB share names can be picky depending on the NGC software release. Ensure `Haas` matches the exact capitalization defined in `smb.conf`.
     - **Path Traversal:** Do not add slashes to the share name (use `Haas`, not `/Haas` or `\\<appliance-ip>\Haas`). The control appends the IP and slash automatically.
-    - **Network Speed / Delays:** If the control takes a long time to list directory contents when pressing **[LIST PROGRAM]**, double-check that your Samba server isn't attempting reverse DNS lookups on the control's IP (`hostname lookups = off` in `smb.conf`).
+    - **Network Speed / Delays:** If the control takes a long time to list directory contents when pressing **[LIST PROGRAM]**, double-check that your Samba server isn't attempting reverse DNS lookups on the control's IP (`hostname lookups = off` in `smb.conf`)
+---
+
+- A full summary (paths, current UFW rules, zoxide entries) is printed at the very end. Save the onscreen summary before you close the SSH session, since the terminal output itself is gone once you disconnect. The `haas-install-summary.txt` file is saved to `repo_dir>/haas-install-summary.txt`. The  `haas-install-summary.txt` file is permanent.
+- If the installer reports a reboot is required, reboot before relying on the firewall service using `sudo reboot now`.
+- If the installer reports a reboot is required, reboot before relying on
+  the firewall service using `sudo reboot now`.
 
 ---
 
