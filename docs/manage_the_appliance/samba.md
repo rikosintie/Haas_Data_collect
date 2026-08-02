@@ -2,16 +2,17 @@
 
 ----------------------------------------------------------------
 
-The `haas-install.sh` installer sets up a Cockpit extension for viewing and
-editing the Samba configuration without needing SSH access. Log into
-Cockpit at `https://<appliance-ip>:9090` and look for **Manage Samba** in
+The `haas-install.sh` installer script sets up a Cockpit web extension for viewing and editing the Samba configuration without needing SSH access. Log into Cockpit at `https://<appliance-ip>:9090` and look for **Manage Samba** in
 the sidebar.
 
 ----------------------------------------------------------------
 
 The page has a single output/editor panel below a row of buttons. Only one
-of three things is ever shown there: command output, the `smb.conf`
-editor, or the Create Share form — never more than one at once.
+of three things is ever shown there:
+
+- command output
+- the `smb.conf` editor
+- the `Create Share` form — never more than one at once.
 
 ## View buttons
 
