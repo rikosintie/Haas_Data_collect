@@ -26,6 +26,32 @@ These are read-only and safe to click any time:
 | Linux Users | Lists local Linux accounts with UID 1000–59999, showing UID, GID, and home directory |
 | Shares by User | Enter a username in the field next to the button, then click it to run `smbstatus --user=<name>` and show that user's **active** Samba sessions |
 
+----------------------------------------------------------------
+
+### Display shares
+
+To map a drive to a Mac/Windows/Linux computer or the Haas machine tools you need the share name. Clicking the `Display Shares` button provides a quick view of all the shares available on the appliance. To map a drive see
+
+----------------------------------------------------------------
+
+![screenshot](./img/display-shares.resized.png)
+
+----------------------------------------------------------------
+
+### Shares by User
+
+Use this button to see if a specific user has a drive mapped to the appliance. The machines should always show up connected. In this example, I'm checking on user `thubbard`:
+
+----------------------------------------------------------------
+
+![screenshot](./img/share-user.resized.png)
+
+----------------------------------------------------------------
+
+
+
+
+
 ## Edit smb.conf
 
 1. Click **Edit smb.conf** to load `/etc/samba/smb.conf` into the editor
