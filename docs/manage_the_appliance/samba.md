@@ -72,7 +72,6 @@ filled in from a fixed template.
    `force user`/`force group`, the create/directory mask fields, etc.) is
    also fixed and identical for every share — none of it is user-editable
    through this form.
-
 3. Click **Save & Restart**. A confirmation dialog names the directory and
    share it's about to create, and reminds you that this only creates the
    share — you still need to use **Create Service** on the Updates - Logs
@@ -89,7 +88,6 @@ filled in from a fixed template.
    Only if the name is free and `testparm` passes is the new stanza
    appended to `smb.conf` and `smbd` restarted; the output panel then shows
    the restart result and `systemctl status smbd`.
-
 4. Click **Clear Output** to discard the form and cancel — it doubles as
    Cancel here too.
 
