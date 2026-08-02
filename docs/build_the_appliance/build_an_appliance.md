@@ -26,7 +26,7 @@ The second reason means creating file shares on the Windows computer that the sc
 
 You will still need to discuss the appliance with the IT security team, but it resolves most concerns that IT or the security team will have. The appliance uses the Ubuntu UFW firewall and has SMB V1, NetBIOS disabled.
 
-See [Appendix A - Securing the Appliance](../appendices/appendix-a.md) {: target="_blank" rel="noopener" } for details on the security used. [Red Hat Cockpit](https://www.redhat.com/en/blog/intro-cockpit) {: target="_blank" rel="noopener" } is used to manage the appliance, so applying security updates and verifying firewall status is accomplished in a GUI.
+See [Appendix A - Securing the Appliance](../appendices/appendix-a.md){: target="_blank" rel="noopener" } for details on the security used. [Red Hat Cockpit](https://www.redhat.com/en/blog/intro-cockpit){: target="_blank" rel="noopener" } is used to manage the appliance, so applying security updates and verifying firewall status is accomplished in a GUI.
 
 ----------------------------------------------------------------
 
@@ -38,7 +38,7 @@ The scripts do not require massive processor power. 8GB of RAM, a 256GB NVME dri
 
 ### Raspberry Pi 5
 
-Raspberry Pis have become popular for industrial applications. They are inexpensive, reliable, and have a massive community of blogs, YouTube videos, and magazine articles supporting them. Here is a link to [Raspberry Pi for Industry](https://www.raspberrypi.com/for-industry/) {: target="_blank" rel="noopener" } on the official Raspberry Pi site. The Raspberry Pi 5 with 8GB of RAM is more than enough power to run the scripts and create the data files.
+Raspberry Pis have become popular for industrial applications. They are inexpensive, reliable, and have a massive community of blogs, YouTube videos, and magazine articles supporting them. Here is a link to [Raspberry Pi for Industry](https://www.raspberrypi.com/for-industry/){: target="_blank" rel="noopener" } on the official Raspberry Pi site. The Raspberry Pi 5 with 8GB of RAM is more than enough power to run the scripts and create the data files.
 
 ----------------------------------------------------------------
 
@@ -53,7 +53,7 @@ If your company uses virtualization that is a good choice for the appliance. Any
 
 You can ask the IT department to spin up an Ubuntu VM for you. Ubuntu is free to download, I usually do a $25 donation, to help offset the projects costs. A VM on company infrastructure is a great way to run the appliance software. IT can back it up daily and create snapshots before you make big changes.
 
-[Appendix A - Securing the Appliance](../appendices/appendix-a.md) {: target="_blank" rel="noopener" } and [Appendix B - Linux file permissions](../appendices/appendix-b.md) {: target="_blank" rel="noopener" } go into detail on how the appliance operating system is secured. That should help with getting the request approved by IT and the security team.
+[Appendix A - Securing the Appliance](../appendices/appendix-a.md){: target="_blank" rel="noopener" } and [Appendix B - Linux file permissions](../appendices/appendix-b.md){: target="_blank" rel="noopener" } go into detail on how the appliance operating system is secured. That should help with getting the request approved by IT and the security team.
 
 ----------------------------------------------------------------
 
@@ -67,7 +67,7 @@ An easy way to get started if you just want to do a Proof of Concept would be to
 
 ## Ubuntu Pro coverage
 
-If you are building the appliance for personal use, Ubuntu has a service that is free for up to five devices called `Ubuntu Pro`. Think of it as Microsoft support but for Ubuntu. The details are on the [Ubuntu Pro Pricing](https://ubuntu.com/pricing/pro) {: target="_blank" rel="noopener" } page. For business use, the desktop version is $25/yr and the server version is $300/yr.
+If you are building the appliance for personal use, Ubuntu has a service that is free for up to five devices called `Ubuntu Pro`. Think of it as Microsoft support but for Ubuntu. The details are on the [Ubuntu Pro Pricing](https://ubuntu.com/pricing/pro){: target="_blank" rel="noopener" } page. For business use, the desktop version is $25/yr and the server version is $300/yr.
 
 **Ubuntu Pro includes:**
 
@@ -80,10 +80,10 @@ If you are building the appliance for personal use, Ubuntu has a service that is
 
 If you have never seen Raspberry Pi 5s in the industrial and manufacturing spaces, here are couple of example companies:
 
-- [Revolution Pi](https://revolutionpi.com/en/products/revolution-pi-series) {: target="_blank" rel="noopener" } - Revolution Pi is your open-source Linux platform for future-oriented industrial solutions:
+- [Revolution Pi](https://revolutionpi.com/en/products/revolution-pi-series){: target="_blank" rel="noopener" } - Revolution Pi is your open-source Linux platform for future-oriented industrial solutions:
     1. Powered by the Raspberry Pi Compute Module
     1. Raspberry Pi OS-based, industry-optimized operating system
-- [Strato Pi](https://sferalabs.cc/strato-pi/) {: target="_blank" rel="noopener" } - Industrial Raspberry Pi for Maximum Reliability
+- [Strato Pi](https://sferalabs.cc/strato-pi/){: target="_blank" rel="noopener" } - Industrial Raspberry Pi for Maximum Reliability
     1. Edge Computing
     1. Industrial Automation
     1. Building & Energy Management
@@ -101,22 +101,22 @@ There is also a vibrant ecosystem of add-on "Hardware Attached on Top" boards, u
 
 Sites like:
 
-- [Adafruit](https://www.adafruit.com/) {: target="_blank" rel="noopener" }
-- [Waveshare](https://www.waveshare.com/) {: target="_blank" rel="noopener" }
-- [Ameridroid](https://ameridroid.com/) {: target="_blank" rel="noopener" }
+- [Adafruit](https://www.adafruit.com/){: target="_blank" rel="noopener" }
+- [Waveshare](https://www.waveshare.com/){: target="_blank" rel="noopener" }
+- [Ameridroid](https://ameridroid.com/){: target="_blank" rel="noopener" }
 
 Sell a large array of add ons, cases, etc. for the Raspberry Pi 5.
 
 Some examples:
 
-- [Waveshare PoE Hat](https://www.waveshare.com/poe-hat-h.htm) {: target="_blank" rel="noopener" } makes a $30 PoE hat that will power the RPI 5 from the Ethernet cable. Very convenient on the manufacturing floor.
-- [Waveshare 4 port 2.5Gbps Ethernet](https://www.cnx-software.com/2025/12/30/add-four-gigabit-or-2-5gbps-ethernet-ports-to-the-raspberry-pi-5-with-this-expansion-board/) {: target="_blank" rel="noopener" } - Support APs with 2.5 Gbps Ethernet.
-- [Raspberry Pi AI Hat](https://www.adafruit.com/product/5979) {: target="_blank" rel="noopener" } - No article is complete until AI is used! The AI HAT+ is available in 13 and 26 tera-operations per second (TOPS) variants, built around the Hailo-8L and Hailo-8 neural network inference accelerators.
-- [Hi Resolution Camera](https://ameridroid.com/products/8mp-noir-raspberry-pi-camera-module) {: target="_blank" rel="noopener" } - The Raspberry Pi Camera V2 is IR sensitive for low-light situations and features an upgraded 8MP Sony image sensor capable of taking 3280 x 2464 pixel images and capturing video at 1080p30, 720p60 and 640x480p90 resolutions. Like all Raspberry Pi camera modules, it works flawlessly with Raspberry Pi models using the latest Raspbian operating system.
+- [Waveshare PoE Hat](https://www.waveshare.com/poe-hat-h.htm){: target="_blank" rel="noopener" } makes a $30 PoE hat that will power the RPI 5 from the Ethernet cable. Very convenient on the manufacturing floor.
+- [Waveshare 4 port 2.5Gbps Ethernet](https://www.cnx-software.com/2025/12/30/add-four-gigabit-or-2-5gbps-ethernet-ports-to-the-raspberry-pi-5-with-this-expansion-board/){: target="_blank" rel="noopener" } - Support APs with 2.5 Gbps Ethernet.
+- [Raspberry Pi AI Hat](https://www.adafruit.com/product/5979){: target="_blank" rel="noopener" } - No article is complete until AI is used! The AI HAT+ is available in 13 and 26 tera-operations per second (TOPS) variants, built around the Hailo-8L and Hailo-8 neural network inference accelerators.
+- [Hi Resolution Camera](https://ameridroid.com/products/8mp-noir-raspberry-pi-camera-module){: target="_blank" rel="noopener" } - The Raspberry Pi Camera V2 is IR sensitive for low-light situations and features an upgraded 8MP Sony image sensor capable of taking 3280 x 2464 pixel images and capturing video at 1080p30, 720p60 and 640x480p90 resolutions. Like all Raspberry Pi camera modules, it works flawlessly with Raspberry Pi models using the latest Raspbian operating system.
 
 ### e-paper displays
 
- Waveshare makes great [e-paper displays](https://www.waveshare.com/product/displays/e-paper/3.97inch-e-paper-hat-plus.htm) {: target="_blank" rel="noopener" } for the Pi. I built a serial console server using a Pi Zero W and a Waveshare display. On startup:
+ Waveshare makes great [e-paper displays](https://www.waveshare.com/product/displays/e-paper/3.97inch-e-paper-hat-plus.htm){: target="_blank" rel="noopener" } for the Pi. I built a serial console server using a Pi Zero W and a Waveshare display. On startup:
 
 - Shows me the IP addresses it got
 - Displays the MFG-S/N of the USB serial adapters that are connected.
@@ -132,7 +132,7 @@ Here is a photo of my Pi Zero 2 W serial console. It has a PoE hat; I can plug i
 
 ----------------------------------------------------------------
 
-In the future I might add one to the Haas Data Collection appliance and display what machines are online. Here is the link to the Waveshare site: [3.97inch E-Paper Display](https://www.waveshare.com/product/displays/e-paper/epaper-2/3.97inch-e-paper-hat-plus.htm) {: target="_blank" rel="noopener" }
+In the future I might add one to the Haas Data Collection appliance and display what machines are online. Here is the link to the Waveshare site: [3.97inch E-Paper Display](https://www.waveshare.com/product/displays/e-paper/epaper-2/3.97inch-e-paper-hat-plus.htm){: target="_blank" rel="noopener" }
 
 ----------------------------------------------------------------
 
@@ -152,34 +152,34 @@ The difference is the amount of RAM. To build a dedicated RPi 5 for this project
 
 To build a high-performance appliance for a manufacturing plant, I used:
 
-- [Raspberry Pi 5 8GB - $104.48](https://www.amazon.com/dp/B0CK2FCG1K?ref=fed_asin_title) {: target="_blank" rel="noopener" }
-- [Waveshare case - $33.99](https://www.amazon.com/dp/B0D97VK1VW?ref=fed_asin_title) {: target="_blank" rel="noopener" }
-- [Waveshare PoE Hat - $28.49](https://www.amazon.com/dp/B0CR1JGP1Z?ref=fed_asin_title) {: target="_blank" rel="noopener" }
-- [RTC battery case - $5.49](https://www.amazon.com/dp/B0CRKQ2MG1?ref=fed_asin_title) {: target="_blank" rel="noopener" }
-- [Samsung 256GB NVME - $78.00](https://www.amazon.com/Samsung-SSD-PM9A1-NVMe-256GB/dp/B0BVKYN245) {: target="_blank" rel="noopener" }
+- [Raspberry Pi 5 8GB - $104.48](https://www.amazon.com/dp/B0CK2FCG1K?ref=fed_asin_title){: target="_blank" rel="noopener" }
+- [Waveshare case - $33.99](https://www.amazon.com/dp/B0D97VK1VW?ref=fed_asin_title){: target="_blank" rel="noopener" }
+- [Waveshare PoE Hat - $28.49](https://www.amazon.com/dp/B0CR1JGP1Z?ref=fed_asin_title){: target="_blank" rel="noopener" }
+- [RTC battery case - $5.49](https://www.amazon.com/dp/B0CRKQ2MG1?ref=fed_asin_title){: target="_blank" rel="noopener" }
+- [Samsung 256GB NVME - $78.00](https://www.amazon.com/Samsung-SSD-PM9A1-NVMe-256GB/dp/B0BVKYN245){: target="_blank" rel="noopener" }
 
 ----------------------------------------------------------------
 
-The Waveshare [case](https://www.amazon.com/dp/B0D97VK1VW?ref=fed_asin_title) {: target="_blank" rel="noopener" } is industrial quality with ears to mount it to a back board. It has the following capabilities:
+The Waveshare [case](https://www.amazon.com/dp/B0D97VK1VW?ref=fed_asin_title){: target="_blank" rel="noopener" } is industrial quality with ears to mount it to a back board. It has the following capabilities:
 
 - ✅ Supports PCIe Extending To M.2 Interface
 - ✅ Larger internal space, supports connecting to various HATs such as PoE HAT, Etc. Also, with space left for cable management
 - ✅ Adapting Type-C, dual full-size HDMI female ports, and a screw terminal for easier connection with peripherals, supports two power supply connection methods from the front side or the back side
 - ✅ Tabs on both sides for mounting to a backboard.
-- ❤️ [Official Wiki Resources](https://www.amazon.com/stores/page/46D67D8E-DEF3-4032-A289-5C72C3DC78BE) {: target="_blank" rel="noopener" }
+- ❤️ [Official Wiki Resources](https://www.amazon.com/stores/page/46D67D8E-DEF3-4032-A289-5C72C3DC78BE){: target="_blank" rel="noopener" }
 
 The installation instructions are on the Amazon link but they are hard to find. You can click the [link here](https://github.com/rikosintie/Haas_Data_collect/blob/main/docs/img/Waveshare-case-instruction.png) to view them.
 
 !!! Note
-    The case came with the wrong number of m2.5 x 6 flat head screws. I have never bought a Waveshare product that came with the wrong hardware. I had some from other projects but you should order some [mankk 360PCS Laptop Screws](https://www.amazon.com/mankk-Replacement-Computer-Motherboard-Screwdriver/dp/B0DRJPBLN7/142-6009986-5858014) {: target="_blank" rel="noopener" } with the case.
+    The case came with the wrong number of m2.5 x 6 flat head screws. I have never bought a Waveshare product that came with the wrong hardware. I had some from other projects but you should order some [mankk 360PCS Laptop Screws](https://www.amazon.com/mankk-Replacement-Computer-Motherboard-Screwdriver/dp/B0DRJPBLN7/142-6009986-5858014){: target="_blank" rel="noopener" } with the case.
 
-    Also, the PoE hat came with 6mm x 16mm female/female standoffs. The case needs mal/female. I ordered these [YOKIVE 20 Pcs M2.5 Standoff Screws](https://www.amazon.com/YOKIVE-Standoff-Standoffs-Consistent-Motherboard/dp/B0BK98MP16) {: target="_blank" rel="noopener" }.
+    Also, the PoE hat came with 6mm x 16mm female/female standoffs. The case needs mal/female. I ordered these [YOKIVE 20 Pcs M2.5 Standoff Screws](https://www.amazon.com/YOKIVE-Standoff-Standoffs-Consistent-Motherboard/dp/B0BK98MP16){: target="_blank" rel="noopener" }.
 
 ----------------------------------------------------------------
 
 ## USB Serial cable for the Raspberry Pi 5
 
-I recommend purchasing the [Waveshare Industrial USB to TTL (D) Serial Cable, compatible with the Raspberry Pi 5](https://www.amazon.com/Waveshare-Industrial-Compatible-Raspberry-Protection/dp/B0CX5C5KR4) {: target="_blank" rel="noopener" } Serial to USB cable, for $13.99. The cable allows you to connect to the Raspberry Pi 5 if you lock yourself out over SSH. And that can happen when configuring the firewall. :smiley:
+I recommend purchasing the [Waveshare Industrial USB to TTL (D) Serial Cable, compatible with the Raspberry Pi 5](https://www.amazon.com/Waveshare-Industrial-Compatible-Raspberry-Protection/dp/B0CX5C5KR4){: target="_blank" rel="noopener" } Serial to USB cable, for $13.99. The cable allows you to connect to the Raspberry Pi 5 if you lock yourself out over SSH. And that can happen when configuring the firewall. :smiley:
 
 This cable is nice because in addition to the individual 4 connects it includes the `3 pin UART` connector that the Raspberry Pi 5 has. I have used that cable to console into Aruba 315 APs that have 4 pins instead of the typical RJ45 console connector. The Waveshare case exposes the 3 pin connector on the back of the case.
 

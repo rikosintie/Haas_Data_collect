@@ -516,7 +516,7 @@ With your values
 ----------------------------------------------------------------
 
 !!! Note
-    For whatever reason, `nano` doesn't use the normal text editor keys. If you are brand new to Linux, use this tutorial to learn nano - [The beginners guide to Nano the Linux command line text editor](https://www.howtogeek.com/42980/the-beginners-guide-to-nano-the-linux-command-line-text-editor/). There is also a [Nano Cheat sheet](https://www.nano-editor.org/dist/latest/cheatsheet.html) {: target="_blank" rel="noopener" } that is very useful.
+    For whatever reason, `nano` doesn't use the normal text editor keys. If you are brand new to Linux, use this tutorial to learn nano - [The beginners guide to Nano the Linux command line text editor](https://www.howtogeek.com/42980/the-beginners-guide-to-nano-the-linux-command-line-text-editor/). There is also a [Nano Cheat sheet](https://www.nano-editor.org/dist/latest/cheatsheet.html){: target="_blank" rel="noopener" } that is very useful.
 
 ----------------------------------------------------------------
 

@@ -227,7 +227,7 @@ hostkey /etc/ssh/ssh_host_ed25519_key
 
 ### Using nmap
 
-If you have [nmap](https://insecure.org) {: target="_blank" rel="noopener" } installed on your laptop you can run the following to verify the ssh ciphers exposed by the appliance:
+If you have [nmap](https://insecure.org){: target="_blank" rel="noopener" } installed on your laptop you can run the following to verify the ssh ciphers exposed by the appliance:
 
 ```bash linenums='1' hl_lines='1'
 sudo nmap --script ssh2-enum-algos 192.168.10.127

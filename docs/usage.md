@@ -1,6 +1,6 @@
 # How to use the Python logger script
 
-The first step is downloading the script from my [GitHub Repository](https://github.com/rikosintie/Haas_Data_collect) {: target="_blank" rel="noopener" }. There are several ways to accomplish that task depending on your Operating System and how deep you want to go down the rabbit hole!
+The first step is downloading the script from my [GitHub Repository](https://github.com/rikosintie/Haas_Data_collect){: target="_blank" rel="noopener" }. There are several ways to accomplish that task depending on your Operating System and how deep you want to go down the rabbit hole!
 
 ## Download the script
 
@@ -18,7 +18,7 @@ The first step is downloading the script from my [GitHub Repository](https://git
 
 You can also download a `zip` file with the entire repository. That is useful if you are going to build an appliance and need all of the scripts and files. To download the repository as a `zip` file:
 
-- Open a browser and navigate to the [GitHub Repository](https://github.com/rikosintie/Haas_Data_collect) {: target="_blank" rel="noopener" }.
+- Open a browser and navigate to the [GitHub Repository](https://github.com/rikosintie/Haas_Data_collect){: target="_blank" rel="noopener" }.
 - Click on the green `Code` button
 - Click on `Download ZIP`
 - Unzip the files to your hard drive.
