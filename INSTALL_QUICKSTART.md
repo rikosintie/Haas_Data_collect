@@ -87,7 +87,23 @@ can live anywhere.
     - At the bottom of the window that opens, you will see a box labeled Connect to Server
     - Type in the SMB URL:
       - `smb://<appliance-ip>/Haas`
-   - Click Connect and enter your credentials when prompted..
+   - Click Connect and enter your credentials when prompted.
+  - Haas CNC control
+    - The Haas NGC runs an embedded Linux stack under the hood and natively supports SMB/CIFS, so it connects cleanly to SMBv2/v3 shares.
+    - Open the Network Settings
+      - Press the [SETTINGS] button on the control panel.
+      - Navigate to Network (Setting 133 / Network Setup).
+      - Select the Network Shared Location (or Shares / Client) tab.
+    - Configure the Connection Parameters
+      - Remote Server / IP - The IP Address of the appliance
+      - Share Name / Path - The name of the SMB share (no leading slashes)
+      - Domain / Workgroup - WORKGROUP is the default on the appliance
+      - User Name - the Haas user has access to all shares. The Samba user created for the machine only has access to that share. See you company security policy for guidance.
+      - Password - The Samba password for the user
+    - Mount and Verify
+      - Once the fields are filled out, press [F4] (or the Connect / Mount softkey on screen).
+      - Press the [LIST PROGRAM] button on the console.
+      - Look in the left-hand directory tab tree. You should now see a Net Share (or Network) drive listed alongside MEMORY and USB.
 - A full summary (paths, current UFW rules, zoxide entries) is printed at
   the very end and also saved to
   `<repo_dir>/haas-firewall-install-summary.txt` — save this before you
@@ -95,6 +111,15 @@ can live anywhere.
   disconnect.
 - If the installer reports a reboot is required, reboot before relying on
   the firewall service.
+
+----------------------------------------------------------------
+
+!!! Warning ⚠️ Common Gotchas on Haas NGC
+    * Case Sensitivity: SMB share names can be picky depending on the NGC software release. Ensure Haas matches the exact capitalization defined in smb.conf.
+    * Path Traversal: Do not add slashes to the share name (use Haas, not /Haas or \\192.168.10.112\Haas). The control appends the IP and slash automatically.
+    * Network Speed / Delays: If the control takes a long time to list directory contents when pressing [LIST PROGRAM], double-check that your Samba server isn't attempting reverse DNS lookups on the control's IP (hostname lookups = off in smb.conf).
+
+----------------------------------------------------------------
 
 ## Troubleshooting
 
