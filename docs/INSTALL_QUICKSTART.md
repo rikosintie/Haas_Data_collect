@@ -16,7 +16,9 @@ git clone https://github.com/rikosintie/Haas_Data_collect.git
 cd Haas_Data_collect
 ```
 
-## 3. Edit these two files before running anything
+## 3. Edit `users.csv` and `initial_users.csv` before running anything
+
+Use `nano users.csv` and `nano initial_users.csv` to edit the files
 
 The installer creates Linux/Samba accounts and firewall rules straight from
 these — get them right first:
@@ -63,7 +65,7 @@ can live anywhere.
 ## 6. After it finishes
 
 - **Cockpit UI:** `https://<appliance-ip>:9090`
-- **Samba share:** to map a drive to the appliance open Explorer, Finder or Files:
+- **Samba share:** to map a drive to the appliance:
   - Windows
     - Open Explorer
     - Click This PC in the sidebar, right-click This PC, and select Map network drive...
@@ -89,21 +91,21 @@ can live anywhere.
       - `smb://<appliance-ip>/Haas`
       - Click Connect and enter your credentials when prompted.
   - Haas CNC control
-    - The Haas NGC runs an embedded Linux stack under the hood and natively supports SMB/CIFS, so it connects cleanly to SMBv2/v3 shares.
+     The Haas NGC runs an embedded Linux stack under the hood and natively supports SMB/CIFS, so it connects cleanly to SMBv2/v3 shares.
     - Open the Network Settings
-      - Press the [SETTINGS] button on the control panel.
-      - Navigate to Network (Setting 133 / Network Setup).
-      - Select the Network Shared Location (or Shares / Client) tab.
+          - Press the [SETTINGS] button on the control panel.
+          - Navigate to Network (Setting 133 / Network Setup).
+          - Select the Network Shared Location (or Shares / Client) tab.
     - Configure the Connection Parameters
-      - Remote Server / IP - The IP Address of the appliance
-      - Share Name / Path - The name of the SMB share (no leading slashes)
-      - Domain / Workgroup - WORKGROUP is the default on the appliance
-      - User Name - the Haas user has access to all shares. The Samba user created for the machine only has access to that share. See you company security policy for guidance.
-      - Password - The Samba password for the user
+          - Remote Server / IP - The IP Address of the appliance
+          - Share Name / Path - The name of the SMB share (no leading slashes)
+          - Domain / Workgroup - WORKGROUP is the default on the appliance
+          - User Name - the Haas user has access to all shares. The Samba user created for the machine only has access to that share. See you company security policy for guidance.
+          - Password - The Samba password for the user
     - Mount and Verify
-      - Once the fields are filled out, press [F4] (or the Connect / Mount softkey on screen).
-      - Press the [LIST PROGRAM] button on the console.
-      - Look in the left-hand directory tab tree. You should now see a Net Share (or Network) drive listed alongside MEMORY and USB.
+          - Once the fields are filled out, press [F4] (or the Connect / Mount softkey on screen).
+          - Press the [LIST PROGRAM] button on the console.
+          - Look in the left-hand directory tab tree. You should now see a Net Share (or Network) drive listed alongside MEMORY and USB.
 - A full summary (paths, current UFW rules, zoxide entries) is printed at
   the very end and also saved to
   `<repo_dir>/haas-firewall-install-summary.txt` — save this before you
