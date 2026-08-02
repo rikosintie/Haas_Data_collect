@@ -114,10 +114,10 @@ can live anywhere.
 
 ----------------------------------------------------------------
 
-!!! Warning ⚠️ Common Gotchas on Haas NGC
-    Case Sensitivity: SMB share names can be picky depending on the NGC software release. Ensure Haas matches the exact capitalization defined in smb.conf.
-    Path Traversal: Do not add slashes to the share name (use Haas, not /Haas or \\192.168.10.112\Haas). The control appends the IP and slash automatically.
-    Network Speed / Delays: If the control takes a long time to list directory contents when pressing [LIST PROGRAM], double-check that your Samba server isn't attempting reverse DNS lookups on the control's IP (hostname lookups = off in smb.conf).
+!!! warning "⚠️ Common Gotchas on Haas NGC"
+    - **Case Sensitivity:** SMB share names can be picky depending on the NGC software release. Ensure `Haas` matches the exact capitalization defined in `smb.conf`.
+    - **Path Traversal:** Do not add slashes to the share name (use `Haas`, not `/Haas` or `\\192.168.10.112\Haas`). The control appends the IP and slash automatically.
+    - **Network Speed / Delays:** If the control takes a long time to list directory contents when pressing **[LIST PROGRAM]**, double-check that your Samba server isn't attempting reverse DNS lookups on the control's IP (`hostname lookups = off` in `smb.conf`).
 
 ----------------------------------------------------------------
 
@@ -125,6 +125,6 @@ can live anywhere.
 
 - Re-running `sudo ./haas-install.sh` is safe — it's idempotent for most
   steps (existing users/groups/packages are detected and skipped).
-- Check firewall status any time with `sudo ufw status numbered`.
+- Check firewall status any time with `sudo ufw status numbered | sort -k5` or use the Cockpit extension at `https://<appliance-ip>:9090`.
 - For deeper troubleshooting, see `docs/build_the_appliance/` and
   `docs/appendices/`.
