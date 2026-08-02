@@ -7,7 +7,7 @@ install, networking, etc.) see the docs under `docs/build_the_appliance/`.
 
 - A Raspberry Pi 5, a Virtual Machine, or an Intel/AMD PC, with Ubuntu already installed and
   internet access.
-- Root/sudo access.
+- User `haas` with Root/sudo access.
 
 ## 2. Clone the repo
 
@@ -18,14 +18,13 @@ cd Haas_Data_collect
 
 ## 3. Edit `users.csv` and `initial_users.csv` before running anything
 
-Use `nano users.csv` and `nano initial_users.csv` to edit the files
-
-The installer creates Linux/Samba accounts and firewall rules straight from
+- Use `nano users.csv` and `nano initial_users.csv` to edit the files
+- The installer creates Linux/Samba accounts and firewall rules straight from
 these — get them right first:
 
-- **`users.csv`** — one row per machine/admin that needs firewall access:
-  `username,ip_address,role`
-- **`initial_users.csv`** — Samba accounts to create automatically:
+  - **`users.csv`** — one row per machine/admin that needs firewall access:
+`username,ip_address,role`
+  - **`initial_users.csv`** — Samba accounts to create automatically:
   `username, password`
 
 The installer itself will pause on a banner and remind you to check these
@@ -68,29 +67,38 @@ can live anywhere.
 - **Samba share:** to map a drive to the appliance:
   - Windows
     - Open Explorer
-    - Click This PC in the sidebar, right-click This PC, and select Map network drive...
+    - Click `This PC` in the sidebar, right-click This PC, and select Map network drive...
     - Choose an available Drive letter
-    - In the Folder field, enter: `\\<appliance-ip>\Haas`
-    - Check Connect using different credentials (and check Reconnect at sign-in if you want it persistent).
-    - Click Finish, then enter your Samba username and password when prompted.
-    - To map it immediately from the terminal to drive Z:
-      - net use Z: \\192.168.10.112\Haas /user:<username> <password> /persistent:yes
+    - In the `Folder field`, enter: `\\<appliance-ip>\Haas`
+    - Click `Connect` using different credentials (and check Reconnect at sign-in if you want it persistent).
+    - Click `Finish`, then enter your Samba username and password when prompted.
+    - To map it from the terminal to drive Z:
+      - net use Z: `\\<appliance_IP>\Haas /user:<username> <password> /persistent:yes`
   - Mac
     - Open `Finder`
-    - Press Cmd + K (or go to Go > Connect to Server... in the menu bar).
-    - In the Server Address field, enter:
-      - smb://192.168.10.112/Haas
-    - Click Connect
-    - Select Registered User, enter your Samba username and password, and click Connect.
-    - Note: To make it auto-connect on boot, go to System Settings > General > Login Items, click the + button, and select the mounted Haas volume from your desktop/Finder sidebar.
+    - Press `Cmd + K` (or go to `Go > Connect to Server...` in the menu bar).
+    - In the `Server Address` field, enter:
+      - `smb://<appliance-ip>/Haas`
+    - Click `Connect`
+    - Select `Registered User`, enter your Samba username and password
+    - click `Connect`.
+!!! info
+    To make it auto-connect on boot, go to System Settings > General > Login Items, click the + button, and select the mounted Haas volume from your desktop/Finder sidebar.
   - Linux
     - Open your file manager (Files in Ubuntu).
     - Click `Network` on the left
-    - At the bottom of the window that opens, you will see a box labeled Connect to Server
+    - At the bottom of the window that opens, you will see a box labeled `Connect to Server`
     - Type in the SMB URL:
       - `smb://<appliance-ip>/Haas`
-      - Click Connect and enter your credentials when prompted.
+      - Click `Connect` and select `Registered User`.
+      - Enter your credentials.
+      - Check either
+            - `forget Password immediately`
+            - `Remember password until you logout`
+            - `Remember forever`
+      - Choose `forget paasword immediately` until you are sure everything is working correctly.
   - Haas CNC control
+
      The Haas NGC runs an embedded Linux stack under the hood and natively supports SMB/CIFS, so it connects cleanly to SMBv2/v3 shares.
     - Open the Network Settings
           - Press the [SETTINGS] button on the control panel.
@@ -118,7 +126,7 @@ can live anywhere.
 
 !!! warning "⚠️ Common Gotchas on Haas NGC"
     - **Case Sensitivity:** SMB share names can be picky depending on the NGC software release. Ensure `Haas` matches the exact capitalization defined in `smb.conf`.
-    - **Path Traversal:** Do not add slashes to the share name (use `Haas`, not `/Haas` or `\\192.168.10.112\Haas`). The control appends the IP and slash automatically.
+    - **Path Traversal:** Do not add slashes to the share name (use `Haas`, not `/Haas` or `\\<appliance-ip>\Haas`). The control appends the IP and slash automatically.
     - **Network Speed / Delays:** If the control takes a long time to list directory contents when pressing **[LIST PROGRAM]**, double-check that your Samba server isn't attempting reverse DNS lookups on the control's IP (`hostname lookups = off` in `smb.conf`).
 
 ----------------------------------------------------------------
