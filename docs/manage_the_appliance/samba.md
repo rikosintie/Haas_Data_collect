@@ -59,7 +59,6 @@ filled in from a fixed template.
 1. Click **Create Share**. Every other view button is disabled except
    **Save & Restart** and **Clear Output**, same as edit mode.
 1. Fill in the two fields:
-
    | Field | Becomes | Notes |
    |---|---|---|
    | Machine Name | The `[section]` name | Letters, digits, `_`, `-` only; lower-cased on save |
