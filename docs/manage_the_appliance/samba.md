@@ -61,18 +61,18 @@ filled in from a fixed template.
 
 2. Fill in the two fields:
 
-   | Field | Becomes | Notes |
-   |---|---|---|
-   | Machine Name | The `[section]` name | Letters, digits, `_`, `-` only; lower-cased on save |
-   | Comment | `comment =` | Letters, digits, `_`, `-`, spaces only |
+    | Field | Becomes | Notes |
+    |---|---|---|
+    | Machine Name | The `[section]` name | Letters, digits, `_`, `-` only; lower-cased on save |
+    | Comment | `comment =` | Letters, digits, `_`, `-`, spaces only |
 
-   There's no Path field — the share's directory is always
-   `/home/haas/Haas_Data_collect/machines/<machine name>`, the same
-   convention **Create Service** uses for a machine's working directory.
-   Every other share setting (`browseable`, `writable`, `valid users`,
-   `force user`/`force group`, the create/directory mask fields, etc.) is
-   also fixed and identical for every share — none of it is user-editable
-   through this form.
+    There's no Path field — the share's directory is always
+    `/home/haas/Haas_Data_collect/machines/<machine name>`, the same
+    convention **Create Service** uses for a machine's working directory.
+    Every other share setting (`browseable`, `writable`, `valid users`,
+    `force user`/`force group`, the create/directory mask fields, etc.) is
+    also fixed and identical for every share — none of it is user-editable
+    through this form.
 
 3. Click **Save & Restart**. A confirmation dialog names the directory and
    share it's about to create, and reminds you that this only creates the
@@ -96,8 +96,6 @@ filled in from a fixed template.
 
 4. Click **Clear Output** to discard the form and cancel — it doubles as
    Cancel here too.
-
-## Delete Share
 
 Removes a share's stanza from `smb.conf` — the same idea as **Delete
 Service** on the Updates/Logs page: pick from a dropdown, confirm, done.
