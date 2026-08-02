@@ -73,7 +73,10 @@ filled in from a fixed template.
    also fixed and identical for every share — none of it is user-editable
    through this form.
 3. Click **Save & Restart**. A confirmation dialog names the directory and
-   share it's about to create, then, before anything is written:
+   share it's about to create, and reminds you that this only creates the
+   share — you still need to use **Create Service** on the Updates - Logs
+   page to set up the logger service that actually collects data into it.
+   Before anything is written:
       - The machine directory is created with `mkdir -p` if it doesn't
         already exist yet — you don't need to create it (or a service for
         that machine) first.

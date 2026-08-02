@@ -243,7 +243,11 @@ saveRestartBtn.addEventListener("click", function() {
             return;
         }
 
-        if (!confirm("This will create " + path + " (if it doesn't already exist), add share [" + machine + "] to " + SMB_CONF + ", and restart smbd. Continue?")) {
+        if (!confirm(
+            "This will create " + path + " (if it doesn't already exist), add share [" + machine + "] to " + SMB_CONF + ", and restart smbd.\n\n" +
+            "Note: this only creates the share. Use the Updates - Logs page's Create Service button to set up the logger service for this machine.\n\n" +
+            "Continue?"
+        )) {
             return;
         }
 
