@@ -8,7 +8,9 @@ The code for the project can be found at this [Github repository](https://github
 
 ----------------------------------------------------------------
 
-If you want to build an appliance that runs the python scripts 24/7, and allows CNC programmers save programs and the Haas machines to load them see the [Installation Quick Start](/INSTALL_QUICKSTART.md){: target="_blank" rel="noopener" }. The appliance can be built using:
+If you want to build an appliance that runs the python scripts 24/7, and allows CNC programmers to save programs and the Haas machines to load, them see the [Installation Quick Start](/INSTALL_QUICKSTART.md){: target="_blank" rel="noopener" }.
+
+**The appliance can be built using:**
 
 - A Raspberry Pi 5 with 4-8GB of RAM
 - An Intel/AMD based computer
