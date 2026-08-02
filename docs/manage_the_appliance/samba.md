@@ -59,6 +59,7 @@ filled in from a fixed template.
 1. Click **Create Share**. Every other view button is disabled except
    **Save & Restart** and **Clear Output**, same as edit mode.
 1. Fill in the two fields:
+
    | Field | Becomes | Notes |
    |---|---|---|
    | Machine Name | The `[section]` name | Letters, digits, `_`, `-` only; lower-cased on save |
@@ -74,7 +75,7 @@ filled in from a fixed template.
 1. Click **Save & Restart**. A confirmation dialog names the directory and
    share it's about to create, and reminds you that this only creates the
    share — you still need to use **Create Service** on the Updates - Logs
-   page to set up the logger service that actually collects data into it.
+   page to set up the logger service that actually collects data into it. The logic here is that you probably have machines that aren't Haas, but you still want to drop CNC programs onto the appliance and load them to the control.
    Before anything is written:
       - The machine directory is created with `mkdir -p` if it doesn't
         already exist yet — you don't need to create it (or a service for
