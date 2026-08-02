@@ -6,7 +6,13 @@ Click the menu items at the top left of the page to access the documentation.
 
 The code for the project can be found at this [Github repository](https://github.com/rikosintie/Haas_Data_collect)
 
-If you want to build an appliance that runs the python scripts 24/7, and allows CNC programmers save programs and the Haas machines to load them see the [Installation Quick Start](/INSTALL_QUICKSTART.md){: target="_blank" rel="noopener" }
+----------------------------------------------------------------
+
+If you want to build an appliance that runs the python scripts 24/7, and allows CNC programmers save programs and the Haas machines to load them see the [Installation Quick Start](/INSTALL_QUICKSTART.md){: target="_blank" rel="noopener" }. The appliance can be built using:
+
+- A Raspberry Pi 5 with 4-8GB of RAM
+- An Intel/AMD based computer
+- A virtual machine running on HyperV, KVM, VMware
 
 ----------------------------------------------------------------
 
