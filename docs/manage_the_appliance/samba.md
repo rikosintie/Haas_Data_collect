@@ -58,7 +58,7 @@ filled in from a fixed template.
 
 1. Click **Create Share**. Every other view button is disabled except
    **Save & Restart** and **Clear Output**, same as edit mode.
-2. Fill in the two fields:
+1. Fill in the two fields:
 
    | Field | Becomes | Notes |
    |---|---|---|
@@ -72,7 +72,7 @@ filled in from a fixed template.
    `force user`/`force group`, the create/directory mask fields, etc.) is
    also fixed and identical for every share — none of it is user-editable
    through this form.
-3. Click **Save & Restart**. A confirmation dialog names the directory and
+1. Click **Save & Restart**. A confirmation dialog names the directory and
    share it's about to create, and reminds you that this only creates the
    share — you still need to use **Create Service** on the Updates - Logs
    page to set up the logger service that actually collects data into it.
@@ -88,7 +88,7 @@ filled in from a fixed template.
    Only if the name is free and `testparm` passes is the new stanza
    appended to `smb.conf` and `smbd` restarted; the output panel then shows
    the restart result and `systemctl status smbd`.
-4. Click **Clear Output** to discard the form and cancel — it doubles as
+1. Click **Clear Output** to discard the form and cancel — it doubles as
    Cancel here too.
 
 ## Delete Share
