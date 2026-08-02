@@ -23,7 +23,7 @@ usually lands you exactly where you meant.
 
 `haas-install.sh` seeds the database with the same directories the
 `haas-*` aliases point to in the `terminal_aliases.md`'s Directory Shortcuts
-table [located here](terminal_aliases.md#directory-shortcuts){_target=blank} — `/usr/local/sbin`, `/home/haas/Haas_Data_collect`, the Samba and
+table [located here](terminal_aliases.md#directory-shortcuts){: target="_blank" rel="noopener" } — `/usr/local/sbin`, `/home/haas/Haas_Data_collect`, the Samba and
 firewall Cockpit extension directories, `/etc/ssh/sshd_config.d`,
 `/etc/systemd/system`, and more — so `z` already knows about them on a
 fresh install, before you've ever visited them yourself.
