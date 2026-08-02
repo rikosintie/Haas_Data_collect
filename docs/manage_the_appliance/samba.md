@@ -91,6 +91,26 @@ filled in from a fixed template.
 4. Click **Clear Output** to discard the form and cancel — it doubles as
    Cancel here too.
 
+## Delete Share
+
+Removes a share's stanza from `smb.conf` — the same idea as **Delete
+Service** on the Updates/Logs page: pick from a dropdown, confirm, done.
+
+1. Click **Delete Share** to populate a dropdown with every share
+   currently defined in `smb.conf` (via `testparm -s`). The `[Haas]` share
+   — the appliance's main data share, set up by `haas-install.sh` — is
+   deliberately left out of this list, since it isn't a per-machine share;
+   if it ever genuinely needs to be removed, do that through Edit smb.conf
+   instead.
+2. Select a share. A confirmation dialog names it and warns this cannot
+   be undone. It also makes clear that only the `smb.conf` entry is
+   removed — the machine's data directory itself is never touched or
+   deleted.
+3. Confirming reads the current `smb.conf`, removes that share's stanza,
+   runs the result through `testparm` (same gate as Edit smb.conf and
+   Create Share), and only then writes the file and restarts `smbd`. If
+   `testparm` rejects the result, nothing is saved or restarted.
+
 ## Clear Output
 
 Resets the panel back to a plain **Ready.** message and, if you were

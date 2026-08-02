@@ -16,6 +16,7 @@
         <button id="editConfBtn" data-tooltip="Open smb.conf in the editor">Edit smb.conf</button>
         <button id="saveRestartBtn" data-tooltip="Save changes to smb.conf and restart the Samba service" disabled>Save &amp; Restart</button>
         <button id="createShareBtn" data-tooltip="Add a new share to smb.conf">Create Share</button>
+        <button id="deleteShareBtn" data-tooltip="Stop sharing a machine directory">Delete Share</button>
         <button id="displaySharesBtn" data-tooltip="Display the Samba shares from smb.conf">Display Shares</button>
         <button id="displaySharesCsvBtn" data-tooltip="Display the Samba shares from smb.conf in CSV format">Shares CSV</button>
         <button id="displaySambaUsersBtn" data-tooltip="List all users in the Samba database">Samba Users</button>
@@ -27,6 +28,10 @@
         <input type="text" id="usernameInput" placeholder="Enter username">
         <button id="displaySharesByUserBtn" data-tooltip="Display active Samba sessions for the specified user">Shares by User</button>
     </div>
+
+    <select id="sharesList" class="hidden">
+        <option value="">— select a share to delete —</option>
+    </select>
 
     <div id="panelLabel"></div>
     <pre id="validationMsg" class="hidden"></pre>

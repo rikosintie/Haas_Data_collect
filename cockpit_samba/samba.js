@@ -18,6 +18,9 @@ const createShareForm   = document.getElementById("createShareForm");
 const shareMachineName  = document.getElementById("shareMachineName");
 const shareComment      = document.getElementById("shareComment");
 
+const deleteShareBtn = document.getElementById("deleteShareBtn");
+const sharesList     = document.getElementById("sharesList");
+
 const SMB_CONF = "/etc/samba/smb.conf";
 const SMB_CONF_VALIDATE_TMP_PREFIX = "/tmp/smb.conf.validate.";
 
@@ -82,6 +85,7 @@ function lockAll() {
     editConfBtn.disabled            = true;
     saveRestartBtn.disabled         = true;
     createShareBtn.disabled         = true;
+    deleteShareBtn.disabled         = true;
     displaySharesBtn.disabled       = true;
     displaySharesCsvBtn.disabled    = true;
     displaySambaUsersBtn.disabled   = true;
@@ -97,6 +101,7 @@ function unlockNormal() {
     editConfBtn.disabled            = false;
     saveRestartBtn.disabled         = true;
     createShareBtn.disabled         = false;
+    deleteShareBtn.disabled         = false;
     displaySharesBtn.disabled       = false;
     displaySharesCsvBtn.disabled    = false;
     displaySambaUsersBtn.disabled   = false;
@@ -112,6 +117,7 @@ function unlockEditMode() {
     editConfBtn.disabled            = true;
     saveRestartBtn.disabled         = false;
     createShareBtn.disabled         = true;
+    deleteShareBtn.disabled         = true;
     displaySharesBtn.disabled       = true;
     displaySharesCsvBtn.disabled    = true;
     displaySambaUsersBtn.disabled   = true;
@@ -356,6 +362,101 @@ shareComment.addEventListener("input", function() {
     }
 });
 
+// ── Delete Share ──────────────────────────────────────────────────────────────
+
+function escapeRegExp(s) {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// [Haas] is the appliance's main data share, created by haas-install.sh —
+// it is not a per-machine share, so it's kept out of the delete list.
+function populateSharesList() {
+    sharesList.innerHTML = "<option value=\"\">— loading... —</option>";
+    sharesList.classList.remove("hidden");
+
+    cockpit.spawn(
+        ["bash", "-c", "testparm -s 2>/dev/null | grep '^\\['"],
+        { superuser: "require", err: "message" }
+    )
+        .done(function(data) {
+            var lines = data.trim() ? data.trim().split("\n") : [];
+            var shares = lines
+                .map(function(l) { return l.replace(/[\[\]]/g, "").trim(); })
+                .filter(function(name) {
+                    var lower = name.toLowerCase();
+                    return name && lower !== "global" && lower !== "haas";
+                });
+
+            sharesList.innerHTML = "<option value=\"\">— select a share to delete —</option>";
+            if (shares.length === 0) {
+                sharesList.innerHTML = "<option value=\"\">No shares found</option>";
+            } else {
+                shares.forEach(function(name) {
+                    var opt = document.createElement("option");
+                    opt.value = name;
+                    opt.textContent = name;
+                    sharesList.appendChild(opt);
+                });
+            }
+        })
+        .fail(function(ex) {
+            sharesList.innerHTML = "<option value=\"\">Error: " + (ex.message || "failed to list shares") + "</option>";
+        })
+        .always(function() {
+            unlockNormal();
+        });
+}
+
+deleteShareBtn.addEventListener("click", function() {
+    lockAll();
+    showOutputPanel("Loading shares...\n");
+    populateSharesList();
+});
+
+sharesList.addEventListener("change", function() {
+    var machine = sharesList.value;
+    if (!machine) return;
+
+    if (!confirm("Delete share [" + machine + "]? This cannot be undone. Only the smb.conf entry is removed — the machine's data directory is not touched.")) {
+        sharesList.value = "";
+        return;
+    }
+
+    lockAll();
+    showOutputPanel("Loading current " + SMB_CONF + "...\n");
+
+    cockpit.file(SMB_CONF, { superuser: "require" }).read()
+        .done(function(currentContent) {
+            currentContent = currentContent || "";
+            var sectionRe = new RegExp("\\n?\\[" + escapeRegExp(machine) + "\\][^\\[]*", "i");
+
+            if (!sectionRe.test(currentContent)) {
+                output.textContent += "ERROR: Share [" + machine + "] not found in " + SMB_CONF + " — nothing changed.\n";
+                unlockNormal();
+                return;
+            }
+
+            var newContent = currentContent.replace(sectionRe, "");
+
+            output.textContent += "Validating configuration with testparm...\n";
+            validateSmbConf(newContent,
+                function onValid() {
+                    sharesList.classList.add("hidden");
+                    output.textContent += "Configuration OK. Saving " + SMB_CONF + "...\n";
+                    writeConfAndRestart(newContent);
+                },
+                function onInvalid(errText) {
+                    output.textContent += "\n" + errText + "\n\nNothing was saved or restarted.\n";
+                    unlockNormal();
+                }
+            );
+        })
+        .fail(function(ex) {
+            output.textContent += "ERROR reading " + SMB_CONF + ": " + (ex.message || JSON.stringify(ex)) + "\n";
+            unlockNormal();
+        });
+});
+
 // ── Display Shares ────────────────────────────────────────────────────────────
 
 displaySharesBtn.addEventListener("click", function() {
@@ -427,6 +528,7 @@ displayLinuxUsersBtn.addEventListener("click", function() {
 
 clearOutputBtn.addEventListener("click", function() {
     if (creatingShare) hideCreateShareForm();
+    sharesList.classList.add("hidden");
     showOutputPanel("Ready.");
     unlockNormal();
 });
