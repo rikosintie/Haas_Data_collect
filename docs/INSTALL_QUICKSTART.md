@@ -64,72 +64,85 @@ can live anywhere.
 ## 6. After it finishes
 
 - **Cockpit UI:** `https://<appliance-ip>:9090`
-- **Samba share:** to map a drive to the appliance:
-  - Windows
-    - Open Explorer
-    - Click `This PC` in the sidebar, right-click This PC, and select Map network drive...
-    - Choose an available Drive letter
-    - In the `Folder field`, enter: `\\<appliance-ip>\Haas`
-    - Click `Connect` using different credentials (and check Reconnect at sign-in if you want it persistent).
-    - Click `Finish`, then enter your Samba username and password when prompted.
-    - To map it from the terminal to drive Z:
-      - net use Z: `\\<appliance_IP>\Haas /user:<username> <password> /persistent:yes`
-  - Mac
-    - Open `Finder`
-    - Press `Cmd + K` (or go to `Go > Connect to Server...` in the menu bar).
-    - In the `Server Address` field, enter:
-      - `smb://<appliance-ip>/Haas`
-    - Click `Connect`
-    - Select `Registered User`, enter your Samba username and password
-    - click `Connect`.
-!!! info
-    To make it auto-connect on boot, go to System Settings > General > Login Items, click the + button, and select the mounted Haas volume from your desktop/Finder sidebar.
-  - Linux
-    - Open your file manager (Files in Ubuntu).
-    - Click `Network` on the left
-    - At the bottom of the window that opens, you will see a box labeled `Connect to Server`
-    - Type in the SMB URL:
-      - `smb://<appliance-ip>/Haas`
-      - Click `Connect` and select `Registered User`.
-      - Enter your credentials.
-      - Check either
-            - `forget Password immediately`
-            - `Remember password until you logout`
-            - `Remember forever`
-      - Choose `forget paasword immediately` until you are sure everything is working correctly.
-  - Haas CNC control
+- **Samba share:** To map a drive to the appliance:
 
-     The Haas NGC runs an embedded Linux stack under the hood and natively supports SMB/CIFS, so it connects cleanly to SMBv2/v3 shares.
-    - Open the Network Settings
-          - Press the [SETTINGS] button on the control panel.
-          - Navigate to Network (Setting 133 / Network Setup).
-          - Select the Network Shared Location (or Shares / Client) tab.
-    - Configure the Connection Parameters
-          - Remote Server / IP - The IP Address of the appliance
-          - Share Name / Path - The name of the SMB share (no leading slashes)
-          - Domain / Workgroup - WORKGROUP is the default on the appliance
-          - User Name - the Haas user has access to all shares. The Samba user created for the machine only has access to that share. See you company security policy for guidance.
-          - Password - The Samba password for the user
-    - Mount and Verify
-          - Once the fields are filled out, press [F4] (or the Connect / Mount softkey on screen).
-          - Press the [LIST PROGRAM] button on the console.
-          - Look in the left-hand directory tab tree. You should now see a Net Share (or Network) drive listed alongside MEMORY and USB.
+### Windows
+
+1. Open **Explorer**.
+2. Click **This PC** in the sidebar, right-click **This PC**, and select **Map network drive...**
+3. Choose an available drive letter.
+4. In the **Folder** field, enter: `\\<appliance-ip>\Haas`
+5. Check **Connect using different credentials** (and check **Reconnect at sign-in** if you want it persistent).
+6. Click **Finish**, then enter your Samba username and password when prompted.
+7. *Optional (Terminal):* To map it from the terminal to drive `Z:`, run:
+
+    ```cmd
+    net use Z: \\<appliance_IP>\Haas /user:<username> <password> /persistent:yes
+    ```
+
+### Mac
+
+1. Open **Finder**.
+2. Press `Cmd + K` (or select **Go > Connect to Server...** in the menu bar).
+3. In the **Server Address** field, enter: `smb://<appliance-ip>/Haas`
+4. Click **Connect**.
+5. Select **Registered User**, enter your Samba username and password, then click **Connect**.
+
+!!! info "Auto-connect on Boot"
+    To make it auto-connect on boot, go to **System Settings > General > Login Items**, click the **+** button, and select the mounted `Haas` volume from your desktop or Finder sidebar.
+
+### Linux
+
+1. Open your file manager (**Files** in Ubuntu).
+2. Click **Network** in the left sidebar.
+3. At the bottom of the window, locate the **Connect to Server** box.
+4. Type in the SMB URL: `smb://<appliance-ip>/Haas`
+5. Click **Connect** and select **Registered User**.
+6. Enter your credentials.
+7. Select one of the password options:
+    - `Forget password immediately`
+    - `Remember password until you logout`
+    - `Remember forever`
+8. Choose **Forget password immediately** until you verify everything is working correctly.
+
+### Haas CNC Control
+
+The Haas NGC runs an embedded Linux stack under the hood and natively supports SMB/CIFS, so it connects cleanly to SMBv2/v3 shares.
+
+1. **Open the Network Settings**
+    - Press the **[SETTINGS]** button on the control panel.
+    - Navigate to **Network** (Setting 133 / Network Setup).
+    - Select the **Network Shared Location** (or Shares / Client) tab.
+
+2. **Configure the Connection Parameters**
+    - **Remote Server / IP:** The IP address of the appliance
+    - **Share Name / Path:** The name of the SMB share (no leading slashes)
+    - **Domain / Workgroup:** `WORKGROUP` (default on the appliance)
+    - **User Name:** The `haas` user has access to all shares. The Samba user created for the machine only has access to that specific share. See your company security policy for guidance.
+    - **Password:** The Samba password for the user
+
+3. **Mount and Verify**
+    - Once the fields are filled out, press **[F4]** (or the Connect / Mount softkey on screen).
+    - Press the **[LIST PROGRAM]** button on the console.
+    - Look in the left-hand directory tab tree. You should now see a **Net Share** (or Network) drive listed alongside `MEMORY` and `USB`.
+
+---
+
+- A full summary (paths, current UFW rules, zoxide entries) is printed at the very end and also saved to `<repo_dir>/haas-firewall-install-summary.txt` — save the onscreen summary before you close the SSH session, since the terminal output itself is gone once you disconnect. The `haas-install-summary.txt` file is permanent.
+- If the installer reports a reboot is required, reboot before relying on the firewall service using `sudo reboot now`.
 - A full summary (paths, current UFW rules, zoxide entries) is printed at
-  the very end and also saved to
-  `<repo_dir>/haas-firewall-install-summary.txt` — save this before you
-  close the SSH session, since the terminal output itself is gone once you
-  disconnect.
+  the very end and also saved to `<repo_dir>/haas-firewall-install-summary.txt` — save the onscreen summary before you close the SSH session, since the terminal output itself is gone once you disconnect. The `haas-install-summary.txt` file is permanent.
 - If the installer reports a reboot is required, reboot before relying on
-  the firewall service.
+  the firewall service using `sudo reboot now`.
 
-----------------------------------------------------------------
+---
 
 !!! warning "⚠️ Common Gotchas on Haas NGC"
     - **Case Sensitivity:** SMB share names can be picky depending on the NGC software release. Ensure `Haas` matches the exact capitalization defined in `smb.conf`.
     - **Path Traversal:** Do not add slashes to the share name (use `Haas`, not `/Haas` or `\\<appliance-ip>\Haas`). The control appends the IP and slash automatically.
     - **Network Speed / Delays:** If the control takes a long time to list directory contents when pressing **[LIST PROGRAM]**, double-check that your Samba server isn't attempting reverse DNS lookups on the control's IP (`hostname lookups = off` in `smb.conf`).
 
-----------------------------------------------------------------
+---
 
 ## Troubleshooting
 
