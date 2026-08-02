@@ -63,8 +63,15 @@ can live anywhere.
 ## 6. After it finishes
 
 - **Cockpit UI:** `https://<appliance-ip>:9090`
-- **Samba share:** `\\<appliance-ip>\Haas` (Windows) or
-  `smb://<appliance-ip>/Haas` (Mac/Linux)
+- **Samba share:** to map a drive to the appliance open Explorer, Finder or Files:
+  - Windows
+    - Open Explorer
+    - Click This PC in the sidebar, right-click This PC, and select Map network drive...
+    - Choose an available Drive letter
+    - In the Folder field, enter: `\\<appliance-ip>\Haas`
+    - Check Connect using different credentials (and check Reconnect at sign-in if you want it persistent).
+  - Mac - In `Finder` click on
+  - Linux - Open Files, click `Network` on the left, on the bottom left enter `smb://<appliance-ip>/Haas` and click `connect.
 - A full summary (paths, current UFW rules, zoxide entries) is printed at
   the very end and also saved to
   `<repo_dir>/haas-firewall-install-summary.txt` — save this before you
