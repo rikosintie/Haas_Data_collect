@@ -58,31 +58,33 @@ filled in from a fixed template.
 
 1. Click **Create Share**. Every other view button is disabled except
    **Save & Restart** and **Clear Output**, same as edit mode.
-2. Fill in the three fields:
+2. Fill in the two fields:
 
    | Field | Becomes | Notes |
    |---|---|---|
    | Machine Name | The `[section]` name | Letters, digits, `_`, `-` only; lower-cased on save |
    | Comment | `comment =` | Letters, digits, `_`, `-`, spaces only |
-   | Path | `path =` | Must be an absolute path (e.g. `/home/haas/Haas_Data_collect/machines/st30l`) |
 
+   There's no Path field — the share's directory is always
+   `/home/haas/Haas_Data_collect/machines/<machine name>`, the same
+   convention **Create Service** uses for a machine's working directory.
    Every other share setting (`browseable`, `writable`, `valid users`,
    `force user`/`force group`, the create/directory mask fields, etc.) is
-   fixed and identical for every share — it is not user-editable through
-   this form.
-3. Click **Save & Restart**. A confirmation dialog asks you to confirm,
-   then, before anything is written:
-      - The typed **path** is checked with `test -d` — if it doesn't exist
-        (or isn't a directory), nothing is saved and you're returned to the
-        form to fix it.
+   also fixed and identical for every share — none of it is user-editable
+   through this form.
+3. Click **Save & Restart**. A confirmation dialog names the directory and
+   share it's about to create, then, before anything is written:
+      - The machine directory is created with `mkdir -p` if it doesn't
+        already exist yet — you don't need to create it (or a service for
+        that machine) first.
       - The **machine name** is checked against the existing `smb.conf` for
         a section that already uses it — duplicates are rejected rather
         than silently shadowing the existing share.
       - The assembled config (existing `smb.conf` + the new stanza) is run
         through `testparm`, exactly like the Edit smb.conf flow.
-   Only if all three checks pass is the new stanza appended to `smb.conf`
-   and `smbd` restarted; the output panel then shows the restart result
-   and `systemctl status smbd`.
+   Only if the name is free and `testparm` passes is the new stanza
+   appended to `smb.conf` and `smbd` restarted; the output panel then shows
+   the restart result and `systemctl status smbd`.
 4. Click **Clear Output** to discard the form and cancel — it doubles as
    Cancel here too.
 

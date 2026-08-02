@@ -17,10 +17,13 @@ const createShareBtn    = document.getElementById("createShareBtn");
 const createShareForm   = document.getElementById("createShareForm");
 const shareMachineName  = document.getElementById("shareMachineName");
 const shareComment      = document.getElementById("shareComment");
-const sharePath         = document.getElementById("sharePath");
 
 const SMB_CONF = "/etc/samba/smb.conf";
 const SMB_CONF_VALIDATE_TMP_PREFIX = "/tmp/smb.conf.validate.";
+
+// Matches the WorkingDirectory convention in cockpit_updates/update.js's
+// Create Service flow — every machine's directory lives here.
+const BASE_MACHINES_DIR = "/home/haas/Haas_Data_collect/machines/";
 
 // Static fields every share gets — only the section name, comment, and path vary.
 const SHARE_STATIC_LINES = [
@@ -70,7 +73,6 @@ function hideCreateShareForm() {
     createShareForm.classList.add("hidden");
     shareMachineName.value = "";
     shareComment.value = "";
-    sharePath.value = "";
 }
 
 // ── button state helpers ──────────────────────────────────────────────────────
@@ -232,37 +234,30 @@ saveRestartBtn.addEventListener("click", function() {
     if (creatingShare) {
         var machine = shareMachineName.value.trim().toLowerCase();
         var comment = shareComment.value.trim();
-        var path    = sharePath.value.trim();
+        var path    = BASE_MACHINES_DIR + machine;
+        var createShareModeLabel = "New share — fill in all fields, then click Save & Restart";
 
-        if (!machine || !comment || !path) {
-            validationMsg.textContent = "ERROR: All three fields are required.";
+        if (!machine || !comment) {
+            validationMsg.textContent = "ERROR: Both fields are required.";
             validationMsg.classList.remove("hidden");
             return;
         }
 
-        if (path.charAt(0) !== "/") {
-            validationMsg.textContent = "ERROR: Path must be an absolute path (e.g. /home/haas/Haas_Data_collect/machines/" + machine + ").";
-            validationMsg.classList.remove("hidden");
-            return;
-        }
-
-        if (!confirm("This will add share [" + machine + "] to " + SMB_CONF + " and restart smbd. Continue?")) {
+        if (!confirm("This will create " + path + " (if it doesn't already exist), add share [" + machine + "] to " + SMB_CONF + ", and restart smbd. Continue?")) {
             return;
         }
 
         lockAll();
         validationMsg.classList.add("hidden");
-        panelLabel.textContent = "Checking that " + path + " exists...";
+        panelLabel.textContent = "Ensuring " + path + " exists...";
 
-        cockpit.spawn(["test", "-d", path], { superuser: "require" })
+        cockpit.spawn(["mkdir", "-p", path], { superuser: "require", err: "message" })
             .done(function() {
                 panelLabel.textContent = "Loading current " + SMB_CONF + "...";
 
                 cockpit.file(SMB_CONF, { superuser: "require" }).read()
                     .done(function(currentContent) {
                         currentContent = currentContent || "";
-
-                        var createShareModeLabel = "New share — fill in all fields, then click Save & Restart";
 
                         if (new RegExp("^\\s*\\[" + machine + "\\]", "im").test(currentContent)) {
                             showValidationError(
@@ -292,11 +287,11 @@ saveRestartBtn.addEventListener("click", function() {
                         );
                     })
                     .fail(function(ex) {
-                        showValidationError("ERROR reading " + SMB_CONF + ": " + (ex.message || JSON.stringify(ex)), "New share — fill in all fields, then click Save & Restart");
+                        showValidationError("ERROR reading " + SMB_CONF + ": " + (ex.message || JSON.stringify(ex)), createShareModeLabel);
                     });
             })
-            .fail(function() {
-                showValidationError("\"" + path + "\" does not exist or is not a directory — double-check the path.", "New share — fill in all fields, then click Save & Restart");
+            .fail(function(ex, data) {
+                showValidationError("ERROR creating " + path + ": " + (data || ex.message || JSON.stringify(ex)), createShareModeLabel);
             });
         return;
     }
@@ -354,15 +349,6 @@ shareComment.addEventListener("input", function() {
     if (cleaned !== shareComment.value) {
         shareComment.value = cleaned;
         shareComment.setSelectionRange(pos - 1, pos - 1);
-    }
-});
-
-sharePath.addEventListener("input", function() {
-    var pos = sharePath.selectionStart;
-    var cleaned = sharePath.value.replace(/[^0-9a-zA-Z_./-]/g, "");
-    if (cleaned !== sharePath.value) {
-        sharePath.value = cleaned;
-        sharePath.setSelectionRange(pos - 1, pos - 1);
     }
 });
 
