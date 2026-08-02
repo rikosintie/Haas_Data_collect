@@ -13,15 +13,37 @@ const clearOutputBtn       = document.getElementById("clearOutputBtn");
 const displaySharesByUserBtn = document.getElementById("displaySharesByUserBtn");
 const usernameInput        = document.getElementById("usernameInput");
 
+const createShareBtn    = document.getElementById("createShareBtn");
+const createShareForm   = document.getElementById("createShareForm");
+const shareMachineName  = document.getElementById("shareMachineName");
+const shareComment      = document.getElementById("shareComment");
+const sharePath         = document.getElementById("sharePath");
+
 const SMB_CONF = "/etc/samba/smb.conf";
 const SMB_CONF_VALIDATE_TMP_PREFIX = "/tmp/smb.conf.validate.";
 
+// Static fields every share gets — only the section name, comment, and path vary.
+const SHARE_STATIC_LINES = [
+    "    browseable = Yes",
+    "    writable = Yes",
+    "    public = No",
+    "    valid users = @HaasGroup, haas",
+    "    force user = haas",
+    "    force group = HaasGroup",
+    "    create mask = 0664",
+    "    force create mode = 0664",
+    "    directory mask = 0775",
+    "    force directory mode = 0775"
+].join("\n");
+
 var editMode = false;
+var creatingShare = false;
 
 // ── panel helpers ─────────────────────────────────────────────────────────────
 
 function showOutputPanel(text) {
     confEditor.style.display = "none";
+    createShareForm.classList.add("hidden");
     output.style.display = "block";
     if (text !== undefined) output.textContent = text;
     panelLabel.textContent = "";
@@ -30,9 +52,25 @@ function showOutputPanel(text) {
 
 function showEditorPanel(content) {
     output.style.display = "none";
+    createShareForm.classList.add("hidden");
     confEditor.style.display = "block";
     confEditor.value = content;
     panelLabel.textContent = "smb.conf — edit below, then click Save & Restart";
+}
+
+function showCreateShareForm() {
+    output.style.display = "none";
+    confEditor.style.display = "none";
+    createShareForm.classList.remove("hidden");
+    panelLabel.textContent = "New share — fill in all fields, then click Save & Restart";
+    validationMsg.classList.add("hidden");
+}
+
+function hideCreateShareForm() {
+    createShareForm.classList.add("hidden");
+    shareMachineName.value = "";
+    shareComment.value = "";
+    sharePath.value = "";
 }
 
 // ── button state helpers ──────────────────────────────────────────────────────
@@ -41,6 +79,7 @@ function showEditorPanel(content) {
 function lockAll() {
     editConfBtn.disabled            = true;
     saveRestartBtn.disabled         = true;
+    createShareBtn.disabled         = true;
     displaySharesBtn.disabled       = true;
     displaySharesCsvBtn.disabled    = true;
     displaySambaUsersBtn.disabled   = true;
@@ -52,8 +91,10 @@ function lockAll() {
 // Normal output mode — all view buttons enabled, Save & Restart disabled
 function unlockNormal() {
     editMode = false;
+    creatingShare = false;
     editConfBtn.disabled            = false;
     saveRestartBtn.disabled         = true;
+    createShareBtn.disabled         = false;
     displaySharesBtn.disabled       = false;
     displaySharesCsvBtn.disabled    = false;
     displaySambaUsersBtn.disabled   = false;
@@ -62,11 +103,13 @@ function unlockNormal() {
     displaySharesByUserBtn.disabled = false;
 }
 
-// Edit mode — only Save & Restart and Clear Output active
+// Edit mode and Create Share mode share this layout — only Save & Restart
+// and Clear Output active. Which flow runs on Save is decided by creatingShare.
 function unlockEditMode() {
     editMode = true;
     editConfBtn.disabled            = true;
     saveRestartBtn.disabled         = false;
+    createShareBtn.disabled         = true;
     displaySharesBtn.disabled       = true;
     displaySharesCsvBtn.disabled    = true;
     displaySambaUsersBtn.disabled   = true;
@@ -153,7 +196,111 @@ function writeConfAndRestart(content) {
         });
 }
 
+// Validates content with testparm via a scratch copy — never touches the
+// real smb.conf. Calls onValid() or onInvalid(errorText); errorText is
+// already fully described (cause + detail), ready to display as-is.
+function validateSmbConf(content, onValid, onInvalid) {
+    var tmpPath = SMB_CONF_VALIDATE_TMP_PREFIX + Date.now();
+
+    cockpit.file(tmpPath).replace(content)
+        .done(function() {
+            cockpit.spawn(["testparm", "-s", tmpPath], { err: "message" })
+                .done(function() {
+                    cockpit.spawn(["rm", "-f", tmpPath]);
+                    onValid();
+                })
+                .fail(function(ex, data) {
+                    cockpit.spawn(["rm", "-f", tmpPath]);
+                    onInvalid("testparm rejected this configuration:\n\n" + (data || ex.message || "(no details)"));
+                });
+        })
+        .fail(function(ex) {
+            onInvalid("ERROR writing temp file for validation: " + (ex.message || JSON.stringify(ex)));
+        });
+}
+
+// Shows errText above the editor/form (whichever is active) and returns
+// control to the user in that same mode — nothing was saved or restarted.
+function showValidationError(errText, modeLabel) {
+    validationMsg.textContent = errText + "\n\nNothing was saved or restarted.";
+    validationMsg.classList.remove("hidden");
+    panelLabel.textContent = modeLabel;
+    unlockEditMode();
+}
+
 saveRestartBtn.addEventListener("click", function() {
+    if (creatingShare) {
+        var machine = shareMachineName.value.trim().toLowerCase();
+        var comment = shareComment.value.trim();
+        var path    = sharePath.value.trim();
+
+        if (!machine || !comment || !path) {
+            validationMsg.textContent = "ERROR: All three fields are required.";
+            validationMsg.classList.remove("hidden");
+            return;
+        }
+
+        if (path.charAt(0) !== "/") {
+            validationMsg.textContent = "ERROR: Path must be an absolute path (e.g. /home/haas/Haas_Data_collect/machines/" + machine + ").";
+            validationMsg.classList.remove("hidden");
+            return;
+        }
+
+        if (!confirm("This will add share [" + machine + "] to " + SMB_CONF + " and restart smbd. Continue?")) {
+            return;
+        }
+
+        lockAll();
+        validationMsg.classList.add("hidden");
+        panelLabel.textContent = "Checking that " + path + " exists...";
+
+        cockpit.spawn(["test", "-d", path], { superuser: "require" })
+            .done(function() {
+                panelLabel.textContent = "Loading current " + SMB_CONF + "...";
+
+                cockpit.file(SMB_CONF, { superuser: "require" }).read()
+                    .done(function(currentContent) {
+                        currentContent = currentContent || "";
+
+                        var createShareModeLabel = "New share — fill in all fields, then click Save & Restart";
+
+                        if (new RegExp("^\\s*\\[" + machine + "\\]", "im").test(currentContent)) {
+                            showValidationError(
+                                "A share named [" + machine + "] already exists in " + SMB_CONF + " — edit it directly via Edit smb.conf instead.",
+                                createShareModeLabel
+                            );
+                            return;
+                        }
+
+                        var stanza = "\n[" + machine + "]\n" +
+                            "    comment = " + comment + "\n" +
+                            "    path = " + path + "\n" +
+                            SHARE_STATIC_LINES + "\n";
+
+                        var newContent = currentContent.replace(/\s*$/, "\n") + stanza;
+
+                        panelLabel.textContent = "Validating configuration with testparm...";
+                        validateSmbConf(newContent,
+                            function onValid() {
+                                hideCreateShareForm();
+                                showOutputPanel("Configuration OK. Saving " + SMB_CONF + "...\n");
+                                writeConfAndRestart(newContent);
+                            },
+                            function onInvalid(errText) {
+                                showValidationError(errText, createShareModeLabel);
+                            }
+                        );
+                    })
+                    .fail(function(ex) {
+                        showValidationError("ERROR reading " + SMB_CONF + ": " + (ex.message || JSON.stringify(ex)), "New share — fill in all fields, then click Save & Restart");
+                    });
+            })
+            .fail(function() {
+                showValidationError("\"" + path + "\" does not exist or is not a directory — double-check the path.", "New share — fill in all fields, then click Save & Restart");
+            });
+        return;
+    }
+
     var content = confEditor.value;
     if (!content.trim()) {
         output.textContent = "ERROR: Editor is empty — not saving.";
@@ -173,32 +320,50 @@ saveRestartBtn.addEventListener("click", function() {
     validationMsg.classList.add("hidden");
     panelLabel.textContent = "Validating configuration with testparm...";
 
-    var tmpPath = SMB_CONF_VALIDATE_TMP_PREFIX + Date.now();
+    validateSmbConf(content,
+        function onValid() {
+            showOutputPanel("Configuration OK. Saving " + SMB_CONF + "...\n");
+            writeConfAndRestart(content);
+        },
+        function onInvalid(errText) {
+            showValidationError(errText, "smb.conf — edit below, then click Save & Restart");
+        }
+    );
+});
 
-    cockpit.file(tmpPath).replace(content)
-        .done(function() {
-            cockpit.spawn(["testparm", "-s", tmpPath], { err: "message" })
-                .done(function() {
-                    cockpit.spawn(["rm", "-f", tmpPath]);
-                    showOutputPanel("Configuration OK. Saving " + SMB_CONF + "...\n");
-                    writeConfAndRestart(content);
-                })
-                .fail(function(ex, data) {
-                    cockpit.spawn(["rm", "-f", tmpPath]);
-                    validationMsg.textContent =
-                        "testparm rejected this configuration — nothing was saved or restarted:\n\n" +
-                        (data || ex.message || "(no details)");
-                    validationMsg.classList.remove("hidden");
-                    panelLabel.textContent = "smb.conf — edit below, then click Save & Restart";
-                    unlockEditMode();
-                });
-        })
-        .fail(function(ex) {
-            validationMsg.textContent = "ERROR writing temp file for validation: " + (ex.message || JSON.stringify(ex));
-            validationMsg.classList.remove("hidden");
-            panelLabel.textContent = "smb.conf — edit below, then click Save & Restart";
-            unlockEditMode();
-        });
+// ── Create Share ──────────────────────────────────────────────────────────────
+
+createShareBtn.addEventListener("click", function() {
+    creatingShare = true;
+    showCreateShareForm();
+    unlockEditMode();
+});
+
+shareMachineName.addEventListener("input", function() {
+    var pos = shareMachineName.selectionStart;
+    var cleaned = shareMachineName.value.replace(/[^0-9a-zA-Z_-]/g, "");
+    if (cleaned !== shareMachineName.value) {
+        shareMachineName.value = cleaned;
+        shareMachineName.setSelectionRange(pos - 1, pos - 1);
+    }
+});
+
+shareComment.addEventListener("input", function() {
+    var pos = shareComment.selectionStart;
+    var cleaned = shareComment.value.replace(/[^0-9a-zA-Z_ -]/g, "");
+    if (cleaned !== shareComment.value) {
+        shareComment.value = cleaned;
+        shareComment.setSelectionRange(pos - 1, pos - 1);
+    }
+});
+
+sharePath.addEventListener("input", function() {
+    var pos = sharePath.selectionStart;
+    var cleaned = sharePath.value.replace(/[^0-9a-zA-Z_./-]/g, "");
+    if (cleaned !== sharePath.value) {
+        sharePath.value = cleaned;
+        sharePath.setSelectionRange(pos - 1, pos - 1);
+    }
 });
 
 // ── Display Shares ────────────────────────────────────────────────────────────
@@ -271,6 +436,7 @@ displayLinuxUsersBtn.addEventListener("click", function() {
 // ── Clear Output ──────────────────────────────────────────────────────────────
 
 clearOutputBtn.addEventListener("click", function() {
+    if (creatingShare) hideCreateShareForm();
     showOutputPanel("Ready.");
     unlockNormal();
 });

@@ -10,8 +10,8 @@ the sidebar.
 ----------------------------------------------------------------
 
 The page has a single output/editor panel below a row of buttons. Only one
-of two things is ever shown there: command output, or the `smb.conf`
-editor — never both at once.
+of three things is ever shown there: command output, the `smb.conf`
+editor, or the Create Share form — never more than one at once.
 
 ## View buttons
 
@@ -48,6 +48,43 @@ These are read-only and safe to click any time:
     you can fix it and try again. Note that `testparm` only catches
     *syntax* errors; it can't tell you whether a share definition actually
     does what you intend.
+
+## Create Share
+
+Adds a new share stanza to `smb.conf` without hand-editing the file — the
+same idea as **Create Service** on the Updates/Logs page: only the parts
+that vary between shares are exposed as fields, and everything else is
+filled in from a fixed template.
+
+1. Click **Create Share**. Every other view button is disabled except
+   **Save & Restart** and **Clear Output**, same as edit mode.
+2. Fill in the three fields:
+
+   | Field | Becomes | Notes |
+   |---|---|---|
+   | Machine Name | The `[section]` name | Letters, digits, `_`, `-` only; lower-cased on save |
+   | Comment | `comment =` | Letters, digits, `_`, `-`, spaces only |
+   | Path | `path =` | Must be an absolute path (e.g. `/home/haas/Haas_Data_collect/machines/st30l`) |
+
+   Every other share setting (`browseable`, `writable`, `valid users`,
+   `force user`/`force group`, the create/directory mask fields, etc.) is
+   fixed and identical for every share — it is not user-editable through
+   this form.
+3. Click **Save & Restart**. A confirmation dialog asks you to confirm,
+   then, before anything is written:
+      - The typed **path** is checked with `test -d` — if it doesn't exist
+        (or isn't a directory), nothing is saved and you're returned to the
+        form to fix it.
+      - The **machine name** is checked against the existing `smb.conf` for
+        a section that already uses it — duplicates are rejected rather
+        than silently shadowing the existing share.
+      - The assembled config (existing `smb.conf` + the new stanza) is run
+        through `testparm`, exactly like the Edit smb.conf flow.
+   Only if all three checks pass is the new stanza appended to `smb.conf`
+   and `smbd` restarted; the output panel then shows the restart result
+   and `systemctl status smbd`.
+4. Click **Clear Output** to discard the form and cancel — it doubles as
+   Cancel here too.
 
 ## Clear Output
 

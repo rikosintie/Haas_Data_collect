@@ -15,6 +15,7 @@
     <div id="actionButtons">
         <button id="editConfBtn" data-tooltip="Open smb.conf in the editor">Edit smb.conf</button>
         <button id="saveRestartBtn" data-tooltip="Save changes to smb.conf and restart the Samba service" disabled>Save &amp; Restart</button>
+        <button id="createShareBtn" data-tooltip="Add a new share to smb.conf">Create Share</button>
         <button id="displaySharesBtn" data-tooltip="Display the Samba shares from smb.conf">Display Shares</button>
         <button id="displaySharesCsvBtn" data-tooltip="Display the Samba shares from smb.conf in CSV format">Shares CSV</button>
         <button id="displaySambaUsersBtn" data-tooltip="List all users in the Samba database">Samba Users</button>
@@ -32,6 +33,20 @@
     <div id="panel">
         <textarea id="confEditor" spellcheck="false"></textarea>
         <pre id="output">Ready.</pre>
+        <div id="createShareForm" class="hidden">
+            <div class="csf-field">
+                <label for="shareMachineName">Machine Name</label>
+                <input type="text" id="shareMachineName" placeholder="e.g. st30l" maxlength="30">
+            </div>
+            <div class="csf-field">
+                <label for="shareComment">Comment</label>
+                <input type="text" id="shareComment" placeholder="e.g. File share for st30l" maxlength="60">
+            </div>
+            <div class="csf-field">
+                <label for="sharePath">Path</label>
+                <input type="text" id="sharePath" placeholder="e.g. /home/haas/Haas_Data_collect/machines/st30l" maxlength="200">
+            </div>
+        </div>
     </div>
 
     <script src="samba.js"></script>
