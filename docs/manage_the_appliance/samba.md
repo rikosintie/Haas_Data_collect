@@ -77,19 +77,19 @@ filled in from a fixed template.
    share — you still need to use **Create Service** on the Updates - Logs
    page to set up the logger service that actually collects data into it. The logic here is that you probably have machines that aren't Haas, but you still want to drop CNC programs onto the appliance and load them to the control.
 
-    Before anything is written:
-    * The machine directory is created with `mkdir -p` if it doesn't
-      already exist yet — you don't need to create it (or a service for
-      that machine) first.
-    * The **machine name** is checked against the existing `smb.conf` for
-      a section that already uses it — duplicates are rejected rather
-      than silently shadowing the existing share.
-    * The assembled config (existing `smb.conf` + the new stanza) is run
-      through `testparm`, exactly like the Edit smb.conf flow.
+   Before anything is written:
+   * The machine directory is created with `mkdir -p` if it doesn't
+     already exist yet — you don't need to create it (or a service for
+     that machine) first.
+   * The **machine name** is checked against the existing `smb.conf` for
+     a section that already uses it — duplicates are rejected rather
+     than silently shadowing the existing share.
+   * The assembled config (existing `smb.conf` + the new stanza) is run
+     through `testparm`, exactly like the Edit smb.conf flow.
 
-    Only if the name is free and `testparm` passes is the new stanza
-    appended to `smb.conf` and `smbd` restarted; the output panel then shows
-    the restart result and `systemctl status smbd`.
+   Only if the name is free and `testparm` passes is the new stanza
+   appended to `smb.conf` and `smbd` restarted; the output panel then shows
+   the restart result and `systemctl status smbd`.
 4. Click **Clear Output** to discard the form and cancel — it doubles as
    Cancel here too.
 
