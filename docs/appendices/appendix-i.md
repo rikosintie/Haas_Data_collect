@@ -12,7 +12,7 @@ These `aliases` and `functions` allow you to:
 - output the complete path, one element per line
 - make a directory and switch to it.
 
-I wrote a book on using Ubuntu for network engineering, the chapter [Build a Great Terminal](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal){target="_blank} dives deeper into setting up a terminal. Here is a link to it: [Build a Great Terminal](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal/){target="_blank}
+I wrote a book on using Ubuntu for network engineering, the chapter [Build a Great Terminal](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal) {: target="_blank" rel="noopener" } dives deeper into setting up a terminal. Here is a link to it: [Build a Great Terminal](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal/) {: target="_blank" rel="noopener" }
 
 You don't have to be logged in over ssh to use the terminal. The Cockpit management webpage has a terminal built in. You access the cockpit page at:
 
@@ -28,7 +28,7 @@ or
 
 ## A shell cheat sheet
 
-If you want to skip the details and dive right in, here is a [Shell Cheat sheet](../appendices/appendix-i-cheatsheet.md){target="_blank} that is easy to use and covers all of the topics in this appendix.
+If you want to skip the details and dive right in, here is a [Shell Cheat sheet](../appendices/appendix-i-cheatsheet.md) {: target="_blank" rel="noopener" } that is easy to use and covers all of the topics in this appendix.
 
 ----------------------------------------------------------------
 
