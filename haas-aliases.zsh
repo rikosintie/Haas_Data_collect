@@ -16,8 +16,20 @@ alias haas-lusers='awk -F: '\''$3 >= 1000 {print $1}'\'' /etc/passwd'
 # Display Samba users
 alias haas-susers='sudo pdbedit -L 2>/dev/null | cut -d: -f1'
 
-# Display haas services
+# Display haas services files in /etc/systemd/system
 alias haas-services='systemctl list-unit-files --type=service | grep haas'
+
+#display services colorized with bat using "ini" syntax highlighting
+# usage haas-cat haas-st40.service
+haas-cat () {
+  systemctl cat $1 | bat -l ini
+}
+
+# Display python script service status
+# the .service is appended, only type "haas-<machine-name>"
+haas-script () {
+   sudo systemctl status $1.service
+   }
 
 #display services colorized with bat using "ini" syntax highlighting
 # usage haas-cat haas-st40.service
