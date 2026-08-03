@@ -21,7 +21,7 @@ nav:
       - Firewall Configuration: 'build_the_appliance/firewall_configuration.md'
       - Trouble Shooting: 'build_the_appliance/TS_cockpit.md'
   - Manage the appliance:
-      - Intro: 'manage_intro.md'
+      - Intro: 'manage_the_appliance/manage_intro.md'
       - Firewall Control: 'manage_the_appliance/firewall.md'
       - Manage Samba: 'manage_the_appliance/samba.md'
       - Updates - Logs: 'manage_the_appliance/updates.md'
