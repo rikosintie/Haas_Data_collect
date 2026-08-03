@@ -677,3 +677,93 @@ Receive ssh, smb and cockpit access through the firewall.
 All other IP addresses will only be able to ping the appliance.
 
 ----------------------------------------------------------------
+
+## Securing the Custom Cockpit Extensions
+
+The appliance ships three custom Cockpit extensions beyond the stock Cockpit modules: **Manage Samba**, **Updates - Logs**, and **Firewall Control**. Since these are authenticated web pages a logged-in user interacts with, they were reviewed for the same class of risk a web-application penetration test would target: can input reach a shell command unsafely, or read/write files outside the intended location?
+
+### Why `cockpit.spawn()`'s array form matters
+
+`cockpit.spawn()` accepts a command either as an argument array or as a shell string passed to `bash -c`. These behave very differently for untrusted input:
+
+```js
+// Safe: executes the binary directly, no shell involved.
+// Even if userValue contains ; ` $() |, it's just literal
+// argv content -- there's no shell to reinterpret it.
+cockpit.spawn(["smbstatus", "--user=" + userValue]);
+
+// Risky: bash -c parses the whole string as shell syntax.
+// If userValue is concatenated directly into it, shell
+// metacharacters in userValue become part of the command.
+cockpit.spawn(["bash", "-c", "some command " + userValue]);
+```
+
+Every custom extension in this repo uses the array form for user-supplied values. The handful of places that do use `bash -c` with dynamic content pass that value as a separate script argument instead of concatenating it into the script text:
+
+```js
+cockpit.spawn(["bash", "-c", SCRIPT, "bash", tmpPath], ...);
+// tmpPath arrives inside SCRIPT as $1 -- never string-concatenated
+// into the script source, so it can't alter the script's syntax.
+```
+
+This is why, even where a field has no character restrictions at all, arbitrary text typed into it can't be used to run additional shell commands.
+
+### Case study: path traversal in `rollback_csv.sh`
+
+Review found one real issue: the Firewall Control page's **Rollback CSV** feature takes a backup filename from a plain, unrestricted text box and passes it straight to `rollback_csv.sh`:
+
+```bash
+BACKUP_FILENAME="$1"
+BACKUP_FILE="$BACKUP_DIR/$BACKUP_FILENAME"
+
+if [[ ! -f "$BACKUP_FILE" ]]; then exit 1; fi
+cp "$BACKUP_FILE" "$TARGET_CSV"
+```
+
+No shell-metacharacter injection was possible here (the variables are properly quoted throughout) — but nothing stopped `$BACKUP_FILENAME` from containing `../` sequences. Typing a traversal payload into that box and clicking Rollback — no special tooling required — would pass the `-f` check and `cp` an arbitrary root-readable file over the **live firewall CSV**:
+
+```bash title='Reproduced against the exact script logic, sandboxed'
+BACKUP_FILENAME="../../../../../../etc/hostname"
+BACKUP_FILE="$BACKUP_DIR/$BACKUP_FILENAME"
+# BACKUP_FILE resolves to /etc/hostname
+```
+
+```bash title='Result before the fix'
+[validation PASSES]
+--- CSV_PATH content after 'rollback': ---
+1S1K-G5          # <- contents of /etc/hostname, not a backup CSV
+```
+
+Since **Edit users.csv** then displays `$CSV_PATH`'s content in a textarea, this chained into arbitrary-file-read-as-root through the UI (e.g. `/etc/shadow`, SSH host keys), on top of corrupting the live firewall configuration.
+
+**Fix:** reject any filename containing a path separator or a leading dot outright, then independently confirm with `realpath` that the resolved file is still inside `BACKUP_DIR` — the second check also catches a symlink planted inside `BACKUP_DIR` pointing outside it, which the filename-shape check alone would miss:
+
+```bash
+if [[ "$BACKUP_FILENAME" == */* || "$BACKUP_FILENAME" == .* ]]; then
+    echo "[ERROR] Invalid backup filename: $BACKUP_FILENAME"
+    exit 1
+fi
+
+BACKUP_FILE="$BACKUP_DIR/$BACKUP_FILENAME"
+...
+RESOLVED_BACKUP_DIR="$(realpath -e "$BACKUP_DIR")"
+RESOLVED_BACKUP_FILE="$(realpath -e "$BACKUP_FILE")"
+
+if [[ "$RESOLVED_BACKUP_FILE" != "$RESOLVED_BACKUP_DIR"/* ]]; then
+    echo "[ERROR] Backup file resolves outside BACKUP_DIR -- refusing to proceed."
+    exit 1
+fi
+```
+
+```bash title='Result after the fix -- same payload'
+[ERROR] Invalid backup filename: ../../../../../../etc/hostname
+        Must be a plain filename with no path components.
+```
+
+A legitimate backup filename (`users_2026-01-01_00-00-00.csv`) still restores correctly — the fix only rejects filenames that were never valid in the first place.
+
+### Client-side input filtering
+
+Fields whose values represent a known format (IP addresses, ports, machine/share names) are also restricted client-side to their expected character set as the user types or pastes. This is a usability nicety and a defense-in-depth layer, **not** the actual security boundary — client-side JavaScript filtering has no effect on a tool that talks to `cockpit-bridge` directly (e.g. by replaying the page's WebSocket traffic in Burp Suite), which is exactly why the array-form `cockpit.spawn()` pattern above is what actually matters.
+
+----------------------------------------------------------------

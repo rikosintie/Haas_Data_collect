@@ -123,7 +123,7 @@ The appliance exposes only three network services, all restricted by IP:
 | ------- | -------- | ---------- |
 | **SSH (22/tcp)** | Admin access | Key‑only auth (optional), root disabled, modern crypto only |
 | **SMB (445/tcp)** | CNC data collection | SMBv2+, no guest, minimal share permissions |
-| **Cockpit (9090/tcp)** | Local management UI | IP‑restricted by UFW, minimal modules installed |
+| **Cockpit (9090/tcp)** | Local management UI | IP‑restricted by UFW, minimal modules installed, custom extension inputs reviewed for injection/traversal (see 6.7) |
 
 **No other ports or services are exposed.**
 
@@ -231,6 +231,19 @@ This is identical to what happens on a Windows file server. Samba is protocol‑
 - It cannot compromise the OS or Samba daemon
 
 The threat is strictly data‑level, not system‑level.
+
+----------------------------------------------------------------
+
+### 6.7. Custom Cockpit Extension Input Handling
+
+**Risk:** An authenticated Cockpit user — or a penetration tester replaying/fuzzing the underlying WebSocket RPC traffic directly (e.g. with Burp Suite Intruder), bypassing the page's own JavaScript entirely — sends malformed or malicious input to one of the appliance's custom Cockpit extensions (Manage Samba, Updates ‑ Logs, Firewall Control), attempting to crash a process, inject shell commands, or read/write files outside the intended location.
+
+**Mitigation:**
+
+- All three custom extensions call `cockpit.spawn()` with argument arrays rather than shell strings. Commands execute without a shell interpreter, so injection via `;`, backticks, or `$()` isn't possible no matter what a field contains.
+- Where a value must be used inside a shell script, it's passed as a script argument (`$1`), never concatenated into the script's source text.
+- Claude found a path‑traversal issue during the security review, in the CSV backup‑rollback script: an unvalidated filename field allowed `../` sequences to escape the intended backup directory. It has been fixed with a `realpath`‑based containment check. See [Securing the Custom Cockpit Extensions](../appendices/appendix-a.md/#securing-the-custom-cockpit-extensions) for the technical detail.
+- Fields whose values are also user‑visible expectations (IP addresses, ports, machine names) are additionally restricted client‑side to their expected character set — a defense‑in‑depth/UX measure, not the actual security boundary, since client‑side JavaScript can't be relied on against a tool that talks to cockpit‑bridge directly.
 
 ----------------------------------------------------------------
 
