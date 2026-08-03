@@ -34,7 +34,7 @@ At the top of the page:
 - **Active Firewall Rules** — the live output of `ufw status numbered`,
   refreshed automatically.
 
-### Firewall Log
+## Firewall Log
 
 ----------------------------------------------------------------
 
