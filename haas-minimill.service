@@ -5,7 +5,7 @@ After=network.target
 [Service]
 User=haas
 WorkingDirectory=/home/haas/Haas_Data_collect/machines/minimill
-ExecStart=/usr/bin/python3 /home/haas/Haas_Data_collect/haas_logger2.py -a -t 192.168.10.143  --port 5055 --name MINIMILL
+ExecStart=/usr/bin/python3 /home/haas/Haas_Data_collect/haas_logger2.py -a -t 192.168.10.143 --port 5055 --name MINIMILL
 Type=idle
 
 [Install]
