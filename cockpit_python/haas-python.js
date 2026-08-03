@@ -470,7 +470,8 @@ servicesList.addEventListener("change", function() {
 
     if (serviceListMode === "delete") {
         var name = path.replace("/etc/systemd/system/", "");
-        if (!confirm("Delete " + name + "? This cannot be undone.")) {
+        var machine = name.replace(/^haas-/, "").replace(/\.service$/, "");
+        if (!confirm("Delete " + name + "? This cannot be undone.\n\nThe directory " + machine + " will NOT be deleted.")) {
             servicesList.value = "";
             return;
         }

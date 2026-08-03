@@ -128,8 +128,11 @@ Address, Port) instead of a raw editor — this generates a new
 ### Delete Service
 
 Pick a unit file from the dropdown after clicking **Delete Service**.
-Confirms first (**"This cannot be undone"**), then stops, disables, and
-removes the unit file, followed by `systemctl daemon-reload`.
+Confirms first (**"This cannot be undone"**, and calls out that the
+machine's data directory under
+`/home/haas/Haas_Data_collect/machines/` will **not** be deleted), then
+stops, disables, and removes the unit file, followed by `systemctl
+daemon-reload`.
 
 ----------------------------------------------------------------
 
