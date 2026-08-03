@@ -1,0 +1,9 @@
+{
+  "version": 0,
+  "tools": {
+    "haas-python": {
+      "label": "Python Scripts",
+      "path": "index.html"
+    }
+  }
+}

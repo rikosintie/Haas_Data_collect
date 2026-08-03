@@ -91,6 +91,7 @@ t-ufwf audit
 |---|---|
 | `haas-bin` | `/usr/local/sbin` — the appliance management scripts |
 | `haas-firewall` | `/usr/share/cockpit/haas-firewall/` |
+| `haas-python` | `/usr/share/cockpit/haas-python/` |
 | `haas-samba` | `/usr/share/cockpit/haas-samba/` |
 | `haas-updates` | `/usr/share/cockpit/haas-update-appliance/` |
 | `haas-log` | `/var/log/` |

@@ -50,6 +50,7 @@ alias haas-bin='cd /usr/local/sbin' # Haas custom scripts for appliance manageme
 alias haas-firewall='cd /usr/share/cockpit/haas-firewall/' # The cockpit directory for the firewall extension
 alias haas-log='cd /var/log/' # The appliance log files directory
 alias haas-repo='cd /home/haas/Haas_Data_collect/' # The appliance repo directory
+alias haas-python='cd /usr/share/cockpit/haas-python/' # The cockpit directory for the python script services extension
 alias haas-samba='cd /usr/share/cockpit/haas-samba/' # The cockpit directory for the samba extension
 alias haas-ssh='cd /etc/ssh/sshd_config.d/' # the sshd_config.d directory for te ssh customization file
 alias haas-system='cd /etc/systemd/system' # The haas service files
@@ -356,6 +357,7 @@ t-ufwf               – Follow UFW logs filtered by BLOCK, ALLOW, or AUDIT.
 haas-bin           – cd /usr/local/sbin
 haas-firewall      – cd /usr/share/cockpit/haas-firewall/
 haas-log           – cd /var/log/
+haas-python        – cd /usr/share/cockpit/haas-python/
 haas-repo          – cd /home/haas/Haas_Data_collect/
 haas-samba         – cd /usr/share/cockpit/haas-samba/
 haas-ssh           – cd to sshd_config.d directory

@@ -38,6 +38,7 @@
 #       /usr/share/cockpit/haas-firewall          (from cockpit_firewall/)
 #       /usr/share/cockpit/haas-samba             (from cockpit_samba/)
 #       /usr/share/cockpit/haas-update-appliance  (from cockpit_updates/)
+#       /usr/share/cockpit/haas-python            (from cockpit_python/)
 #   - Installs the nala package manager
 #   - Installs the linux tree command
 #   - Installs pip
@@ -206,6 +207,7 @@ BACKUP_DIR="$REPO_DIR/backups"
 COCKPIT_SRC="$REPO_DIR/cockpit_firewall"
 COCKPIT_UPDATE_SRC="$REPO_DIR/cockpit_updates"
 COCKPIT_SAMBA_SRC="$REPO_DIR/cockpit_samba"
+COCKPIT_PYTHON_SRC="$REPO_DIR/cockpit_python"
 CSV_PATH="$REPO_DIR/users.csv"
 
 
@@ -276,6 +278,18 @@ fi
 for f in manifest.json index.html update.css update.js; do
   if [[ ! -f "$COCKPIT_UPDATE_SRC/$f" ]]; then
     banner "${YELLOW}[ERROR] Missing Cockpit Update file:${RESET}${CYAN} $COCKPIT_UPDATE_SRC/$f ${RESET}"
+    exit 1
+  fi
+done
+
+if [[ ! -d "$COCKPIT_PYTHON_SRC" ]]; then
+  banner "${YELLOW}[ERROR] Cockpit Python directory missing:${RESET}${CYAN} $COCKPIT_PYTHON_SRC ${RESET}"
+  exit 1
+fi
+
+for f in manifest.json index.html haas-python.css haas-python.js; do
+  if [[ ! -f "$COCKPIT_PYTHON_SRC/$f" ]]; then
+    banner "${YELLOW}[ERROR] Missing Cockpit Python file:${RESET}${CYAN} $COCKPIT_PYTHON_SRC/$f ${RESET}"
     exit 1
   fi
 done
@@ -1012,6 +1026,49 @@ fi
 sleep 3
 
 ########################################
+# INSTALL COCKPIT PYTHON EXTENSION
+########################################
+
+
+COCKPIT_PYTHON_DST="/usr/share/cockpit/haas-python"
+
+echo ""
+echo ""
+banner "${CYAN}Installing Cockpit Python extension to $COCKPIT_PYTHON_DST...${RESET}"
+echo ""
+echo ""
+
+sudo mkdir -p "$COCKPIT_PYTHON_DST"
+sudo cp "$COCKPIT_PYTHON_SRC"/* "$COCKPIT_PYTHON_DST"/
+
+echo ""
+echo ""
+banner "${CYAN}[*] Restarting Cockpit...${RESET}"
+echo ""
+echo ""
+
+sudo systemctl enable --now cockpit.socket
+sudo systemctl restart cockpit
+sudo systemctl restart cockpit.socket
+
+if [[ -f "$COCKPIT_PYTHON_DST/index.html" ]]; then
+
+echo ""
+echo ""
+banner "${CYAN}✅ Cockpit extension Python installed and Cockpit restarted.${RESET}"
+echo ""
+echo ""
+
+else
+echo ""
+echo ""
+banner "${YELLOW} ⚠️ Cockpit Python extension not installed.${RESET}"
+echo ""
+echo ""
+fi
+sleep 3
+
+########################################
 # INSTALL COCKPIT SAMBA EXTENSION
 ########################################
 
@@ -1139,7 +1196,8 @@ if command -v zoxide >/dev/null 2>&1; then
         /usr/share/cockpit/haas-samba/ \
         /etc/ssh/sshd_config.d \
         /etc/systemd/system \
-        /usr/share/cockpit/haas-update-appliance/
+        /usr/share/cockpit/haas-update-appliance/ \
+        /usr/share/cockpit/haas-python/
     do
         sudo -H -u haas zoxide add "$dir"
     done

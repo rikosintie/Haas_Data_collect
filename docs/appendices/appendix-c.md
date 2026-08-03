@@ -236,7 +236,7 @@ The threat is strictly data‑level, not system‑level.
 
 ### 6.7. Custom Cockpit Extension Input Handling
 
-**Risk:** An authenticated Cockpit user — or a penetration tester replaying/fuzzing the underlying WebSocket RPC traffic directly (e.g. with Burp Suite Intruder), bypassing the page's own JavaScript entirely — sends malformed or malicious input to one of the appliance's custom Cockpit extensions (Manage Samba, Updates ‑ Logs, Firewall Control), attempting to crash a process, inject shell commands, or read/write files outside the intended location.
+**Risk:** An authenticated Cockpit user — or a penetration tester replaying/fuzzing the underlying WebSocket RPC traffic directly (e.g. with Burp Suite Intruder), bypassing the page's own JavaScript entirely — sends malformed or malicious input to one of the appliance's custom Cockpit extensions (Manage Samba, Updates ‑ Logs, Python Script Services, Firewall Control), attempting to crash a process, inject shell commands, or read/write files outside the intended location.
 
 **Mitigation:**
 

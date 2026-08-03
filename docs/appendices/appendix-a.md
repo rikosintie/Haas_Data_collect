@@ -680,7 +680,15 @@ All other IP addresses will only be able to ping the appliance.
 
 ## Securing the Custom Cockpit Extensions
 
-The appliance ships three custom Cockpit extensions beyond the stock Cockpit modules: **Manage Samba**, **Updates - Logs**, and **Firewall Control**. Since these are authenticated web pages a logged-in user interacts with, they were reviewed for the same class of risk a web-application penetration test would target: can input reach a shell command unsafely, or read/write files outside the intended location?
+The appliance ships four custom Cockpit extensions beyond the stock Cockpit modules: **Manage Samba**, **Updates - Logs**, **Python Script Services**, and **Firewall Control**. Since these are authenticated web pages a logged-in user interacts with, they were reviewed for the same class of risk a web-application penetration test would target: can input reach a shell command unsafely, or read/write files outside the intended location?
+
+!!! note "Python Script Services"
+    Service management (Service State, Edit/Create/Delete Service, Data
+    Freshness, and the Scripts log) originally lived inside **Updates -
+    Logs** and was reviewed there; it was later split into its own
+    extension for unrelated usability reasons. The findings below predate
+    that split but still apply unchanged — the code moved, the input
+    handling didn't.
 
 ### Why `cockpit.spawn()`'s array form matters
 
@@ -715,7 +723,7 @@ As of this review, four fields have no client-side restriction at all:
 | Shares by User username | Manage Samba | `cockpit.spawn(["smbstatus", "--user=" + username])` — array form; the value has no path or file semantics, it's just a filter string `smbstatus` either accepts or rejects |
 | Compare CSV path | Firewall Control | Array-form arg into `configure_ufw_from_csv.sh`, which quotes `"$1"` throughout with no second shell layer; accepting an arbitrary path is the intended feature (compare against any CSV), and doing so already requires the same root-level Cockpit session as the file being pointed at |
 | Custom CSV path | Firewall Control | Same as above, for **Apply Firewall Changes** |
-| Service Port | Updates - Logs | Not actually validation-free — Save requires `/^\d+$/.test(port)` plus a 5001-5099 range check before the value is used anywhere; it's gated at submit time rather than filtered as-you-type |
+| Service Port | Python Script Services | Not actually validation-free — Save requires `/^\d+$/.test(port)` plus a 5001-5099 range check before the value is used anywhere; it's gated at submit time rather than filtered as-you-type |
 
 Every other text input either restricts its character set as the user types (IP addresses, ports, machine/share names, backup filenames) or is bounded by `maxlength`, or both — reviewed individually, not assumed safe as a category.
 

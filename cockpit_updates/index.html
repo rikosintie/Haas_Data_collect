@@ -29,7 +29,6 @@
         <button id="sambaLogBtn" data-tooltip="Display the live Samba log">Samba</button>
         <button id="authLogBtn" data-tooltip="Display the live authentication log">Auth</button>
         <button id="ufwLiveBtn" data-tooltip="Display the live UFW firewall log">Firewall</button>
-        <button id="scriptsLogBtn" data-tooltip="CNC machines with Connection refused">Scripts</button>
         <button id="stopLogBtn" disabled>Stop</button>
     </div>
     <fieldset id="ufwFilter">
@@ -39,24 +38,6 @@
         <label><input type="radio" name="ufwFilter" value="allow" disabled> ALLOW</label>
         <label><input type="radio" name="ufwFilter" value="audit" disabled> Audit</label>
     </fieldset>
-    <fieldset id="scriptsFilter">
-        <legend>Filter Scripts Log</legend>
-        <label>IP <input type="text" id="scriptsIpFilter" placeholder="e.g. 192.168.10.141" size="18" maxlength="15" disabled></label>
-        <label>Port <input type="text" id="scriptsPortFilter" placeholder="e.g. 5053" size="6" maxlength="5" disabled></label>
-    </fieldset>
-
-    <hr>
-    <h1>Python Script Services</h1>
-    <div id="servicesButtons">
-        <button id="serviceStateBtn" data-tooltip="View Haas service status">Service State</button>
-        <button id="editServicesBtn" data-tooltip="Edit Haas service files">Edit Services</button>
-        <button id="createServiceBtn" data-tooltip="Create new Haas service file">Create Service</button>
-        <button id="deleteServiceBtn" data-tooltip="Stop, disable, and delete a Haas service">Delete Service</button>
-        <button id="dataFreshnessBtn" data-tooltip="Show when each machine last wrote CSV data">Data Freshness</button>
-    </div>
-    <select id="servicesList" class="services-select hidden">
-        <option value="">— select a service file —</option>
-    </select>
 
     <div id="tableContainer"></div>
 
@@ -68,24 +49,6 @@
         <div class="editor-buttons">
             <button id="saveServiceBtn">Save &amp; Restart</button>
             <button id="cancelServiceEditBtn">Cancel</button>
-        </div>
-        <div id="createServiceForm" class="hidden">
-            <div class="csf-field">
-                <label for="svcDescription">Description</label>
-                <input type="text" id="svcDescription" placeholder="Haas Python logger for MACHINE" maxlength="40">
-            </div>
-            <div class="csf-field">
-                <label for="svcName">Machine Name</label>
-                <input type="text" id="svcName" placeholder="e.g. minimill" maxlength="30">
-            </div>
-            <div class="csf-field">
-                <label for="svcIpAddress">IP Address</label>
-                <input type="text" id="svcIpAddress" placeholder="e.g. 192.168.10.143">
-            </div>
-            <div class="csf-field">
-                <label for="svcPort">Port</label>
-                <input type="text" id="svcPort" placeholder="e.g. 5055 (range: 5001-5099)">
-            </div>
         </div>
         <textarea id="serviceEditorArea"></textarea>
     </div>
