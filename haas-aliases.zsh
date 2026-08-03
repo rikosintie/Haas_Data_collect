@@ -31,12 +31,6 @@ haas-script () {
    sudo systemctl status $1.service
    }
 
-#display services colorized with bat using "ini" syntax highlighting
-# usage haas-cat haas-st40.service
-haas-cat () {
-  systemctl cat $1 | bat -l ini
-}
-
 # Troubleshooting aliases
 alias t-cockpit='sudo journalctl -u cockpit -f | tspin' # cockpit logs colorized with tspin
 alias t-health='sudo journalctl -u smbd -u ssh -u cockpit -f | tspin' # logs for Samba, ssh and cockpit colorized with tspin
@@ -425,6 +419,10 @@ haas-sshc-diff-verbose
                            Left  = Hardening file
                            Right = Running config
                          Useful for visual verification and drift detection.
+haas-cat <unit>       – systemctl cat <unit>, piped through bat with ini
+                        syntax highlighting, e.g. haas-cat haas-st40.service
+haas-script <machine> – sudo systemctl status <machine>.service — type just
+                        the machine name, .service is appended automatically
 haas-systemd          – List Haas systemd units
 
 ${CYAN}LOGGING${RESET}

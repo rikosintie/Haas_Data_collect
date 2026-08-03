@@ -20,6 +20,8 @@ function below is available automatically in any SSH session as `haas`.
 | `haas-lusers` | List Linux users with UID ≥ 1000 |
 | `haas-susers` | List Samba users (`pdbedit -L`) |
 | `haas-services` | List systemd unit files containing "haas" |
+| `haas-cat <unit>` | `systemctl cat <unit>` piped through `bat -l ini` for a syntax-highlighted view of a unit file, e.g. `haas-cat haas-st40.service` |
+| `haas-script <machine>` | `sudo systemctl status <machine>.service` — status for a machine's logger service. Type just the machine name; `.service` is appended automatically, e.g. `haas-script st40` |
 
 ## Live log streaming (colorized with Tailspin)
 
