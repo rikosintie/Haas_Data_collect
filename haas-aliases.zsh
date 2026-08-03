@@ -20,9 +20,10 @@ alias haas-susers='sudo pdbedit -L 2>/dev/null | cut -d: -f1'
 alias haas-services='systemctl list-unit-files --type=service | grep haas'
 
 #display services colorized with bat using "ini" syntax highlighting
-# usage haas-cat haas-st40.service
+# the .service is appended, only type "haas-<machine-name>"
+# usage haas-cat haas-st40
 haas-cat () {
-  systemctl cat $1 | bat -l ini
+  systemctl cat $1.service | bat -l ini
 }
 
 # Display python script service status
