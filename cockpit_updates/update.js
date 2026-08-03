@@ -142,11 +142,19 @@ var HAAS_PORTS_SCRIPT = [
 // every service before the machine shop has configured the actual CNCs
 // to connect, so "not reachable" there would just be the normal,
 // expected state rather than a problem to chase.
+//
+// A machine already showing an ESTABLISHED connection from a python3
+// process to its ip:port is skipped rather than probed. Some CNC control
+// network stacks are minimal enough to only accept one connection at a
+// time; an extra probe against a machine that's already connected and
+// streaming risks contending with (or even displacing) that real
+// connection instead of just testing an idle port.
 var HAAS_CONNECTIVITY_SCRIPT = [
     "echo",
     "echo \"--- Connectivity Check (nc -z, 2s timeout per machine) ---\"",
     "echo \"Note: 'not reachable' is expected until the machine/CNC is actually configured to connect on that port -- it isn't necessarily an error.\"",
     "echo",
+    "established=$(ss -tnp state established 2>/dev/null)",
     "grep -Ei \"python3\" " + HAAS_SYSTEMD_DIR + "/haas*.service 2>/dev/null | cut -d' ' -f4- | sort -k 3 |",
     "while read -r line; do",
     "    ip=\"\"; port=\"\"; name=\"\"",
@@ -161,6 +169,11 @@ var HAAS_CONNECTIVITY_SCRIPT = [
     "    done",
     "",
     "    if [ -z \"$ip\" ] || [ -z \"$port\" ]; then",
+    "        continue",
+    "    fi",
+    "",
+    "    if echo \"$established\" | awk -v target=\"$ip:$port\" '$4==target && /python3/ {found=1} END{exit !found}'; then",
+    "        printf \"%-15s %s:%-6s already connected (skipped probe)\\n\" \"$name\" \"$ip\" \"$port\"",
     "        continue",
     "    fi",
     "",
@@ -632,6 +645,10 @@ stopLogBtn.addEventListener("click", function() {
 serviceStateBtn.addEventListener("click", function() {
     stopLiveLog();
     setActiveLogBtn(serviceStateBtn);
+    // Locked for the whole run, including the connectivity sweep below —
+    // it can take a couple seconds per machine, and a re-click mid-run
+    // would stack a second overlapping sweep against the same targets.
+    disableButtons(true);
     output.textContent = "--- Haas Service Status ---\n";
     output.textContent += "Files are located in " + HAAS_SYSTEMD_DIR + "\n\n";
 
@@ -656,18 +673,21 @@ serviceStateBtn.addEventListener("click", function() {
                         })
                         .always(function() {
                             setActiveLogBtn(null);
+                            disableButtons(false);
                         });
                 })
                 .fail(function(ex, data2) {
                     output.textContent += "\nERROR checking ports: " + (ex.message || JSON.stringify(ex));
                     if (data2) output.textContent += "\n" + data2;
                     setActiveLogBtn(null);
+                    disableButtons(false);
                 });
         })
         .fail(function(ex, data) {
             output.textContent += "\nERROR: " + (ex.message || JSON.stringify(ex));
             if (data) output.textContent += "\n" + data;
             setActiveLogBtn(null);
+            disableButtons(false);
         });
 });
 

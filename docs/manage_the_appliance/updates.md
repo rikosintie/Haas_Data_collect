@@ -134,7 +134,14 @@ summary of every `haas-*` service and its current state, followed by:
   thing that shows up as "this CNC just isn't writing a CSV" with no
   obvious error to explain why.
 - a one-shot TCP reachability check (`nc -z`, 2s timeout) against each
-  service's `-t <ip> --port <port>`
+  service's `-t <ip> --port <port>` — skipped for any machine that
+  already has an established connection from its `python3` process, so a
+  machine that's already connected and streaming is never touched a
+  second time
+
+The whole button is disabled for the duration of the run (including the
+connectivity sweep, which can take a couple seconds per machine) so a
+second click can't stack an overlapping sweep against the same targets.
 
 !!! note "\"Not reachable\" isn't always a problem"
     This check is deliberately only run here, on demand, and not
@@ -147,6 +154,15 @@ summary of every `haas-*` service and its current state, followed by:
     worth investigating (wrong IP/port, firewall, machine powered off,
     network issue) — one that was never expected to be connected yet
     isn't.
+
+!!! warning "Why the connectivity check skips already-connected machines"
+    Some CNC control network stacks are minimal enough to only accept one
+    connection at a time. Probing a machine that already has an active,
+    established connection from `haas_logger2.py` risks contending with —
+    or on a sufficiently limited stack, even displacing — that real
+    connection, purely because of the diagnostic check itself. Skipping
+    already-connected machines avoids that risk entirely; only machines
+    that aren't currently connected get probed.
 
 ----------------------------------------------------------------
 
