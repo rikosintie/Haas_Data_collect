@@ -108,6 +108,33 @@ var TOOLS_YAML_VALIDATE_SCRIPT = [
     "echo \"All $count entries valid.\""
 ].join("\n");
 
+const HAAS_SYSTEMD_DIR = "/etc/systemd/system";
+
+// Same pipeline as the haas-ports shell alias (haas-aliases.zsh), plus a
+// duplicate-port check: two services both pointing "-t <ip> --port <port>"
+// at the same address means one of them is very likely misconfigured
+// against the wrong machine — the kind of thing that shows up as "this
+// CNC just isn't writing a CSV" without an obvious error to explain why.
+var HAAS_PORTS_SCRIPT = [
+    "echo",
+    "echo \"--- IP / Port / Name (from " + HAAS_SYSTEMD_DIR + "/haas-*.service) ---\"",
+    "grep -Ei \"python3\" " + HAAS_SYSTEMD_DIR + "/haas*.service 2>/dev/null | cut -d' ' -f4- | sort -k 3 |",
+    "awk '{",
+    "    port=\"\"; name=\"\";",
+    "    for (i=1;i<=NF;i++) {",
+    "        if ($i==\"--port\") port=$(i+1);",
+    "        if ($i==\"--name\") name=$(i+1);",
+    "    }",
+    "    print;",
+    "    if (port != \"\") { count[port]++; names[port]=names[port]\" \"name }",
+    "}",
+    "END {",
+    "    dup=0",
+    "    for (p in count) if (count[p] > 1) { print \"  [DUPLICATE PORT] \" p \":\" names[p]; dup=1 }",
+    "    if (dup == 0) print \"No duplicate ports found.\"",
+    "}'"
+].join("\n");
+
 var currentServicePath = null;
 var isCreatingService = false;
 var isEditingToolsYaml = false;
@@ -527,6 +554,7 @@ serviceStateBtn.addEventListener("click", function() {
     stopLiveLog();
     setActiveLogBtn(serviceStateBtn);
     output.textContent = "--- Haas Service Status ---\n";
+    output.textContent += "Files are located in " + HAAS_SYSTEMD_DIR + "\n\n";
 
     cockpit.spawn(
         ["bash", "-c", "systemctl list-unit-files --type=service | grep haas"],
@@ -534,12 +562,22 @@ serviceStateBtn.addEventListener("click", function() {
     )
         .done(function(data) {
             output.textContent += data || "(no haas services found)";
+
+            cockpit.spawn(["bash", "-c", HAAS_PORTS_SCRIPT], { superuser: "require", err: "message" })
+                .done(function(portData) {
+                    output.textContent += portData;
+                })
+                .fail(function(ex, data2) {
+                    output.textContent += "\nERROR checking ports: " + (ex.message || JSON.stringify(ex));
+                    if (data2) output.textContent += "\n" + data2;
+                })
+                .always(function() {
+                    setActiveLogBtn(null);
+                });
         })
         .fail(function(ex, data) {
             output.textContent += "\nERROR: " + (ex.message || JSON.stringify(ex));
             if (data) output.textContent += "\n" + data;
-        })
-        .always(function() {
             setActiveLogBtn(null);
         });
 });
@@ -878,6 +916,15 @@ saveServiceBtn.addEventListener("click", function() {
                                                 cockpit.spawn(["systemctl", "status", serviceName], { superuser: "require", err: "message" })
                                                     .done(function(data) {
                                                         output.textContent += data;
+
+                                                        cockpit.spawn(["bash", "-c", HAAS_PORTS_SCRIPT], { superuser: "require", err: "message" })
+                                                            .done(function(portData) {
+                                                                output.textContent += "\n" + portData;
+                                                            })
+                                                            .fail(function(ex, data2) {
+                                                                output.textContent += "\nERROR checking ports: " + (ex.message || JSON.stringify(ex));
+                                                                if (data2) output.textContent += "\n" + data2;
+                                                            });
                                                     })
                                                     .fail(function(ex, data) {
                                                         if (data) output.textContent += data;
