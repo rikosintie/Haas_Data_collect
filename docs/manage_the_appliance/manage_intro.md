@@ -1,5 +1,11 @@
 # Managing the Appliance
 
+----------------------------------------------------------------
+
+![screenshot](./img/tux_ops.png)
+
+----------------------------------------------------------------
+
 The appliance is built on Ubuntu Linux for reliability and stability.
 
 **What is Ubuntu Linux?**
@@ -15,9 +21,3 @@ If you're coming from Windows, here is what you need to know about running the a
 - Seamless Windows Integration: It uses standard Samba (SMB/CIFS) file sharing. To your Windows PCs and Haas machine controls, the appliance looks and acts just like a standard Windows Network Drive (\\APPLIANCE-IP\SHARE).
 
 - Low Resource Overhead: It runs efficiently on light hardware (like a Raspberry Pi 5 or an older spare PC) without needing heavy system specs just to keep the OS running.
-
-----------------------------------------------------------------
-
-![screenshot](./img/tux_ops.png)
-
-----------------------------------------------------------------
