@@ -128,7 +128,7 @@ The Haas NGC runs an embedded Linux stack under the hood and natively supports S
 
 ---
 
-!!! warning "⚠️ Common Gotchas on Haas NGC"
+!!! warning "Common Gotchas on Haas NGC"
     - **Case Sensitivity:** SMB share names can be picky depending on the NGC software release. Ensure `Haas` matches the exact capitalization defined in `smb.conf`.
     - **Path Traversal:** Do not add slashes to the share name (use `Haas`, not `/Haas` or `\\<appliance-ip>\Haas`). The control appends the IP and slash automatically.
     - **Network Speed / Delays:** If the control takes a long time to list directory contents when pressing **[LIST PROGRAM]**, double-check that your Samba server isn't attempting reverse DNS lookups on the control's IP (`hostname lookups = off` in `smb.conf`)
