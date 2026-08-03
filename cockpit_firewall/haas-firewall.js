@@ -6,6 +6,19 @@
 
         const output = document.getElementById("output");
         const backupInput = document.getElementById("backup-name");
+
+        // Real-time filtering: backup filenames are always flat names like
+        // users_2025-01-13_12-00-00.csv, never a path. Blocking "/" and "."
+        // as-you-type is just a UX nicety though — rollback_csv.sh itself is
+        // the actual guard against a path-traversal filename reaching cp.
+        backupInput.addEventListener("input", function() {
+            var pos = backupInput.selectionStart;
+            var cleaned = backupInput.value.replace(/[^0-9a-zA-Z_.-]/g, "");
+            if (cleaned !== backupInput.value) {
+                backupInput.value = cleaned;
+                backupInput.setSelectionRange(pos - 1, pos - 1);
+            }
+        });
         const statusIndicator = document.getElementById("status-indicator");
         const statusText = document.getElementById("status-text");
         const statusDetail = document.getElementById("status-detail");

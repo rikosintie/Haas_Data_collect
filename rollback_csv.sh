@@ -56,6 +56,15 @@ if [[ $# -ne 1 ]]; then
 fi
 
 BACKUP_FILENAME="$1"
+
+# Reject anything that isn't a bare filename (no "/", no leading ".") before
+# it ever touches the filesystem -- cheap first check, defense in depth.
+if [[ "$BACKUP_FILENAME" == */* || "$BACKUP_FILENAME" == .* ]]; then
+    echo "[ERROR] Invalid backup filename: $BACKUP_FILENAME"
+    echo "        Must be a plain filename with no path components."
+    exit 1
+fi
+
 BACKUP_FILE="$BACKUP_DIR/$BACKUP_FILENAME"
 
 ########################################
@@ -71,6 +80,20 @@ if [[ ! -f "$BACKUP_FILE" ]]; then
     echo ""
     echo "[ERROR]"
     echo "======"
+    exit 1
+fi
+
+# Real containment check: resolve symlinks/".." and confirm the result is
+# still inside BACKUP_DIR. Catches anything the filename-shape check above
+# might miss (e.g. a symlink planted inside BACKUP_DIR pointing outside it).
+RESOLVED_BACKUP_DIR="$(realpath -e "$BACKUP_DIR")"
+RESOLVED_BACKUP_FILE="$(realpath -e "$BACKUP_FILE")"
+
+if [[ "$RESOLVED_BACKUP_FILE" != "$RESOLVED_BACKUP_DIR"/* ]]; then
+    echo "[ERROR] Backup file resolves outside BACKUP_DIR -- refusing to proceed."
+    echo "        Requested:  $BACKUP_FILENAME"
+    echo "        Resolved:   $RESOLVED_BACKUP_FILE"
+    echo "        Must be inside: $RESOLVED_BACKUP_DIR"
     exit 1
 fi
 
