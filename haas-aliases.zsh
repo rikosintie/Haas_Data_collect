@@ -19,6 +19,10 @@ alias haas-susers='sudo pdbedit -L 2>/dev/null | cut -d: -f1'
 # Display haas services files in /etc/systemd/system
 alias haas-services='systemctl list-unit-files --type=service | grep haas'
 
+# display the ip, port and name from all haas serivce files
+# the files are located in /etc/system/systemd
+alias haas-ports='grep -Ei "python3" /etc/systemd/system/haas*.service | cut -d' ' -f4-'
+
 #display services colorized with bat using "ini" syntax highlighting
 # the .service is appended, only type "haas-<machine-name>"
 # usage haas-cat haas-st40
@@ -328,6 +332,7 @@ ${CYAN}ALIASES${RESET}
 haas-lusers        – List Linux users (UID >= 1000)
 haas-susers        – List Samba users
 haas-services      – List systemd services containing "haas"
+haas-ports         - List ip, port and name from all haas service files
 
 # Logging (colorized with Tailspin)
 t-cockpit          – Follow cockpit logs (colorized)
