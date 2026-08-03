@@ -16,6 +16,12 @@ for **Firewall Control** under **System** in the sidebar.
 
 ## Firewall Status Dashboard
 
+----------------------------------------------------------------
+
+![screenshot](./img/firewall-dash.png)
+
+----------------------------------------------------------------
+
 At the top of the page:
 
 - A colored status indicator (green = enabled, red = disabled) plus your
