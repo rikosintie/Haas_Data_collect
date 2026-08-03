@@ -10,6 +10,10 @@ access. Log into Cockpit at `https://<appliance-ip>:9090` and look for
 
 ----------------------------------------------------------------
 
+![screenshot](./img/cockpit-updates-overview.resized.png)
+
+----------------------------------------------------------------
+
 ## System Updates
 
 A status banner at the top shows the current state (up to date, updates
@@ -18,10 +22,10 @@ from this page (persisted across page reloads).
 
 | Button | What it does |
 |---|---|
-| Check | Runs `update-check.sh` and refreshes the status banner and package table |
-| Install | Runs `update-system.sh` to install available Ubuntu updates, then automatically re-checks status afterward |
+| Check | Runs `/usr/local/sbin/update-check.sh` and refreshes the status banner and package table |
+| Install | Runs `/usr/local/sbin/update-system.sh` to install available Ubuntu updates, then automatically re-checks status afterward |
 | Reboot | Reboots the appliance immediately — asks for confirmation first |
-| Sync Tools | Runs `install-tools.sh` to install/update the CLI tools listed in `/usr/local/sbin/tools.yaml` (csvlens, tspin, bat, fresh, superfile, zoxide, ...) |
+| Sync Tools | Runs `/usr/local/sbin/install-tools.sh` to install/update the CLI tools listed in `/usr/local/sbin/tools.yaml` (csvlens, tspin, bat, fresh, superfile, zoxide, ...) |
 | Edit Sync Tools | Edits `/usr/local/sbin/tools.yaml` itself, to add/remove/change which tools Sync Tools installs — see below |
 
 ----------------------------------------------------------------
@@ -33,6 +37,16 @@ A message will be displayed in the panel. If you are ready to reboot the applian
 ----------------------------------------------------------------
 
 ![screenshot](./img/cockpit-update-reboot-required.resized.png)
+
+----------------------------------------------------------------
+
+### Sync Tools
+
+Click `Sync Tools` after you run the `Check` to keep the installed third party tools up to date.
+
+----------------------------------------------------------------
+
+![screenshot](./img/sync-tools.resized.png)
 
 ----------------------------------------------------------------
 
@@ -69,6 +83,10 @@ check passes, the file is saved and **Sync Tools** runs automatically.
 
 ----------------------------------------------------------------
 
+![screenshot](./img/edit-sync-tools.resized.png)
+
+----------------------------------------------------------------
+
 ## Logs
 
 Six buttons stream a live log into the output pane; **Stop** ends
@@ -87,6 +105,12 @@ new one automatically stops the previous stream.
 For the **Firewall** and **Scripts** logs, changing the filter while the
 stream is running automatically restarts it with the new filter applied
 — no need to stop and re-click.
+
+----------------------------------------------------------------
+
+In this screenshot I am filtering the Python log from my laptop at 192.168.10.143:
+
+![screenshot](./img/script-logs.resized.png)
 
 ----------------------------------------------------------------
 
