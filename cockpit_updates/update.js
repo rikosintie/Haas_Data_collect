@@ -931,8 +931,8 @@ saveServiceBtn.addEventListener("click", function() {
         }
 
         var portNum = parseInt(port, 10);
-        if (!/^\d+$/.test(port) || portNum < 5001 || portNum > 5999) {
-            output.textContent = "ERROR: Port must be an integer between 5001 and 5999.\n";
+        if (!/^\d+$/.test(port) || portNum < 5001 || portNum > 5099) {
+            output.textContent = "ERROR: Port must be an integer between 5001 and 5099 (Haas's recommended TCP/IP port range).\n";
             output.classList.remove("hidden");
             return;
         }
