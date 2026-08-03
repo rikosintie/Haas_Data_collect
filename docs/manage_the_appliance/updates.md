@@ -114,7 +114,7 @@ In this screenshot I am filtering the Python log from my laptop at 192.168.10.14
 
 ----------------------------------------------------------------
 
-## Services
+## Python Script Services
 
 Manages the `haas-*.service` systemd units that run the per-machine CNC
 data-collection scripts.

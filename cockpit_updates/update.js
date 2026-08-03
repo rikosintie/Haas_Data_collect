@@ -662,6 +662,7 @@ serviceStateBtn.addEventListener("click", function() {
             cockpit.spawn(["bash", "-c", HAAS_PORTS_SCRIPT], { superuser: "require", err: "message" })
                 .done(function(portData) {
                     output.textContent += portData;
+                    output.textContent += "\nRunning connectivity check (this can take several seconds)...\n";
 
                     cockpit.spawn(["bash", "-c", HAAS_CONNECTIVITY_SCRIPT], { superuser: "require", err: "message" })
                         .done(function(connData) {
