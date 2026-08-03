@@ -36,6 +36,12 @@ At the top of the page:
 
 ### Firewall Log
 
+----------------------------------------------------------------
+
+![screenshot](./img/firewall-logs.png)
+
+----------------------------------------------------------------
+
 Click **Firewall Log** to stream the live UFW log (`journalctl -f`) into the
 rules pane, with radio filters for **All**, **BLOCK**, **ALLOW**, or
 **Audit** entries. Click **Stop** to end the stream and go back to showing
