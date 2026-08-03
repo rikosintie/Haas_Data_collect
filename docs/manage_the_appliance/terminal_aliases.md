@@ -11,6 +11,17 @@ function below is available automatically in any SSH session as `haas`.
 - `haas-help` — lists every `haas-*`/`t-*` alias and function
 - `haas-docs` — the same list, with a description for each
 
+!!! note "haas-help is generated, haas-docs is hand-written"
+    `haas-help` introspects the shell at runtime (`alias` and zsh's
+    `${(k)functions}`), so it's always accurate — every `haas-*`/`t-*`
+    alias or function shows up automatically the moment it's defined, with
+    no maintenance required. `haas-docs` is a static, hand-written list
+    with a description for each one; it does not auto-discover anything,
+    so a newly added alias or function only appears there if someone
+    remembers to add a line for it. If `haas-docs` ever looks incomplete
+    compared to `haas-help`, that's why — not a bug, just a doc that
+    hasn't been updated yet.
+
 ----------------------------------------------------------------
 
 ## Inspection aliases
