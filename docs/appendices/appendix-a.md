@@ -706,7 +706,18 @@ cockpit.spawn(["bash", "-c", SCRIPT, "bash", tmpPath], ...);
 // into the script source, so it can't alter the script's syntax.
 ```
 
-This is why, even where a field has no character restrictions at all, arbitrary text typed into it can't be used to run additional shell commands.
+This means a field with no character restrictions still can't be used to run additional *shell commands* — but that's a narrow, specific claim about how the value reaches the OS, not a general "unrestricted fields are safe" statement. It says nothing about other risk categories, such as path traversal, which this pattern does nothing to prevent on its own — see the `rollback_csv.sh` case study below, found in a field with exactly this same "no restrictions, but injection-safe" starting point.
+
+As of this review, four fields have no client-side restriction at all:
+
+| Field | Extension | Why it's still injection-safe |
+|---|---|---|
+| Shares by User username | Manage Samba | `cockpit.spawn(["smbstatus", "--user=" + username])` — array form; the value has no path or file semantics, it's just a filter string `smbstatus` either accepts or rejects |
+| Compare CSV path | Firewall Control | Array-form arg into `configure_ufw_from_csv.sh`, which quotes `"$1"` throughout with no second shell layer; accepting an arbitrary path is the intended feature (compare against any CSV), and doing so already requires the same root-level Cockpit session as the file being pointed at |
+| Custom CSV path | Firewall Control | Same as above, for **Apply Firewall Changes** |
+| Service Port | Updates - Logs | Not actually validation-free — Save requires `/^\d+$/.test(port)` plus a 5001-5099 range check before the value is used anywhere; it's gated at submit time rather than filtered as-you-type |
+
+Every other text input either restricts its character set as the user types (IP addresses, ports, machine/share names, backup filenames) or is bounded by `maxlength`, or both — reviewed individually, not assumed safe as a category.
 
 ### Case study: path traversal in `rollback_csv.sh`
 
