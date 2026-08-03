@@ -163,7 +163,7 @@ Address, Port) instead of a raw editor — this generates a new
 - **Save & Reload** validates before writing anything:
     - all four fields are required
     - IP Address must be a valid IPv4 address
-    - Port must be an integer between 5001 and 5999
+    - Port must be an integer between 5001 and 5099 (Haas's recommended TCP/IP port range)
 - Once validated, it writes `/etc/systemd/system/haas-<machine>.service`,
   creates the machine's working directory under
   `/home/haas/Haas_Data_collect/machines/<machine>`, then runs
