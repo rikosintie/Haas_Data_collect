@@ -20,8 +20,8 @@ alias haas-susers='sudo pdbedit -L 2>/dev/null | cut -d: -f1'
 alias haas-services='systemctl list-unit-files --type=service | grep haas'
 
 # display the ip, port and name from all haas serivce files
-# the files are located in /etc/system/systemd
-alias haas-ports='grep -Ei "python3" /etc/systemd/system/haas*.service | cut -d' ' -f4-'
+# the files are located in /etc/systemd/system
+alias haas-ports="grep -Ei "python3" /etc/systemd/system/haas*.service | cut -d' ' -f4- | sort -k 3"
 
 #display services colorized with bat using "ini" syntax highlighting
 # the .service is appended, only type "haas-<machine-name>"
