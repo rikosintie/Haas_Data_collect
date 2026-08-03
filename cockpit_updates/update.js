@@ -756,7 +756,17 @@ function populateServicesList() {
                     f = f.trim();
                     var opt = document.createElement("option");
                     opt.value = f;
-                    opt.textContent = f.replace("/etc/systemd/system/", "");
+                    // Every entry here is "haas-<machine>.service" (the ls
+                    // glob guarantees the prefix/suffix), so both are dead
+                    // weight in the label — with 20-99 machines, they'd
+                    // also defeat the browser's native type-ahead (jump to
+                    // an option by typing its first letters), since every
+                    // option would start with the same "haas-" text. With
+                    // the prefix/suffix stripped, "s" jumps straight to
+                    // st10y/st30/st40/etc, no custom filtering UI needed.
+                    opt.textContent = f
+                        .replace("/etc/systemd/system/haas-", "")
+                        .replace(/\.service$/, "");
                     servicesList.appendChild(opt);
                 });
             }

@@ -169,7 +169,12 @@ second click can't stack an overlapping sweep against the same targets.
 ### Edit Services
 
 1. Click **Edit Services**, then pick a unit file from the dropdown that
-   appears.
+   appears. Entries are listed by machine name only (`st30`, not
+   `haas-st30.service`) — the `haas-` prefix and `.service` suffix are
+   dropped from the label (not the underlying file, just what's shown),
+   so with a lot of machines, typing e.g. `s` jumps straight to `st10y`/
+   `st30`/`st40`/etc. using the browser's own type-ahead, instead of
+   every option starting with the same "haas-" text.
 2. The file loads into an editor. Every other button is locked while
    editing except **Save & Restart** and **Cancel**.
 3. **Save & Restart** asks for confirmation, then writes the file, runs
