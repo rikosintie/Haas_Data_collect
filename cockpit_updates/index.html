@@ -19,6 +19,7 @@
     <button id="updateBtn" data-tooltip="Install updates from Ubuntu (Canonical)">Install</button>
     <button id="rebootBtn" data-tooltip="Immediately reboot the appliance">Reboot</button>
     <button id="syncToolsBtn" data-tooltip="Install or update 3rd party tools included with the appliance">Sync Tools</button>
+    <button id="editSyncToolsBtn" data-tooltip="Edit the list of tools that Sync Tools installs">Edit Sync Tools</button>
 
     <hr>
     <h1>Logs</h1>
@@ -62,6 +63,7 @@
 
     <div id="serviceEditorSection" class="hidden">
         <div id="serviceEditorLabel"></div>
+        <pre id="editorValidationMsg" class="hidden"></pre>
         <div id="createServiceForm" class="hidden">
             <div class="csf-field">
                 <label for="svcDescription">Description</label>

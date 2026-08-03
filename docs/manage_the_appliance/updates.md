@@ -22,6 +22,7 @@ from this page (persisted across page reloads).
 | Install | Runs `update-system.sh` to install available Ubuntu updates, then automatically re-checks status afterward |
 | Reboot | Reboots the appliance immediately — asks for confirmation first |
 | Sync Tools | Runs `install-tools.sh` to install/update the CLI tools listed in `/usr/local/sbin/tools.yaml` (csvlens, tspin, bat, fresh, superfile, zoxide, ...) |
+| Edit Sync Tools | Edits `/usr/local/sbin/tools.yaml` itself, to add/remove/change which tools Sync Tools installs — see below |
 
 ----------------------------------------------------------------
 
@@ -32,6 +33,39 @@ A message will be displayed in the panel. If you are ready to reboot the applian
 ----------------------------------------------------------------
 
 ![screenshot](./img/cockpit-update-reboot-required.resized.png)
+
+----------------------------------------------------------------
+
+### Edit Sync Tools
+
+Click **Edit Sync Tools** to load `/usr/local/sbin/tools.yaml` — the
+inventory **Sync Tools** installs from — into an editor. Every other
+button is locked while editing except **Save & Sync** and **Cancel**.
+
+Each entry needs a `repo:` (the GitHub `owner/name`) and a `binary:` (the
+name Sync Tools installs it as). To add a tool, find its GitHub page,
+confirm it publishes **Releases** (usually a link on the right side of
+the repo's home page), then add an entry in that form.
+
+**Save & Sync** validates the whole file before touching anything real —
+nothing is written and Sync Tools does not run unless every check passes:
+
+1. **YAML syntax** — the file must parse. If `yq` itself isn't installed
+   yet (a brand-new appliance that has never run Sync Tools), you're told
+   to run **Sync Tools** once first, since that's what installs `yq`.
+2. **Structure** — the top-level `tools:` key must be a list, and every
+   entry must have both `repo` and `binary`.
+3. **Each repo actually exists** — every `repo:` is checked against
+   `https://api.github.com/repos/<repo>/releases/latest`, the same
+   endpoint Sync Tools itself uses to find the latest release. A typo'd
+   or renamed repository, or one with no published releases, is caught
+   here instead of failing partway through an actual sync.
+
+Progress streams live above the editor as each repo is checked, so a slow
+GitHub response doesn't look like the page has hung. If anything fails,
+the file is left untouched, the specific problem(s) are listed, and your
+edits stay in the editor to fix and retry — nothing is lost. If every
+check passes, the file is saved and **Sync Tools** runs automatically.
 
 ----------------------------------------------------------------
 
@@ -75,10 +109,11 @@ summary of every `haas-*` service and its current state.
 1. Click **Edit Services**, then pick a unit file from the dropdown that
    appears.
 2. The file loads into an editor. Every other button is locked while
-   editing except **Save & Reload** and **Cancel**.
-3. **Save & Reload** writes the file and runs `systemctl daemon-reload`,
-   followed by `systemctl status <service>` so you can confirm it's
-   still healthy.
+   editing except **Save & Restart** and **Cancel**.
+3. **Save & Restart** asks for confirmation, then writes the file, runs
+   `systemctl daemon-reload`, restarts the service, and finishes with
+   `systemctl status <service>` so you can confirm it came back up
+   cleanly.
 4. **Cancel** discards your changes and returns to the log/output view.
 
 ----------------------------------------------------------------

@@ -24,6 +24,7 @@ const servicesList         = document.getElementById("servicesList");
 const serviceEditorSection = document.getElementById("serviceEditorSection");
 const serviceEditorArea    = document.getElementById("serviceEditorArea");
 const serviceEditorLabel   = document.getElementById("serviceEditorLabel");
+const editorValidationMsg  = document.getElementById("editorValidationMsg");
 const saveServiceBtn       = document.getElementById("saveServiceBtn");
 const cancelServiceEditBtn = document.getElementById("cancelServiceEditBtn");
 const createServiceForm    = document.getElementById("createServiceForm");
@@ -32,8 +33,84 @@ const svcName              = document.getElementById("svcName");
 const svcIpAddress         = document.getElementById("svcIpAddress");
 const svcPort              = document.getElementById("svcPort");
 
+const editSyncToolsBtn = document.getElementById("editSyncToolsBtn");
+
+const TOOLS_YAML_PATH = "/usr/local/sbin/tools.yaml";
+const TOOLS_YAML_VALIDATE_TMP_PREFIX = "/tmp/tools.yaml.validate.";
+
+// Runs against a scratch copy of the edited tools.yaml, never the real
+// file. Checks (in order): yq is installed, the YAML parses, the top-level
+// "tools:" key is a list, and every entry has both repo/binary — then, for
+// each repo, that it actually exists on GitHub and has a published release
+// (the same endpoint gh_install_inventory itself calls), so a typo or a
+// renamed/deleted repo is caught here instead of failing mid-sync.
+var TOOLS_YAML_VALIDATE_SCRIPT = [
+    "set -u",
+    "tmp=\"$1\"",
+    "",
+    "if ! command -v yq >/dev/null 2>&1; then",
+    "    echo \"yq is not installed yet. Run the Sync Tools button once first, then try Edit Sync Tools again.\"",
+    "    exit 1",
+    "fi",
+    "",
+    "yq_err=$(yq eval '.' \"$tmp\" 2>&1 >/dev/null)",
+    "if [ -n \"$yq_err\" ]; then",
+    "    echo \"Invalid YAML syntax:\"",
+    "    echo \"$yq_err\"",
+    "    exit 1",
+    "fi",
+    "",
+    "list_type=$(yq eval '.tools | type' \"$tmp\" 2>/dev/null)",
+    "if [ \"$list_type\" != \"!!seq\" ]; then",
+    "    echo \"Invalid structure: top-level tools: must be a list.\"",
+    "    exit 1",
+    "fi",
+    "",
+    "count=$(yq eval '.tools | length' \"$tmp\")",
+    "problems=()",
+    "",
+    "for i in $(seq 0 $((count - 1))); do",
+    "    repo=$(yq eval \".tools[$i].repo\" \"$tmp\")",
+    "    binary=$(yq eval \".tools[$i].binary\" \"$tmp\")",
+    "    entry_num=$((i + 1))",
+    "",
+    "    if [ \"$repo\" = \"null\" ] || [ -z \"$repo\" ]; then",
+    "        problems+=(\"Entry $entry_num is missing repo\")",
+    "        continue",
+    "    fi",
+    "    if [ \"$binary\" = \"null\" ] || [ -z \"$binary\" ]; then",
+    "        problems+=(\"Entry $entry_num ($repo) is missing binary\")",
+    "        continue",
+    "    fi",
+    "",
+    "    echo \"Checking $repo on GitHub...\"",
+    "    code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 \"https://api.github.com/repos/$repo/releases/latest\")",
+    "",
+    "    if [ \"$code\" = \"200\" ]; then",
+    "        echo \"[OK] $repo\"",
+    "    elif [ \"$code\" = \"000\" ]; then",
+    "        problems+=(\"Entry $entry_num ($repo): could not reach GitHub to verify, check network connectivity and try again\")",
+    "    elif [ \"$code\" = \"404\" ]; then",
+    "        problems+=(\"Entry $entry_num ($repo): not found on GitHub, or has no published releases\")",
+    "    else",
+    "        problems+=(\"Entry $entry_num ($repo): unexpected GitHub API response $code\")",
+    "    fi",
+    "done",
+    "",
+    "if [ \"${#problems[@]}\" -gt 0 ]; then",
+    "    echo \"\"",
+    "    echo \"VALIDATION FAILED:\"",
+    "    printf '%s\\n' \"${problems[@]}\"",
+    "    exit 1",
+    "fi",
+    "",
+    "echo \"\"",
+    "echo \"All $count entries valid.\""
+].join("\n");
+
 var currentServicePath = null;
 var isCreatingService = false;
+var isEditingToolsYaml = false;
 var serviceListMode = "edit"; // "edit" or "delete"
 
 var liveLogProcess = null;
@@ -62,6 +139,7 @@ function disableButtons(state) {
     updateBtn.disabled = state;
     rebootBtn.disabled = state;
     syncToolsBtn.disabled = state;
+    editSyncToolsBtn.disabled = state;
     cockpitLogBtn.disabled = state;
     sshLogBtn.disabled = state;
     sambaLogBtn.disabled = state;
@@ -80,10 +158,25 @@ function showServiceEditor(path, content) {
     currentServicePath = path;
     serviceEditorLabel.textContent = path + " — edit below, then click Save & Restart";
     saveServiceBtn.textContent = "Save & Restart";
+    editorValidationMsg.classList.add("hidden");
     serviceEditorArea.value = content;
     output.classList.add("hidden");
     serviceEditorSection.classList.remove("hidden");
     // Lock system/log buttons while editing; keep save/cancel accessible
+    disableButtons(true);
+    saveServiceBtn.disabled = false;
+    cancelServiceEditBtn.disabled = false;
+}
+
+// Show the tools.yaml editor, hiding the output <pre> — mirrors showServiceEditor
+function showToolsYamlEditor(content) {
+    serviceEditorLabel.textContent = TOOLS_YAML_PATH + " — edit below, then click Save & Sync";
+    saveServiceBtn.textContent = "Save & Sync";
+    editorValidationMsg.classList.add("hidden");
+    editorValidationMsg.textContent = "";
+    serviceEditorArea.value = content;
+    output.classList.add("hidden");
+    serviceEditorSection.classList.remove("hidden");
     disableButtons(true);
     saveServiceBtn.disabled = false;
     cancelServiceEditBtn.disabled = false;
@@ -94,6 +187,7 @@ function hideServiceEditor() {
     serviceEditorSection.classList.add("hidden");
     createServiceForm.classList.add("hidden");
     serviceEditorArea.classList.remove("hidden");
+    editorValidationMsg.classList.add("hidden");
     svcDescription.value = "";
     svcName.value = "";
     svcIpAddress.value = "";
@@ -101,12 +195,14 @@ function hideServiceEditor() {
     output.classList.remove("hidden");
     servicesList.classList.add("hidden");
     currentServicePath = null;
+    isEditingToolsYaml = false;
     disableButtons(false);
 }
 
 function showCreateServiceForm() {
     serviceEditorLabel.textContent = "New service — fill in all fields, then click Save & Reload";
     saveServiceBtn.textContent = "Save & Reload";
+    editorValidationMsg.classList.add("hidden");
     createServiceForm.classList.remove("hidden");
     serviceEditorArea.classList.add("hidden");
     output.classList.add("hidden");
@@ -621,9 +717,96 @@ createServiceBtn.addEventListener("click", function() {
     showCreateServiceForm();
 });
 
+// ── Edit Sync Tools ───────────────────────────────────────────────────────────
+
+editSyncToolsBtn.addEventListener("click", function() {
+    stopLiveLog();
+    setActiveLogBtn(null);
+    output.textContent = "Loading " + TOOLS_YAML_PATH + "...\n";
+    output.classList.remove("hidden");
+
+    cockpit.file(TOOLS_YAML_PATH, { superuser: "require" }).read()
+        .done(function(content) {
+            if (content === null) {
+                output.textContent = "ERROR: Could not read " + TOOLS_YAML_PATH + "\n";
+                return;
+            }
+            isEditingToolsYaml = true;
+            showToolsYamlEditor(content);
+        })
+        .fail(function(ex) {
+            output.textContent = "ERROR reading " + TOOLS_YAML_PATH + ": " + (ex.message || JSON.stringify(ex)) + "\n";
+        });
+});
+
 // ── Save & Reload daemon ──────────────────────────────────────────────────────
 
 saveServiceBtn.addEventListener("click", function() {
+    if (isEditingToolsYaml) {
+        var yamlContent = serviceEditorArea.value;
+        if (!yamlContent.trim()) {
+            editorValidationMsg.textContent = "ERROR: Editor is empty — not saving.";
+            editorValidationMsg.classList.remove("hidden");
+            return;
+        }
+
+        if (!confirm("This will overwrite " + TOOLS_YAML_PATH + " and run Sync Tools. Continue?")) {
+            return;
+        }
+
+        disableButtons(true);
+        saveServiceBtn.disabled = true;
+        cancelServiceEditBtn.disabled = true;
+        editorValidationMsg.textContent = "";
+        editorValidationMsg.classList.remove("hidden");
+        serviceEditorLabel.textContent = "Validating tools.yaml — checking each repo on GitHub...";
+
+        var tmpPath = TOOLS_YAML_VALIDATE_TMP_PREFIX + Date.now();
+
+        cockpit.file(tmpPath).replace(yamlContent)
+            .done(function() {
+                cockpit.spawn(
+                    ["bash", "-c", TOOLS_YAML_VALIDATE_SCRIPT, "bash", tmpPath],
+                    { err: "message" }
+                )
+                    .stream(function(data) {
+                        editorValidationMsg.textContent += data;
+                        editorValidationMsg.scrollTop = editorValidationMsg.scrollHeight;
+                    })
+                    .done(function() {
+                        cockpit.spawn(["rm", "-f", tmpPath]);
+                        isEditingToolsYaml = false;
+                        hideServiceEditor();
+
+                        cockpit.file(TOOLS_YAML_PATH, { superuser: "require" }).replace(yamlContent)
+                            .done(function() {
+                                syncTools();
+                            })
+                            .fail(function(ex) {
+                                output.textContent += "\nERROR saving " + TOOLS_YAML_PATH + ": " + (ex.message || JSON.stringify(ex)) + "\n";
+                            });
+                    })
+                    .fail(function(ex) {
+                        cockpit.spawn(["rm", "-f", tmpPath]);
+                        if (ex.message) editorValidationMsg.textContent += "\n" + ex.message;
+                        editorValidationMsg.textContent += "\n\nNothing was saved — fix the issue(s) above and try again.";
+                        serviceEditorLabel.textContent = TOOLS_YAML_PATH + " — edit below, then click Save & Sync";
+                        disableButtons(true);
+                        saveServiceBtn.disabled = false;
+                        cancelServiceEditBtn.disabled = false;
+                    });
+            })
+            .fail(function(ex) {
+                editorValidationMsg.textContent = "ERROR writing temp file for validation: " + (ex.message || JSON.stringify(ex));
+                editorValidationMsg.classList.remove("hidden");
+                serviceEditorLabel.textContent = TOOLS_YAML_PATH + " — edit below, then click Save & Sync";
+                disableButtons(true);
+                saveServiceBtn.disabled = false;
+                cancelServiceEditBtn.disabled = false;
+            });
+        return;
+    }
+
     if (isCreatingService) {
         var description = svcDescription.value.trim();
         var machine     = svcName.value.trim().toLowerCase();

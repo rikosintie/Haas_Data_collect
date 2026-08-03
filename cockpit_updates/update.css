@@ -219,6 +219,21 @@ pre {
     margin-bottom: 6px;
 }
 
+/* Validation feedback (e.g. tools.yaml checks) shown above the editor */
+#editorValidationMsg {
+    font-family: monospace;
+    font-size: 13px;
+    color: #ffb3b3;
+    background: #2a1414;
+    border: 1px solid #663333;
+    border-radius: 4px;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    max-height: 200px;
+    overflow: auto;
+    white-space: pre-wrap;
+}
+
 #serviceEditorArea {
     display: block;
     width: 100%;
