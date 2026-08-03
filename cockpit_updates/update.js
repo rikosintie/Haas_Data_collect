@@ -20,6 +20,7 @@ const serviceStateBtn      = document.getElementById("serviceStateBtn");
 const editServicesBtn      = document.getElementById("editServicesBtn");
 const createServiceBtn     = document.getElementById("createServiceBtn");
 const deleteServiceBtn     = document.getElementById("deleteServiceBtn");
+const dataFreshnessBtn     = document.getElementById("dataFreshnessBtn");
 const servicesList         = document.getElementById("servicesList");
 const serviceEditorSection = document.getElementById("serviceEditorSection");
 const serviceEditorArea    = document.getElementById("serviceEditorArea");
@@ -135,6 +136,47 @@ var HAAS_PORTS_SCRIPT = [
     "}'"
 ].join("\n");
 
+const HAAS_MACHINES_DIR = "/home/haas/Haas_Data_collect/machines";
+
+// For each machine directory, finds the newest file under its cnc_logs/
+// (however it was set up — append mode or per-cycle files, doesn't
+// matter, just the most recently modified one) and lists them oldest
+// first, so a machine that's silently stopped writing data floats to the
+// top instead of only being noticed when someone goes looking for it.
+var HAAS_DATA_FRESHNESS_SCRIPT = [
+    "base=\"" + HAAS_MACHINES_DIR + "\"",
+    "now=$(date +%s)",
+    "",
+    "for dir in \"$base\"/*/; do",
+    "    [ -d \"$dir\" ] || continue",
+    "    machine=$(basename \"$dir\")",
+    "    logdir=\"${dir}cnc_logs\"",
+    "",
+    "    if [ ! -d \"$logdir\" ]; then",
+    "        echo \"0|$machine|no cnc_logs directory yet\"",
+    "        continue",
+    "    fi",
+    "",
+    "    newest_ts=$(find \"$logdir\" -maxdepth 1 -type f -printf '%T@\\n' 2>/dev/null | sort -rn | head -1)",
+    "    newest_ts=${newest_ts%.*}",
+    "",
+    "    if [ -z \"$newest_ts\" ]; then",
+    "        echo \"0|$machine|no data files found\"",
+    "        continue",
+    "    fi",
+    "",
+    "    age=$(( now - newest_ts ))",
+    "    if [ $age -lt 60 ]; then agestr=\"${age}s ago\"",
+    "    elif [ $age -lt 3600 ]; then agestr=\"$((age / 60))m ago\"",
+    "    elif [ $age -lt 86400 ]; then agestr=\"$((age / 3600))h ago\"",
+    "    else agestr=\"$((age / 86400))d ago\"",
+    "    fi",
+    "",
+    "    when=$(date -d @\"$newest_ts\" '+%Y-%m-%d %H:%M:%S')",
+    "    echo \"$newest_ts|$machine|$when ($agestr)\"",
+    "done | sort -t'|' -k1,1n | awk -F'|' '{printf \"%-15s %s\\n\", $2, $3}'"
+].join("\n");
+
 var currentServicePath = null;
 var isCreatingService = false;
 var isEditingToolsYaml = false;
@@ -178,6 +220,7 @@ function disableButtons(state) {
     editServicesBtn.disabled = state;
     createServiceBtn.disabled = state;
     deleteServiceBtn.disabled = state;
+    dataFreshnessBtn.disabled = state;
 }
 
 // Show the service editor, hiding the output <pre>
@@ -578,6 +621,26 @@ serviceStateBtn.addEventListener("click", function() {
         .fail(function(ex, data) {
             output.textContent += "\nERROR: " + (ex.message || JSON.stringify(ex));
             if (data) output.textContent += "\n" + data;
+            setActiveLogBtn(null);
+        });
+});
+
+// ── Data Freshness ────────────────────────────────────────────────────────────
+
+dataFreshnessBtn.addEventListener("click", function() {
+    stopLiveLog();
+    setActiveLogBtn(dataFreshnessBtn);
+    output.textContent = "--- Data Freshness (newest file in each machine's cnc_logs/) ---\n\n";
+
+    cockpit.spawn(["bash", "-c", HAAS_DATA_FRESHNESS_SCRIPT], { superuser: "require", err: "message" })
+        .done(function(data) {
+            output.textContent += data || "(no machine directories found under " + HAAS_MACHINES_DIR + ")";
+        })
+        .fail(function(ex, data) {
+            output.textContent += "\nERROR: " + (ex.message || JSON.stringify(ex));
+            if (data) output.textContent += "\n" + data;
+        })
+        .always(function() {
             setActiveLogBtn(null);
         });
 });
