@@ -626,6 +626,30 @@ document.querySelectorAll("input[name='ufwFilter']").forEach(function(radio) {
     });
 });
 
+// Real-time filtering: these values feed journalctl's --grep= regex, so
+// keeping them digits/dots-only (a real IP or port never needs anything
+// else) closes off any pathological-regex input entirely, not just the
+// common cases — a paste is filtered the same as typing.
+document.getElementById("scriptsIpFilter").addEventListener("input", function() {
+    var el = this;
+    var pos = el.selectionStart;
+    var cleaned = el.value.replace(/[^0-9.]/g, "");
+    if (cleaned !== el.value) {
+        el.value = cleaned;
+        el.setSelectionRange(pos - 1, pos - 1);
+    }
+});
+
+document.getElementById("scriptsPortFilter").addEventListener("input", function() {
+    var el = this;
+    var pos = el.selectionStart;
+    var cleaned = el.value.replace(/[^0-9]/g, "");
+    if (cleaned !== el.value) {
+        el.value = cleaned;
+        el.setSelectionRange(pos - 1, pos - 1);
+    }
+});
+
 // Changing IP/Port while Scripts is live auto-restarts the stream
 ["scriptsIpFilter", "scriptsPortFilter"].forEach(function(id) {
     document.getElementById(id).addEventListener("change", function() {
