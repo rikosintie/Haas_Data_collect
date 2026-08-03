@@ -180,3 +180,24 @@ Address, Port) instead of a raw editor — this generates a new
 Pick a unit file from the dropdown after clicking **Delete Service**.
 Confirms first (**"This cannot be undone"**), then stops, disables, and
 removes the unit file, followed by `systemctl daemon-reload`.
+
+----------------------------------------------------------------
+
+### Data Freshness
+
+Click **Data Freshness** for a one-shot list of when each machine under
+`/home/haas/Haas_Data_collect/machines/` last wrote a CSV file — the
+newest file in that machine's `cnc_logs/` directory, however logging was
+set up (append mode or per-cycle files, it just checks modification
+time).
+
+The list is sorted **oldest first**, so a machine that's silently stopped
+producing data floats straight to the top instead of only being noticed
+whenever someone happens to go looking for it. A machine directory with
+no `cnc_logs/` yet (e.g. a service that's never completed a cycle) or an
+empty one is called out the same way, right alongside the rest.
+
+This doesn't tell you *why* a machine stopped writing — pair it with
+**Service State**'s IP/port/duplicate check and the **Scripts** log
+(Logs section, filtered to that machine's IP/port) to see whether it's a
+connection problem, a wrong/duplicate port, or something else.
