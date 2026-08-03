@@ -482,13 +482,13 @@ servicesList.addEventListener("change", function() {
 
         cockpit.spawn(["systemctl", "stop", name], { superuser: "require", err: "message" })
             .done(function() {
-                output.textContent += "Stopped. Disabling " + name + "...\n";
+                output.textContent += "Stopped.\n\nDisabling " + name + "...\n";
                 cockpit.spawn(["systemctl", "disable", name], { superuser: "require", err: "message" })
                     .done(function() {
-                        output.textContent += "Disabled. Removing " + path + "...\n";
+                        output.textContent += "Disabled.\n\nRemoving " + path + "...\n";
                         cockpit.spawn(["rm", path], { superuser: "require", err: "message" })
                             .done(function() {
-                                output.textContent += "Removed. Running systemctl daemon-reload...\n";
+                                output.textContent += "Removed.\n\nRunning systemctl daemon-reload...\n";
                                 cockpit.spawn(["systemctl", "daemon-reload"], { superuser: "require", err: "message" })
                                     .done(function() {
                                         output.textContent += name + " deleted successfully.\n";
@@ -633,19 +633,19 @@ saveServiceBtn.addEventListener("click", function() {
             .replace(content)
             .done(function() {
                 var workDir = "/home/haas/Haas_Data_collect/machines/" + machine;
-                output.textContent += "Saved. Creating " + workDir + "...\n";
+                output.textContent += "Saved.\n\nCreating " + workDir + "...\n";
                 cockpit.spawn(["mkdir", "-p", workDir], { superuser: "require", err: "message" })
                     .done(function() {
-                        output.textContent += "Directory ready. Running systemctl daemon-reload...\n";
+                        output.textContent += "Directory ready.\n\nRunning systemctl daemon-reload...\n";
                         cockpit.spawn(["systemctl", "daemon-reload"], { superuser: "require", err: "message" })
                             .done(function() {
-                                output.textContent += "daemon-reload complete. Enabling " + serviceName + "...\n";
+                                output.textContent += "daemon-reload complete.\n\nEnabling " + serviceName + "...\n";
                                 cockpit.spawn(["systemctl", "enable", serviceName], { superuser: "require", err: "message" })
                                     .done(function() {
-                                        output.textContent += "Enabled. Starting " + serviceName + "...\n";
+                                        output.textContent += "Enabled.\n\nStarting " + serviceName + "...\n";
                                         cockpit.spawn(["systemctl", "start", serviceName], { superuser: "require", err: "message" })
                                             .done(function() {
-                                                output.textContent += serviceName + " started successfully.\n";
+                                                output.textContent += serviceName + " started successfully.\n\n--- systemctl status ---\n";
                                                 cockpit.spawn(["systemctl", "status", serviceName], { superuser: "require", err: "message" })
                                                     .done(function(data) {
                                                         output.textContent += data;
@@ -709,11 +709,11 @@ saveServiceBtn.addEventListener("click", function() {
     cockpit.file(path, { superuser: "require" })
         .replace(content)
         .done(function() {
-            output.textContent += "Saved. Running systemctl daemon-reload...\n";
+            output.textContent += "Saved.\n\nRunning systemctl daemon-reload...\n";
 
             cockpit.spawn(["systemctl", "daemon-reload"], { superuser: "require", err: "message" })
                 .done(function() {
-                    output.textContent += "daemon-reload complete. Restarting " + editedService + "...\n";
+                    output.textContent += "daemon-reload complete.\n\nRestarting " + editedService + "...\n";
                     cockpit.spawn(["systemctl", "restart", editedService], { superuser: "require", err: "message" })
                         .done(function() {
                             output.textContent += editedService + " restarted.\n\n--- systemctl status ---\n";
