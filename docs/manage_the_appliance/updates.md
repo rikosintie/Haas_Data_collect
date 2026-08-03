@@ -124,7 +124,15 @@ data-collection scripts.
 ### Service State
 
 Click **Service State** for a one-shot `systemctl list-unit-files`
-summary of every `haas-*` service and its current state.
+summary of every `haas-*` service and its current state, followed by:
+
+- a reminder that the unit files live in `/etc/systemd/system`
+- the same IP/port/name breakdown as the `haas-ports` terminal alias, with
+  any **duplicate ports flagged** — two services both pointing
+  `-t <ip> --port <port>` at the same address means one of them is very
+  likely connecting to the wrong machine, which is exactly the kind of
+  thing that shows up as "this CNC just isn't writing a CSV" with no
+  obvious error to explain why.
 
 ----------------------------------------------------------------
 
@@ -161,7 +169,9 @@ Address, Port) instead of a raw editor — this generates a new
   `/home/haas/Haas_Data_collect/machines/<machine>`, then runs
   `daemon-reload`, `enable`, and `start` for the new service — the output
   pane shows each step, ending with `systemctl status` for the new
-  service.
+  service, followed by the same IP/port/name breakdown (with duplicate
+  ports flagged) shown by **Service State** — a quick way to catch a
+  copy-pasted port before it causes a silent connection mix-up.
 
 ----------------------------------------------------------------
 
