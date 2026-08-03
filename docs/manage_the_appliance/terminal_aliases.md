@@ -2,11 +2,38 @@
 
 ----------------------------------------------------------------
 
-`setup_zsh.sh` installs zsh + Oh My Zsh for the `haas` user and drops
-`haas-aliases.zsh` into `~/.oh-my-zsh/custom/`, so every alias and
-function below is available automatically in any SSH session as `haas`.
+![screenshot](./img/Tux_terminal.resized.jpg)
+
+----------------------------------------------------------------
+
+## The shell wars
+
+There are a lot of shells available on Linux including `Warp` a shell with AI built in. If you want to read more about some of them you can look at my [Ubuntu for Network Engineers page](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal){: target="_blank" rel="noopener" }
+
+I chose the ZSH shell for the appliance. It's well maintained and has a very active plugins project. The `haas-install.sh` script calls `setup_zsh.sh` to installs zsh + Oh My Zsh for the `haas` user and drops `haas-aliases.zsh` into `~/.oh-my-zsh/custom/`, so every alias and function below is available automatically in any SSH session as `haas`.
+
+## Opening the terminal
+
+To log into the appliance using SSH:
+
+- Open a terminal
+- enter `ssh haas@<appliance_ip>`
+- Type the `haas` user password
+- Press enter
+
+----------------------------------------------------------------
+
+You don't have to use SSH to get into the terminal on the appliance. The Cockpit webpage has a menu for the terminal. Click the `Terminal` menu on the navigation bar and the terminal opens.
+
+----------------------------------------------------------------
+
+![screenshot](./img/terminal.resized.png)
+
+----------------------------------------------------------------
 
 **Quick reference, without leaving the terminal:**
+
+All of the aliases are available but they aren't shown onscreen like they are when you login over SSH. To run them enter:
 
 - `haas-help` — lists every `haas-*`/`t-*` alias and function
 - `haas-docs` — the same list, with a description for each
