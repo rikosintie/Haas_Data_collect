@@ -15,10 +15,16 @@ sidebar.
 ## Logs
 
 **Scripts** streams the CNC machine-logger output (`journalctl -t
-python3`) into the output pane, with optional **IP** / **Port** text
-filters. **Stop** ends the stream. Changing the filter while the stream
-is running automatically restarts it with the new filter applied — no
-need to stop and re-click.
+python3`) into the output pane, with optional **Machine** / **IP** /
+**Port** text filters. **Stop** ends the stream. Changing any filter
+while the stream is running automatically restarts it with the new
+filter applied — no need to stop and re-click.
+
+**Machine** matches every line's `[MACHINE]` prefix (e.g. `ST44`), which
+`haas_logger2.py` includes on *every* message for that machine — not just
+the ones that happen to mention its IP/port. Filtering by Machine alone
+is the most complete way to isolate one machine's activity; combining it
+with IP/Port narrows further, to lines that mention both.
 
 In this screenshot I am filtering the Python log from my laptop at
 192.168.10.143:

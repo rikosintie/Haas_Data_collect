@@ -147,6 +147,7 @@ var isScriptsLive = false;
 var logSessionId = 0;
 
 function setScriptsFilterEnabled(state) {
+    document.getElementById("scriptsMachineFilter").disabled = !state;
     document.getElementById("scriptsIpFilter").disabled = !state;
     document.getElementById("scriptsPortFilter").disabled = !state;
 }
@@ -266,28 +267,40 @@ function startLiveLog(args, label) {
 }
 
 function startScriptsLive() {
-    var ip   = document.getElementById("scriptsIpFilter").value.trim();
-    var port = document.getElementById("scriptsPortFilter").value.trim();
+    var machine = document.getElementById("scriptsMachineFilter").value.trim();
+    var ip      = document.getElementById("scriptsIpFilter").value.trim();
+    var port    = document.getElementById("scriptsPortFilter").value.trim();
 
-    var pattern, label;
-
+    // haas_logger2.py prefixes every line with "[MACHINE]", so filtering on
+    // that alone (unlike IP/Port) shows the machine's full chatter, not just
+    // the lines that happen to also mention its ip:port (e.g. "Reconnecting
+    // in 5 seconds..." never repeats the address). Combining machine with
+    // IP/Port narrows to lines containing both, in that order.
+    var ipPortPattern = "";
     if (ip && port) {
-        pattern = ip + ":" + port;
-        label   = "Scripts Log (" + ip + ":" + port + ")";
+        ipPortPattern = ip + ":" + port;
     } else if (ip) {
-        pattern = ip;
-        label   = "Scripts Log (" + ip + ")";
+        ipPortPattern = ip;
     } else if (port) {
-        pattern = ":" + port;
-        label   = "Scripts Log (port " + port + ")";
-    } else {
-        label   = "Scripts Log";
+        ipPortPattern = ":" + port;
     }
 
+    var pattern = "";
+    if (machine) pattern += "\\[" + machine + "\\]";
+    if (ipPortPattern) pattern += (pattern ? ".*" : "") + ipPortPattern;
+
+    var labelParts = [];
+    if (machine) labelParts.push(machine);
+    if (ip && port) labelParts.push(ip + ":" + port);
+    else if (ip) labelParts.push(ip);
+    else if (port) labelParts.push("port " + port);
+
+    var label = labelParts.length ? "Scripts Log (" + labelParts.join(", ") + ")" : "Scripts Log";
+
     // -t python3 filters by syslog identifier (process name field, not message body).
-    // --grep= is added only when IP/port filtering is needed (searches message content).
+    // --grep= is added only when Machine/IP/Port filtering is needed (searches message content).
     var args = ["journalctl", "-t", "python3", "-n", "50", "-f", "--no-pager"];
-    if (ip || port) args.push("--grep=" + pattern);
+    if (pattern) args.push("--grep=" + pattern);
     startLiveLog(args, label);
     isScriptsLive = true;
     setScriptsFilterEnabled(true);
@@ -297,9 +310,21 @@ function startScriptsLive() {
 scriptsLogBtn.addEventListener("click", startScriptsLive);
 
 // Real-time filtering: these values feed journalctl's --grep= regex, so
-// keeping them digits/dots-only (a real IP or port never needs anything
-// else) closes off any pathological-regex input entirely, not just the
-// common cases — a paste is filtered the same as typing.
+// restricting each to its expected character set (a real machine name, IP,
+// or port never needs anything else) closes off any pathological-regex
+// input entirely, not just the common cases — a paste is filtered the
+// same as typing. Machine name uses the same character set Create
+// Service enforces, since that's what actually produced the name.
+document.getElementById("scriptsMachineFilter").addEventListener("input", function() {
+    var el = this;
+    var pos = el.selectionStart;
+    var cleaned = el.value.replace(/[^0-9a-zA-Z_-]/g, "");
+    if (cleaned !== el.value) {
+        el.value = cleaned;
+        el.setSelectionRange(pos - 1, pos - 1);
+    }
+});
+
 document.getElementById("scriptsIpFilter").addEventListener("input", function() {
     var el = this;
     var pos = el.selectionStart;
@@ -320,8 +345,8 @@ document.getElementById("scriptsPortFilter").addEventListener("input", function(
     }
 });
 
-// Changing IP/Port while Scripts is live auto-restarts the stream
-["scriptsIpFilter", "scriptsPortFilter"].forEach(function(id) {
+// Changing Machine/IP/Port while Scripts is live auto-restarts the stream
+["scriptsMachineFilter", "scriptsIpFilter", "scriptsPortFilter"].forEach(function(id) {
     document.getElementById(id).addEventListener("change", function() {
         if (isScriptsLive) {
             startScriptsLive();
