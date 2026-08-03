@@ -136,6 +136,42 @@ var HAAS_PORTS_SCRIPT = [
     "}'"
 ].join("\n");
 
+// One-shot TCP reachability check (nc -z) per service's "-t <ip> --port
+// <port>". Run on demand from Service State, not automatically after
+// Create Service — during initial deployment an MSP will often create
+// every service before the machine shop has configured the actual CNCs
+// to connect, so "not reachable" there would just be the normal,
+// expected state rather than a problem to chase.
+var HAAS_CONNECTIVITY_SCRIPT = [
+    "echo",
+    "echo \"--- Connectivity Check (nc -z, 2s timeout per machine) ---\"",
+    "echo \"Note: 'not reachable' is expected until the machine/CNC is actually configured to connect on that port -- it isn't necessarily an error.\"",
+    "echo",
+    "grep -Ei \"python3\" " + HAAS_SYSTEMD_DIR + "/haas*.service 2>/dev/null | cut -d' ' -f4- | sort -k 3 |",
+    "while read -r line; do",
+    "    ip=\"\"; port=\"\"; name=\"\"",
+    "    set -- $line",
+    "    while [ $# -gt 0 ]; do",
+    "        case \"$1\" in",
+    "            --port) port=\"$2\"; shift 2 ;;",
+    "            --name) name=\"$2\"; shift 2 ;;",
+    "            -t) ip=\"$2\"; shift 2 ;;",
+    "            *) shift ;;",
+    "        esac",
+    "    done",
+    "",
+    "    if [ -z \"$ip\" ] || [ -z \"$port\" ]; then",
+    "        continue",
+    "    fi",
+    "",
+    "    if nc -z -w 2 \"$ip\" \"$port\" 2>/dev/null; then",
+    "        printf \"%-15s %s:%-6s reachable\\n\" \"$name\" \"$ip\" \"$port\"",
+    "    else",
+    "        printf \"%-15s %s:%-6s not reachable\\n\" \"$name\" \"$ip\" \"$port\"",
+    "    fi",
+    "done"
+].join("\n");
+
 const HAAS_MACHINES_DIR = "/home/haas/Haas_Data_collect/machines";
 
 // For each machine directory, finds the newest file under its cnc_logs/
@@ -609,12 +645,22 @@ serviceStateBtn.addEventListener("click", function() {
             cockpit.spawn(["bash", "-c", HAAS_PORTS_SCRIPT], { superuser: "require", err: "message" })
                 .done(function(portData) {
                     output.textContent += portData;
+
+                    cockpit.spawn(["bash", "-c", HAAS_CONNECTIVITY_SCRIPT], { superuser: "require", err: "message" })
+                        .done(function(connData) {
+                            output.textContent += connData;
+                        })
+                        .fail(function(ex, data3) {
+                            output.textContent += "\nERROR checking connectivity: " + (ex.message || JSON.stringify(ex));
+                            if (data3) output.textContent += "\n" + data3;
+                        })
+                        .always(function() {
+                            setActiveLogBtn(null);
+                        });
                 })
                 .fail(function(ex, data2) {
                     output.textContent += "\nERROR checking ports: " + (ex.message || JSON.stringify(ex));
                     if (data2) output.textContent += "\n" + data2;
-                })
-                .always(function() {
                     setActiveLogBtn(null);
                 });
         })

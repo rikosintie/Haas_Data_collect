@@ -133,6 +133,20 @@ summary of every `haas-*` service and its current state, followed by:
   likely connecting to the wrong machine, which is exactly the kind of
   thing that shows up as "this CNC just isn't writing a CSV" with no
   obvious error to explain why.
+- a one-shot TCP reachability check (`nc -z`, 2s timeout) against each
+  service's `-t <ip> --port <port>`
+
+!!! note "\"Not reachable\" isn't always a problem"
+    This check is deliberately only run here, on demand, and not
+    automatically right after Create Service. During initial deployment
+    it's common for services to be created before the machine shop has
+    configured the actual CNC to connect on that port — in that window,
+    every machine will correctly show "not reachable," and that's normal,
+    not an error. Run **Service State** once you expect the machines to
+    actually be talking; a machine that stays unreachable at that point is
+    worth investigating (wrong IP/port, firewall, machine powered off,
+    network issue) — one that was never expected to be connected yet
+    isn't.
 
 ----------------------------------------------------------------
 
