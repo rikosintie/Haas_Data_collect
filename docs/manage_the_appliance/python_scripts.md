@@ -22,9 +22,13 @@ filter applied — no need to stop and re-click.
 
 **Machine** matches every line's `[MACHINE]` prefix (e.g. `ST44`), which
 `haas_logger2.py` includes on *every* message for that machine — not just
-the ones that happen to mention its IP/port. Filtering by Machine alone
-is the most complete way to isolate one machine's activity; combining it
-with IP/Port narrows further, to lines that mention both.
+the ones that happen to mention its IP/port. Because of that, **Machine
+wins outright over IP/Port** rather than combining with them: only the
+very first "Attempting to connect" lines actually repeat the port number,
+so an AND-combination would hide everything else (cycle detection, file
+writes, etc.) the moment both were filled in. Filling in Machine greys
+out IP/Port to make clear they're not being applied — clear Machine to
+use IP/Port filtering instead.
 
 In this screenshot I am filtering the Python log from my laptop at
 192.168.10.143:
@@ -128,6 +132,20 @@ Address, Port) instead of a raw editor — this generates a new
   service, followed by the same IP/port/name breakdown (with duplicate
   ports flagged) shown by **Service State** — a quick way to catch a
   copy-pasted port before it causes a silent connection mix-up.
+
+!!! note "Why the template uses `python3 -u`"
+    The `-u` flag forces unbuffered stdout. Without it, Python fully
+    block-buffers output whenever stdout isn't a real terminal — which is
+    exactly the case under systemd, where stdout goes to journald through
+    a pipe. That means `haas_logger2.py`'s own log lines (`End of cycle
+    detected!`, `Data appended to: ...`, etc.) can sit invisible in the
+    buffer well after the corresponding CSV write has actually completed
+    on disk — a one-off message has nothing to push it over the flush
+    threshold, so it may never show up in the **Scripts** log at all,
+    even though the data was received and saved correctly (visible via
+    **Data Freshness**). `-u` isn't a logging feature you have to add;
+    the log lines already exist in the script — it just makes sure they
+    reach journald promptly instead of sitting buffered.
 
 ----------------------------------------------------------------
 

@@ -150,6 +150,19 @@ function setScriptsFilterEnabled(state) {
     document.getElementById("scriptsMachineFilter").disabled = !state;
     document.getElementById("scriptsIpFilter").disabled = !state;
     document.getElementById("scriptsPortFilter").disabled = !state;
+    if (state) applyMachineFilterAvailability();
+}
+
+// Machine wins outright over IP/Port (see startScriptsLive) — grey IP/Port
+// out whenever Machine has a value, so it's visually obvious they aren't
+// being applied instead of silently having no effect. Only touches them
+// while the Scripts stream is actually live; setScriptsFilterEnabled(false)
+// already disables everything unconditionally otherwise.
+function applyMachineFilterAvailability() {
+    if (!isScriptsLive) return;
+    var machineHasValue = document.getElementById("scriptsMachineFilter").value.trim() !== "";
+    document.getElementById("scriptsIpFilter").disabled = machineHasValue;
+    document.getElementById("scriptsPortFilter").disabled = machineHasValue;
 }
 
 function disableButtons(state) {
@@ -271,31 +284,34 @@ function startScriptsLive() {
     var ip      = document.getElementById("scriptsIpFilter").value.trim();
     var port    = document.getElementById("scriptsPortFilter").value.trim();
 
-    // haas_logger2.py prefixes every line with "[MACHINE]", so filtering on
-    // that alone (unlike IP/Port) shows the machine's full chatter, not just
-    // the lines that happen to also mention its ip:port (e.g. "Reconnecting
-    // in 5 seconds..." never repeats the address). Combining machine with
-    // IP/Port narrows to lines containing both, in that order.
-    var ipPortPattern = "";
-    if (ip && port) {
-        ipPortPattern = ip + ":" + port;
+    // haas_logger2.py prefixes every line with "[MACHINE]", so Machine
+    // alone already shows that machine's full chatter, including lines
+    // like "Reconnecting in 5 seconds..." or "Data appended to: ..." that
+    // never repeat its ip:port. Combining it with IP/Port as an AND (both
+    // substrings on the same line) sounds like it would just narrow
+    // further, but in practice only the initial "Attempting to connect"
+    // lines actually contain the port again — everything else (connection
+    // confirmation, cycle detection, file writes) would silently vanish
+    // from the filter. So Machine wins outright when set; IP/Port only
+    // apply when Machine is empty.
+    var pattern, label;
+
+    if (machine) {
+        pattern = "\\[" + machine + "\\]";
+        label   = "Scripts Log (" + machine + ")";
+    } else if (ip && port) {
+        pattern = ip + ":" + port;
+        label   = "Scripts Log (" + ip + ":" + port + ")";
     } else if (ip) {
-        ipPortPattern = ip;
+        pattern = ip;
+        label   = "Scripts Log (" + ip + ")";
     } else if (port) {
-        ipPortPattern = ":" + port;
+        pattern = ":" + port;
+        label   = "Scripts Log (port " + port + ")";
+    } else {
+        pattern = "";
+        label   = "Scripts Log";
     }
-
-    var pattern = "";
-    if (machine) pattern += "\\[" + machine + "\\]";
-    if (ipPortPattern) pattern += (pattern ? ".*" : "") + ipPortPattern;
-
-    var labelParts = [];
-    if (machine) labelParts.push(machine);
-    if (ip && port) labelParts.push(ip + ":" + port);
-    else if (ip) labelParts.push(ip);
-    else if (port) labelParts.push("port " + port);
-
-    var label = labelParts.length ? "Scripts Log (" + labelParts.join(", ") + ")" : "Scripts Log";
 
     // -t python3 filters by syslog identifier (process name field, not message body).
     // --grep= is added only when Machine/IP/Port filtering is needed (searches message content).
@@ -323,6 +339,7 @@ document.getElementById("scriptsMachineFilter").addEventListener("input", functi
         el.value = cleaned;
         el.setSelectionRange(pos - 1, pos - 1);
     }
+    applyMachineFilterAvailability();
 });
 
 document.getElementById("scriptsIpFilter").addEventListener("input", function() {
@@ -640,7 +657,7 @@ saveServiceBtn.addEventListener("click", function() {
             "[Service]",
             "User=haas",
             "WorkingDirectory=/home/haas/Haas_Data_collect/machines/" + machine,
-            "ExecStart=/usr/bin/python3 /home/haas/Haas_Data_collect/haas_logger2.py -a -t " + ipAddress + " --port " + port + " --name " + machine.toUpperCase(),
+            "ExecStart=/usr/bin/python3 -u /home/haas/Haas_Data_collect/haas_logger2.py -a -t " + ipAddress + " --port " + port + " --name " + machine.toUpperCase(),
             "Type=idle",
             "",
             "[Install]",
