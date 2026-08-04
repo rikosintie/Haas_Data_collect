@@ -65,15 +65,13 @@ text box in place of the output pane, with **Save Changes** and **Cancel**
 buttons. Saving writes the file directly — it does not apply firewall
 changes by itself; use **Apply Firewall Changes** below for that.
 
-## Rollback Firewall Rules from a Backup
+## Output pane
 
-Every time the firewall config is applied, a timestamped copy of the CSV is
-saved to the `BACKUP_DIR` configured in `/etc/haas-firewall.conf`.
-
-1. Click **List Backups** to populate the dropdown from that directory.
-2. Selecting a backup previews its contents in the output pane and fills
-   in the filename field.
-3. Click **Rollback CSV** to run `rollback_csv.sh` against that backup.
+Every command's output streams into the box below **Simulate / Compare**.
+Click **Clear Output** at any time to reset it. It sits directly under
+the read-only Simulate/Compare buttons on purpose, so results are visible
+without scrolling past the less-frequently-used **Rollback** section —
+Rollback lives at the very bottom of the page for that reason.
 
 ## Apply Firewall Changes
 
@@ -95,7 +93,14 @@ saved to the `BACKUP_DIR` configured in `/etc/haas-firewall.conf`.
   anything; if it doesn't, the firewall is left untouched and you get an
   error instead.
 
-## Output pane
+## Rollback Firewall Rules from a Backup
 
-Every command's output streams into the box at the bottom of the page.
-Click **Clear Output** at any time to reset it.
+Every time the firewall config is applied, a timestamped copy of the CSV is
+saved to the `BACKUP_DIR` configured in `/etc/haas-firewall.conf`. This
+section is deliberately last on the page — it's a recovery tool you'll
+reach for far less often than Simulate/Compare or Apply Firewall Changes.
+
+1. Click **List Backups** to populate the dropdown from that directory.
+2. Selecting a backup previews its contents in the output pane and fills
+   in the filename field.
+3. Click **Rollback CSV** to run `rollback_csv.sh` against that backup.

@@ -74,26 +74,6 @@
         </div>
     </div>
 
-    <!-- Rollback CSV Backup -->
-    <div class="section">
-        <h2>Rollback Firewall Rules from a Backup</h2>
-        <p>
-            Restore a previous CSV backup from:
-            <code id="backup-dir-display">reading...</code> as defined in <code>/etc/haas-firewall.conf</code>.
-        </p>
-        <div class="button-row mt-1">
-            <button id="btn-list-backups" class="btn" data-tooltip="List available CSV backups from BACKUP_DIR">List Backups</button>
-        </div>
-        <select id="backup-list" class="backup-select hidden">
-            <option value="">— select a backup file —</option>
-        </select>
-        <label for="backup-name">Backup filename (e.g. users_2025-01-13_12-00-00.csv)</label>
-        <input type="text" id="backup-name" placeholder="Enter backup filename or select above" maxlength="80">
-        <div class="button-row mt-1">
-            <button id="btn-rollback" class="btn" data-tooltip="Select a csv backup to rollback to">Rollback CSV</button>
-        </div>
-    </div>
-
     <!-- Output -->
     <div class="output-section">
         <div class="output-controls">
@@ -127,6 +107,26 @@
         <div class="button-row">
             <button id="btn-reset" class="btn btn-warning" data-tooltip="Deletes all custom firewall rules">Reset Firewall Only</button>
             <button id="btn-apply" class="btn btn-danger" data-tooltip="Apply users.csv or a custom csv file to the firewall">Apply Firewall Changes</button>
+        </div>
+    </div>
+
+    <!-- Rollback CSV Backup -->
+    <div class="section">
+        <h2>Rollback Firewall Rules from a Backup</h2>
+        <p>
+            Restore a previous CSV backup from:
+            <code id="backup-dir-display">reading...</code> as defined in <code>/etc/haas-firewall.conf</code>.
+        </p>
+        <div class="button-row mt-1">
+            <button id="btn-list-backups" class="btn" data-tooltip="List available CSV backups from BACKUP_DIR">List Backups</button>
+        </div>
+        <select id="backup-list" class="backup-select hidden">
+            <option value="">— select a backup file —</option>
+        </select>
+        <label for="backup-name">Backup filename (e.g. users_2025-01-13_12-00-00.csv)</label>
+        <input type="text" id="backup-name" placeholder="Enter backup filename or select above" maxlength="80">
+        <div class="button-row mt-1">
+            <button id="btn-rollback" class="btn" data-tooltip="Select a csv backup to rollback to">Rollback CSV</button>
         </div>
     </div>
 
