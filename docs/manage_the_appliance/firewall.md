@@ -82,10 +82,10 @@ to edit a different file.
       the script itself compares it — any other value becomes an
       `UNKNOWN ROLE` line that's silently skipped when rules are applied)
 
-    If any row fails, nothing is written — the output pane shows exactly
-    which line and why, so you can fix it and click **Save Changes** again.
-    **Edit conf file** has no such check, since `/etc/haas-firewall.conf`
-    isn't row-structured data.
+    If any row fails, nothing is written — a popup names exactly which line
+    and why, and the editor box stays open with your edits intact so you
+    can fix it and click **Save Changes** again. **Edit conf file** has no
+    such check, since `/etc/haas-firewall.conf` isn't row-structured data.
 
 ## Output pane
 

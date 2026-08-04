@@ -399,7 +399,11 @@
                     saveBtn.addEventListener("click", function() {
                         const validationError = validateUsersCsv(textarea.value);
                         if (validationError) {
-                            output.textContent = "ERROR: CSV not saved — " + validationError + "\n";
+                            // Popup, not output.textContent — output is the
+                            // <pre> the textarea itself lives inside, so
+                            // overwriting its text would destroy the editor
+                            // (and the user's unsaved edits) along with it.
+                            alert("CSV not saved — invalid content:\n\n" + validationError);
                             return;
                         }
                         cockpit.file(csvPath, { superuser: "require" })
@@ -465,7 +469,11 @@
                     saveBtn.addEventListener("click", function() {
                         const validationError = validateUsersCsv(textarea.value);
                         if (validationError) {
-                            output.textContent = "ERROR: CSV not saved — " + validationError + "\n";
+                            // Popup, not output.textContent — output is the
+                            // <pre> the textarea itself lives inside, so
+                            // overwriting its text would destroy the editor
+                            // (and the user's unsaved edits) along with it.
+                            alert("CSV not saved — invalid content:\n\n" + validationError);
                             return;
                         }
                         cockpit.file(csvPath, { superuser: "require" })
