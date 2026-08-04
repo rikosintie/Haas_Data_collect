@@ -85,9 +85,13 @@ saved to the `BACKUP_DIR` configured in `/etc/haas-firewall.conf`.
   Asks for confirmation first.
 - **Apply Firewall Changes** — runs `configure_ufw_from_csv.sh` against
   `users.csv` (or a custom CSV path, if you check **Use custom CSV file**
-  and provide one). Asks for confirmation, then checks the CSV file
-  actually exists before touching anything — if it doesn't, the firewall is
-  left untouched and you get an error instead.
+  and provide one). Checking that box pre-fills the path field with
+  `/home/haas/Haas_Data_collect/users1.csv` as a starting point — the
+  usual convention alongside the default `users.csv` — as long as the
+  field is still empty; it won't overwrite a path you've already typed.
+  Asks for confirmation, then checks the CSV file actually exists before
+  touching anything — if it doesn't, the firewall is left untouched and
+  you get an error instead.
 
 ## Output pane
 

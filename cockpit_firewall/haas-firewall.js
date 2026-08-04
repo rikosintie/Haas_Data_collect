@@ -276,6 +276,17 @@
                 });
         });
 
+        // Checking "Use custom CSV file" pre-fills the path with the usual
+        // convention (users1.csv, alongside the default users.csv) as a
+        // starting point — only when the field is still empty, so it never
+        // overwrites a path someone already typed.
+        document.getElementById("use-custom-csv").addEventListener("change", function() {
+            var pathInput = document.getElementById("custom-csv-path");
+            if (this.checked && !pathInput.value.trim()) {
+                pathInput.value = "/home/haas/Haas_Data_collect/users1.csv";
+            }
+        });
+
         // Button 5: Apply firewall changes
         document.getElementById("btn-apply").addEventListener("click", function() {
             const useCustom = document.getElementById("use-custom-csv").checked;
