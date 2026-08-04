@@ -368,6 +368,20 @@
             return null;
         }
 
+        // configure_ufw_from_csv.sh does `IFS=',' read -r user ip role`
+        // with no trimming, so a stray space (e.g. "mike, 192.168.10.20,user")
+        // reaches it as part of the IP field verbatim and fails there even
+        // though validateUsersCsv() above — which trims each field before
+        // checking it — accepted it. Normalizing what's actually written
+        // keeps the saved file exactly matching what was validated.
+        function normalizeUsersCsv(content) {
+            const lines = content.split(/\r?\n/);
+            return lines.map(function(line, i) {
+                if (i === 0 || line.trim() === "") return line;
+                return line.split(",").map(function(f) { return f.trim(); }).join(",");
+            }).join("\n");
+        }
+
         document.getElementById("btn-edit-csv").addEventListener("click", function() {
             const csvPath = "/home/haas/Haas_Data_collect/users.csv";
             output.textContent = "Loading " + csvPath + "...\n";
@@ -406,8 +420,9 @@
                             alert("CSV not saved — invalid content:\n\n" + validationError);
                             return;
                         }
+                        const normalized = normalizeUsersCsv(textarea.value);
                         cockpit.file(csvPath, { superuser: "require" })
-                            .replace(textarea.value)
+                            .replace(normalized)
                             .then(function() {
                                 output.textContent = "File saved successfully!\n";
                             })
@@ -476,8 +491,9 @@
                             alert("CSV not saved — invalid content:\n\n" + validationError);
                             return;
                         }
+                        const normalized = normalizeUsersCsv(textarea.value);
                         cockpit.file(csvPath, { superuser: "require" })
-                            .replace(textarea.value)
+                            .replace(normalized)
                             .then(function() {
                                 output.textContent = "File saved successfully!\n";
                             })

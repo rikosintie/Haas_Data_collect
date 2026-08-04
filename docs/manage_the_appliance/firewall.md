@@ -87,6 +87,12 @@ to edit a different file.
     can fix it and click **Save Changes** again. **Edit conf file** has no
     such check, since `/etc/haas-firewall.conf` isn't row-structured data.
 
+    Whitespace around a field (e.g. `mike, 192.168.10.20,user`) is stripped
+    from what's actually saved, not just ignored during the check —
+    `configure_ufw_from_csv.sh` itself does no trimming of its own, so a
+    stray space that merely *passed* validation would otherwise still
+    reach it verbatim and fail there instead.
+
 ## Output pane
 
 Every command's output streams into the box below **Simulate / Compare**.
