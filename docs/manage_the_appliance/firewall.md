@@ -58,7 +58,7 @@ check what *would* happen:
 | Show Current UFW Rules | Runs `configure_ufw_from_csv.sh --show-rules` |
 | Edit users.csv | Opens `~/Haas_Data_collect/users.csv` in an inline editor (see below) |
 | Edit conf file | Opens `/etc/haas-firewall.conf` in an inline editor |
-| Compare Current vs Planned Rules | Runs `configure_ufw_from_csv.sh --compare <path>` against whatever CSV path you enter |
+| Compare Current vs Planned Rules | Runs `configure_ufw_from_csv.sh --compare <path>` against whatever CSV path you enter — defaults to `users1.csv`, the usual convention for a planned/alternate file, since comparing against `users.csv` (the file already active) wouldn't show anything interesting |
 
 The **Edit users.csv** / **Edit conf file** buttons load the file into a
 text box in place of the output pane, with **Save Changes** and **Cancel**
