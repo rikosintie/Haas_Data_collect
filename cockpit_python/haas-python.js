@@ -23,23 +23,37 @@ const svcPort              = document.getElementById("svcPort");
 
 const HAAS_SYSTEMD_DIR = "/etc/systemd/system";
 
-// Same pipeline as the haas-ports shell alias (haas-aliases.zsh), plus a
+// Same idea as the haas-ports shell alias (haas-aliases.zsh), plus a
 // duplicate-port check: two services both pointing "-t <ip> --port <port>"
 // at the same address means one of them is very likely misconfigured
 // against the wrong machine — the kind of thing that shows up as "this
 // CNC just isn't writing a CSV" without an obvious error to explain why.
+//
+// Each ExecStart line is normalized by scanning for "-t"/"--port"/"--name"
+// by NAME, not by field position — a fixed "cut -f4-" broke the moment
+// some services had "-u" (an extra leading token) and others didn't:
+// the cut point landed in a different place per line, which not only
+// left "-a" inconsistently shown/hidden but corrupted the sort order
+// entirely (whatever text happened to land in the sort key's start
+// position got compared, not the port number), so a service without
+// "-u" could jump to the top of the list with no indication why.
+// Normalizing first means sort has a single, guaranteed-consistent
+// field to sort on regardless of how many flags precede -t/--port/--name.
 var HAAS_PORTS_SCRIPT = [
     "echo",
     "echo \"--- IP / Port / Name (from " + HAAS_SYSTEMD_DIR + "/haas-*.service) ---\"",
-    "grep -Ei \"python3\" " + HAAS_SYSTEMD_DIR + "/haas*.service 2>/dev/null | cut -d' ' -f4- | sort -k 3 |",
-    "awk '{",
-    "    port=\"\"; name=\"\";",
+    "grep -Ei \"python3\" " + HAAS_SYSTEMD_DIR + "/haas*.service 2>/dev/null | awk '{",
+    "    ip=\"\"; port=\"\"; name=\"\";",
     "    for (i=1;i<=NF;i++) {",
+    "        if ($i==\"-t\") ip=$(i+1);",
     "        if ($i==\"--port\") port=$(i+1);",
     "        if ($i==\"--name\") name=$(i+1);",
     "    }",
+    "    if (port != \"\") printf \"-t %s --port %s --name %s\\n\", ip, port, name;",
+    "}' | sort -k4,4n | awk '{",
     "    print;",
-    "    if (port != \"\") { count[port]++; names[port]=names[port]\" \"name }",
+    "    port=$4; name=$6;",
+    "    count[port]++; names[port]=names[port]\" \"name;",
     "}",
     "END {",
     "    dup=0",
@@ -97,7 +111,17 @@ var HAAS_CONNECTIVITY_SCRIPT = [
     "echo \"Note: 'not reachable' is expected until the machine/CNC is actually configured to connect on that port -- it isn't necessarily an error.\"",
     "echo",
     "established=$(ss -tnp state established 2>/dev/null)",
-    "grep -Ei \"python3\" " + HAAS_SYSTEMD_DIR + "/haas*.service 2>/dev/null | cut -d' ' -f4- | sort -k 3 |",
+    // Same normalize-by-flag-name-then-sort as HAAS_PORTS_SCRIPT — a fixed
+    // "cut -f4-" broke the moment some services had "-u" and others didn't.
+    "grep -Ei \"python3\" " + HAAS_SYSTEMD_DIR + "/haas*.service 2>/dev/null | awk '{",
+    "    ip=\"\"; port=\"\"; name=\"\";",
+    "    for (i=1;i<=NF;i++) {",
+    "        if ($i==\"-t\") ip=$(i+1);",
+    "        if ($i==\"--port\") port=$(i+1);",
+    "        if ($i==\"--name\") name=$(i+1);",
+    "    }",
+    "    if (port != \"\") printf \"-t %s --port %s --name %s\\n\", ip, port, name;",
+    "}' | sort -k4,4n |",
     "while read -r line; do",
     "    ip=\"\"; port=\"\"; name=\"\"",
     "    set -- $line",

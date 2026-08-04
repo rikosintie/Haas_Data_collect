@@ -61,12 +61,16 @@ Click **Service State** for a one-shot `systemctl list-unit-files`
 summary of every `haas-*` service and its current state, followed by:
 
 - a reminder that the unit files live in `/etc/systemd/system`
-- the same IP/port/name breakdown as the `haas-ports` terminal alias, with
-  any **duplicate ports flagged** — two services both pointing
-  `-t <ip> --port <port>` at the same address means one of them is very
-  likely connecting to the wrong machine, which is exactly the kind of
-  thing that shows up as "this CNC just isn't writing a CSV" with no
-  obvious error to explain why.
+- the same IP/port/name breakdown as the `haas-ports` terminal alias,
+  sorted by port number, with any **duplicate ports flagged** — two
+  services both pointing `-t <ip> --port <port>` at the same address
+  means one of them is very likely connecting to the wrong machine,
+  which is exactly the kind of thing that shows up as "this CNC just
+  isn't writing a CSV" with no obvious error to explain why. (Each
+  `ExecStart` line is parsed by flag name, not position, so this stays
+  correctly sorted and consistently formatted regardless of how many
+  flags — `-u` included — precede `-t`/`--port`/`--name` on any given
+  line.)
 - a check for any `haas-*.service` whose `ExecStart` is missing
   `python3 -u`, flagged as `[MISSING -u]`. Without `-u`, Python fully
   block-buffers stdout under systemd, so the script's own log lines can
