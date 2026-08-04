@@ -70,6 +70,12 @@ var HAAS_PORTS_SCRIPT = [
 // that made troubleshooting a working-but-silent service so confusing
 // before it was understood; catching it here turns it into an instant,
 // obvious flag instead of a multi-step debugging session.
+//
+// Only services that actually invoke python3 are considered — haas-*.service
+// also covers non-CNC units like haas-firewall.service (a bash script, not
+// Python), which would otherwise get flagged "[MISSING -u]" too. That's not
+// wrong exactly (it genuinely has no -u), but it's not this service's
+// concern, and it's not something helpdesk should be nudged to go touch.
 var HAAS_BUFFERING_CHECK_SCRIPT = [
     "echo",
     "echo \"--- Buffering Check (python3 -u) ---\"",
@@ -78,7 +84,7 @@ var HAAS_BUFFERING_CHECK_SCRIPT = [
     "echo \"is running and writing data correctly.\"",
     "echo",
     "missing=0",
-    "for f in " + HAAS_SYSTEMD_DIR + "/haas-*.service; do",
+    "for f in $(grep -liE \"python3\" " + HAAS_SYSTEMD_DIR + "/haas-*.service 2>/dev/null); do",
     "    [ -f \"$f\" ] || continue",
     "    name=$(basename \"$f\" .service)",
     "    execline=$(grep -E '^ExecStart=' \"$f\")",
