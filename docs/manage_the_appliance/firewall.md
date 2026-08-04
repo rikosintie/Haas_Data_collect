@@ -32,7 +32,14 @@ At the top of the page:
   becomes vulnerable; enabling warns that you'll be disconnected if your
   current IP isn't already covered by a rule in `users.csv`.
 - **Active Firewall Rules** — the live output of `ufw status numbered`,
-  refreshed automatically.
+  refreshed automatically. Rules are sorted by the **From** IP address
+  numerically (`192.168.10.9` before `192.168.10.10`, not the reverse a
+  plain text sort would produce), not by the order they happened to be
+  added in — the `[N]` rule numbers themselves are untouched, so they're
+  still what you'd pass to `ufw delete N` if you ever needed to, they just
+  won't run 1, 2, 3... top to bottom on screen anymore. Subnet/CIDR rules
+  sort by their network address; non-IPv4 entries (`Anywhere`, IPv6) sort
+  last.
 
 ## Firewall Log
 

@@ -145,6 +145,30 @@
             }
         });
 
+        // `ufw status numbered` lists rules in the order they were added,
+        // not sorted — this pulls the IP (or CIDR) out of a rule line's
+        // "From" column and turns it into a single comparable number, so
+        // rules can be displayed sorted by address instead of add-order.
+        // Non-IPv4 entries ("Anywhere", IPv6 addresses) sort after every
+        // real IPv4 address rather than crashing or sorting arbitrarily.
+        function ufwRuleSortKey(line) {
+            const trimmed = line.trim();
+            const v6Match = trimmed.match(/\(v6\)\s*$/);
+            const fromField = v6Match ? trimmed.slice(0, v6Match.index).trim() : trimmed;
+
+            const tokens = fromField.split(/\s+/);
+            const from = tokens[tokens.length - 1];
+            const ip = from.split("/")[0];
+            const octets = ip.split(".");
+
+            const isIPv4 = octets.length === 4 && octets.every(function(o) {
+                return /^\d+$/.test(o) && parseInt(o, 10) <= 255;
+            });
+            if (!isIPv4) return Infinity;
+
+            return octets.reduce(function(acc, o) { return acc * 256 + parseInt(o, 10); }, 0);
+        }
+
         // Function to update firewall status
         function updateFirewallStatus() {
             cockpit.spawn(["ufw", "status"], { superuser: "require", err: "out" })
@@ -175,9 +199,12 @@
                     const ruleLines = lines.filter(line => line.includes('['));
 
                     if (ruleLines.length > 0) {
+                        const sortedRuleLines = ruleLines.slice().sort(function(a, b) {
+                            return ufwRuleSortKey(a) - ufwRuleSortKey(b);
+                        });
                         let formattedRules = "To                         Action      From\n";
                         formattedRules += "--                         ------      ----\n";
-                        formattedRules += ruleLines.join('\n');
+                        formattedRules += sortedRuleLines.join('\n');
                         activeRules.textContent = formattedRules;
                     } else {
                         activeRules.textContent = "No rules configured.";
