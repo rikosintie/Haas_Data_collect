@@ -8,6 +8,7 @@ const editServicesBtn      = document.getElementById("editServicesBtn");
 const createServiceBtn     = document.getElementById("createServiceBtn");
 const deleteServiceBtn     = document.getElementById("deleteServiceBtn");
 const dataFreshnessBtn     = document.getElementById("dataFreshnessBtn");
+const machineHealthBtn     = document.getElementById("machineHealthBtn");
 const servicesList         = document.getElementById("servicesList");
 const serviceEditorSection = document.getElementById("serviceEditorSection");
 const serviceEditorArea    = document.getElementById("serviceEditorArea");
@@ -233,6 +234,7 @@ function disableButtons(state) {
     createServiceBtn.disabled = state;
     deleteServiceBtn.disabled = state;
     dataFreshnessBtn.disabled = state;
+    machineHealthBtn.disabled = state;
 }
 
 // Show the service editor, hiding the output <pre>
@@ -535,6 +537,156 @@ dataFreshnessBtn.addEventListener("click", function() {
         })
         .always(function() {
             setActiveLogBtn(null);
+        });
+});
+
+// ── Machine Health ─────────────────────────────────────────────────────────────
+//
+// Reuses the four existing checks completely unchanged (same scripts Service
+// State and Data Freshness already run) and joins their plain-text output
+// into one table, one row per machine, in JavaScript rather than a bash/awk
+// cross-reference — the join key needs to be case-insensitive (Create
+// Service always lowercases the machine directory/unit filename, but
+// "--name" inside ExecStart can be any case, e.g. "ST44"), which is far
+// simpler to get right with a JS object than shell associative arrays.
+
+function parsePortsOutput(text) {
+    var byMachine = {};
+    var dupPortSet = {};
+    text.split("\n").forEach(function(line) {
+        if (line.indexOf("---") === 0) return;
+        var m = line.match(/^-t (\S+) --port (\S+) --name (\S+)$/);
+        if (m) byMachine[m[3].toLowerCase()] = { ip: m[1], port: m[2] };
+        var d = line.match(/\[DUPLICATE PORT\] (\S+):/);
+        if (d) dupPortSet[d[1]] = true;
+    });
+    Object.keys(byMachine).forEach(function(key) {
+        if (dupPortSet[byMachine[key].port]) byMachine[key].dup = true;
+    });
+    return byMachine;
+}
+
+function parseBufferingOutput(text) {
+    var missing = {};
+    text.split("\n").forEach(function(line) {
+        var m = line.match(/\[MISSING -u\]\s+haas-(\S+)/i);
+        if (m) missing[m[1].toLowerCase()] = true;
+    });
+    return missing;
+}
+
+function parseConnectivityOutput(text) {
+    var byMachine = {};
+    text.split("\n").forEach(function(line) {
+        if (line.indexOf("---") === 0 || line.indexOf("Note:") === 0) return;
+        var m = line.match(/^(\S+)\s+(\S+:\S+)\s+(.+)$/);
+        if (m) byMachine[m[1].toLowerCase()] = m[3].trim();
+    });
+    return byMachine;
+}
+
+function parseFreshnessOutput(text) {
+    var byMachine = {};
+    text.split("\n").forEach(function(line) {
+        if (line.indexOf("---") === 0) return;
+        var m = line.match(/^(\S+)\s+(.+)$/);
+        if (m) byMachine[m[1].toLowerCase()] = m[2].trim();
+    });
+    return byMachine;
+}
+
+function buildMachineHealthTable(portsText, bufferingText, connText, freshText) {
+    var ports = parsePortsOutput(portsText);
+    var missingU = parseBufferingOutput(bufferingText);
+    var conn = parseConnectivityOutput(connText);
+    var fresh = parseFreshnessOutput(freshText);
+
+    var allKeys = {};
+    [ports, missingU, conn, fresh].forEach(function(src) {
+        Object.keys(src).forEach(function(k) { allKeys[k] = true; });
+    });
+
+    var rows = Object.keys(allKeys).map(function(key) {
+        var p = ports[key] || {};
+        return {
+            machine: key,
+            port: p.port || "—",
+            portSortKey: p.port ? parseInt(p.port, 10) : Infinity,
+            dup: p.dup ? "DUP" : "",
+            uStatus: (key in missingU) ? "MISSING" : ((key in ports) ? "OK" : "—"),
+            connectivity: conn[key] || "—",
+            freshness: fresh[key] || "—"
+        };
+    });
+
+    rows.sort(function(a, b) {
+        if (a.portSortKey !== b.portSortKey) return a.portSortKey - b.portSortKey;
+        return a.machine < b.machine ? -1 : (a.machine > b.machine ? 1 : 0);
+    });
+
+    var header = "Machine".padEnd(15) + "Port".padEnd(7) + "Dup".padEnd(5) + "-u".padEnd(9) + "Connectivity".padEnd(36) + "Data Age";
+    var lines = [header, "-".repeat(header.length)];
+    rows.forEach(function(r) {
+        lines.push(
+            r.machine.padEnd(15) +
+            String(r.port).padEnd(7) +
+            r.dup.padEnd(5) +
+            r.uStatus.padEnd(9) +
+            r.connectivity.padEnd(36) +
+            r.freshness
+        );
+    });
+    return lines.join("\n");
+}
+
+machineHealthBtn.addEventListener("click", function() {
+    if (!confirmLeavingLiveLog()) return;
+    stopLiveLog();
+    setActiveLogBtn(machineHealthBtn);
+    disableButtons(true);
+    output.textContent = "--- Machine Health ---\nGathering port/duplicate, buffering, and data freshness info...\n";
+
+    cockpit.spawn(["bash", "-c", HAAS_PORTS_SCRIPT], { superuser: "require", err: "message" })
+        .done(function(portsData) {
+            cockpit.spawn(["bash", "-c", HAAS_BUFFERING_CHECK_SCRIPT], { superuser: "require", err: "message" })
+                .done(function(bufData) {
+                    cockpit.spawn(["bash", "-c", HAAS_DATA_FRESHNESS_SCRIPT], { superuser: "require", err: "message" })
+                        .done(function(freshData) {
+                            output.textContent += "\nRunning connectivity check (this can take several seconds)...\n";
+
+                            cockpit.spawn(["bash", "-c", HAAS_CONNECTIVITY_SCRIPT], { superuser: "require", err: "message" })
+                                .done(function(connData) {
+                                    output.textContent = "--- Machine Health ---\n\n" +
+                                        buildMachineHealthTable(portsData, bufData, connData, freshData);
+                                })
+                                .fail(function(ex, data) {
+                                    output.textContent += "\nERROR checking connectivity: " + (ex.message || JSON.stringify(ex));
+                                    if (data) output.textContent += "\n" + data;
+                                })
+                                .always(function() {
+                                    setActiveLogBtn(null);
+                                    disableButtons(false);
+                                });
+                        })
+                        .fail(function(ex, data) {
+                            output.textContent += "\nERROR checking data freshness: " + (ex.message || JSON.stringify(ex));
+                            if (data) output.textContent += "\n" + data;
+                            setActiveLogBtn(null);
+                            disableButtons(false);
+                        });
+                })
+                .fail(function(ex, data) {
+                    output.textContent += "\nERROR checking for -u: " + (ex.message || JSON.stringify(ex));
+                    if (data) output.textContent += "\n" + data;
+                    setActiveLogBtn(null);
+                    disableButtons(false);
+                });
+        })
+        .fail(function(ex, data) {
+            output.textContent += "\nERROR checking ports: " + (ex.message || JSON.stringify(ex));
+            if (data) output.textContent += "\n" + data;
+            setActiveLogBtn(null);
+            disableButtons(false);
         });
 });
 

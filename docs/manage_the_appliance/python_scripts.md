@@ -204,4 +204,36 @@ empty one is called out the same way, right alongside the rest.
 This doesn't tell you *why* a machine stopped writing — pair it with
 **Service State**'s IP/port/duplicate check and the **Scripts** log
 above to see whether it's a connection problem, a wrong/duplicate port,
-or something else.
+or something else. Or just click **Machine Health** below, which answers
+all of that in one table.
+
+----------------------------------------------------------------
+
+### Machine Health
+
+Click **Machine Health** for a single table — one row per machine —
+combining everything the other buttons above report separately:
+
+| Column | Source |
+|---|---|
+| Machine | unit filename / working directory name |
+| Port | from `ExecStart`, sorted ascending |
+| Dup | `DUP` if another machine shares this port |
+| `-u` | `OK` / `MISSING` |
+| Connectivity | reachable / not reachable / already connected |
+| Data Age | newest file in `cnc_logs/`, or "no data files found" |
+
+It's built by running the exact same four checks **Service State** and
+**Data Freshness** already run — nothing new is computed, this just
+joins their output into one table instead of leaving you to
+cross-reference three separate blocks of text by machine name yourself.
+Matching machines across the four is case-insensitive, since a unit's
+`--name` can be any case (`ST44`) while its working directory is always
+lowercase (`st44`) — both refer to the same machine.
+
+Since it includes the same connectivity sweep Service State runs, it
+takes the same several seconds and locks the page the same way, for the
+same reason (no overlapping probes against the same targets). This is
+meant for an occasional full check, not something to click repeatedly —
+Data Freshness alone is instant if all you need is "did data arrive
+recently."
