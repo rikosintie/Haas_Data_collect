@@ -174,6 +174,14 @@ Address, Port) instead of a raw editor — this generates a new
     the log lines already exist in the script — it just makes sure they
     reach journald promptly instead of sitting buffered.
 
+    `-u` only changes *when* each `print()` is flushed (immediately,
+    instead of batched until the buffer fills) — not how much work is
+    done. It costs one extra `write()` syscall per log line instead of
+    amortizing several into one, which is negligible next to the network
+    and file I/O each logger is already doing per cycle. Verified on a
+    Raspberry Pi 5 running all 11 machines simultaneously with `-u`
+    everywhere: load average 0.13, well under 2% CPU total.
+
 ----------------------------------------------------------------
 
 ### Delete Service
