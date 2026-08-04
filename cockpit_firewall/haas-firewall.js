@@ -373,6 +373,67 @@
                 });
         });
 
+        // Button 6a: Edit Custom CSV — same editor pattern as "Edit users.csv",
+        // but against whatever path is currently typed in the Compare
+        // Current vs Planned Rules box, read fresh at click time (not
+        // whatever it was when the page loaded).
+        document.getElementById("btn-edit-custom-csv").addEventListener("click", function() {
+            const csvPath = document.getElementById("compare-csv-path").value.trim();
+            if (!csvPath) {
+                output.textContent = "Please enter a CSV file path in the Compare Current vs Planned Rules box first.\n";
+                return;
+            }
+            output.textContent = "Loading " + csvPath + "...\n";
+
+            cockpit.file(csvPath, { superuser: "require" })
+                .read()
+                .then(function(content) {
+                    if (content === null) {
+                        output.textContent = "ERROR: Could not read " + csvPath + " (file does not exist yet).\n";
+                        return;
+                    }
+
+                    const textarea = document.createElement("textarea");
+                    textarea.className = "csv-editor";
+                    textarea.value = content;
+
+                    const saveBtn = document.createElement("button");
+                    saveBtn.textContent = "Save Changes";
+                    saveBtn.className = "btn";
+
+                    const cancelBtn = document.createElement("button");
+                    cancelBtn.textContent = "Cancel";
+                    cancelBtn.className = "btn";
+
+                    const btnContainer = document.createElement("div");
+                    btnContainer.className = "button-row";
+                    btnContainer.appendChild(saveBtn);
+                    btnContainer.appendChild(cancelBtn);
+
+                    output.innerHTML = "";
+                    output.appendChild(textarea);
+                    output.appendChild(btnContainer);
+
+                    saveBtn.addEventListener("click", function() {
+                        cockpit.file(csvPath, { superuser: "require" })
+                            .replace(textarea.value)
+                            .then(function() {
+                                output.textContent = "File saved successfully!\n";
+                            })
+                            .catch(function(error) {
+                                output.textContent = "Error saving file: " + error + "\n";
+                            });
+                    });
+
+                    cancelBtn.addEventListener("click", function() {
+                        output.textContent = "Edit cancelled.\n";
+                    });
+                })
+                .catch(function(error) {
+                    output.textContent = "Error reading file: " + error + "\n";
+                });
+        });
+
         // Button 6b: Edit conf file
         document.getElementById("btn-edit-conf").addEventListener("click", function() {
             const confPath = "/etc/haas-firewall.conf";

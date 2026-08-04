@@ -57,13 +57,18 @@ check what *would* happen:
 | Simulate Firewall Update (Dry-Run) | Runs `configure_ufw_from_csv.sh --dry-run` against the current `users.csv` |
 | Show Current UFW Rules | Runs `configure_ufw_from_csv.sh --show-rules` |
 | Edit users.csv | Opens `~/Haas_Data_collect/users.csv` in an inline editor (see below) |
+| Edit Custom CSV | Opens whatever path is currently typed in the **Compare Current vs Planned Rules** box (below) in the same inline editor |
 | Edit conf file | Opens `/etc/haas-firewall.conf` in an inline editor |
 | Compare Current vs Planned Rules | Runs `configure_ufw_from_csv.sh --compare <path>` against whatever CSV path you enter — defaults to `users1.csv`, the usual convention for a planned/alternate file, since comparing against `users.csv` (the file already active) wouldn't show anything interesting |
 
-The **Edit users.csv** / **Edit conf file** buttons load the file into a
-text box in place of the output pane, with **Save Changes** and **Cancel**
-buttons. Saving writes the file directly — it does not apply firewall
-changes by itself; use **Apply Firewall Changes** below for that.
+The **Edit users.csv** / **Edit Custom CSV** / **Edit conf file** buttons
+load the file into a text box in place of the output pane, with **Save
+Changes** and **Cancel** buttons. Saving writes the file directly — it does
+not apply firewall changes by itself; use **Apply Firewall Changes** below
+for that. **Edit Custom CSV** reads the path field fresh each time you
+click it, so it always edits whatever file is currently typed in
+**Compare Current vs Planned Rules** — change that field first if you want
+to edit a different file.
 
 ## Output pane
 
