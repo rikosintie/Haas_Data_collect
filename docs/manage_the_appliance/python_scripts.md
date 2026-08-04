@@ -42,7 +42,11 @@ In this screenshot I am filtering the Python log from my laptop at
 ## Services
 
 Manages the `haas-*.service` systemd units that run the per-machine CNC
-data-collection scripts.
+data-collection scripts. Every button here takes over the shared output
+panel, cleanly stopping the Scripts log first if it's running — same as
+clicking **Stop**. If the Scripts log is actively streaming when you
+click one of them, a confirmation asks first, so a stray click doesn't
+silently end a live view you were watching.
 
 ----------------------------------------------------------------
 

@@ -248,6 +248,15 @@ function stopLiveLog() {
     setActiveLogBtn(null);
 }
 
+// Guards the Services buttons (not Stop, not Scripts itself restarting its
+// own stream on a filter change) — those two are expected/intentional ways
+// to end a stream and confirming them would just be noise. Returns true
+// when it's fine to proceed (nothing was streaming, or the user confirmed).
+function confirmLeavingLiveLog() {
+    if (!isScriptsLive) return true;
+    return confirm("The Scripts log is currently streaming. Switch away and stop it?");
+}
+
 function startLiveLog(args, label) {
     stopLiveLog();                  // bumps logSessionId, kills old process
     var mySession = logSessionId;   // capture this stream's session
@@ -379,6 +388,7 @@ stopLogBtn.addEventListener("click", function() {
 // ── Service State ─────────────────────────────────────────────────────────────
 
 serviceStateBtn.addEventListener("click", function() {
+    if (!confirmLeavingLiveLog()) return;
     stopLiveLog();
     setActiveLogBtn(serviceStateBtn);
     // Locked for the whole run, including the connectivity sweep below —
@@ -431,6 +441,7 @@ serviceStateBtn.addEventListener("click", function() {
 // ── Data Freshness ────────────────────────────────────────────────────────────
 
 dataFreshnessBtn.addEventListener("click", function() {
+    if (!confirmLeavingLiveLog()) return;
     stopLiveLog();
     setActiveLogBtn(dataFreshnessBtn);
     output.textContent = "--- Data Freshness (newest file in each machine's cnc_logs/) ---\n\n";
@@ -491,6 +502,7 @@ function populateServicesList() {
 // ── Edit Services ─────────────────────────────────────────────────────────────
 
 editServicesBtn.addEventListener("click", function() {
+    if (!confirmLeavingLiveLog()) return;
     stopLiveLog();
     setActiveLogBtn(editServicesBtn);
     serviceListMode = "edit";
@@ -500,6 +512,7 @@ editServicesBtn.addEventListener("click", function() {
 // ── Delete Service ────────────────────────────────────────────────────────────
 
 deleteServiceBtn.addEventListener("click", function() {
+    if (!confirmLeavingLiveLog()) return;
     stopLiveLog();
     setActiveLogBtn(deleteServiceBtn);
     serviceListMode = "delete";
@@ -612,6 +625,7 @@ svcIpAddress.addEventListener("input", function() {
 });
 
 createServiceBtn.addEventListener("click", function() {
+    if (!confirmLeavingLiveLog()) return;
     stopLiveLog();
     isCreatingService = true;
     showCreateServiceForm();
