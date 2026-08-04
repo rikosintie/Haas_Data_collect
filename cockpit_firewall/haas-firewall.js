@@ -297,16 +297,17 @@
                 return;
             }
 
-            if (!confirm("This will reset and reapply firewall rules. Continue?")) {
+            const fileToCheck = useCustom
+                ? customPath
+                : "/home/haas/Haas_Data_collect/users.csv";
+
+            if (!confirm("This will reset and reapply firewall rules using:\n" + fileToCheck + "\n\nContinue?")) {
                 return;
             }
 
             const configCommand = useCustom
                 ? ["/usr/local/sbin/configure_ufw_from_csv.sh", customPath]
                 : ["/usr/local/sbin/configure_ufw_from_csv.sh"];
-            const fileToCheck = useCustom
-                ? customPath
-                : "/home/haas/Haas_Data_collect/users.csv";
 
             output.textContent = "Validating CSV file path...\n";
 

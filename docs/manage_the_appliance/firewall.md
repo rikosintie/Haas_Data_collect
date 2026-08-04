@@ -89,9 +89,11 @@ saved to the `BACKUP_DIR` configured in `/etc/haas-firewall.conf`.
   `/home/haas/Haas_Data_collect/users1.csv` as a starting point — the
   usual convention alongside the default `users.csv` — as long as the
   field is still empty; it won't overwrite a path you've already typed.
-  Asks for confirmation, then checks the CSV file actually exists before
-  touching anything — if it doesn't, the firewall is left untouched and
-  you get an error instead.
+  Asks for confirmation, **naming exactly which CSV file it's about to
+  use** (`users.csv`, or your custom path) so you're not confirming
+  blind — then checks that file actually exists before touching
+  anything; if it doesn't, the firewall is left untouched and you get an
+  error instead.
 
 ## Output pane
 
