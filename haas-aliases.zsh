@@ -514,4 +514,13 @@ nano() {
     command nano "$@"
 }
 
+# The user almost always wants to start in the Haas_Data_collect repo,
+# whether logging in over SSH or opening the Cockpit Terminal — both spawn
+# a fresh interactive shell that sources this file. zoxide's fuzzy match
+# on "ha" resolves to /home/haas/Haas_Data_collect since haas-install.sh
+# seeds it into the zoxide database.
+if [[ -o interactive ]] && (( $+functions[z] )); then
+    z ha 2>/dev/null
+fi
+
 # end

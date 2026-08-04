@@ -31,6 +31,17 @@ You don't have to use SSH to get into the terminal on the appliance. The Cockpit
 
 ----------------------------------------------------------------
 
+!!! note "You land in Haas_Data_collect automatically"
+    Either way in, `haas-aliases.zsh` runs `z ha` (via
+    [zoxide](https://github.com/ajeetdsouza/zoxide)) at the end of every
+    fresh shell it loads into — so a new SSH session or a new Cockpit
+    Terminal both start you directly in
+    `/home/haas/Haas_Data_collect/` instead of your home directory,
+    since that's almost always where you actually want to be.
+    `haas-install.sh` seeds zoxide's database with this and every other
+    directory shortcut below, so `z ha` resolves correctly from the very
+    first login.
+
 **Quick reference, without leaving the terminal:**
 
 All of the aliases are available but they aren't shown onscreen like they are when you login over SSH. To run them enter:
