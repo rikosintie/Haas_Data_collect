@@ -31,6 +31,13 @@ plugins=(
             colored-man-pages
         )
 
+# Must run before oh-my-zsh.sh: that's what sources
+# custom/haas-aliases.zsh, and haas-aliases.zsh calls the `z` function
+# zoxide defines here to auto-cd into Haas_Data_collect on every fresh
+# shell — if `z` isn't defined yet when haas-aliases.zsh runs, that call
+# is silently skipped.
+eval "$(zoxide init zsh)"
+
 source $ZSH/oh-my-zsh.sh
 
 # export MANPATH="/usr/local/man:$MANPATH"
@@ -62,8 +69,6 @@ alias mv='mv -iv'
 # == ~/.oh-my-zsh/custom/haas-aliases.zsh  ===
 # For a full list of active aliases, run `alias`.
 # For a list of active Haas aliases, run haas-help or haas-docs.
-
-eval "$(zoxide init zsh)"
 
 # Must be last line in the .zshrc file
 source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
