@@ -152,7 +152,11 @@
         // Non-IPv4 entries ("Anywhere", IPv6 addresses) sort after every
         // real IPv4 address rather than crashing or sorting arbitrarily.
         function ufwRuleSortKey(line) {
-            const trimmed = line.trim();
+            // Every rule from configure_ufw_from_csv.sh carries a trailing
+            // "# comment" (e.g. "192.168.10.143   # haas-admin-ssh") — strip
+            // it first, otherwise the "last token" below is the comment
+            // text, not the IP, and every line ties at Infinity.
+            const trimmed = line.trim().replace(/#.*$/, "").trim();
             const v6Match = trimmed.match(/\(v6\)\s*$/);
             const fromField = v6Match ? trimmed.slice(0, v6Match.index).trim() : trimmed;
 
