@@ -30,6 +30,11 @@ writes, etc.) the moment both were filled in. Filling in Machine greys
 out IP/Port to make clear they're not being applied — clear Machine to
 use IP/Port filtering instead.
 
+Matching is always case-insensitive regardless of how you type it, since
+the machine name's actual case in the log line (`ST44` vs `st30`, etc.)
+isn't consistent across every service — it depends on how `--name` was
+set when that particular service was created.
+
 In this screenshot I am filtering the Python log from my laptop at
 192.168.10.143:
 

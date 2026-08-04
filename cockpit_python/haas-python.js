@@ -324,8 +324,16 @@ function startScriptsLive() {
 
     // -t python3 filters by syslog identifier (process name field, not message body).
     // --grep= is added only when Machine/IP/Port filtering is needed (searches message content).
+    //
+    // --case-sensitive=false is forced explicitly rather than relying on
+    // journalctl's own "all-lowercase query = case-insensitive" default:
+    // that default silently flips to case-SENSITIVE the moment the typed
+    // query has even one capital letter (autocapitalize, muscle memory
+    // from a machine tagged in caps like ST44, etc.), which then matches
+    // nothing at all with no indication why — confirmed by reproducing it
+    // against a real journal entry before writing this fix.
     var args = ["journalctl", "-t", "python3", "-n", "50", "-f", "--no-pager"];
-    if (pattern) args.push("--grep=" + pattern);
+    if (pattern) args.push("--grep=" + pattern, "--case-sensitive=false");
     startLiveLog(args, label);
     isScriptsLive = true;
     setScriptsFilterEnabled(true);
