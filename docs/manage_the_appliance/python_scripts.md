@@ -67,6 +67,16 @@ summary of every `haas-*` service and its current state, followed by:
   likely connecting to the wrong machine, which is exactly the kind of
   thing that shows up as "this CNC just isn't writing a CSV" with no
   obvious error to explain why.
+- a check for any `haas-*.service` whose `ExecStart` is missing
+  `python3 -u`, flagged as `[MISSING -u]`. Without `-u`, Python fully
+  block-buffers stdout under systemd, so the script's own log lines can
+  sit unflushed and never reach journald in real time — even though the
+  service is running and writing data correctly (visible via **Data
+  Freshness**, but invisible in the **Scripts** log). This is exactly
+  the bug that makes a working-but-silent service so confusing to
+  diagnose; this check turns it into an instant flag instead. **Create
+  Service** already includes `-u` in every new unit — this catches
+  services created before that, or by hand.
 - a one-shot TCP reachability check (`nc -z`, 2s timeout) against each
   service's `-t <ip> --port <port>` — skipped for any machine that
   already has an established connection from its `python3` process, so a

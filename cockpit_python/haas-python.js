@@ -48,6 +48,36 @@ var HAAS_PORTS_SCRIPT = [
     "}'"
 ].join("\n");
 
+// Flags any haas-*.service whose ExecStart is missing "python3 -u". Without
+// it, Python fully block-buffers stdout whenever it isn't a real terminal —
+// which is always true under systemd — so the script's own log lines can
+// sit unflushed and never reach journald in real time, even though the
+// service is running and writing data correctly. This is the exact bug
+// that made troubleshooting a working-but-silent service so confusing
+// before it was understood; catching it here turns it into an instant,
+// obvious flag instead of a multi-step debugging session.
+var HAAS_BUFFERING_CHECK_SCRIPT = [
+    "echo",
+    "echo \"--- Buffering Check (python3 -u) ---\"",
+    "echo \"Note: without -u, this service's own log lines can sit unflushed in a\"",
+    "echo \"buffer and never reach journald in real time, even though the service\"",
+    "echo \"is running and writing data correctly.\"",
+    "echo",
+    "missing=0",
+    "for f in " + HAAS_SYSTEMD_DIR + "/haas-*.service; do",
+    "    [ -f \"$f\" ] || continue",
+    "    name=$(basename \"$f\" .service)",
+    "    execline=$(grep -E '^ExecStart=' \"$f\")",
+    "    if ! echo \"$execline\" | grep -Eq 'python3[[:space:]]+-u([[:space:]]|$)'; then",
+    "        echo \"  [MISSING -u] $name\"",
+    "        missing=$((missing + 1))",
+    "    fi",
+    "done",
+    "if [ \"$missing\" -eq 0 ]; then",
+    "    echo \"All services use python3 -u.\"",
+    "fi"
+].join("\n");
+
 // One-shot TCP reachability check (nc -z) per service's "-t <ip> --port
 // <port>". Run on demand from Service State, not automatically after
 // Create Service — during initial deployment an MSP will often create
@@ -416,19 +446,30 @@ serviceStateBtn.addEventListener("click", function() {
             cockpit.spawn(["bash", "-c", HAAS_PORTS_SCRIPT], { superuser: "require", err: "message" })
                 .done(function(portData) {
                     output.textContent += portData;
-                    output.textContent += "\nRunning connectivity check (this can take several seconds)...\n";
 
-                    cockpit.spawn(["bash", "-c", HAAS_CONNECTIVITY_SCRIPT], { superuser: "require", err: "message" })
-                        .done(function(connData) {
-                            output.textContent += connData;
+                    cockpit.spawn(["bash", "-c", HAAS_BUFFERING_CHECK_SCRIPT], { superuser: "require", err: "message" })
+                        .done(function(bufData) {
+                            output.textContent += bufData;
                         })
-                        .fail(function(ex, data3) {
-                            output.textContent += "\nERROR checking connectivity: " + (ex.message || JSON.stringify(ex));
-                            if (data3) output.textContent += "\n" + data3;
+                        .fail(function(ex, data4) {
+                            output.textContent += "\nERROR checking for -u: " + (ex.message || JSON.stringify(ex));
+                            if (data4) output.textContent += "\n" + data4;
                         })
                         .always(function() {
-                            setActiveLogBtn(null);
-                            disableButtons(false);
+                            output.textContent += "\nRunning connectivity check (this can take several seconds)...\n";
+
+                            cockpit.spawn(["bash", "-c", HAAS_CONNECTIVITY_SCRIPT], { superuser: "require", err: "message" })
+                                .done(function(connData) {
+                                    output.textContent += connData;
+                                })
+                                .fail(function(ex, data3) {
+                                    output.textContent += "\nERROR checking connectivity: " + (ex.message || JSON.stringify(ex));
+                                    if (data3) output.textContent += "\n" + data3;
+                                })
+                                .always(function() {
+                                    setActiveLogBtn(null);
+                                    disableButtons(false);
+                                });
                         });
                 })
                 .fail(function(ex, data2) {
