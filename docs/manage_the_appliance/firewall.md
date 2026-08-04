@@ -70,6 +70,23 @@ click it, so it always edits whatever file is currently typed in
 **Compare Current vs Planned Rules** — change that field first if you want
 to edit a different file.
 
+!!! note "Save Changes validates the CSV first"
+    **Edit users.csv** and **Edit Custom CSV** both check every row before
+    writing anything, mirroring exactly what `configure_ufw_from_csv.sh`
+    itself parses — the header line is always skipped, and each remaining
+    non-blank row must be `name,ip_address,role`:
+
+    - **name** — letters, numbers, underscore, and hyphen only
+    - **ip_address** — a valid IPv4 dotted-quad (each octet 0–255)
+    - **role** — `Administrator` or `user` (case-insensitive, matching how
+      the script itself compares it — any other value becomes an
+      `UNKNOWN ROLE` line that's silently skipped when rules are applied)
+
+    If any row fails, nothing is written — the output pane shows exactly
+    which line and why, so you can fix it and click **Save Changes** again.
+    **Edit conf file** has no such check, since `/etc/haas-firewall.conf`
+    isn't row-structured data.
+
 ## Output pane
 
 Every command's output streams into the box below **Simulate / Compare**.

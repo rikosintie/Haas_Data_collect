@@ -325,6 +325,49 @@
         });
 
         // Button 6: Edit CSV
+        // Shared validation for users.csv / custom CSV saves — mirrors what
+        // configure_ufw_from_csv.sh actually parses (`tail -n +2` skips the
+        // header line, `IFS=',' read -r user ip role`), so a bad edit is
+        // caught here instead of silently producing an "UNKNOWN ROLE" or
+        // skipped firewall rule later when Apply Firewall Changes runs.
+        function validateUsersCsv(content) {
+            const nameRe = /^[0-9a-zA-Z_-]+$/;
+            const lines = content.split(/\r?\n/);
+
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i];
+                if (line.trim() === "") continue;
+
+                const fields = line.split(",");
+                if (fields.length !== 3) {
+                    return "Line " + (i + 1) + ": expected 3 fields (name,ip_address,role), found " + fields.length + ": " + line;
+                }
+
+                const name = fields[0].trim();
+                const ip = fields[1].trim();
+                const role = fields[2].trim();
+
+                if (!nameRe.test(name)) {
+                    return "Line " + (i + 1) + ": invalid name \"" + name + "\" (letters, numbers, underscore, and hyphen only).";
+                }
+
+                const ipParts = ip.split(".");
+                const ipValid = ipParts.length === 4 && ipParts.every(function(p) {
+                    return /^\d+$/.test(p) && parseInt(p, 10) >= 0 && parseInt(p, 10) <= 255;
+                });
+                if (!ipValid) {
+                    return "Line " + (i + 1) + ": invalid IP address \"" + ip + "\" (must be a valid IPv4 address, e.g. 192.168.10.143).";
+                }
+
+                const roleLower = role.toLowerCase();
+                if (roleLower !== "administrator" && roleLower !== "user") {
+                    return "Line " + (i + 1) + ": invalid role \"" + role + "\" (must be \"Administrator\" or \"user\").";
+                }
+            }
+
+            return null;
+        }
+
         document.getElementById("btn-edit-csv").addEventListener("click", function() {
             const csvPath = "/home/haas/Haas_Data_collect/users.csv";
             output.textContent = "Loading " + csvPath + "...\n";
@@ -354,6 +397,11 @@
                     output.appendChild(btnContainer);
 
                     saveBtn.addEventListener("click", function() {
+                        const validationError = validateUsersCsv(textarea.value);
+                        if (validationError) {
+                            output.textContent = "ERROR: CSV not saved — " + validationError + "\n";
+                            return;
+                        }
                         cockpit.file(csvPath, { superuser: "require" })
                             .replace(textarea.value)
                             .then(function() {
@@ -415,6 +463,11 @@
                     output.appendChild(btnContainer);
 
                     saveBtn.addEventListener("click", function() {
+                        const validationError = validateUsersCsv(textarea.value);
+                        if (validationError) {
+                            output.textContent = "ERROR: CSV not saved — " + validationError + "\n";
+                            return;
+                        }
                         cockpit.file(csvPath, { superuser: "require" })
                             .replace(textarea.value)
                             .then(function() {
