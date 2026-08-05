@@ -99,6 +99,60 @@ var HAAS_BUFFERING_CHECK_SCRIPT = [
     "fi"
 ].join("\n");
 
+// Flags any CNC python3 service without Restart=on-failure (or
+// Restart=always). Without it, if haas_logger2.py crashes on an
+// unhandled exception, the service just dies and stays dead — no
+// automatic recovery — until someone happens to notice and restarts it
+// by hand. Queried live via `systemctl show`, not by grepping the unit
+// file text, since that reflects the actually-loaded config rather than
+// requiring the file to spell the directive in exactly one format.
+var HAAS_RESTART_POLICY_CHECK_SCRIPT = [
+    "echo",
+    "echo \"--- Restart Policy Check (Restart=on-failure) ---\"",
+    "echo \"Note: without this, a crashed service stays down until someone manually restarts it.\"",
+    "echo",
+    "missing=0",
+    "for f in $(grep -liE \"python3\" " + HAAS_SYSTEMD_DIR + "/haas-*.service 2>/dev/null); do",
+    "    [ -f \"$f\" ] || continue",
+    "    name=$(basename \"$f\" .service)",
+    "    restart=$(systemctl show \"$name\" -p Restart --value 2>/dev/null)",
+    "    if [ \"$restart\" != \"on-failure\" ] && [ \"$restart\" != \"always\" ]; then",
+    "        echo \"  [MISSING Restart=on-failure] $name (currently: ${restart:-no})\"",
+    "        missing=$((missing + 1))",
+    "    fi",
+    "done",
+    "if [ \"$missing\" -eq 0 ]; then",
+    "    echo \"All services restart automatically on failure.\"",
+    "fi"
+].join("\n");
+
+// Flags any CNC python3 service currently stuck in systemd's
+// "start-limit-hit" state. Even with Restart=on-failure set, a service
+// that crashes repeatedly in a tight loop (e.g. instant connection-
+// refused) can exceed systemd's default restart-rate limit and stop
+// retrying entirely — it looks like "just broken" rather than a crash
+// loop unless you know to check for this specific state, and Restart=
+// alone won't bring it back; it needs an explicit `systemctl
+// reset-failed`.
+var HAAS_CRASH_LOOP_CHECK_SCRIPT = [
+    "echo",
+    "echo \"--- Crash Loop Check (start-limit-hit) ---\"",
+    "found=0",
+    "for f in $(grep -liE \"python3\" " + HAAS_SYSTEMD_DIR + "/haas-*.service 2>/dev/null); do",
+    "    [ -f \"$f\" ] || continue",
+    "    name=$(basename \"$f\" .service)",
+    "    result=$(systemctl show \"$name\" -p Result --value 2>/dev/null)",
+    "    if [ \"$result\" = \"start-limit-hit\" ]; then",
+    "        echo \"  [CRASH LOOP] $name -- hit systemd's restart-rate limit and stopped retrying.\"",
+    "        echo \"      Fix: sudo systemctl reset-failed $name && sudo systemctl start $name\"",
+    "        found=$((found + 1))",
+    "    fi",
+    "done",
+    "if [ \"$found\" -eq 0 ]; then",
+    "    echo \"No services are stuck in a crash loop.\"",
+    "fi"
+].join("\n");
+
 // One-shot TCP reachability check (nc -z) per service's "-t <ip> --port
 // <port>". Run on demand from Service State, not automatically after
 // Create Service — during initial deployment an MSP will often create
@@ -479,23 +533,23 @@ serviceStateBtn.addEventListener("click", function() {
                 .done(function(portData) {
                     output.textContent += portData;
 
-                    cockpit.spawn(["bash", "-c", HAAS_BUFFERING_CHECK_SCRIPT], { superuser: "require", err: "message" })
+                    cockpit.spawn(["bash", "-c", HAAS_BUFFERING_CHECK_SCRIPT + "\n" + HAAS_RESTART_POLICY_CHECK_SCRIPT], { superuser: "require", err: "message" })
                         .done(function(bufData) {
                             output.textContent += bufData;
                         })
                         .fail(function(ex, data4) {
-                            output.textContent += "\nERROR checking for -u: " + (ex.message || JSON.stringify(ex));
+                            output.textContent += "\nERROR checking for -u / restart policy: " + (ex.message || JSON.stringify(ex));
                             if (data4) output.textContent += "\n" + data4;
                         })
                         .always(function() {
                             output.textContent += "\nRunning connectivity check (this can take several seconds)...\n";
 
-                            cockpit.spawn(["bash", "-c", HAAS_CONNECTIVITY_SCRIPT], { superuser: "require", err: "message" })
+                            cockpit.spawn(["bash", "-c", HAAS_CONNECTIVITY_SCRIPT + "\n" + HAAS_CRASH_LOOP_CHECK_SCRIPT], { superuser: "require", err: "message" })
                                 .done(function(connData) {
                                     output.textContent += connData;
                                 })
                                 .fail(function(ex, data3) {
-                                    output.textContent += "\nERROR checking connectivity: " + (ex.message || JSON.stringify(ex));
+                                    output.textContent += "\nERROR checking connectivity / crash loop: " + (ex.message || JSON.stringify(ex));
                                     if (data3) output.textContent += "\n" + data3;
                                 })
                                 .always(function() {

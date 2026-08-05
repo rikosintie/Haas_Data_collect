@@ -90,6 +90,23 @@ summary of every `haas-*` service and its current state, followed by:
   it into an instant flag instead. **Create Service** already includes
   `-u` in every new unit — this catches services created before that,
   or by hand.
+- a check for any CNC logger service missing `Restart=on-failure` (or
+  `Restart=always`), flagged as `[MISSING Restart=on-failure]`. Without
+  it, if `haas_logger2.py` crashes on an unhandled exception, the
+  service just dies and stays dead — no automatic recovery — until
+  someone happens to notice and restarts it by hand. Queried live via
+  `systemctl show`, so it reflects the actually-loaded config rather
+  than depending on the unit file spelling the directive one specific
+  way.
+- a check for any CNC logger service currently stuck in systemd's
+  `start-limit-hit` state, flagged as `[CRASH LOOP]`. Even with
+  `Restart=on-failure` set, a service that crashes repeatedly in a tight
+  loop (e.g. instant connection-refused) can exceed systemd's default
+  restart-rate limit and stop retrying entirely — it looks like "just
+  broken" rather than a crash loop unless you know to check for this
+  specific state, and `Restart=` alone won't bring it back; it needs an
+  explicit `sudo systemctl reset-failed <service>` (shown in the flagged
+  output) before it will start again.
 - a one-shot TCP reachability check (`nc -z`, 2s timeout) against each
   service's `-t <ip> --port <port>` — skipped for any machine that
   already has an established connection from its `python3` process, so a
