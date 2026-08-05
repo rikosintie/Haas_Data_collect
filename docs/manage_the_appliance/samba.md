@@ -7,6 +7,13 @@ the sidebar.
 
 ----------------------------------------------------------------
 
+The line under the page title shows this appliance's current IPv4/MAC
+per active network interface — see
+[Network info on every extension page](./manage_intro.md#network-info-on-every-extension-page)
+for what it means and why more than one active interface is flagged.
+
+----------------------------------------------------------------
+
 The page has a single output/editor panel below a row of buttons. Only one
 of three things is ever shown there:
 

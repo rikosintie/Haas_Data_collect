@@ -10,6 +10,11 @@ day-to-day task that has nothing to do with OS updates. Log into Cockpit
 at `https://<appliance-ip>:9090` and look for **Python Scripts** in the
 sidebar.
 
+The line under the page title shows this appliance's current IPv4/MAC
+per active network interface — see
+[Network info on every extension page](./manage_intro.md#network-info-on-every-extension-page)
+for what it means and why more than one active interface is flagged.
+
 ----------------------------------------------------------------
 
 ## Logs

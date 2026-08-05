@@ -13,6 +13,11 @@ Managing the `haas-*.service` CNC machine-logger services themselves
 Scripts log) has its own dedicated extension — see
 [Python Script Services](python_scripts.md).
 
+The line under the page title shows this appliance's current IPv4/MAC
+per active network interface — see
+[Network info on every extension page](./manage_intro.md#network-info-on-every-extension-page)
+for what it means and why more than one active interface is flagged.
+
 ----------------------------------------------------------------
 
 ![screenshot](./img/cockpit-updates-overview.resized.png)

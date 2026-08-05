@@ -14,6 +14,11 @@ for **Firewall Control** under **System** in the sidebar.
     at the top of the page (the gear icon on mobile) before any of the
     buttons below will work.
 
+The line under the page title shows this appliance's current IPv4/MAC
+per active network interface — see
+[Network info on every extension page](./manage_intro.md#network-info-on-every-extension-page)
+for what it means and why more than one active interface is flagged.
+
 ## Firewall Status Dashboard
 
 ----------------------------------------------------------------

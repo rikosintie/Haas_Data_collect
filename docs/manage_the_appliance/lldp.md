@@ -2,8 +2,8 @@
 
 ----------------------------------------------------------------
 
-This page is for anyone who isn't a network engineer — MSP staff, helpdesk,
-or shopfloor personnel — who needs to know what LLDP is, why the
+This page is for anyone who isn't a network engineer — MSP staff, help-desk,
+or shop floor personnel — who needs to know what LLDP is, why the
 appliance uses it, and how to check it without needing to already know
 networking.
 
@@ -18,8 +18,7 @@ this is me" message every so often: its name, what kind of device it is,
 and which port it's connected on. It listens for the same kind of message
 back from the switch it's plugged into.
 
-Think of it like a name tag every device wears on the network, instead of
-being an anonymous cable running into a wall.
+Think of it as a name tag that every device that supports LLDP wears on the network, instead of being an anonymous cable running into a wall. Most network devices, Access Points, VoIP Phones support it by default. It can be added to Macbooks, Linux laptops by installing the lldp daemon. This appliance uses the [lldpd: implementation of IEEE 802.1ab (LLDP)](https://github.com/lldpd/lldpd) from GitHub.
 
 The appliance runs `lldpd` (installed automatically by `haas-install.sh`),
 which handles this in the background — nothing to configure, nothing to
@@ -29,13 +28,13 @@ turn on. It's already running.
 
 ## Why does the appliance do this?
 
-Two reasons, and they matter for two different people:
+Two reasons, and they matter for two different groups employees:
 
-**1. It makes troubleshooting a "why can't I reach the appliance"
-problem faster.** Instead of physically tracing a cable through the
+**1. It makes troubleshooting "what switch is the appliance onnected to"
+faster.** Instead of physically tracing a cable through the
 ceiling or asking IT to go check, the appliance can tell you exactly
 which switch and which port it's plugged into — see the example below.
-That's often enough to spot the problem immediately (wrong port, wrong
+That's often enough to spot a problem immediately (wrong port, wrong
 switch, cable plugged into the wrong device) without a site visit.
 
 **2. It makes the appliance a known, accounted-for device instead of a

@@ -7,6 +7,12 @@ h1 {
     margin-bottom: 10px;
 }
 
+.network-info {
+    font-size: 0.85em;
+    color: #555;
+    margin-bottom: 12px;
+}
+
 .status {
     font-size: 18px;
     margin-bottom: 15px;

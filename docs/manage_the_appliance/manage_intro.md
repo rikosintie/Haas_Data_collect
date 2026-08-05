@@ -41,3 +41,28 @@ To change the background image later, replace
 re-run `haas-install.sh` — or edit
 `/usr/share/cockpit/branding/ubuntu/branding.css` directly on the
 appliance for a quick one-off change.
+
+## Network info on every extension page
+
+Every custom Cockpit extension — Firewall Control, Manage Samba, System
+Updates, and Python Script Services — shows a line right under its title
+naming the appliance's IPv4 address and MAC address for every active
+**physical** network interface (real Ethernet/Wi-Fi hardware, not
+bridges or virtual adapters). It's a quick sanity check for "am I on the
+network I think I'm on, and is Cockpit reachable on the address I'm
+using" without opening a terminal.
+
+If both Ethernet and Wi-Fi come back active at the same time, both are
+listed side by side, along with a warning:
+
+!!! warning "Use one interface, not both"
+    Running both Ethernet and Wi-Fi simultaneously means the appliance is
+    reachable — and needs to be secured and firewalled — on two separate
+    networks at once, which is harder to reason about and easier to get
+    wrong. For the best security and manageability, connect the
+    appliance over **one** interface at a time; leave the other
+    physically unplugged or disabled.
+
+This has no effect on the firewall itself — `users.csv` rules apply
+per-IP regardless of which interface it's reachable on — it's purely
+informational, read fresh (no caching) every time the page loads.

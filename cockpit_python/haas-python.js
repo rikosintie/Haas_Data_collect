@@ -1036,3 +1036,48 @@ cancelServiceEditBtn.addEventListener("click", function() {
 
 // Show "Ready" state on load
 output.textContent = "Ready.";
+
+// Show the appliance's IPv4 + MAC for each active physical network
+// interface next to the page title — lets an admin confirm at a glance
+// which interface(s) Cockpit is actually reachable on, without needing
+// a terminal. Only physical interfaces (real NICs, not bridges/VMs) are
+// considered, via checking that /sys/class/net/<iface>/device exists.
+// No sudo needed — reading interface info doesn't require root.
+(function loadNetworkInfo() {
+    const el = document.getElementById("network-info");
+    if (!el) return;
+
+    const script = [
+        'for i in $(ip -4 -o addr show scope global | awk \'{print $2}\'); do',
+        '    if [ -e "/sys/class/net/$i/device" ]; then',
+        '        ip_addr=$(ip -4 -o addr show dev "$i" scope global | awk \'{print $4}\' | cut -d/ -f1)',
+        '        mac=$(cat "/sys/class/net/$i/address" 2>/dev/null)',
+        '        echo "$i|$ip_addr|$mac"',
+        '    fi',
+        'done'
+    ].join('\n');
+
+    cockpit.spawn(["bash", "-c", script], { err: "message" })
+        .then(function(result) {
+            const lines = result.trim().split('\n').filter(function(l) { return l.length > 0; });
+
+            if (lines.length === 0) {
+                el.textContent = "Network: no active interface found.";
+                return;
+            }
+
+            const parts = lines.map(function(line) {
+                const fields = line.split('|');
+                return fields[0] + ": " + fields[1] + " (MAC " + fields[2] + ")";
+            });
+
+            let text = "Network — " + parts.join("   |   ");
+            if (lines.length > 1) {
+                text += "   ⚠ Multiple active interfaces — for best security and manageability, only one should be connected.";
+            }
+            el.textContent = text;
+        })
+        .catch(function() {
+            el.textContent = "";
+        });
+})();
