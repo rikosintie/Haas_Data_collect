@@ -173,6 +173,41 @@
             return octets.reduce(function(acc, o) { return acc * 256 + parseInt(o, 10); }, 0);
         }
 
+        // Sorts numbered UFW rule lines by IP (via ufwRuleSortKey) and
+        // inserts a dashed divider between each group of same-IP rules —
+        // each "user" in the CSV produces 2-3 consecutive rules (ssh/smb/
+        // cockpit) that share one IP, so this visually separates one
+        // user's rules from the next instead of it reading as one
+        // undifferentiated block. Shared by the Active Firewall Rules
+        // dashboard and the Show Current UFW Rules button, so both render
+        // identically.
+        function formatUfwRulesTable(ruleLines) {
+            if (ruleLines.length === 0) return "No rules configured.";
+
+            const sorted = ruleLines.slice().sort(function(a, b) {
+                return ufwRuleSortKey(a) - ufwRuleSortKey(b);
+            });
+
+            const maxLen = sorted.reduce(function(m, l) { return Math.max(m, l.length); }, 0);
+            const divider = "-".repeat(maxLen);
+
+            const out = [];
+            let prevKey = null;
+            sorted.forEach(function(line, i) {
+                const key = ufwRuleSortKey(line);
+                if (i > 0 && key !== prevKey) {
+                    out.push(divider);
+                }
+                out.push(line);
+                prevKey = key;
+            });
+            out.push(divider);
+
+            return "To                         Action      From\n" +
+                   "--                         ------      ----\n" +
+                   out.join('\n');
+        }
+
         // Function to update firewall status
         function updateFirewallStatus() {
             cockpit.spawn(["ufw", "status"], { superuser: "require", err: "out" })
@@ -200,19 +235,8 @@
                     if (isUfwLive) return;
 
                     const lines = rulesOutput.split('\n');
-                    const ruleLines = lines.filter(line => line.includes('['));
-
-                    if (ruleLines.length > 0) {
-                        const sortedRuleLines = ruleLines.slice().sort(function(a, b) {
-                            return ufwRuleSortKey(a) - ufwRuleSortKey(b);
-                        });
-                        let formattedRules = "To                         Action      From\n";
-                        formattedRules += "--                         ------      ----\n";
-                        formattedRules += sortedRuleLines.join('\n');
-                        activeRules.textContent = formattedRules;
-                    } else {
-                        activeRules.textContent = "No rules configured.";
-                    }
+                    const ruleLines = lines.filter(line => /^\s*\[\s*\d+\]/.test(line));
+                    activeRules.textContent = formatUfwRulesTable(ruleLines);
                 })
                 .catch(function(error) {
                     statusIndicator.style.backgroundColor = "#999";
@@ -281,9 +305,28 @@
             runCommand(["/usr/local/sbin/configure_ufw_from_csv.sh", "--compare", csvPath], "Compare firewall rules against " + csvPath);
         });
 
-        // Button 3: Show rules
+        // Button 3: Show rules — captures the full output (rather than
+        // runCommand's live streaming) so it can be sorted/grouped with
+        // formatUfwRulesTable before display, the same as Active Firewall
+        // Rules. Still runs the real script (not just `ufw status
+        // numbered` directly), so the "Showing current UFW rules..." line
+        // still lands in /var/log/haas-firewall.log via the script's own
+        // logging.
         document.getElementById("btn-show-rules").addEventListener("click", function() {
-            runCommand(["/usr/local/sbin/configure_ufw_from_csv.sh", "--show-rules"], "Show current UFW rules");
+            const args = ["/usr/local/sbin/configure_ufw_from_csv.sh", "--show-rules"];
+            output.textContent = "Running: Show current UFW rules\nCommand: " + args.join(" ") + "\n\n";
+
+            cockpit.spawn(args, { superuser: "require", err: "out" })
+                .then(function(result) {
+                    const lines = result.split('\n');
+                    const ruleLines = lines.filter(function(line) { return /^\s*\[\s*\d+\]/.test(line); });
+                    output.textContent += formatUfwRulesTable(ruleLines) + "\n\n[SUCCESS] Command completed.\n";
+                    output.scrollTop = output.scrollHeight;
+                })
+                .catch(function(error) {
+                    output.textContent += "\n[ERROR] " + error + "\n";
+                    output.scrollTop = output.scrollHeight;
+                });
         });
 
         // Button 3a: Show network neighbor (LLDP) — answers "what switch/port

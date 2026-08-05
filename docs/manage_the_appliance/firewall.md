@@ -39,7 +39,10 @@ At the top of the page:
   still what you'd pass to `ufw delete N` if you ever needed to, they just
   won't run 1, 2, 3... top to bottom on screen anymore. Subnet/CIDR rules
   sort by their network address; non-IPv4 entries (`Anywhere`, IPv6) sort
-  last.
+  last. A dashed divider separates each IP's group of rules from the
+  next, since one CSV row (one person/machine) usually produces 2-3
+  consecutive rules (ssh/smb/cockpit) that belong together — **Show
+  Current UFW Rules** below renders the same grouped/sorted table.
 - **Show Network Neighbor** — runs `lldpcli show neighbors` and prints the
   result in the output pane below: which switch and port this appliance
   is physically plugged into, straight from the page — no SSH needed.
@@ -70,7 +73,7 @@ check what *would* happen:
 | Button | What it does |
 |---|---|
 | Simulate Firewall Update (Dry-Run) | Runs `configure_ufw_from_csv.sh --dry-run` against the current `users.csv` |
-| Show Current UFW Rules | Runs `configure_ufw_from_csv.sh --show-rules` |
+| Show Current UFW Rules | Runs `configure_ufw_from_csv.sh --show-rules`, sorted and grouped by IP the same way as Active Firewall Rules above |
 | Edit users.csv | Opens `~/Haas_Data_collect/users.csv` in an inline editor (see below) |
 | Edit Custom CSV | Opens whatever path is currently typed in the **Compare Current vs Planned Rules** box (below) in the same inline editor |
 | Edit conf file | Opens `/etc/haas-firewall.conf` in an inline editor |
