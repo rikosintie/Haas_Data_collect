@@ -464,6 +464,7 @@
                             .replace(normalized)
                             .then(function() {
                                 output.textContent = "File saved successfully!\n";
+                                alert("File saved. Click \"Apply Firewall Changes\" to activate the new rules.");
                             })
                             .catch(function(error) {
                                 output.textContent = "Error saving file: " + error + "\n";
@@ -535,6 +536,7 @@
                             .replace(normalized)
                             .then(function() {
                                 output.textContent = "File saved successfully!\n";
+                                alert("File saved. Click \"Apply Firewall Changes\" to activate the new rules.");
                             })
                             .catch(function(error) {
                                 output.textContent = "Error saving file: " + error + "\n";

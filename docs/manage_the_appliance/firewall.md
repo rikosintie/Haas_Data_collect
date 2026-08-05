@@ -77,6 +77,12 @@ click it, so it always edits whatever file is currently typed in
 **Compare Current vs Planned Rules** — change that field first if you want
 to edit a different file.
 
+Saving from **Edit users.csv** or **Edit Custom CSV** pops up a reminder —
+**"Click 'Apply Firewall Changes' to activate the new rules"** — since
+saving the CSV doesn't touch the live firewall by itself. **Edit conf
+file** doesn't show this, since `/etc/haas-firewall.conf` isn't a rules
+file `configure_ufw_from_csv.sh` reads.
+
 !!! note "Save Changes validates the CSV first"
     **Edit users.csv** and **Edit Custom CSV** both check every row before
     writing anything, mirroring exactly what `configure_ufw_from_csv.sh`
