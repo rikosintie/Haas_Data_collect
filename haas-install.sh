@@ -107,7 +107,7 @@ banner() {
     local -a msgs=("$@")
     local -a clean
     local -a dwidth
-    local msg c len max=0 width border blank sep i pad padstr wide_count
+    local msg c len max=0 width border blank sep i pad padstr wide_count stripped
 
     for msg in "${msgs[@]}"; do
         if [[ "$msg" == "---" ]]; then
@@ -123,7 +123,12 @@ banner() {
         # ✔/⚠️/→ (also used in banner() calls elsewhere) were checked
         # too and are Narrow/Ambiguous-width — already correctly
         # counted as 1 column, so intentionally not adjusted here.
-        wide_count=$(grep -o '[✅❌]' <<< "$c" | wc -l)
+        # Counted via pure parameter expansion, not `grep -o | wc -l` —
+        # grep exits 1 when a message has no wide icon (nearly every
+        # banner call), which under `set -e` aborted the whole script
+        # the moment a plain banner() call ran.
+        stripped="${c//[✅❌]/}"
+        wide_count=$(( ${#c} - ${#stripped} ))
         len=$(( ${#c} + wide_count ))
         dwidth+=("$len")
         if (( len > max )); then
