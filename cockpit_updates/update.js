@@ -547,11 +547,18 @@ checkUpdates();
                 return fields[0] + ": " + fields[1] + " (MAC " + fields[2] + ")";
             });
 
-            let text = "Network — " + parts.join("   |   ");
+            el.innerHTML = "";
+
+            const addressLine = document.createElement("div");
+            addressLine.textContent = "Network — " + parts.join("   |   ");
+            el.appendChild(addressLine);
+
             if (lines.length > 1) {
-                text += "   ⚠ Multiple active interfaces — for best security and manageability, only one should be connected.";
+                const warningLine = document.createElement("div");
+                warningLine.className = "network-warning";
+                warningLine.textContent = "⚠ Multiple active interfaces — for best security and manageability, only one should be connected.";
+                el.appendChild(warningLine);
             }
-            el.textContent = text;
         })
         .catch(function() {
             el.textContent = "";
