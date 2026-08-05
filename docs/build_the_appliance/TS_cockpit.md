@@ -87,6 +87,30 @@ drwxr-xr-x root root haas-firewall
 
 ----------------------------------------------------------------
 
+## The "Software Updates" page doesn't work
+
+Cockpit ships a built-in **Software Updates** page (separate from this
+appliance's own custom **Updates - Logs** extension). On Ubuntu Server,
+clicking it typically fails with an error like *"cannot refresh cache
+whilst offline"* — even though the appliance is definitely online.
+
+This isn't specific to this appliance; it's a known upstream interaction:
+Cockpit's Software Updates page uses PackageKit, and PackageKit checks
+**NetworkManager** to decide whether the system is online before it will
+refresh the package cache. Ubuntu Server's default netplan renderer is
+**`networkd`**, not NetworkManager — so PackageKit sees no
+NetworkManager-managed connection and reports the system as offline,
+regardless of actual connectivity. (Ubuntu *Desktop* defaults to
+NetworkManager, which is why the same Cockpit page works fine there.)
+See [cockpit-project/cockpit#22982](https://github.com/cockpit-project/cockpit/issues/22982).
+
+**Don't use Cockpit's built-in Software Updates page on this appliance.**
+Use **Updates - Logs** in the sidebar instead — it runs `apt`/`nala`
+directly and doesn't depend on PackageKit or NetworkManager at all, so
+this renderer mismatch never applies to it.
+
+----------------------------------------------------------------
+
 ## LLDP
 
 Link Layer Discovery Protocol (LLDP) is an IEEE standard that comes installed on a majority of networking appliances. This appliance uses the [lldpd: implementation of IEEE 802.1ab (LLDP)](https://github.com/lldpd/lldpd) from GitHub. The tool is useful when you are connecting the appliance to a network and want to know what it is connected to over Ethernet or WiFI.

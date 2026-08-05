@@ -72,6 +72,15 @@ listed, with a highlighted amber warning box on its own line underneath
     appliance over **one** interface at a time; leave the other
     physically unplugged or disabled.
 
+!!! tip "DHCP reservation for visibility"
+    The IP shown here should already be reserved for the appliance in
+    DHCP, with a real name and description — not just handed out
+    dynamically. If the appliance ever needs to be looked up by MAC
+    address, physical location, or "who owns this device," the DHCP
+    reservation is where that information should already live. See
+    [Network Deployment: DHCP, DNS, and a Stable Network Identity](../build_the_appliance/network_deployment.md)
+    for how to set that up during initial deployment.
+
 This has no effect on the firewall itself — `users.csv` rules apply
 per-IP regardless of which interface it's reachable on — it's purely
 informational, read fresh (no caching) every time the page loads.
