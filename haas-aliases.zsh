@@ -468,8 +468,8 @@ alias _='sudo '
 
 alias cat='batcat'
 # cat --list-themes to see all themes
-export BAT_THEME="Coldark-Cold"
-# export BAT_THEME="zenburn"
+# export BAT_THEME="Coldark-Cold"
+export BAT_THEME="zenburn"
 
 # shows current path, one element per line.
 # If an argument is supplied, grep for it.
