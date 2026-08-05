@@ -448,6 +448,8 @@ User=haas
 WorkingDirectory=/home/haas/Haas_Data_collect/machines/st40
 ExecStart=/usr/bin/python3 -u /home/haas/Haas_Data_collect/haas_logger2.py -a -t 192.168.10.140  --port 5052 --name ST40
 Type=idle
+Restart=on-failure
+RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
@@ -491,6 +493,8 @@ User=haas
 WorkingDirectory=/home/haas/Haas_Data_collect/machines/st40
 ExecStart=/usr/bin/python3 -u /home/haas/Haas_Data_collect/haas_logger2.py -a -t 192.168.10.133 --port 5054 --name st40
 Type=idle
+Restart=on-failure
+RestartSec=5
 
 [Install]
 WantedBy=multi-user.target

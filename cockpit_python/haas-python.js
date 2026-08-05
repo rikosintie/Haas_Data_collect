@@ -958,6 +958,8 @@ saveServiceBtn.addEventListener("click", function() {
             "WorkingDirectory=/home/haas/Haas_Data_collect/machines/" + machine,
             "ExecStart=/usr/bin/python3 -u /home/haas/Haas_Data_collect/haas_logger2.py -a -t " + ipAddress + " --port " + port + " --name " + machine.toUpperCase(),
             "Type=idle",
+            "Restart=on-failure",
+            "RestartSec=5",
             "",
             "[Install]",
             "WantedBy=multi-user.target"

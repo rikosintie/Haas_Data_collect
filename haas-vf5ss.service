@@ -5,8 +5,10 @@ After=network.target
 [Service]
 User=haas
 WorkingDirectory=/home/haas/Haas_Data_collect
-ExecStart=/usr/bin/python3 /home/haas/Haas_Data_collect/haas_logger2.py -a -t 192.168.10.142  --port 5054 --name VF5SS
+ExecStart=/usr/bin/python3 -u /home/haas/Haas_Data_collect/haas_logger2.py -a -t 192.168.10.142  --port 5054 --name VF5SS
 Type=idle
+Restart=on-failure
+RestartSec=5
 
 [Install]
 WantedBy=multi-user.target

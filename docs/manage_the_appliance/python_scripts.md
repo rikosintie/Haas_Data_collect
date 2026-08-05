@@ -204,6 +204,19 @@ Address, Port) instead of a raw editor — this generates a new
     Raspberry Pi 5 running all 11 machines simultaneously with `-u`
     everywhere: load average 0.13, well under 2% CPU total.
 
+!!! note "Why the template uses `Restart=on-failure` and `RestartSec=5`"
+    Without `Restart=on-failure`, a service that crashes on an unhandled
+    exception just dies and stays dead — no automatic recovery — until
+    someone happens to notice and restarts it by hand. This is exactly
+    what **Service State**'s `[MISSING Restart=on-failure]` check flags.
+    `RestartSec=5` adds a 5-second pause before each restart attempt,
+    rather than retrying instantly — for a persistent failure (e.g. a
+    permanently wrong IP) that gives a little more breathing room before
+    systemd's default restart-rate limit trips into `start-limit-hit`
+    (flagged separately by Service State's `[CRASH LOOP]` check), though
+    a truly persistent failure will still hit it eventually — that's
+    the point of the check, not a bug in this setting.
+
 ----------------------------------------------------------------
 
 ### Delete Service
