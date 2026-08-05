@@ -43,6 +43,9 @@ At the top of the page:
 - **Show Network Neighbor** — runs `lldpcli show neighbors` and prints the
   result in the output pane below: which switch and port this appliance
   is physically plugged into, straight from the page — no SSH needed.
+  Since this button sits up here but its result appears in the output
+  pane further down the page, clicking it automatically scrolls that
+  pane into view — no need to know to scroll down and look for it.
   See [Network Visibility (LLDP)](./lldp.md) for what the output means
   and why it matters.
 

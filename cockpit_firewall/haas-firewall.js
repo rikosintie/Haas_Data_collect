@@ -292,6 +292,11 @@
         // without needing SSH access.
         document.getElementById("btn-lldp-neighbors").addEventListener("click", function() {
             runCommand(["lldpcli", "show", "neighbors"], "Show network neighbor (LLDP)");
+            // This button lives at the top of the page, but its result
+            // goes into the shared output pane further down — scroll it
+            // into view so the result is actually visible without the
+            // user having to know to scroll down and look for it.
+            output.scrollIntoView({ behavior: "smooth", block: "start" });
         });
 
         // Button 4: Reset firewall
