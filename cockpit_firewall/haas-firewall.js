@@ -464,7 +464,16 @@
                             .replace(normalized)
                             .then(function() {
                                 output.textContent = "File saved successfully!\n";
-                                alert("File saved. Click \"Apply Firewall Changes\" to activate the new rules.");
+                                // Apply Firewall Changes uses users.csv only
+                                // when "Use custom CSV file" is UNCHECKED —
+                                // if it's still checked from editing a
+                                // custom CSV earlier, Apply would use that
+                                // stale path instead of the file just saved.
+                                if (document.getElementById("use-custom-csv").checked) {
+                                    alert("File saved to " + csvPath + ".\n\n\"Use custom CSV file\" is currently checked, so \"Apply Firewall Changes\" would use that path instead. Uncheck it, then click \"Apply Firewall Changes\" to activate these rules.");
+                                } else {
+                                    alert("File saved. Click \"Apply Firewall Changes\" to activate the new rules.");
+                                }
                             })
                             .catch(function(error) {
                                 output.textContent = "Error saving file: " + error + "\n";
@@ -536,7 +545,19 @@
                             .replace(normalized)
                             .then(function() {
                                 output.textContent = "File saved successfully!\n";
-                                alert("File saved. Click \"Apply Firewall Changes\" to activate the new rules.");
+                                // Apply Firewall Changes only uses this path
+                                // when "Use custom CSV file" is checked AND
+                                // its path field matches what was just
+                                // edited — otherwise Apply would silently
+                                // use plain users.csv (or a different
+                                // stale custom path) instead.
+                                var useCustomChecked = document.getElementById("use-custom-csv").checked;
+                                var customPathValue = document.getElementById("custom-csv-path").value.trim();
+                                if (useCustomChecked && customPathValue === csvPath) {
+                                    alert("File saved. Click \"Apply Firewall Changes\" to activate the new rules.");
+                                } else {
+                                    alert("File saved to " + csvPath + ".\n\nTo activate these rules: check \"Use custom CSV file\", enter " + csvPath + " as the Custom CSV path, then click \"Apply Firewall Changes\".");
+                                }
                             })
                             .catch(function(error) {
                                 output.textContent = "Error saving file: " + error + "\n";

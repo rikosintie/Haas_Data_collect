@@ -77,11 +77,28 @@ click it, so it always edits whatever file is currently typed in
 **Compare Current vs Planned Rules** — change that field first if you want
 to edit a different file.
 
-Saving from **Edit users.csv** or **Edit Custom CSV** pops up a reminder —
-**"Click 'Apply Firewall Changes' to activate the new rules"** — since
-saving the CSV doesn't touch the live firewall by itself. **Edit conf
-file** doesn't show this, since `/etc/haas-firewall.conf` isn't a rules
-file `configure_ufw_from_csv.sh` reads.
+Saving from **Edit users.csv** or **Edit Custom CSV** pops up a reminder
+that saving the CSV doesn't touch the live firewall by itself — you still
+need **Apply Firewall Changes** below. The reminder checks whether
+**Use custom CSV file** and its path field are actually set up to apply
+the file you just saved, and adjusts accordingly:
+
+- Saved **users.csv** and **Use custom CSV file** is unchecked (the usual
+  case) → simple reminder to click **Apply Firewall Changes**.
+- Saved **users.csv** but **Use custom CSV file** is still checked from
+  editing a custom CSV earlier → tells you to uncheck it first, since
+  Apply would otherwise use that stale custom path instead of the
+  `users.csv` you just saved.
+- Saved a custom CSV and **Use custom CSV file** is already checked with
+  a matching path → simple reminder to click **Apply Firewall Changes**.
+- Saved a custom CSV but the checkbox is unchecked, or checked with a
+  *different* path → spells out exactly what to check and what path to
+  enter, since Apply would otherwise silently apply `users.csv` (or the
+  wrong custom file) instead of what you just edited.
+
+**Edit conf file** doesn't show any of this, since
+`/etc/haas-firewall.conf` isn't a rules file `configure_ufw_from_csv.sh`
+reads.
 
 !!! note "Save Changes validates the CSV first"
     **Edit users.csv** and **Edit Custom CSV** both check every row before
