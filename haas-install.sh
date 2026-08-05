@@ -76,12 +76,20 @@
     # Failure message → bold yellow
     # Everything else → normal
 
-# Colors
-CYAN="\e[1;36m" # ${CYAN}
-GREEN="\e[1;32m" # ${GREEN}
-YELLOW="\e[1;33m" # ${YELLOW}
-RED="\e[1;31m" # ${RED}
-RESET="\e[0m" # ${RESET}
+# Colors — $'...' (ANSI-C quoting) so these hold a real escape byte at
+# assignment time, not the literal two-character text "\e[...m". That
+# matters because banner() below prints messages with plain `echo`: a
+# literal "\e[...m" string only turns into color with `echo -e`/`printf`,
+# but `echo -e` ALSO interprets any literal "\\" in the message itself
+# (e.g. a Windows UNC path like \\<ip>\Haas), silently eating one
+# backslash. Real escape bytes need no interpretation, so banner() can
+# use plain `echo` and stop mangling message content. Same fix already
+# applied in haas-aliases.zsh for the identical reason.
+CYAN=$'\e[1;36m' # ${CYAN}
+GREEN=$'\e[1;32m' # ${GREEN}
+YELLOW=$'\e[1;33m' # ${YELLOW}
+RED=$'\e[1;31m' # ${RED}
+RESET=$'\e[0m' # ${RESET}
 
 # Check for root FIRST
 if [[ $EUID -ne 0 ]]; then
@@ -105,7 +113,7 @@ banner() {
             clean+=("")
             continue
         fi
-        c=$(echo -e "$msg" | sed -E 's/\x1b\[[0-9;]+m//g')
+        c=$(echo "$msg" | sed -E 's/\x1b\[[0-9;]+m//g')
         clean+=("$c")
         len=${#c}
         if (( len > max )); then
@@ -133,7 +141,7 @@ banner() {
         fi
         pad=$(( max - ${#clean[$i]} + 2 ))
         printf -v padstr '%*s' "$pad" ''
-        echo -e "#  ${msgs[$i]}${padstr}#"
+        echo "#  ${msgs[$i]}${padstr}#"
     done
     echo "$blank"
     echo "$border"
@@ -783,11 +791,9 @@ id "haas"
         done
 
         echo ""
+        echo "All users from initial_users.csv have been processed."
+        echo "(The reminder to delete $USER_FILE is shown again at the end of this install, so it doesn't scroll off screen.)"
         echo ""
-        banner "${CYAN}All users from initial_users.csv have been processed${RESET}" "---" "${RED}IMPORTANT${RESET}: Delete $USER_FILE now for security!"
-        echo ""
-        echo ""
-        sleep 5
     else
         echo ""
         echo ""
@@ -1356,3 +1362,19 @@ echo ""
 echo ""
 banner "${GREEN}This summary was also saved to: $SUMMARY_FILE${RESET}"
 echo ""
+
+########################################
+# FINAL SECURITY REMINDER
+# Deliberately the very last thing this script prints — everything else
+# above (zoxide, reboot check, install summary) has already scrolled by
+# a long install's worth of output, so this is placed last on purpose,
+# not mid-script, so it can't get scrolled off screen before it's read.
+########################################
+if [[ -n "${USER_FILE:-}" && -f "$USER_FILE" ]]; then
+    echo ""
+    echo ""
+    banner "${CYAN}All users from initial_users.csv have been processed${RESET}" "---" "${RED}IMPORTANT${RESET}: Delete $USER_FILE now for security!"
+    echo ""
+    echo ""
+    sleep 5
+fi
