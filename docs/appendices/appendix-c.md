@@ -517,7 +517,10 @@ transmitting and receiving on all interfaces by default. This means:
   itself. This is meaningful for audit purposes specifically *because*
   it's third-party evidence: an auditor pulling neighbor data from the
   switch doesn't have to trust anything the appliance reports about
-  itself.
+  itself. [Network Visibility (LLDP)](../manage_the_appliance/lldp.md#what-itsoc-sees-from-their-side)
+  has a real example: a Cisco switch's own `show lldp neighbor` output
+  identifying the appliance by hostname on a specific port, independent
+  of any query run against the appliance itself.
 - It supports asset inventory / CMDB reconciliation — the appliance can
   be matched against a switch port and physical location without a site
   visit or manual documentation that can drift out of date.

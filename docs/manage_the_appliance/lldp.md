@@ -110,6 +110,42 @@ scavenger hunt into a two-line message.
 
 ----------------------------------------------------------------
 
+## What IT/SOC sees from their side
+
+Everything above is the appliance's own view, looking out. The switch
+sees the exact same conversation from the other direction — this is real
+output from a Cisco switch, run by the network team, not the appliance:
+
+```text
+LAB_3850#sh lldp ne | i 1/0/9
+haas                Gi1/0/9        120        W               88a2.9e43.4dde
+```
+
+That single line is the switch confirming: *a device announcing itself as
+"haas" is plugged into my port Gi1/0/9, and it's a workstation-class
+device (`W`).* No login to the appliance required — this comes straight
+from `show lldp neighbor`, entirely independent of anything the appliance
+itself reports. That independence is exactly what makes it useful as
+audit evidence, not just a troubleshooting convenience.
+
+!!! tip "Give the port a description too"
+    LLDP tells a switch *what's* plugged in, but a port description makes
+    that fact readable in the switch's own config, with no LLDP query
+    needed at all. On this switch:
+
+    ```text
+    Port:
+        PortID:       ifname Gi1/0/9
+        PortDescr:    Haas Data Appliance
+    ```
+
+    Setting a port description like this (`interface GigabitEthernet1/0/9`
+    → `description Haas Data Appliance` on Cisco IOS) is a one-time,
+    switch-side step for the network team — worth doing the same way for
+    every appliance so a switch config review alone tells the whole story.
+
+----------------------------------------------------------------
+
 ## Want more detail?
 
 [Troubleshooting: LLDP](../build_the_appliance/TS_cockpit.md#lldp) covers
