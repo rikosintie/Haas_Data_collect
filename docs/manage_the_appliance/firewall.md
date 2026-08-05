@@ -68,6 +68,19 @@ check what *would* happen:
 | Edit conf file | Opens `/etc/haas-firewall.conf` in an inline editor |
 | Compare Current vs Planned Rules | Runs `configure_ufw_from_csv.sh --compare <path>` against whatever CSV path you enter — defaults to `users1.csv`, the usual convention for a planned/alternate file, since comparing against `users.csv` (the file already active) wouldn't show anything interesting |
 
+!!! note "What users1.csv is actually for"
+    `users1.csv` isn't just a scratch file for testing changes — the
+    convention on this appliance is to use it for **contractors and
+    temporary employees** (contract CNC programmers, temp Ops staff,
+    etc.) who need access for a limited time. When one needs access,
+    add them to `users1.csv` — via **Edit Custom CSV** — check **Use
+    custom CSV file**, and run **Apply Firewall Changes**. When their
+    contract ends, run **Apply Firewall Changes** again against plain
+    `users.csv` (uncheck **Use custom CSV file**, or just click
+    **Apply Firewall Changes** without checking it) to drop their
+    access — no need to hand-edit `users1.csv` back out or remember
+    which rows were theirs.
+
 The **Edit users.csv** / **Edit Custom CSV** / **Edit conf file** buttons
 load the file into a text box in place of the output pane, with **Save
 Changes** and **Cancel** buttons. Saving writes the file directly — it does
