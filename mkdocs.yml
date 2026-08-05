@@ -26,6 +26,7 @@ nav:
       - Manage Samba: 'manage_the_appliance/samba.md'
       - Updates - Logs: 'manage_the_appliance/updates.md'
       - Python Script Services: 'manage_the_appliance/python_scripts.md'
+      - Network Visibility (LLDP): 'manage_the_appliance/lldp.md'
       - Terminal Aliases: 'manage_the_appliance/terminal_aliases.md'
       - Third-Party Tools: 'manage_the_appliance/third_party_tools.md'
   - Appendices:

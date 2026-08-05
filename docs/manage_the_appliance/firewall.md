@@ -40,6 +40,11 @@ At the top of the page:
   won't run 1, 2, 3... top to bottom on screen anymore. Subnet/CIDR rules
   sort by their network address; non-IPv4 entries (`Anywhere`, IPv6) sort
   last.
+- **Show Network Neighbor** — runs `lldpcli show neighbors` and prints the
+  result in the output pane below: which switch and port this appliance
+  is physically plugged into, straight from the page — no SSH needed.
+  See [Network Visibility (LLDP)](./lldp.md) for what the output means
+  and why it matters.
 
 ## Firewall Log
 

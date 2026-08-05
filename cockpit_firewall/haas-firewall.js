@@ -286,6 +286,14 @@
             runCommand(["/usr/local/sbin/configure_ufw_from_csv.sh", "--show-rules"], "Show current UFW rules");
         });
 
+        // Button 3a: Show network neighbor (LLDP) — answers "what switch/port
+        // is this appliance plugged into", the same info haas-lldp-neighbors
+        // gives from the terminal (see docs/manage_the_appliance/lldp.md),
+        // without needing SSH access.
+        document.getElementById("btn-lldp-neighbors").addEventListener("click", function() {
+            runCommand(["lldpcli", "show", "neighbors"], "Show network neighbor (LLDP)");
+        });
+
         // Button 4: Reset firewall
         document.getElementById("btn-reset").addEventListener("click", function() {
             if (!confirm("This will reset ALL firewall rules! Are you sure?")) {

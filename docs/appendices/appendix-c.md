@@ -498,7 +498,49 @@ That is exactly what we want. Lines 1-2 show all ports were blocked and SMB wasn
 
 ----------------------------------------------------------------
 
-## 10. Conclusion
+## 10. Network Visibility & Asset Inventory (LLDP)
+
+An unmanaged or unidentified device on the network is a common finding in
+security audits and a common early indicator in incident response — the
+core assumption behind "IT/SOC knows about every device on the network"
+is that anything they *don't* recognize gets treated as suspicious by
+default.
+
+The appliance runs `lldpd` ([IEEE 802.1AB](https://github.com/lldpd/lldpd)),
+installed automatically by `haas-install.sh` with no custom configuration,
+transmitting and receiving on all interfaces by default. This means:
+
+- The appliance announces its hostname, OS version, and management IP to
+  whatever switch port it's connected to, every ~30 seconds.
+- It shows up in that switch's own LLDP neighbor table — visible to
+  IT/SOC from the network equipment side, independent of the appliance
+  itself. This is meaningful for audit purposes specifically *because*
+  it's third-party evidence: an auditor pulling neighbor data from the
+  switch doesn't have to trust anything the appliance reports about
+  itself.
+- It supports asset inventory / CMDB reconciliation — the appliance can
+  be matched against a switch port and physical location without a site
+  visit or manual documentation that can drift out of date.
+
+**Fair characterization of the tradeoff:** LLDP is link-local only (a
+single hop, not routed beyond the directly connected switch), so this
+exposes hostname/OS/IP information to whatever else shares that same
+Ethernet segment. That's not new risk in this threat model specifically
+— [Section 5](#5-key-security-assumptions) already assumes the appliance
+sits on a trusted internal network, and anything already on that same L2
+segment already has direct access to the appliance's exposed services
+(SSH/SMB/Cockpit) regardless of LLDP. LLDP doesn't expand what an
+on-segment attacker could already reach; it makes the appliance
+identifiable to legitimate network management on that same segment.
+
+See [Network Visibility (LLDP)](../manage_the_appliance/lldp.md) for the
+operator-facing explanation and
+[Troubleshooting: LLDP](../build_the_appliance/TS_cockpit.md#lldp) for
+full command output.
+
+----------------------------------------------------------------
+
+## 11. Conclusion
 
 The appliance’s threat model is intentionally simple:
 **minimize attack surface, restrict access, use modern cryptography, and avoid unnecessary complexity.**
