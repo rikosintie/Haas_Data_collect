@@ -46,13 +46,18 @@ appliance for a quick one-off change.
 
 Every custom Cockpit extension — Firewall Control, Manage Samba, System
 Updates, and Python Script Services — shows a line right under its title
-naming the appliance's IPv4 address and MAC address for every active
+listing the appliance's IPv4 address and MAC address for every active
 **physical** network interface (real Ethernet/Wi-Fi hardware, not
 bridges or virtual adapters), set off from the rest of the page by a
 divider line so it doesn't visually run into the paragraph below it.
-It's a quick sanity check for "am I on the network I think I'm on, and
-is Cockpit reachable on the address I'm using" without opening a
-terminal.
+
+It's a quick sanity check for "am I on the network I think I'm on" if using a DNS name to login, and is "Cockpit reachable on the address I'm using" without opening a terminal.
+
+----------------------------------------------------------------
+
+![screenshot](./img/ip-mac-address.png)
+
+----------------------------------------------------------------
 
 If both Ethernet and Wi-Fi come back active at the same time, both are
 listed, with a highlighted amber warning box on its own line underneath
