@@ -705,7 +705,16 @@
                 output.textContent = "Please enter a backup filename.\n";
                 return;
             }
-            runCommand(["/usr/local/sbin/rollback_csv.sh", backupName], "Rollback from " + backupName);
+            runCommand(["/usr/local/sbin/rollback_csv.sh", backupName], "Rollback from " + backupName, function() {
+                // rollback_csv.sh always restores into plain users.csv
+                // (see its own "Target:" line) — never a custom path — so,
+                // same as Edit users.csv, make sure "Use custom CSV file"
+                // is off before reminding the user to apply, rather than
+                // risking Apply using a stale custom path instead of the
+                // file that was just restored.
+                document.getElementById("use-custom-csv").checked = false;
+                alert("CSV restored to /home/haas/Haas_Data_collect/users.csv.\n\nClick \"Apply Firewall Changes\" to activate these rules.");
+            });
         });
 
         // ── UFW filter radio helper ────────────────────────────────────────────

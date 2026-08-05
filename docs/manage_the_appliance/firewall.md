@@ -167,3 +167,9 @@ reach for far less often than Simulate/Compare or Apply Firewall Changes.
 2. Selecting a backup previews its contents in the output pane and fills
    in the filename field.
 3. Click **Rollback CSV** to run `rollback_csv.sh` against that backup.
+
+**Rollback CSV** only restores the file — like the CSV editors above, it
+doesn't touch the live firewall by itself. Since `rollback_csv.sh` always
+restores into the same fixed CSV path (never a custom one), a successful
+rollback unchecks **Use custom CSV file** and pops up a reminder to click
+**Apply Firewall Changes**, exactly like saving from **Edit users.csv**.
