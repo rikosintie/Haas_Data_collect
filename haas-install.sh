@@ -1109,6 +1109,58 @@ fi
 sleep 3
 
 ########################################
+# CUSTOMIZE COCKPIT LOGIN PAGE BRANDING
+########################################
+echo ""
+echo ""
+banner "${CYAN}[*] Customizing Cockpit login page branding...${RESET}"
+echo ""
+echo ""
+
+# $ID (e.g. "ubuntu") takes precedence over cockpit's built-in "default"/
+# "static" branding tiers, so dropping our files there is guaranteed to
+# win regardless of what the distro ships out of the box. See:
+# https://github.com/cockpit-project/cockpit/blob/main/doc/branding.md
+COCKPIT_OS_ID=$( . /etc/os-release && echo "$ID" )
+COCKPIT_BRANDING_DST="/usr/share/cockpit/branding/${COCKPIT_OS_ID:-default}"
+
+sudo mkdir -p "$COCKPIT_BRANDING_DST"
+sudo cp "$REPO_DIR/docs/manage_the_appliance/img/tux_ops.resized.jpg" "$COCKPIT_BRANDING_DST/background.jpg"
+
+sudo tee "$COCKPIT_BRANDING_DST/branding.css" > /dev/null << 'BRANDING_EOF'
+/* Haas CNC Data Collection Appliance — custom Cockpit login branding */
+
+html body.login-pf {
+    background: url("background.jpg");
+    background-size: cover;
+    background-position: center;
+}
+
+#brand::before {
+    content: "Haas CNC Data Collection Appliance";
+}
+BRANDING_EOF
+
+sudo chown root:root "$COCKPIT_BRANDING_DST/background.jpg" "$COCKPIT_BRANDING_DST/branding.css"
+sudo chmod 644 "$COCKPIT_BRANDING_DST/background.jpg" "$COCKPIT_BRANDING_DST/branding.css"
+sudo systemctl restart cockpit
+
+if [[ -f "$COCKPIT_BRANDING_DST/branding.css" ]]; then
+    echo ""
+    echo ""
+    banner "${CYAN}✅ Cockpit login branding installed → $COCKPIT_BRANDING_DST${RESET}"
+    echo ""
+    echo ""
+else
+    echo ""
+    echo ""
+    banner "${YELLOW}⚠️ Cockpit login branding not installed.${RESET}"
+    echo ""
+    echo ""
+fi
+sleep 3
+
+########################################
 # INSTALL ZSH + OH MY ZSH
 ########################################
 
