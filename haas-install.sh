@@ -1125,7 +1125,7 @@ COCKPIT_OS_ID=$( . /etc/os-release && echo "$ID" )
 COCKPIT_BRANDING_DST="/usr/share/cockpit/branding/${COCKPIT_OS_ID:-default}"
 
 sudo mkdir -p "$COCKPIT_BRANDING_DST"
-sudo cp "$REPO_DIR/docs/manage_the_appliance/img/tux_ops.resized.jpg" "$COCKPIT_BRANDING_DST/background.jpg"
+sudo cp "$REPO_DIR/docs/manage_the_appliance/img/tux_terminal1.resized.jpg" "$COCKPIT_BRANDING_DST/background.jpg"
 
 sudo tee "$COCKPIT_BRANDING_DST/branding.css" > /dev/null << 'BRANDING_EOF'
 /* Haas CNC Data Collection Appliance — custom Cockpit login branding */
