@@ -106,16 +106,26 @@ fi
 banner() {
     local -a msgs=("$@")
     local -a clean
-    local msg c len max=0 width border blank sep i pad padstr
+    local -a dwidth
+    local msg c len max=0 width border blank sep i pad padstr wide_count
 
     for msg in "${msgs[@]}"; do
         if [[ "$msg" == "---" ]]; then
             clean+=("")
+            dwidth+=(0)
             continue
         fi
         c=$(echo "$msg" | sed -E 's/\x1b\[[0-9;]+m//g')
         clean+=("$c")
-        len=${#c}
+        # ✅/❌ are Unicode "Wide" characters — they occupy 2 terminal
+        # columns, but bash's ${#c} counts them as 1, so border padding
+        # comes up one column short and the right edge shifts left.
+        # ✔/⚠️/→ (also used in banner() calls elsewhere) were checked
+        # too and are Narrow/Ambiguous-width — already correctly
+        # counted as 1 column, so intentionally not adjusted here.
+        wide_count=$(grep -o '[✅❌]' <<< "$c" | wc -l)
+        len=$(( ${#c} + wide_count ))
+        dwidth+=("$len")
         if (( len > max )); then
             max=$len
         fi
@@ -139,7 +149,7 @@ banner() {
             echo "$sep"
             continue
         fi
-        pad=$(( max - ${#clean[$i]} + 2 ))
+        pad=$(( max - dwidth[i] + 2 ))
         printf -v padstr '%*s' "$pad" ''
         echo "#  ${msgs[$i]}${padstr}#"
     done
