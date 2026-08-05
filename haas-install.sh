@@ -193,11 +193,28 @@ echo ""
 
 # === remove the ubuntu ESM and K8 boot messages ======
 # Disable these scripts (skip any that don't exist on this image)
-for f in 90-updates-available 50-motd-news 80-livepatch 91-contract-ua-esm-status; do
+#
+# 50-motd-news is deliberately NOT in this list: motd-news.service's own
+# ExecStart is literally "/etc/update-motd.d/50-motd-news --force"
+# (see: https://bugs.launchpad.net/bugs/1803601). Stripping its execute
+# bit doesn't stop that systemd service/timer from still trying to run
+# it — it just makes every attempt fail with "Failed to start", visible
+# as a red error in Cockpit's Services page. The script stays executable
+# and is silenced properly below via /etc/default/motd-news instead.
+for f in 90-updates-available 80-livepatch 91-contract-ua-esm-status; do
     if [[ -f "/etc/update-motd.d/$f" ]]; then
         sudo chmod -x "/etc/update-motd.d/$f"
     fi
 done
+
+# Silences the Ubuntu Pro/ESM news banner the sanctioned way — the
+# 50-motd-news script itself checks this file and exits cleanly when
+# disabled, so motd-news.service can still execute it successfully
+# instead of failing outright.
+sudo mkdir -p /etc/default
+sudo tee /etc/default/motd-news > /dev/null << 'MOTD_NEWS_EOF'
+ENABLED=0
+MOTD_NEWS_EOF
 
 set -euo pipefail
 
