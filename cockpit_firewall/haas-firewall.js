@@ -347,13 +347,23 @@
             cockpit.spawn(["test", "-f", fileToCheck], { err: "out" })
                 .then(function() {
                     output.textContent += "[OK] CSV file found: " + fileToCheck + "\n\n";
-                    // Force an immediate refresh once the apply actually
-                    // finishes, rather than waiting for the next 2-second
-                    // poll — Active Firewall Rules otherwise sat stale
-                    // after Apply Firewall Changes until something else
-                    // (e.g. Firewall Log -> Stop) happened to trigger
-                    // updateFirewallStatus() manually.
-                    runCommand(configCommand, "Apply firewall changes from " + fileToCheck, updateFirewallStatus);
+                    runCommand(configCommand, "Apply firewall changes from " + fileToCheck, function() {
+                        // Force an immediate refresh once the apply
+                        // actually finishes, rather than waiting for the
+                        // next 2-second poll — Active Firewall Rules
+                        // otherwise sat stale after Apply Firewall Changes
+                        // until something else (e.g. Firewall Log -> Stop)
+                        // happened to trigger updateFirewallStatus()
+                        // manually.
+                        updateFirewallStatus();
+                        // Clear "Use custom CSV file" after every apply
+                        // (whether or not it was checked) so it never sits
+                        // checked from one apply to the next — the next
+                        // Edit users.csv / Edit Custom CSV save is what
+                        // sets it correctly for whichever file was just
+                        // edited.
+                        document.getElementById("use-custom-csv").checked = false;
+                    });
                 })
                 .catch(function() {
                     output.textContent += "[ERROR] CSV file not found: " + fileToCheck + "\n";
@@ -465,15 +475,13 @@
                             .then(function() {
                                 output.textContent = "File saved successfully!\n";
                                 // Apply Firewall Changes uses users.csv only
-                                // when "Use custom CSV file" is UNCHECKED —
-                                // if it's still checked from editing a
-                                // custom CSV earlier, Apply would use that
-                                // stale path instead of the file just saved.
-                                if (document.getElementById("use-custom-csv").checked) {
-                                    alert("File saved to " + csvPath + ".\n\n\"Use custom CSV file\" is currently checked, so \"Apply Firewall Changes\" would use that path instead. Uncheck it, then click \"Apply Firewall Changes\" to activate these rules.");
-                                } else {
-                                    alert("File saved. Click \"Apply Firewall Changes\" to activate the new rules.");
-                                }
+                                // when "Use custom CSV file" is unchecked —
+                                // force that here rather than just warning
+                                // about it, so Apply is guaranteed to use
+                                // the file just saved, not a stale custom
+                                // path left checked from an earlier edit.
+                                document.getElementById("use-custom-csv").checked = false;
+                                alert("File saved. Click \"Apply Firewall Changes\" to activate the new rules.");
                             })
                             .catch(function(error) {
                                 output.textContent = "Error saving file: " + error + "\n";
@@ -548,16 +556,13 @@
                                 // Apply Firewall Changes only uses this path
                                 // when "Use custom CSV file" is checked AND
                                 // its path field matches what was just
-                                // edited — otherwise Apply would silently
-                                // use plain users.csv (or a different
-                                // stale custom path) instead.
-                                var useCustomChecked = document.getElementById("use-custom-csv").checked;
-                                var customPathValue = document.getElementById("custom-csv-path").value.trim();
-                                if (useCustomChecked && customPathValue === csvPath) {
-                                    alert("File saved. Click \"Apply Firewall Changes\" to activate the new rules.");
-                                } else {
-                                    alert("File saved to " + csvPath + ".\n\nTo activate these rules: check \"Use custom CSV file\", enter " + csvPath + " as the Custom CSV path, then click \"Apply Firewall Changes\".");
-                                }
+                                // edited — set both here rather than just
+                                // telling the user to, so the file just
+                                // saved is guaranteed to be what Apply
+                                // actually uses next, with no retyping.
+                                document.getElementById("use-custom-csv").checked = true;
+                                document.getElementById("custom-csv-path").value = csvPath;
+                                alert("File saved to " + csvPath + ".\n\n\"Use custom CSV file\" has been checked and the path filled in — click \"Apply Firewall Changes\" to activate these rules.");
                             })
                             .catch(function(error) {
                                 output.textContent = "Error saving file: " + error + "\n";

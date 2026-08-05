@@ -77,26 +77,25 @@ click it, so it always edits whatever file is currently typed in
 **Compare Current vs Planned Rules** — change that field first if you want
 to edit a different file.
 
-Saving from **Edit users.csv** or **Edit Custom CSV** pops up a reminder
-that saving the CSV doesn't touch the live firewall by itself — you still
-need **Apply Firewall Changes** below. The reminder checks whether
-**Use custom CSV file** and its path field are actually set up to apply
-the file you just saved, and adjusts accordingly:
+Saving from **Edit users.csv** or **Edit Custom CSV** doesn't touch the
+live firewall by itself — you still need **Apply Firewall Changes**
+below, and each save button sets up the Apply section for exactly the
+file you just saved, so there's nothing to retype and no stale state left
+over from an earlier edit:
 
-- Saved **users.csv** and **Use custom CSV file** is unchecked (the usual
-  case) → simple reminder to click **Apply Firewall Changes**.
-- Saved **users.csv** but **Use custom CSV file** is still checked from
-  editing a custom CSV earlier → tells you to uncheck it first, since
-  Apply would otherwise use that stale custom path instead of the
-  `users.csv` you just saved.
-- Saved a custom CSV and **Use custom CSV file** is already checked with
-  a matching path → simple reminder to click **Apply Firewall Changes**.
-- Saved a custom CSV but the checkbox is unchecked, or checked with a
-  *different* path → spells out exactly what to check and what path to
-  enter, since Apply would otherwise silently apply `users.csv` (or the
-  wrong custom file) instead of what you just edited.
+- **Edit users.csv** — saving unchecks **Use custom CSV file** (in case
+  it was left checked from an earlier custom-CSV edit), then pops up a
+  reminder to click **Apply Firewall Changes**.
+- **Edit Custom CSV** — saving checks **Use custom CSV file** and fills
+  its path field with the exact file just saved, then pops up a reminder
+  naming that path, so **Apply Firewall Changes** is one click away with
+  no manual checkbox/path matching required.
+- **Apply Firewall Changes** itself clears **Use custom CSV file** again
+  once it succeeds, so that state doesn't carry over to the next apply —
+  the next Edit users.csv/Edit Custom CSV save is what sets it correctly
+  for whichever file you edit next.
 
-**Edit conf file** doesn't show any of this, since
+**Edit conf file** doesn't do any of this, since
 `/etc/haas-firewall.conf` isn't a rules file `configure_ufw_from_csv.sh`
 reads.
 
