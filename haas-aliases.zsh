@@ -467,8 +467,9 @@ alias sc="exec zsh"
 alias _='sudo '
 
 alias cat='batcat'
-# export BAT_THEME="Coldark-Cold"
-export BAT_THEME="zenburn"
+# cat --list-themes to see all themes
+export BAT_THEME="Coldark-Cold"
+# export BAT_THEME="zenburn"
 
 # shows current path, one element per line.
 # If an argument is supplied, grep for it.
