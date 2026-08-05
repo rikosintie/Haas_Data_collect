@@ -247,7 +247,7 @@
         });
 
         // Helper to run commands
-        function runCommand(args, label) {
+        function runCommand(args, label, onSuccess) {
             output.textContent = "Running: " + label + "\nCommand: " + args.join(" ") + "\n\n";
 
             cockpit.spawn(args, { superuser: "require", err: "out" })
@@ -258,6 +258,7 @@
                 .then(function() {
                     output.textContent += "\n[SUCCESS] Command completed.\n";
                     output.scrollTop = output.scrollHeight;
+                    if (onSuccess) onSuccess();
                 })
                 .catch(function(error) {
                     output.textContent += "\n[ERROR] " + error + "\n";
@@ -300,6 +301,7 @@
                 .then(function() {
                     output.textContent += "\n[SUCCESS] Firewall reset completed.\n";
                     output.scrollTop = output.scrollHeight;
+                    updateFirewallStatus();
                 })
                 .catch(function(error) {
                     output.textContent += "\n[ERROR] " + error + "\n";
@@ -345,7 +347,13 @@
             cockpit.spawn(["test", "-f", fileToCheck], { err: "out" })
                 .then(function() {
                     output.textContent += "[OK] CSV file found: " + fileToCheck + "\n\n";
-                    runCommand(configCommand, "Apply firewall changes from " + fileToCheck);
+                    // Force an immediate refresh once the apply actually
+                    // finishes, rather than waiting for the next 2-second
+                    // poll — Active Firewall Rules otherwise sat stale
+                    // after Apply Firewall Changes until something else
+                    // (e.g. Firewall Log -> Stop) happened to trigger
+                    // updateFirewallStatus() manually.
+                    runCommand(configCommand, "Apply firewall changes from " + fileToCheck, updateFirewallStatus);
                 })
                 .catch(function() {
                     output.textContent += "[ERROR] CSV file not found: " + fileToCheck + "\n";

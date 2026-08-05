@@ -128,6 +128,12 @@ Rollback lives at the very bottom of the page for that reason.
   anything; if it doesn't, the firewall is left untouched and you get an
   error instead.
 
+Both buttons refresh **Active Firewall Rules** immediately once the
+command actually finishes, rather than waiting on the dashboard's normal
+2-second polling — since these are exactly the two actions that change
+what rules exist, they shouldn't leave the dashboard above showing stale
+state even briefly.
+
 ## Rollback Firewall Rules from a Backup
 
 Every time the firewall config is applied, a timestamped copy of the CSV is
