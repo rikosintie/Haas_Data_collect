@@ -584,3 +584,12 @@ clearOutputBtn.addEventListener("click", function() {
             el.textContent = "";
         });
 })();
+
+// Opens the published docs page for this extension in a new tab.
+document.getElementById("helpBtn").addEventListener("click", function() {
+    window.open(
+        "https://rikosintie.github.io/Haas_Data_collect/manage_the_appliance/samba/",
+        "_blank",
+        "noopener,noreferrer"
+    );
+});

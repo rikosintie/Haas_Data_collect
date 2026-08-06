@@ -7,6 +7,18 @@
         const output = document.getElementById("output");
         const backupInput = document.getElementById("backup-name");
 
+        // Opens the published docs page for this extension in a new tab —
+        // window.open rather than a plain <a href> so the button matches
+        // every other control on this page (all of which already require
+        // JS to do anything), and to be explicit about noopener/noreferrer.
+        document.getElementById("helpBtn").addEventListener("click", function() {
+            window.open(
+                "https://rikosintie.github.io/Haas_Data_collect/manage_the_appliance/firewall/",
+                "_blank",
+                "noopener,noreferrer"
+            );
+        });
+
         // Real-time filtering: backup filenames are always flat names like
         // users_2025-01-13_12-00-00.csv, never a path. Blocking "/" and "."
         // as-you-type is just a UX nicety though — rollback_csv.sh itself is
