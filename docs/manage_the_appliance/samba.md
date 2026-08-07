@@ -181,6 +181,19 @@ by hand.
    panel shows the script's full log as it runs.
 4. Click **Clear Output** instead to discard the form and cancel.
 
+For the **Administrator** role, once the account itself is created the
+panel automatically runs `setup_zsh.sh <repo_dir> <username>` for the new
+user — the same script `haas-install.sh` uses to set up the `haas`
+account. It installs zsh and Oh My Zsh, copies the repo's `zshrc` to
+`~/.zshrc` and `haas-aliases.zsh` to the Oh My Zsh custom directory, and
+sets zsh as the login shell — so a new admin's SSH session shows the
+`haas-*`/`t-*` alias menu instead of a bare bash prompt. This step needs
+internet access (Oh My Zsh and its plugins install from GitHub); if it
+fails, the account still works over SSH with the default shell, and the
+output panel shows the exact command to re-run manually. **Standard
+user** accounts get `/usr/sbin/nologin` and never have a shell, so this
+step is skipped for them.
+
 !!! note "This is a separate system from firewall access"
     `users.csv`/**Apply Firewall Changes** control *network* access — which
     IPs can reach the appliance at all. This controls *account* access —

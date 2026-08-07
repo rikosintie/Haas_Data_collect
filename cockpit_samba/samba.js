@@ -42,7 +42,9 @@ const changePasswordCancelBtn  = document.getElementById("changePasswordCancelBt
 
 // Not copied to /usr/local/sbin by haas-install.sh — stays in the repo,
 // run via `sudo ./manage_users.sh` per its own usage comments.
-const MANAGE_USERS_SCRIPT = "/home/haas/Haas_Data_collect/manage_users.sh";
+const REPO_DIR = "/home/haas/Haas_Data_collect";
+const MANAGE_USERS_SCRIPT = REPO_DIR + "/manage_users.sh";
+const SETUP_ZSH_SCRIPT = REPO_DIR + "/setup_zsh.sh";
 
 const SMB_CONF = "/etc/samba/smb.conf";
 const SMB_CONF_VALIDATE_TMP_PREFIX = "/tmp/smb.conf.validate.";
@@ -395,6 +397,31 @@ saveRestartBtn.addEventListener("click", function() {
             })
             .done(function() {
                 output.textContent += "\n[SUCCESS] User \"" + username + "\" created.\n";
+
+                if (role === "admin") {
+                    output.textContent += "\nSetting up zsh, Oh My Zsh, and haas-aliases for \"" + username +
+                        "\" (this can take a bit)...\n\n";
+                    output.scrollTop = output.scrollHeight;
+
+                    cockpit.spawn(["bash", SETUP_ZSH_SCRIPT, REPO_DIR, username], { superuser: "require", err: "out" })
+                        .stream(function(data) {
+                            output.textContent += data;
+                            output.scrollTop = output.scrollHeight;
+                        })
+                        .done(function() {
+                            output.textContent += "\n[SUCCESS] zsh environment configured for \"" + username + "\".\n";
+                            unlockNormal();
+                        })
+                        .fail(function(ex, data) {
+                            output.textContent += "\n[WARNING] User \"" + username + "\" was created, but zsh setup " +
+                                "failed: " + (data || ex.message || JSON.stringify(ex)) + "\n" +
+                                "The account still works over SSH with the default shell. Run manually to finish " +
+                                "setup:\n  sudo bash " + SETUP_ZSH_SCRIPT + " " + REPO_DIR + " " + username + "\n";
+                            unlockNormal();
+                        });
+                    return;
+                }
+
                 unlockNormal();
             })
             .fail(function(ex, data) {
