@@ -378,7 +378,7 @@
         document.getElementById("btn-compare").addEventListener("click", function() {
             var csvPath = document.getElementById("compare-csv-path").value.trim();
             if (!csvPath) {
-                output.textContent = "Please enter a CSV file path to compare against.\n";
+                output.innerHTML = "<span class=\"error\">Please enter a CSV file path to compare against.</span>\n";
                 return;
             }
             runCommand(["/usr/local/sbin/configure_ufw_from_csv.sh", "--compare", csvPath], "Compare firewall rules against " + csvPath);
@@ -393,17 +393,18 @@
         // logging.
         document.getElementById("btn-show-rules").addEventListener("click", function() {
             const args = ["/usr/local/sbin/configure_ufw_from_csv.sh", "--show-rules"];
-            output.textContent = "Running: Show current UFW rules\nCommand: " + args.join(" ") + "\n\n";
+            output.innerHTML = "Running: Show current UFW rules\nCommand: " + escapeHtml(args.join(" ")) + "\n\n";
 
             cockpit.spawn(args, { superuser: "require", err: "out" })
                 .then(function(result) {
                     const lines = result.split('\n');
                     const ruleLines = lines.filter(function(line) { return /^\s*\[\s*\d+\]/.test(line); });
-                    output.textContent += formatUfwRulesTable(ruleLines) + "\n\n[SUCCESS] Command completed.\n";
+                    output.innerHTML += escapeHtml(formatUfwRulesTable(ruleLines)) +
+                        "\n\n<span class=\"success\">[SUCCESS] Command completed.</span>\n";
                     output.scrollTop = output.scrollHeight;
                 })
                 .catch(function(error) {
-                    output.textContent += "\n[ERROR] " + error + "\n";
+                    output.innerHTML += "\n<span class=\"error\">[ERROR] " + escapeHtml(error) + "</span>\n";
                     output.scrollTop = output.scrollHeight;
                 });
         });
@@ -426,20 +427,20 @@
             if (!confirm("This will reset ALL firewall rules! Are you sure?")) {
                 return;
             }
-            output.textContent = "Resetting firewall...\n";
+            output.innerHTML = "Resetting firewall...\n";
 
             cockpit.spawn(["/bin/bash", "-c", "echo 'y' | ufw reset"], { superuser: "require", err: "out" })
                 .stream(function(data) {
-                    output.textContent += data;
+                    output.innerHTML += escapeHtml(data);
                     output.scrollTop = output.scrollHeight;
                 })
                 .then(function() {
-                    output.textContent += "\n[SUCCESS] Firewall reset completed.\n";
+                    output.innerHTML += "\n<span class=\"success\">[SUCCESS] Firewall reset completed.</span>\n";
                     output.scrollTop = output.scrollHeight;
                     updateFirewallStatus();
                 })
                 .catch(function(error) {
-                    output.textContent += "\n[ERROR] " + error + "\n";
+                    output.innerHTML += "\n<span class=\"error\">[ERROR] " + escapeHtml(error) + "</span>\n";
                     output.scrollTop = output.scrollHeight;
                 });
         });
@@ -938,7 +939,7 @@
         document.getElementById("btn-rollback").addEventListener("click", function() {
             const backupName = backupInput.value.trim();
             if (!backupName) {
-                output.textContent = "Please enter a backup filename.\n";
+                output.innerHTML = "<span class=\"error\">Please enter a backup filename.</span>\n";
                 return;
             }
             runCommand(["/usr/local/sbin/rollback_csv.sh", backupName], "Rollback from " + backupName, function() {
