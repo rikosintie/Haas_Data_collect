@@ -1,14 +1,29 @@
 (function() {
     const cockpit = window.cockpit;
 
-    // Only used to sanitize usernames (from the CSV, pdbedit, and getent)
-    // before they're interpolated into output.innerHTML below — everywhere
-    // else in this file appends to output.textContent instead.
+    // Sanitizes dynamic text (usernames, raw script output, etc.) before
+    // it's interpolated into output.innerHTML.
     function escapeHtml(str) {
         return String(str)
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;");
+    }
+
+    // configure_ufw_from_csv.sh and validate_users_csv.sh tag their own
+    // log lines with these brackets (see their log()/log_error() helpers
+    // and the bare "echo [*] ..." progress lines) — color those the same
+    // way our own synthetic [SUCCESS]/[ERROR]/[OK] lines already are, so
+    // streamed script output matches. Call only on already-escaped text —
+    // none of these tags contain characters escapeHtml() would touch, so
+    // order relative to escaping doesn't matter, but it must run on text
+    // that's about to be treated as HTML either way.
+    function colorizeLogTags(escapedText) {
+        return escapedText
+            .replace(/\[ERROR\]/g, "<span class=\"error\">[ERROR]</span>")
+            .replace(/\[WARN\]/g, "<span class=\"warn\">[WARN]</span>")
+            .replace(/\[INFO\]/g, "<span class=\"info\">[INFO]</span>")
+            .replace(/\[\*\]/g, "<span class=\"info\">[*]</span>");
     }
 
     document.addEventListener("DOMContentLoaded", function() {
@@ -355,7 +370,7 @@
 
             cockpit.spawn(args, { superuser: "require", err: "out" })
                 .stream(function(data) {
-                    output.innerHTML += escapeHtml(data);
+                    output.innerHTML += colorizeLogTags(escapeHtml(data));
                     output.scrollTop = output.scrollHeight;
                 })
                 .then(function() {
@@ -431,7 +446,7 @@
 
             cockpit.spawn(["/bin/bash", "-c", "echo 'y' | ufw reset"], { superuser: "require", err: "out" })
                 .stream(function(data) {
-                    output.innerHTML += escapeHtml(data);
+                    output.innerHTML += colorizeLogTags(escapeHtml(data));
                     output.scrollTop = output.scrollHeight;
                 })
                 .then(function() {
