@@ -345,22 +345,26 @@
             output.textContent = "Output will appear here...\n";
         });
 
-        // Helper to run commands
-        function runCommand(args, label, onSuccess) {
-            output.textContent = "Running: " + label + "\nCommand: " + args.join(" ") + "\n\n";
+        // Helper to run commands. preamble (optional, trusted HTML) is kept
+        // ahead of "Running: ..." in the same assignment rather than
+        // appended beforehand — this function's first line assigns rather
+        // than appends, so anything written to output right before calling
+        // runCommand() would otherwise be wiped out the instant it runs.
+        function runCommand(args, label, onSuccess, preamble) {
+            output.innerHTML = (preamble || "") + "Running: " + escapeHtml(label) + "\nCommand: " + escapeHtml(args.join(" ")) + "\n\n";
 
             cockpit.spawn(args, { superuser: "require", err: "out" })
                 .stream(function(data) {
-                    output.textContent += data;
+                    output.innerHTML += escapeHtml(data);
                     output.scrollTop = output.scrollHeight;
                 })
                 .then(function() {
-                    output.textContent += "\n[SUCCESS] Command completed.\n";
+                    output.innerHTML += "\n<span class=\"success\">[SUCCESS] Command completed.</span>\n";
                     output.scrollTop = output.scrollHeight;
                     if (onSuccess) onSuccess();
                 })
                 .catch(function(error) {
-                    output.textContent += "\n[ERROR] " + error + "\n";
+                    output.innerHTML += "\n<span class=\"error\">[ERROR] " + escapeHtml(error) + "</span>\n";
                     output.scrollTop = output.scrollHeight;
                 });
         }
@@ -457,7 +461,7 @@
             const customPath = document.getElementById("custom-csv-path").value.trim();
 
             if (useCustom && !customPath) {
-                output.textContent = "Please enter a custom CSV file path or uncheck the option.\n";
+                output.innerHTML = "<span class=\"error\">Please enter a custom CSV file path or uncheck the option.</span>\n";
                 return;
             }
 
@@ -473,11 +477,13 @@
                 ? ["/usr/local/sbin/configure_ufw_from_csv.sh", customPath]
                 : ["/usr/local/sbin/configure_ufw_from_csv.sh"];
 
-            output.textContent = "Validating CSV file path...\n";
+            const validatingLine = "Validating CSV file path...\n";
+            output.innerHTML = validatingLine;
 
             cockpit.spawn(["test", "-f", fileToCheck], { err: "out" })
                 .then(function() {
-                    output.textContent += "[OK] CSV file found: " + fileToCheck + "\n\n";
+                    const preamble = validatingLine +
+                        "<span class=\"success\">[OK] CSV file found: " + escapeHtml(fileToCheck) + "</span>\n\n";
                     runCommand(configCommand, "Apply firewall changes from " + fileToCheck, function() {
                         // Force an immediate refresh once the apply
                         // actually finishes, rather than waiting for the
@@ -592,12 +598,13 @@
                                 // Same — a failed re-read of the CSV shouldn't undo the
                                 // fact that the firewall was already successfully applied.
                             });
-                    });
+                    }, preamble);
                 })
                 .catch(function() {
-                    output.textContent += "[ERROR] CSV file not found: " + fileToCheck + "\n";
-                    output.textContent += "Please verify the file path and try again.\n";
-                    output.textContent += "Firewall was NOT modified.\n";
+                    output.innerHTML = validatingLine +
+                        "<span class=\"error\">[ERROR] CSV file not found: " + escapeHtml(fileToCheck) + "</span>\n" +
+                        "Please verify the file path and try again.\n" +
+                        "Firewall was NOT modified.\n";
                     output.scrollTop = output.scrollHeight;
                 });
         });
