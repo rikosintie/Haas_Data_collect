@@ -194,6 +194,25 @@ output panel shows the exact command to re-run manually. **Standard
 user** accounts get `/usr/sbin/nologin` and never have a shell, so this
 step is skipped for them.
 
+!!! tip "Verify an Administrator account"
+    The Manage Samba page has a collapsed **&#8505;&#65039; Verify an Administrator
+    account** note with the same checklist, right below the button row.
+    If you want to confirm a new Administrator account end-to-end, open
+    the Cockpit **Terminal** page and run each of these (replace
+    `<username>`):
+
+    ```bash
+    getent passwd <username>                                    # shell should be /bin/zsh, home /home/<username>
+    groups <username>                                           # should include sudo and HaasGroup
+    sudo -l -U <username>                                       # confirms sudo actually works
+    sudo pdbedit -L -v <username> | grep "Account Flags"        # should show [U] (enabled), not [D]
+    ls -la /home/<username>/.zshrc /home/<username>/.oh-my-zsh/custom/haas-aliases.zsh   # both owned <username>:<username>
+    ```
+
+    Then, logged in as that user (e.g. `ssh <username>@<appliance_ip>`),
+    type `haas` and press Tab — it should list the full `haas-*`/`t-*`
+    alias menu.
+
 !!! note "This is a separate system from firewall access"
     `users.csv`/**Apply Firewall Changes** control *network* access — which
     IPs can reach the appliance at all. This controls *account* access —
