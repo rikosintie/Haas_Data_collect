@@ -128,10 +128,18 @@ create_samba_user() {
             echo "[FORCE] Skipping confirmation"
         fi
 
+        local SAMBA_DELETE_FAILED=false
+        local LINUX_DELETE_FAILED=false
+
         # Remove Samba user
         if pdbedit -L | cut -d: -f1 | grep -qx "$USERNAME"; then
             echo "Deleting Samba user"
             run_cmd sudo smbpasswd -x "$USERNAME"
+            local SMBPASSWD_STATUS=$?
+            if [[ $SMBPASSWD_STATUS -ne 0 ]]; then
+                echo "ERROR: Failed to delete Samba user '$USERNAME' (smbpasswd -x exit $SMBPASSWD_STATUS)." >&2
+                SAMBA_DELETE_FAILED=true
+            fi
         else
             echo "Samba user does not exist"
         fi
@@ -140,8 +148,23 @@ create_samba_user() {
         if id "$USERNAME" &>/dev/null; then
             echo "Deleting Linux user"
             run_cmd sudo userdel "$USERNAME"
+            local USERDEL_STATUS=$?
+            if [[ $USERDEL_STATUS -ne 0 ]]; then
+                if [[ $USERDEL_STATUS -eq 8 ]]; then
+                    echo "ERROR: '$USERNAME' still has an active login session (running process) — not deleted." >&2
+                    echo "Terminate their session first (e.g. 'sudo pkill -KILL -u $USERNAME'), then retry --delete-user." >&2
+                else
+                    echo "ERROR: Failed to delete Linux user '$USERNAME' (userdel exit $USERDEL_STATUS)." >&2
+                fi
+                LINUX_DELETE_FAILED=true
+            fi
         else
             echo "Linux user does not exist"
+        fi
+
+        if $SAMBA_DELETE_FAILED || $LINUX_DELETE_FAILED; then
+            echo "Deletion FAILED — see errors above. Account may be only partially removed." >&2
+            return 1
         fi
 
         echo "Deletion complete"

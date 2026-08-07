@@ -218,6 +218,14 @@ the same pattern as **Delete Share**.
 3. Confirming runs `manage_users.sh <username> --delete-user --force` and
    shows the result in the output panel.
 
+If the user still has an active login session (an open SSH connection,
+for example), `userdel` refuses to remove the Linux account and the
+output panel shows `[ERROR]` naming the account as still active, with
+the command to terminate the session first (`sudo pkill -KILL -u
+<username>`) before retrying. The account is not silently left in place
+without a warning — deletion either fully succeeds or is reported as
+failed.
+
 ## Change Password
 
 Sets a new password for an existing account — for a departed contractor's
