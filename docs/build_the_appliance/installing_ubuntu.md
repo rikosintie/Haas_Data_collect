@@ -624,13 +624,16 @@ to reload the shell. Now you type `haas` and log in!
 
 Companies like `Yubico` and `Google` offer hardware keys to store your ssh private keys on. They are out of scope for this document, but you can go to [Yubico Security Key](https://www.yubico.com/products/security-key/) and read up. One caution, if you lose the HSM and didn't make a backup it's a bad day. Just saying...
 
-You may want to buy two HSMs and keep one locked in a safe place.
+**You may want to buy two HSMs and keep one locked in a safe place.**
 
 ----------------------------------------------------------------
 
 ## Use IPv6
 
-If you don't mind learning a little IPv6, you can SSH to the Pi over IPv6 even if it doesn't have an IPv4 address. This is only for the initial configuration of Ubuntu. Once you run the `haas-install.sh` script you are limited to IPv4. The reason is that the `configure_ufw_from_csv.sh` script doesn't support IPv6 for Administrators. As my dad used to say "Son, you ran out of talent on that one." I plan to add it in the future if there is demand for the feature.
+If you don't mind learning a little IPv6, you can SSH to the Pi over IPv6 even if it doesn't have an IPv4 address. This is only for the initial configuration of Ubuntu. Once you run the `haas-install.sh` script you are limited to IPv4. The reason is that the `configure_ufw_from_csv.sh` script doesn't support IPv6 for Administrators. As my dad used to say "Son, you ran out of talent on that one." I plan to add it in the future if there is demand for the feature. And if Haas adds IPv6 support.
+
+!!! warning
+    The appliance firewall can accept IPv6 addresses in the "haas-firewall.conf" configuration file. That is a "future proofing" feature. It does not work at this time.
 
 If you followed the Paulus blog, add `dhcp6: true` to the netplan yaml file
 
@@ -674,6 +677,72 @@ What flipping the 7th bit looks like:
                 flipped b7
 88 → 8A
 ```
+
+----------------------------------------------------------------
+
+### Disable IPv6
+
+I don't like to disable IPv6 because it is the future. But your company security policy may mandate it.
+
+- Change to the to `/etc/netplan` directory using `cd /etc/netplan`
+- View the files in the directory using `l` (that is a lowercase elle, not an i). There should only be one `yaml` file in the directory.
+- Open it using `sudo fresh 50-cloud-init.yaml` or the filename on your appliance.
+
+```zsh
+sudo fresh  50-cloud-init.yaml
+```
+
+Add the `dhcp6: false` and `accept-ra: false` entries:
+
+```bash linenums='1' hl_lines='1'
+network:
+  version: 2
+  ethernets:
+    eth0:
+      optional: true
+      dhcp4: true
+      dhcp6: false
+      accept-ra: false
+  wifis:
+    wlan0:
+      optional: true
+      dhcp4: true
+      dhcp6: false
+      accept-ra: false
+      regulatory-domain: "US"
+```
+
+Save the file `ctrl+s`, close the file `ctrl+q`. Then reload netplan:
+
+```bash linenums='1' hl_lines='1'
+sudo netplan try
+```
+
+```bash title='Command Output'
+Do you want to keep these settings?
+
+
+Press ENTER before the timeout to accept the new configuration
+
+Changes will revert in 115  seconds
+```
+
+If there are any errors in your file you will see message and the changes won't be applied. In this case I made up "falsey" and got an error.
+
+```bash linenums='1' hl_lines='1'
+sudo netplan try
+```
+
+```bash title='Command Output'
+Error in network definition: invalid boolean value 'falsey'
+      accept-ra: falsey
+```
+
+If there are no errors you will get the message to press ENTER to accept the new configuration.
+
+#### Apply the changes
+
+Now that the
 
 ----------------------------------------------------------------
 
