@@ -311,6 +311,10 @@ h1 {
 .output-box span.success {
     color: #4dff88;
 }
+.output-box span.warn {
+    color: #ffc107;
+    font-weight: bold;
+}
 
 /* Form elements */
 label {

@@ -1,6 +1,16 @@
 (function() {
     const cockpit = window.cockpit;
 
+    // Only used to sanitize usernames (from the CSV, pdbedit, and getent)
+    // before they're interpolated into output.innerHTML below — everywhere
+    // else in this file appends to output.textContent instead.
+    function escapeHtml(str) {
+        return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
         console.log("Page loaded, initializing...");
 
@@ -505,34 +515,72 @@
                                     // Samba-side list below).
                                     .filter(function(name) { return name.length > 0 && name !== "haas"; });
 
+                                // Renders one "heading + one-username-per-line" block,
+                                // or "" if there's nothing to report — keeps the four
+                                // Samba/Linux x new/removed sections below identical
+                                // in shape instead of repeating this four times.
+                                function renderAccountSection(heading, users, cssClass) {
+                                    if (users.length === 0) return "";
+                                    return "<span class=\"" + cssClass + "\">" + escapeHtml(heading) + "</span>\n" +
+                                        users.map(function(u) { return escapeHtml(u); }).join("\n") + "\n\n";
+                                }
+
                                 cockpit.spawn(["bash", "-c", "pdbedit -L | cut -d: -f1"], { superuser: "require", err: "message" })
                                     .then(function(sambaText) {
                                         const sambaUsers = (sambaText || "").trim().split("\n")
                                             .map(function(u) { return u.trim().toLowerCase(); })
                                             .filter(function(u) { return u.length > 0 && u !== "haas"; });
 
-                                        const newUsers = csvUsernames.filter(function(u) { return sambaUsers.indexOf(u) === -1; });
-                                        const removedUsers = sambaUsers.filter(function(u) { return csvUsernames.indexOf(u) === -1; });
+                                        const newSambaUsers = csvUsernames.filter(function(u) { return sambaUsers.indexOf(u) === -1; });
+                                        const removedSambaUsers = sambaUsers.filter(function(u) { return csvUsernames.indexOf(u) === -1; });
 
-                                        if (newUsers.length === 0 && removedUsers.length === 0) return;
+                                        // Same HaasGroup-membership convention Manage Samba's
+                                        // Delete User / Change Password dropdowns already use —
+                                        // this is a separate check from the Samba one above
+                                        // because manage_users.sh creates/deletes the Linux and
+                                        // Samba accounts as two separate steps, so a partial
+                                        // failure in one can leave them out of sync.
+                                        cockpit.spawn(
+                                            ["bash", "-c", "getent group HaasGroup | cut -d: -f4 | tr ',' '\\n' | grep -v '^haas$' | grep -v '^$' | sort"],
+                                            { superuser: "require", err: "message" }
+                                        )
+                                            .then(function(linuxText) {
+                                                const linuxUsers = (linuxText || "").trim().split("\n")
+                                                    .map(function(u) { return u.trim().toLowerCase(); })
+                                                    .filter(function(u) { return u.length > 0 && u !== "haas"; });
 
-                                        let detail = "\n--- Samba/Linux account check ---\n";
-                                        detail += "Firewall rules were applied from this CSV, but Samba/Linux accounts are managed separately (Manage Samba's Create User / Delete User).\n";
-                                        if (newUsers.length > 0) {
-                                            detail += "New in this CSV, no Samba account yet: " + newUsers.join(", ") + "\n";
-                                        }
-                                        if (removedUsers.length > 0) {
-                                            detail += "Has a Samba account, no longer in this CSV: " + removedUsers.join(", ") + "\n";
-                                        }
-                                        output.textContent += detail;
-                                        output.scrollTop = output.scrollHeight;
+                                                const newLinuxUsers = csvUsernames.filter(function(u) { return linuxUsers.indexOf(u) === -1; });
+                                                const removedLinuxUsers = linuxUsers.filter(function(u) { return csvUsernames.indexOf(u) === -1; });
 
-                                        alert(
-                                            "Firewall applied.\n\n" +
-                                            (newUsers.length > 0 ? newUsers.length + " account(s) may need creating.\n" : "") +
-                                            (removedUsers.length > 0 ? removedUsers.length + " account(s) may need deleting.\n" : "") +
-                                            "\nSee the output pane for names, or go to Manage Samba to act on it."
-                                        );
+                                                if (newSambaUsers.length === 0 && removedSambaUsers.length === 0 &&
+                                                    newLinuxUsers.length === 0 && removedLinuxUsers.length === 0) {
+                                                    return;
+                                                }
+
+                                                let detail = "\n" + "-".repeat(60) + "\n";
+                                                detail += "<span class=\"info\">--- Samba/Linux account check ---</span>\n";
+                                                detail += "Firewall rules were applied from this CSV.\n";
+                                                detail += "Samba/Linux accounts are managed separately (Manage Samba's Create User / Delete User).\n\n";
+                                                detail += renderAccountSection("New users in this CSV with no Samba account:", newSambaUsers, "info");
+                                                detail += renderAccountSection("Samba accounts that aren't in this CSV:", removedSambaUsers, "warn");
+                                                detail += renderAccountSection("New users in this CSV with no Linux account:", newLinuxUsers, "info");
+                                                detail += renderAccountSection("Linux accounts that aren't in this CSV:", removedLinuxUsers, "warn");
+
+                                                output.innerHTML += detail;
+                                                output.scrollTop = output.scrollHeight;
+
+                                                const accountsToCreate = newSambaUsers.length + newLinuxUsers.length;
+                                                const accountsToDelete = removedSambaUsers.length + removedLinuxUsers.length;
+                                                alert(
+                                                    "Firewall applied.\n\n" +
+                                                    (accountsToCreate > 0 ? accountsToCreate + " account(s) may need creating.\n" : "") +
+                                                    (accountsToDelete > 0 ? accountsToDelete + " account(s) may need deleting.\n" : "") +
+                                                    "\nSee the output pane for names, or go to Manage Samba to act on it."
+                                                );
+                                            })
+                                            .catch(function() {
+                                                // Non-fatal — see the .catch below.
+                                            });
                                     })
                                     .catch(function() {
                                         // Non-fatal — the firewall change itself already

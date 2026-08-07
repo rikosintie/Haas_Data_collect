@@ -190,14 +190,20 @@ state even briefly.
     actual Samba/Linux login accounts (created via Manage Samba's
     **Create User** / **Delete User** — see
     [Create User](./samba.md#create-user)). A successful **Apply Firewall
-    Changes** diffs the CSV's usernames against real Samba accounts
-    (`pdbedit -L`, excluding `haas` itself) and — only if there's actually
-    a mismatch — pops up a summary and lists the specific names in the
-    output pane: who's in the CSV with no matching account yet, and who
-    still has an account but is no longer in the CSV. Nothing is created
-    or deleted automatically; this is a reminder, not an action, so a
-    contractor's firewall access being revoked doesn't quietly leave
-    their login account still active because deleting it never happened.
+    Changes** diffs the CSV's usernames against both real Samba accounts
+    (`pdbedit -L`) and real Linux accounts (`HaasGroup` membership),
+    excluding `haas` itself from both — and checks them separately,
+    since `manage_users.sh` creates/deletes the Linux and Samba sides as
+    two distinct steps, so a partial failure in one can leave them out of
+    sync with each other, not just with the CSV. Only if there's actually
+    a mismatch, it pops up a summary and lists the specific names in the
+    output pane, one per line under a colored heading for each of the
+    four possible categories: new-in-CSV-no-Samba-account,
+    Samba-account-not-in-CSV, new-in-CSV-no-Linux-account, and
+    Linux-account-not-in-CSV. Nothing is created or deleted
+    automatically; this is a reminder, not an action, so a contractor's
+    firewall access being revoked doesn't quietly leave their login
+    account still active because deleting it never happened.
 
 ## Rollback Firewall Rules from a Backup
 
