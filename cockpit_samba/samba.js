@@ -21,6 +21,20 @@ const shareComment      = document.getElementById("shareComment");
 const deleteShareBtn = document.getElementById("deleteShareBtn");
 const sharesList     = document.getElementById("sharesList");
 
+const createUserBtn         = document.getElementById("createUserBtn");
+const createUserForm        = document.getElementById("createUserForm");
+const newUsername           = document.getElementById("newUsername");
+const newUserRole           = document.getElementById("newUserRole");
+const newUserPassword       = document.getElementById("newUserPassword");
+const newUserPasswordConfirm = document.getElementById("newUserPasswordConfirm");
+
+const deleteUserBtn = document.getElementById("deleteUserBtn");
+const usersList     = document.getElementById("usersList");
+
+// Not copied to /usr/local/sbin by haas-install.sh — stays in the repo,
+// run via `sudo ./manage_users.sh` per its own usage comments.
+const MANAGE_USERS_SCRIPT = "/home/haas/Haas_Data_collect/manage_users.sh";
+
 const SMB_CONF = "/etc/samba/smb.conf";
 const SMB_CONF_VALIDATE_TMP_PREFIX = "/tmp/smb.conf.validate.";
 
@@ -44,12 +58,14 @@ const SHARE_STATIC_LINES = [
 
 var editMode = false;
 var creatingShare = false;
+var creatingUser = false;
 
 // ── panel helpers ─────────────────────────────────────────────────────────────
 
 function showOutputPanel(text) {
     confEditor.style.display = "none";
     createShareForm.classList.add("hidden");
+    createUserForm.classList.add("hidden");
     output.style.display = "block";
     if (text !== undefined) output.textContent = text;
     panelLabel.textContent = "";
@@ -59,6 +75,7 @@ function showOutputPanel(text) {
 function showEditorPanel(content) {
     output.style.display = "none";
     createShareForm.classList.add("hidden");
+    createUserForm.classList.add("hidden");
     confEditor.style.display = "block";
     confEditor.value = content;
     panelLabel.textContent = "smb.conf — edit below, then click Save & Restart";
@@ -67,6 +84,7 @@ function showEditorPanel(content) {
 function showCreateShareForm() {
     output.style.display = "none";
     confEditor.style.display = "none";
+    createUserForm.classList.add("hidden");
     createShareForm.classList.remove("hidden");
     panelLabel.textContent = "New share — fill in all fields, then click Save & Restart";
     validationMsg.classList.add("hidden");
@@ -76,6 +94,25 @@ function hideCreateShareForm() {
     createShareForm.classList.add("hidden");
     shareMachineName.value = "";
     shareComment.value = "";
+}
+
+function showCreateUserForm() {
+    output.style.display = "none";
+    confEditor.style.display = "none";
+    createShareForm.classList.add("hidden");
+    createUserForm.classList.remove("hidden");
+    saveRestartBtn.textContent = "Create User";
+    panelLabel.textContent = "New user — fill in all fields, then click Create User";
+    validationMsg.classList.add("hidden");
+}
+
+function hideCreateUserForm() {
+    createUserForm.classList.add("hidden");
+    saveRestartBtn.textContent = "Save & Restart";
+    newUsername.value = "";
+    newUserRole.value = "user";
+    newUserPassword.value = "";
+    newUserPasswordConfirm.value = "";
 }
 
 // ── button state helpers ──────────────────────────────────────────────────────
@@ -92,12 +129,15 @@ function lockAll() {
     displayLinuxUsersBtn.disabled   = true;
     clearOutputBtn.disabled         = true;
     displaySharesByUserBtn.disabled = true;
+    createUserBtn.disabled          = true;
+    deleteUserBtn.disabled          = true;
 }
 
 // Normal output mode — all view buttons enabled, Save & Restart disabled
 function unlockNormal() {
     editMode = false;
     creatingShare = false;
+    creatingUser = false;
     editConfBtn.disabled            = false;
     saveRestartBtn.disabled         = true;
     createShareBtn.disabled         = false;
@@ -108,10 +148,13 @@ function unlockNormal() {
     displayLinuxUsersBtn.disabled   = false;
     clearOutputBtn.disabled         = false;
     displaySharesByUserBtn.disabled = false;
+    createUserBtn.disabled          = false;
+    deleteUserBtn.disabled          = false;
 }
 
-// Edit mode and Create Share mode share this layout — only Save & Restart
-// and Clear Output active. Which flow runs on Save is decided by creatingShare.
+// Edit mode, Create Share mode, and Create User mode all share this layout —
+// only Save & Restart and Clear Output active. Which flow runs on Save is
+// decided by creatingShare / creatingUser.
 function unlockEditMode() {
     editMode = true;
     editConfBtn.disabled            = true;
@@ -124,6 +167,8 @@ function unlockEditMode() {
     displayLinuxUsersBtn.disabled   = true;
     clearOutputBtn.disabled         = false;   // acts as Cancel
     displaySharesByUserBtn.disabled = true;
+    createUserBtn.disabled          = true;
+    deleteUserBtn.disabled          = true;
 }
 
 // ── run a command and show result in the output panel ─────────────────────────
@@ -237,6 +282,73 @@ function showValidationError(errText, modeLabel) {
 }
 
 saveRestartBtn.addEventListener("click", function() {
+    if (creatingUser) {
+        var username = newUsername.value.trim().toLowerCase();
+        var role = newUserRole.value; // "user" or "admin"
+        var pw1 = newUserPassword.value;
+        var pw2 = newUserPasswordConfirm.value;
+
+        if (!username || !pw1 || !pw2) {
+            validationMsg.textContent = "ERROR: All fields are required.";
+            validationMsg.classList.remove("hidden");
+            return;
+        }
+
+        if (pw1 !== pw2) {
+            validationMsg.textContent = "ERROR: Passwords do not match.";
+            validationMsg.classList.remove("hidden");
+            return;
+        }
+
+        var roleLabel = (role === "admin")
+            ? "Administrator (SSH + sudo + Samba)"
+            : "Standard user (Samba share access only)";
+
+        if (!confirm(
+            "This will create a new Linux + Samba account for \"" + username + "\" (" + roleLabel + ") " +
+            "and set its password to what you entered.\n\nContinue?"
+        )) {
+            return;
+        }
+
+        var args = [MANAGE_USERS_SCRIPT, username, "--set-password", "--force"];
+        if (role === "admin") {
+            args.push("--admin-user");
+        }
+
+        // manage_users.sh interactively prompts twice for the Linux
+        // password (passwd) and, for a brand-new username, twice more for
+        // the Samba password (smbpasswd -a) — four lines total, fed as
+        // one stdin write. This matches the script's own logic exactly
+        // (verified by reading it — both prompts run unconditionally for
+        // a genuinely new username, for either role), but the actual
+        // interactive behavior under cockpit.spawn hasn't been exercised
+        // against a real appliance yet — test with a throwaway account
+        // first before relying on this for a real person.
+        var stdinSequence = pw1 + "\n" + pw1 + "\n" + pw1 + "\n" + pw1 + "\n";
+
+        lockAll();
+        validationMsg.classList.add("hidden");
+        hideCreateUserForm();
+        showOutputPanel("Creating user \"" + username + "\"...\n\n");
+
+        cockpit.spawn(args, { superuser: "require", err: "out" })
+            .input(stdinSequence)
+            .stream(function(data) {
+                output.textContent += data;
+                output.scrollTop = output.scrollHeight;
+            })
+            .done(function() {
+                output.textContent += "\n[SUCCESS] User \"" + username + "\" created.\n";
+                unlockNormal();
+            })
+            .fail(function(ex, data) {
+                output.textContent += "\n[ERROR] " + (data || ex.message || JSON.stringify(ex)) + "\n";
+                unlockNormal();
+            });
+        return;
+    }
+
     if (creatingShare) {
         var machine = shareMachineName.value.trim().toLowerCase();
         var comment = shareComment.value.trim();
@@ -362,6 +474,23 @@ shareComment.addEventListener("input", function() {
     }
 });
 
+// ── Create User ───────────────────────────────────────────────────────────────
+
+createUserBtn.addEventListener("click", function() {
+    creatingUser = true;
+    showCreateUserForm();
+    unlockEditMode();
+});
+
+newUsername.addEventListener("input", function() {
+    var pos = newUsername.selectionStart;
+    var cleaned = newUsername.value.replace(/[^0-9a-zA-Z_-]/g, "");
+    if (cleaned !== newUsername.value) {
+        newUsername.value = cleaned;
+        newUsername.setSelectionRange(pos - 1, pos - 1);
+    }
+});
+
 // ── Delete Share ──────────────────────────────────────────────────────────────
 
 function escapeRegExp(s) {
@@ -457,6 +586,83 @@ sharesList.addEventListener("change", function() {
         });
 });
 
+// ── Delete User ───────────────────────────────────────────────────────────────
+
+// Scoped to HaasGroup members, excluding "haas" itself (the appliance's own
+// admin/service account) — the same "don't offer to delete the thing that
+// runs everything" exclusion already used for the [Haas] share above.
+function populateUsersList() {
+    usersList.innerHTML = "<option value=\"\">— loading... —</option>";
+    usersList.classList.remove("hidden");
+
+    cockpit.spawn(
+        ["bash", "-c", "getent group HaasGroup | cut -d: -f4 | tr ',' '\\n' | grep -v '^haas$' | grep -v '^$' | sort"],
+        { superuser: "require", err: "message" }
+    )
+        .done(function(data) {
+            var users = data.trim() ? data.trim().split("\n") : [];
+
+            usersList.innerHTML = "<option value=\"\">— select a user to delete —</option>";
+            if (users.length === 0) {
+                usersList.innerHTML = "<option value=\"\">No users found</option>";
+            } else {
+                users.forEach(function(name) {
+                    var opt = document.createElement("option");
+                    opt.value = name;
+                    opt.textContent = name;
+                    usersList.appendChild(opt);
+                });
+            }
+        })
+        .fail(function(ex) {
+            usersList.innerHTML = "<option value=\"\">Error: " + (ex.message || "failed to list users") + "</option>";
+        })
+        .always(function() {
+            unlockNormal();
+        });
+}
+
+deleteUserBtn.addEventListener("click", function() {
+    lockAll();
+    showOutputPanel("Loading users...\n");
+    populateUsersList();
+});
+
+usersList.addEventListener("change", function() {
+    var username = usersList.value;
+    if (!username) return;
+
+    if (!confirm(
+        "Delete user \"" + username + "\"? This removes both the Linux and Samba " +
+        "accounts and cannot be undone. Their home directory (if any) is not deleted."
+    )) {
+        usersList.value = "";
+        return;
+    }
+
+    lockAll();
+    showOutputPanel("Deleting user \"" + username + "\"...\n\n");
+
+    // --force skips manage_users.sh's own interactive "Are you sure?"
+    // prompt — without it, that read() would get an immediate EOF (no tty,
+    // nothing piped) and silently abort, since there's nothing here to
+    // answer that prompt. This confirm() dialog is the actual safety gate.
+    cockpit.spawn([MANAGE_USERS_SCRIPT, username, "--delete-user", "--force"], { superuser: "require", err: "out" })
+        .stream(function(data) {
+            output.textContent += data;
+            output.scrollTop = output.scrollHeight;
+        })
+        .done(function() {
+            usersList.classList.add("hidden");
+            output.textContent += "\n[SUCCESS] User \"" + username + "\" deleted.\n";
+            unlockNormal();
+        })
+        .fail(function(ex, data) {
+            output.textContent += "\n[ERROR] " + (data || ex.message || JSON.stringify(ex)) + "\n";
+            unlockNormal();
+        });
+});
+
 // ── Display Shares ────────────────────────────────────────────────────────────
 
 displaySharesBtn.addEventListener("click", function() {
@@ -528,7 +734,9 @@ displayLinuxUsersBtn.addEventListener("click", function() {
 
 clearOutputBtn.addEventListener("click", function() {
     if (creatingShare) hideCreateShareForm();
+    if (creatingUser) hideCreateUserForm();
     sharesList.classList.add("hidden");
+    usersList.classList.add("hidden");
     showOutputPanel("Ready.");
     unlockNormal();
 });

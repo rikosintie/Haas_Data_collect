@@ -15,11 +15,12 @@ for what it means and why more than one active interface is flagged.
 ----------------------------------------------------------------
 
 The page has a single output/editor panel below a row of buttons. Only one
-of three things is ever shown there:
+of four things is ever shown there:
 
 - command output
 - the `smb.conf` editor
-- the `Create Share` form — never more than one at once.
+- the `Create Share` form
+- the `Create User` form — never more than one at once.
 
 ## View buttons
 
@@ -131,6 +132,8 @@ filled in from a fixed template.
 4. Click **Clear Output** to discard the form and cancel — it doubles as
    Cancel here too.
 
+## Delete Share
+
 Removes a share's stanza from `smb.conf` — the same idea as **Delete
 Service** on the Updates/Logs page: pick from a dropdown, confirm, done.
 
@@ -148,6 +151,58 @@ Service** on the Updates/Logs page: pick from a dropdown, confirm, done.
    runs the result through `testparm` (same gate as Edit smb.conf and
    Create Share), and only then writes the file and restarts `smbd`. If
    `testparm` rejects the result, nothing is saved or restarted.
+
+## Create User
+
+Creates a Linux + Samba account by running `manage_users.sh` (the same
+script documented for terminal use — it isn't copied to
+`/usr/local/sbin/`, it stays at `/home/haas/Haas_Data_collect/manage_users.sh`
+and runs from there either way), instead of needing SSH access to run it
+by hand.
+
+1. Click **Create User**. Every other view button is disabled except
+   **Create User** (the panel's main action button briefly relabels
+   itself from **Save & Restart**) and **Clear Output**.
+2. Fill in the four fields:
+
+    | Field | Notes |
+    |---|---|
+    | Username | Letters, digits, `_`, `-` only; lower-cased on save |
+    | Role | **Standard user** — Samba share access only, no shell, no sudo. **Administrator** — SSH + sudo + Samba, matching `manage_users.sh --admin-user` |
+    | Password | Set for both the Linux account and the Samba account |
+    | Confirm Password | Must match exactly |
+
+3. Click **Create User**. A confirmation dialog names the username and
+   role before anything runs. Confirming runs
+   `manage_users.sh <username> --set-password --force` (plus
+   `--admin-user` for the Administrator role), with the password you
+   entered piped to the script's own interactive prompts — the output
+   panel shows the script's full log as it runs.
+4. Click **Clear Output** instead to discard the form and cancel.
+
+!!! note "This is a separate system from firewall access"
+    `users.csv`/**Apply Firewall Changes** control *network* access — which
+    IPs can reach the appliance at all. This controls *account* access —
+    who can actually log in and read/write files once they're on the
+    network. They're related but independent; applying a firewall CSV
+    doesn't create or remove Samba/Linux accounts, which is exactly why
+    this button exists. See the note under **Apply Firewall Changes** in
+    [Firewall Control](./firewall.md) for the reminder that ties the two
+    together.
+
+## Delete User
+
+Removes a Linux + Samba account — pick from a dropdown, confirm, done,
+the same pattern as **Delete Share**.
+
+1. Click **Delete User** to populate a dropdown with every current member
+   of `HaasGroup` except `haas` itself (the appliance's own account,
+   deliberately excluded — deleting it would be catastrophic).
+2. Select a user. A confirmation dialog names them and warns this cannot
+   be undone. It also makes clear their home directory, if they have one,
+   is not deleted — only the Linux and Samba accounts themselves.
+3. Confirming runs `manage_users.sh <username> --delete-user --force` and
+   shows the result in the output panel.
 
 ## Clear Output
 

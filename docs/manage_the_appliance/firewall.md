@@ -185,6 +185,20 @@ command actually finishes, rather than waiting on the dashboard's normal
 what rules exist, they shouldn't leave the dashboard above showing stale
 state even briefly.
 
+!!! tip "Apply Firewall Changes checks Samba/Linux accounts too"
+    `users.csv` controls *network* access; it has no connection to the
+    actual Samba/Linux login accounts (created via Manage Samba's
+    **Create User** / **Delete User** — see
+    [Create User](./samba.md#create-user)). A successful **Apply Firewall
+    Changes** diffs the CSV's usernames against real Samba accounts
+    (`pdbedit -L`, excluding `haas` itself) and — only if there's actually
+    a mismatch — pops up a summary and lists the specific names in the
+    output pane: who's in the CSV with no matching account yet, and who
+    still has an account but is no longer in the CSV. Nothing is created
+    or deleted automatically; this is a reminder, not an action, so a
+    contractor's firewall access being revoked doesn't quietly leave
+    their login account still active because deleting it never happened.
+
 ## Rollback Firewall Rules from a Backup
 
 Every time the firewall config is applied, a timestamped copy of the CSV is

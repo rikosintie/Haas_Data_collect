@@ -484,6 +484,66 @@
                         // sets it correctly for whichever file was just
                         // edited.
                         document.getElementById("use-custom-csv").checked = false;
+
+                        // Firewall access (this CSV) and Samba/Linux
+                        // accounts (Manage Samba's Create/Delete User) are
+                        // two separate systems — applying this CSV doesn't
+                        // create or remove either on its own. Diff the
+                        // CSV's usernames against actual Samba accounts so
+                        // an admin who only ever touches the firewall side
+                        // doesn't leave a departed contractor's login
+                        // account active, or forget to create a new one.
+                        cockpit.file(fileToCheck, { superuser: "require" }).read()
+                            .then(function(csvContent) {
+                                const csvUsernames = (csvContent || "").split("\n")
+                                    .slice(1) // skip header row
+                                    .map(function(line) { return line.split(",")[0].trim().toLowerCase(); })
+                                    // "haas" excluded on both sides symmetrically — it's the
+                                    // appliance's own account, always present in both, and
+                                    // without this it would falsely show up as "new" every
+                                    // single time (present in the CSV, but excluded from the
+                                    // Samba-side list below).
+                                    .filter(function(name) { return name.length > 0 && name !== "haas"; });
+
+                                cockpit.spawn(["bash", "-c", "pdbedit -L | cut -d: -f1"], { superuser: "require", err: "message" })
+                                    .then(function(sambaText) {
+                                        const sambaUsers = (sambaText || "").trim().split("\n")
+                                            .map(function(u) { return u.trim().toLowerCase(); })
+                                            .filter(function(u) { return u.length > 0 && u !== "haas"; });
+
+                                        const newUsers = csvUsernames.filter(function(u) { return sambaUsers.indexOf(u) === -1; });
+                                        const removedUsers = sambaUsers.filter(function(u) { return csvUsernames.indexOf(u) === -1; });
+
+                                        if (newUsers.length === 0 && removedUsers.length === 0) return;
+
+                                        let detail = "\n--- Samba/Linux account check ---\n";
+                                        detail += "Firewall rules were applied from this CSV, but Samba/Linux accounts are managed separately (Manage Samba's Create User / Delete User).\n";
+                                        if (newUsers.length > 0) {
+                                            detail += "New in this CSV, no Samba account yet: " + newUsers.join(", ") + "\n";
+                                        }
+                                        if (removedUsers.length > 0) {
+                                            detail += "Has a Samba account, no longer in this CSV: " + removedUsers.join(", ") + "\n";
+                                        }
+                                        output.textContent += detail;
+                                        output.scrollTop = output.scrollHeight;
+
+                                        alert(
+                                            "Firewall applied.\n\n" +
+                                            (newUsers.length > 0 ? newUsers.length + " account(s) may need creating.\n" : "") +
+                                            (removedUsers.length > 0 ? removedUsers.length + " account(s) may need deleting.\n" : "") +
+                                            "\nSee the output pane for names, or go to Manage Samba to act on it."
+                                        );
+                                    })
+                                    .catch(function() {
+                                        // Non-fatal — the firewall change itself already
+                                        // succeeded; this check is a bonus reminder, not
+                                        // required for correctness.
+                                    });
+                            })
+                            .catch(function() {
+                                // Same — a failed re-read of the CSV shouldn't undo the
+                                // fact that the firewall was already successfully applied.
+                            });
                     });
                 })
                 .catch(function() {

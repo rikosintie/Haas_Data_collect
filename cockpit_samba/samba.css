@@ -179,8 +179,11 @@ pre#output {
     color: #0f0;
 }
 
-/* Create Share form — shares the panel space with the editor/output */
-#createShareForm {
+/* Create Share / Create User forms — both share the panel space with the
+   editor/output, and share this same visual treatment via .csf-panel and
+   .csf-field rather than duplicating it per form. */
+#createShareForm,
+#createUserForm {
     position: absolute;
     top: 0;
     left: 0;
@@ -194,14 +197,14 @@ pre#output {
     overflow: auto;
 }
 
-#createShareForm .csf-field {
+.csf-field {
     display: flex;
     align-items: center;
     gap: 12px;
     margin-bottom: 12px;
 }
 
-#createShareForm .csf-field label {
+.csf-field label {
     width: 110px;
     font-size: 14px;
     color: #ccc;
@@ -209,7 +212,9 @@ pre#output {
     flex-shrink: 0;
 }
 
-#createShareForm .csf-field input[type="text"] {
+.csf-field input[type="text"],
+.csf-field input[type="password"],
+.csf-field select {
     font-size: 14px;
     padding: 8px 10px;
     border: 1px solid #666;
@@ -219,6 +224,7 @@ pre#output {
     width: 320px;
 }
 
-#createShareForm .csf-field input[type="text"]::placeholder {
+.csf-field input[type="text"]::placeholder,
+.csf-field input[type="password"]::placeholder {
     color: #888;
 }

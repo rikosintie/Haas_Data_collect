@@ -25,6 +25,8 @@
         <button id="displaySharesCsvBtn" data-tooltip="Display the Samba shares from smb.conf in CSV format">Shares CSV</button>
         <button id="displaySambaUsersBtn" data-tooltip="List all users in the Samba database">Samba Users</button>
         <button id="displayLinuxUsersBtn" data-tooltip="Display local user accounts defined in Linux">Linux Users</button>
+        <button id="createUserBtn" data-tooltip="Create a new Linux + Samba user account">Create User</button>
+        <button id="deleteUserBtn" data-tooltip="Remove a Linux + Samba user account">Delete User</button>
         <button id="clearOutputBtn" data-tooltip="Clear the output window">Clear Output</button>
     </div>
 
@@ -35,6 +37,10 @@
 
     <select id="sharesList" class="hidden">
         <option value="">— select a share to delete —</option>
+    </select>
+
+    <select id="usersList" class="hidden">
+        <option value="">— select a user to delete —</option>
     </select>
 
     <div id="panelLabel"></div>
@@ -50,6 +56,27 @@
             <div class="csf-field">
                 <label for="shareComment">Comment</label>
                 <input type="text" id="shareComment" placeholder="e.g. File share for st30l" maxlength="60">
+            </div>
+        </div>
+        <div id="createUserForm" class="hidden">
+            <div class="csf-field">
+                <label for="newUsername">Username</label>
+                <input type="text" id="newUsername" placeholder="e.g. jdoe" maxlength="32">
+            </div>
+            <div class="csf-field">
+                <label for="newUserRole">Role</label>
+                <select id="newUserRole">
+                    <option value="user">Standard user (Samba share access only)</option>
+                    <option value="admin">Administrator (SSH + sudo + Samba)</option>
+                </select>
+            </div>
+            <div class="csf-field">
+                <label for="newUserPassword">Password</label>
+                <input type="password" id="newUserPassword" autocomplete="new-password">
+            </div>
+            <div class="csf-field">
+                <label for="newUserPasswordConfirm">Confirm Password</label>
+                <input type="password" id="newUserPasswordConfirm" autocomplete="new-password">
             </div>
         </div>
     </div>
