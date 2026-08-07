@@ -228,3 +228,13 @@ pre#output {
 .csf-field input[type="password"]::placeholder {
     color: #888;
 }
+
+.csf-field input[readonly] {
+    background: #222;
+    color: #999;
+}
+
+.button-row {
+    display: flex;
+    gap: 10px;
+}

@@ -31,6 +31,15 @@ const newUserPasswordConfirm = document.getElementById("newUserPasswordConfirm")
 const deleteUserBtn = document.getElementById("deleteUserBtn");
 const usersList     = document.getElementById("usersList");
 
+const changePasswordBtn        = document.getElementById("changePasswordBtn");
+const changePasswordList       = document.getElementById("changePasswordList");
+const changePasswordForm       = document.getElementById("changePasswordForm");
+const changePasswordUsername   = document.getElementById("changePasswordUsername");
+const changePasswordNew        = document.getElementById("changePasswordNew");
+const changePasswordConfirm    = document.getElementById("changePasswordConfirm");
+const changePasswordSubmitBtn  = document.getElementById("changePasswordSubmitBtn");
+const changePasswordCancelBtn  = document.getElementById("changePasswordCancelBtn");
+
 // Not copied to /usr/local/sbin by haas-install.sh — stays in the repo,
 // run via `sudo ./manage_users.sh` per its own usage comments.
 const MANAGE_USERS_SCRIPT = "/home/haas/Haas_Data_collect/manage_users.sh";
@@ -66,6 +75,7 @@ function showOutputPanel(text) {
     confEditor.style.display = "none";
     createShareForm.classList.add("hidden");
     createUserForm.classList.add("hidden");
+    changePasswordForm.classList.add("hidden");
     output.style.display = "block";
     if (text !== undefined) output.textContent = text;
     panelLabel.textContent = "";
@@ -76,6 +86,7 @@ function showEditorPanel(content) {
     output.style.display = "none";
     createShareForm.classList.add("hidden");
     createUserForm.classList.add("hidden");
+    changePasswordForm.classList.add("hidden");
     confEditor.style.display = "block";
     confEditor.value = content;
     panelLabel.textContent = "smb.conf — edit below, then click Save & Restart";
@@ -85,6 +96,7 @@ function showCreateShareForm() {
     output.style.display = "none";
     confEditor.style.display = "none";
     createUserForm.classList.add("hidden");
+    changePasswordForm.classList.add("hidden");
     createShareForm.classList.remove("hidden");
     panelLabel.textContent = "New share — fill in all fields, then click Save & Restart";
     validationMsg.classList.add("hidden");
@@ -100,6 +112,7 @@ function showCreateUserForm() {
     output.style.display = "none";
     confEditor.style.display = "none";
     createShareForm.classList.add("hidden");
+    changePasswordForm.classList.add("hidden");
     createUserForm.classList.remove("hidden");
     saveRestartBtn.textContent = "Create User";
     panelLabel.textContent = "New user — fill in all fields, then click Create User";
@@ -113,6 +126,26 @@ function hideCreateUserForm() {
     newUserRole.value = "user";
     newUserPassword.value = "";
     newUserPasswordConfirm.value = "";
+}
+
+function showChangePasswordForm(username) {
+    output.style.display = "none";
+    confEditor.style.display = "none";
+    createShareForm.classList.add("hidden");
+    createUserForm.classList.add("hidden");
+    changePasswordForm.classList.remove("hidden");
+    changePasswordUsername.value = username;
+    changePasswordNew.value = "";
+    changePasswordConfirm.value = "";
+    panelLabel.textContent = "New password for \"" + username + "\" — fill in both fields, then click Set New Password";
+    validationMsg.classList.add("hidden");
+}
+
+function hideChangePasswordForm() {
+    changePasswordForm.classList.add("hidden");
+    changePasswordUsername.value = "";
+    changePasswordNew.value = "";
+    changePasswordConfirm.value = "";
 }
 
 // ── button state helpers ──────────────────────────────────────────────────────
@@ -131,6 +164,7 @@ function lockAll() {
     displaySharesByUserBtn.disabled = true;
     createUserBtn.disabled          = true;
     deleteUserBtn.disabled          = true;
+    changePasswordBtn.disabled      = true;
 }
 
 // Normal output mode — all view buttons enabled, Save & Restart disabled
@@ -150,6 +184,7 @@ function unlockNormal() {
     displaySharesByUserBtn.disabled = false;
     createUserBtn.disabled          = false;
     deleteUserBtn.disabled          = false;
+    changePasswordBtn.disabled      = false;
 }
 
 // Edit mode, Create Share mode, and Create User mode all share this layout —
@@ -169,6 +204,26 @@ function unlockEditMode() {
     displaySharesByUserBtn.disabled = true;
     createUserBtn.disabled          = true;
     deleteUserBtn.disabled          = true;
+    changePasswordBtn.disabled      = true;
+}
+
+// Change Password's own lock state — like unlockEditMode, but Clear Output
+// stays disabled since the form has its own Cancel button (the shared
+// Clear Output button would otherwise also need to know about this form).
+function lockForChangePassword() {
+    editConfBtn.disabled            = true;
+    saveRestartBtn.disabled         = true;
+    createShareBtn.disabled         = true;
+    deleteShareBtn.disabled         = true;
+    displaySharesBtn.disabled       = true;
+    displaySharesCsvBtn.disabled    = true;
+    displaySambaUsersBtn.disabled   = true;
+    displayLinuxUsersBtn.disabled   = true;
+    clearOutputBtn.disabled         = true;
+    displaySharesByUserBtn.disabled = true;
+    createUserBtn.disabled          = true;
+    deleteUserBtn.disabled          = true;
+    changePasswordBtn.disabled      = true;
 }
 
 // ── run a command and show result in the output panel ─────────────────────────
@@ -663,6 +718,134 @@ usersList.addEventListener("change", function() {
         });
 });
 
+// ── Change Password ──────────────────────────────────────────────────────────
+
+// Same population as Delete User (HaasGroup members, minus haas). Marking
+// completed entries "✓ done" and disabling them — rather than removing
+// them from the list — keeps the full roster visible during a multi-user
+// sweep (e.g. an incident response "change everyone's password" pass),
+// so progress is a glance away instead of only being visible by counting
+// what's left. The list, and its done-markers, are rebuilt fresh every
+// time Change Password is clicked.
+function populateChangePasswordList() {
+    changePasswordList.innerHTML = "<option value=\"\">— loading... —</option>";
+    changePasswordList.classList.remove("hidden");
+
+    cockpit.spawn(
+        ["bash", "-c", "getent group HaasGroup | cut -d: -f4 | tr ',' '\\n' | grep -v '^haas$' | grep -v '^$' | sort"],
+        { superuser: "require", err: "message" }
+    )
+        .done(function(data) {
+            var users = data.trim() ? data.trim().split("\n") : [];
+
+            changePasswordList.innerHTML = "<option value=\"\">— select a user to change password —</option>";
+            if (users.length === 0) {
+                changePasswordList.innerHTML = "<option value=\"\">No users found</option>";
+            } else {
+                users.forEach(function(name) {
+                    var opt = document.createElement("option");
+                    opt.value = name;
+                    opt.textContent = name;
+                    changePasswordList.appendChild(opt);
+                });
+            }
+        })
+        .fail(function(ex) {
+            changePasswordList.innerHTML = "<option value=\"\">Error: " + (ex.message || "failed to list users") + "</option>";
+        })
+        .always(function() {
+            unlockNormal();
+        });
+}
+
+changePasswordBtn.addEventListener("click", function() {
+    lockAll();
+    showOutputPanel("Loading users...\n");
+    populateChangePasswordList();
+});
+
+changePasswordList.addEventListener("change", function() {
+    var username = changePasswordList.value;
+    if (!username) return;
+
+    changePasswordList.classList.add("hidden");
+    lockForChangePassword();
+    showChangePasswordForm(username);
+});
+
+changePasswordCancelBtn.addEventListener("click", function() {
+    hideChangePasswordForm();
+    confEditor.style.display = "none";
+    output.style.display = "none";
+    changePasswordList.classList.remove("hidden");
+    changePasswordList.value = "";
+    panelLabel.textContent = "Select a user, or click Clear Output to stop.";
+    validationMsg.classList.add("hidden");
+    unlockNormal();
+});
+
+changePasswordSubmitBtn.addEventListener("click", function() {
+    var username = changePasswordUsername.value;
+    var pw1 = changePasswordNew.value;
+    var pw2 = changePasswordConfirm.value;
+
+    if (!pw1 || !pw2) {
+        validationMsg.textContent = "ERROR: Both password fields are required.";
+        validationMsg.classList.remove("hidden");
+        return;
+    }
+
+    if (pw1 !== pw2) {
+        validationMsg.textContent = "ERROR: Passwords do not match.";
+        validationMsg.classList.remove("hidden");
+        return;
+    }
+
+    if (!confirm("Set a new password for \"" + username + "\"? This changes their Linux and Samba password immediately.")) {
+        return;
+    }
+
+    // Same 4-line stdin sequence as Create User: for an *existing* user,
+    // --set-password drives one `passwd` prompt (2 lines) then one plain
+    // `smbpasswd` prompt (2 lines) — verified by reading manage_users.sh,
+    // not by exercising it against a real appliance. Test with a
+    // throwaway account first.
+    var stdinSequence = pw1 + "\n" + pw1 + "\n" + pw1 + "\n" + pw1 + "\n";
+
+    lockAll();
+    validationMsg.classList.add("hidden");
+    hideChangePasswordForm();
+    showOutputPanel("Setting new password for \"" + username + "\"...\n\n");
+
+    cockpit.spawn([MANAGE_USERS_SCRIPT, username, "--set-password", "--force"], { superuser: "require", err: "out" })
+        .input(stdinSequence)
+        .stream(function(data) {
+            output.textContent += data;
+            output.scrollTop = output.scrollHeight;
+        })
+        .done(function() {
+            output.textContent += "\n[SUCCESS] Password changed for \"" + username + "\".\n";
+
+            // Mark this entry done and put the list back for the next pick,
+            // rather than returning to the plain Ready state — the whole
+            // point is making a multi-user sweep fast.
+            Array.prototype.forEach.call(changePasswordList.options, function(opt) {
+                if (opt.value === username) {
+                    opt.textContent = "✓ " + username + " (done)";
+                    opt.disabled = true;
+                }
+            });
+            changePasswordList.value = "";
+            changePasswordList.classList.remove("hidden");
+            unlockNormal();
+        })
+        .fail(function(ex, data) {
+            output.textContent += "\n[ERROR] " + (data || ex.message || JSON.stringify(ex)) + "\n";
+            changePasswordList.classList.remove("hidden");
+            unlockNormal();
+        });
+});
+
 // ── Display Shares ────────────────────────────────────────────────────────────
 
 displaySharesBtn.addEventListener("click", function() {
@@ -737,6 +920,7 @@ clearOutputBtn.addEventListener("click", function() {
     if (creatingUser) hideCreateUserForm();
     sharesList.classList.add("hidden");
     usersList.classList.add("hidden");
+    changePasswordList.classList.add("hidden");
     showOutputPanel("Ready.");
     unlockNormal();
 });

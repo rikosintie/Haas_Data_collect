@@ -27,6 +27,7 @@
         <button id="displayLinuxUsersBtn" data-tooltip="Display local user accounts defined in Linux">Linux Users</button>
         <button id="createUserBtn" data-tooltip="Create a new Linux + Samba user account">Create User</button>
         <button id="deleteUserBtn" data-tooltip="Remove a Linux + Samba user account">Delete User</button>
+        <button id="changePasswordBtn" data-tooltip="Set a new password for an existing user">Change Password</button>
         <button id="clearOutputBtn" data-tooltip="Clear the output window">Clear Output</button>
     </div>
 
@@ -41,6 +42,10 @@
 
     <select id="usersList" class="hidden">
         <option value="">— select a user to delete —</option>
+    </select>
+
+    <select id="changePasswordList" class="hidden">
+        <option value="">— select a user to change password —</option>
     </select>
 
     <div id="panelLabel"></div>
@@ -77,6 +82,27 @@
             <div class="csf-field">
                 <label for="newUserPasswordConfirm">Confirm Password</label>
                 <input type="password" id="newUserPasswordConfirm" autocomplete="new-password">
+            </div>
+        </div>
+        <div id="changePasswordForm" class="hidden">
+            <div class="csf-field">
+                <label for="changePasswordUsername">Username</label>
+                <input type="text" id="changePasswordUsername" readonly>
+            </div>
+            <div class="csf-field">
+                <label for="changePasswordNew">New Password</label>
+                <input type="password" id="changePasswordNew" autocomplete="new-password">
+            </div>
+            <div class="csf-field">
+                <label for="changePasswordConfirm">Confirm Password</label>
+                <input type="password" id="changePasswordConfirm" autocomplete="new-password">
+            </div>
+            <div class="csf-field">
+                <label></label>
+                <div class="button-row">
+                    <button id="changePasswordSubmitBtn">Set New Password</button>
+                    <button id="changePasswordCancelBtn">Cancel</button>
+                </div>
             </div>
         </div>
     </div>

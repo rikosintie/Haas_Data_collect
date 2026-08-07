@@ -15,12 +15,13 @@ for what it means and why more than one active interface is flagged.
 ----------------------------------------------------------------
 
 The page has a single output/editor panel below a row of buttons. Only one
-of four things is ever shown there:
+of five things is ever shown there:
 
 - command output
 - the `smb.conf` editor
 - the `Create Share` form
-- the `Create User` form — never more than one at once.
+- the `Create User` form
+- the `Change Password` form — never more than one at once.
 
 ## View buttons
 
@@ -203,6 +204,35 @@ the same pattern as **Delete Share**.
    is not deleted — only the Linux and Samba accounts themselves.
 3. Confirming runs `manage_users.sh <username> --delete-user --force` and
    shows the result in the output panel.
+
+## Change Password
+
+Sets a new password for an existing account — for a departed contractor's
+CSV row being pulled from `users.csv` (revoking network access) but their
+Samba/Linux login left active, use **Delete User** above instead; this is
+for rotating a *current* user's password (a suspected credential
+compromise, or a routine 90-day rotation policy), which otherwise has no
+way to be done without SSH access.
+
+1. Click **Change Password** to populate a dropdown with every current
+   member of `HaasGroup` except `haas` itself — the same list Delete User
+   uses.
+2. Select a user. A small form appears with **New Password** and
+   **Confirm Password** fields (the username itself is shown read-only,
+   just for confirmation).
+3. Click **Set New Password**. A confirmation dialog names the user
+   before anything runs, then
+   `manage_users.sh <username> --set-password --force` runs with the
+   password you entered.
+4. On success, that entry is marked **✓ (done)** and disabled in the
+   dropdown — not removed — so during a multi-user sweep (e.g. rotating
+   everyone's password after an incident) the full roster stays visible
+   and it's obvious at a glance who's left, rather than only being able
+   to tell by counting. The dropdown is ready immediately for the next
+   pick. Click **Cancel** at any point to back out of the current
+   selection without changing anything and return to the dropdown; the
+   list (and its done-markers) is rebuilt fresh each time you click
+   **Change Password** itself.
 
 ## Clear Output
 
