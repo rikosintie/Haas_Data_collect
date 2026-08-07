@@ -202,7 +202,7 @@ If you are in the Desktop version of Ubuntu you can open the `Files` application
 
 This is a comma-separated value (csv) file that contains usernames and passwords. These are users authorized to map drives to the appliance. Every user who needs to work with the appliance should be listed in this file. The installation script will create a Linux user account and Samba account for each user in `initial_users.csv`.
 
-To create administrative users, say an admin for an MSP, use the [Manage users by script](../build_the_appliance/create-groups.md/#manage-users-by-script){target="_blank"} to create the user.
+To create administrative users, say an admin for an MSP, use the [Manage users by script](../build_the_appliance/create-groups.md/#manage-users-by-script){target="_blank"} to create the user. Once the appliance is up and Cockpit is reachable, this (and ordinary user creation, deletion, and password changes) can also be done from Cockpit's Manage Samba page — see [Create User](../manage_the_appliance/samba.md#create-user) — without SSH access.
 
 User with only drive mapping permissions would include:
 

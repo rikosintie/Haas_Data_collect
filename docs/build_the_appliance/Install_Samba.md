@@ -25,6 +25,12 @@ For my project I chose not to use Active Directory integration because most smal
 
 Creating local Linux accounts on the appliance is straight forward and the project includes a script to create users. See the section [There are two trains of thoughts on usernames](../build_the_appliance/configuring_appliance.md/#there-are-two-trains-of-thoughts-on-usernames) before deciding what accounts to use.
 
+Once the appliance is up and running, day-to-day account work — creating a
+user, deleting one, or changing a password — doesn't need the script or
+SSH at all; Cockpit's **Manage Samba** page has **Create User** / **Delete
+User** / **Change Password** buttons for exactly that. See
+[Create User](../manage_the_appliance/samba.md#create-user).
+
 If you want use Active Directory integration there are plenty of blogs/YouTube Videos available.
 
 ----------------------------------------------------------------

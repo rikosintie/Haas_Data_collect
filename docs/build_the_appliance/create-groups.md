@@ -9,6 +9,20 @@ The Installation script creates the `HaasGroup` and users that are in the `users
 
 ----------------------------------------------------------------
 
+!!! tip "Day-to-day user management: use Cockpit instead of the terminal"
+    Everything in [Manage users by script](#manage-users-by-script) below —
+    creating a user, deleting one, and changing a password — can now be
+    done directly from Cockpit's **Manage Samba** page (**Create User** /
+    **Delete User** / **Change Password** buttons), without SSH access or
+    needing to remember `manage_users.sh`'s flags. See
+    [Create User](../manage_the_appliance/samba.md#create-user) for the
+    how-to. This page is still worth reading if you want to understand
+    what those buttons actually do under the hood — or you're doing the
+    one-time `HaasGroup`/permissions setup below, which isn't exposed
+    through Cockpit.
+
+----------------------------------------------------------------
+
 Linux uses groups to manage permissions for users. For this project, all users will be in the same group. That isn't a security best practice since a disgruntled employee could delete everything. If you have compliance requirements or other concerns, just repeat this process to create multiple groups. For example, create a user and group for each machine. Then add the user to the machine's share and use it as the username when setting up the account on the machine.
 
 Does this seem like a lot of extra work? Yes, but I actually had a disgruntled employee delete the configuration for the DNC system for a neighboring cell one time. Of course, he was a night shift employee, and did it at midnight on Friday. I got called on Saturday morning and had to drive an hour to the plant and restore it. So it depends on your determination of the risk in your shop.
@@ -232,6 +246,16 @@ All users, whether they are a machine tool, a CNC programmer, or the Operations 
 If you need to add or remove users after the initial installation use the `manage_users.sh` script that is located in the `Haas_Data_collect` directory. The script creates users that can map drives. The script DOES NOT add a user to the `sudoers` file so they cannot run Linux commands or log in over SSH.
 
 It's fairly simple to create a user manually from the instructions above, but it's a lot of individual commands which leaves room for errors. If you need to add or remove users after the initial installation, use the `manage_users.sh` script that is located in the `Haas_Data_collect` directory instead. The script creates users that can map drives. The script **DOES NOT** add a user to the `sudoers` file so they cannot run Linux commands or log in over SSH.
+
+!!! note "This exact script is behind Cockpit's Create/Delete/Change Password User buttons"
+    `--set-password`, `--delete-user --force`, and creating a new user —
+    including `--admin-user` (Cockpit's "Administrator" role) — are
+    exactly what Manage Samba's **Create User**, **Delete User**, and
+    **Change Password** buttons run for you — see
+    [Create User](../manage_the_appliance/samba.md#create-user). Running
+    the script by hand from here is still useful for `--ssh-key` (adding
+    a specific SSH public key to a new admin account), which isn't
+    exposed in Cockpit.
 
 The script has the following optional arguments:
 
