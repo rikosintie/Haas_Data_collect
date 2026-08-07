@@ -49,6 +49,14 @@ const SETUP_ZSH_SCRIPT = REPO_DIR + "/setup_zsh.sh";
 const SMB_CONF = "/etc/samba/smb.conf";
 const SMB_CONF_VALIDATE_TMP_PREFIX = "/tmp/smb.conf.validate.";
 
+// setup_zsh.sh colorizes its banners with raw ANSI SGR codes for terminal
+// use. The output panel is plain text (textContent), not a terminal
+// emulator, so those codes would otherwise show up as literal "[1;36m"
+// junk instead of being rendered as color — strip them before display.
+function stripAnsi(str) {
+    return str.replace(/\x1b\[[0-9;]*m/g, "");
+}
+
 // Matches the WorkingDirectory convention in cockpit_updates/update.js's
 // Create Service flow — every machine's directory lives here.
 const BASE_MACHINES_DIR = "/home/haas/Haas_Data_collect/machines/";
@@ -405,7 +413,7 @@ saveRestartBtn.addEventListener("click", function() {
 
                     cockpit.spawn(["bash", SETUP_ZSH_SCRIPT, REPO_DIR, username], { superuser: "require", err: "out" })
                         .stream(function(data) {
-                            output.textContent += data;
+                            output.textContent += stripAnsi(data);
                             output.scrollTop = output.scrollHeight;
                         })
                         .done(function() {
