@@ -57,7 +57,7 @@ h1 {
     font-family: monospace;
     font-size: 0.85em;
     background: #111;
-    color: #0f0;
+    color: #eee;
     padding: 10px;
     border-radius: 4px;
     margin: 8px 0;
@@ -213,7 +213,7 @@ pre#output {
 /* Output pre — shown by default */
 pre#output {
     display: block;
-    color: #0f0;
+    color: #eee;
 }
 
 /* Create Share / Create User forms — both share the panel space with the
