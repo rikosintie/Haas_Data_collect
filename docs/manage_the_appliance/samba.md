@@ -51,6 +51,46 @@ share, since each one is only a single line to begin with.
 
 ----------------------------------------------------------------
 
+### Shares CSV
+
+`Display Shares` is easy to read on screen, but it isn't something you
+can hand off to someone else to work with in a spreadsheet — the columns
+are lined up with spaces, not something a spreadsheet program
+understands as columns. `Shares CSV` runs the same share list through
+`list_shares_csv.sh` instead, which outputs
+[CSV](https://en.wikipedia.org/wiki/Comma-separated_values){: target="_blank" rel="noopener" }
+(**C**omma-**S**eparated **V**alues) — a plain text format where each
+line is one row and a comma marks where one column ends and the next
+begins. It isn't an Excel-only format; it's a universal one that
+LibreOffice Calc, Microsoft Excel, Google Sheets, and just about
+anything else that opens spreadsheets can read.
+
+Click `Shares CSV`, select all the text in the output panel, and paste
+it into a new, empty text file (`t-editor`, `fresh`, Notepad, TextEdit —
+anything plain text works) saved with a `.csv` extension. Opening that
+file in a spreadsheet program should trigger an import dialog rather
+than just dropping the raw text into cell A1.
+
+!!! warning "Leave \"Space\" unchecked"
+    Some values in this CSV contain spaces of their own — `valid_users`
+    values like `@HaasGroup haas` are one field, not two. It's tempting
+    to check a **Space** delimiter option in the import dialog because
+    you can see spaces in the data, but doing that splits `@HaasGroup
+    haas` into two separate columns and throws off everything after it.
+    This file only uses commas to separate columns — leave every other
+    delimiter option (Space included) unchecked, and leave only
+    **Comma** checked, as shown below in LibreOffice Calc's **Text
+    Import** dialog. Microsoft Excel's import has the same "which
+    character separates columns" question under a different name (its
+    exact wording depends on your Excel version), but the same rule
+    applies: comma only.
+
+----------------------------------------------------------------
+
+![screenshot](./img/shares-csv-excel.resized.png)
+
+----------------------------------------------------------------
+
 ### Shares by User
 
 Use this button to see if a specific user has a drive mapped to the appliance. The machines should always show up connected. In this example, I'm checking on user `thubbard`:
