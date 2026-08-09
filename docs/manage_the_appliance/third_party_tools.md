@@ -47,6 +47,9 @@ cat /usr/local/sbin/tools.yaml
   16   │
   17   │   - repo: ajeetdsouza/zoxide
   18   │     binary: zoxide
+  19   │
+  20   │   - repo: samwho/spacer
+  21   │     binary: spacer
 
 ```
 
@@ -161,7 +164,8 @@ More information is available on the [TailSpin GitHub page](https://github.com/b
 UUIDs, HTTP methods, log levels — with no configuration, and opens the
 result in `less` by default. The `t-*` aliases in `terminal_aliases.md`
 (`t-cockpit`, `t-samba`, `t-ssh`, `t-python3`, `t-ufw`, `t-health`) are all
-just `journalctl`/`tail` piped through it.
+just `journalctl`/`tail` piped through it, then through `spacer` (see
+below) for a blank line between bursts of activity.
 
 For anything those aliases don't already cover, pipe it through directly:
 
@@ -177,6 +181,34 @@ tspin --exec='journalctl -u haas-st40 -f'
 ```
 
 More information is available on the [TailSpin GitHub page](https://github.com/bensadeh/tailspin){: target="_blank" rel="noopener" }.
+
+----------------------------------------------------------------
+
+## spacer — a blank line between bursts of log activity
+
+`spacer` sits at the end of the `t-*` log-tailing pipelines, right after
+`tspin`. It watches the stream and inserts a blank line whenever there's
+been a pause (1 second by default) since the last line — so instead of
+one unbroken wall of text, you get one visually separated block per
+burst of activity: one reconnect attempt, one blocked-connection flurry,
+one login session, and so on.
+
+```bash
+tail -f some.log | spacer
+```
+
+Change the pause threshold with `--after` (accepts fractional seconds):
+
+```bash
+tail -f some.log | spacer --after 5
+```
+
+!!! note
+    `spacer` only watches **stdout**. If whatever you're piping into it
+    writes to stderr instead, redirect both streams with `|&` rather
+    than a plain `|`, or spacer won't see anything to space out.
+
+More information is available on the [spacer GitHub page](https://github.com/samwho/spacer){: target="_blank" rel="noopener" }.
 
 ----------------------------------------------------------------
 

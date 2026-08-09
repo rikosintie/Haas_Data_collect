@@ -30,7 +30,7 @@ Type `haas` then press `Tab` to list all haas aliases.
 | `haas-fw-conf` | `sudo fresh /etc/haas-firewall.conf` | Edit firewall config |
 | `haas-sshd` | `sudo fresh /etc/ssh/sshd_config.d/99-haas-hardening.conf` | Edit SSH hardening config |
 | `haas-sshc` | `sudo sshd -T \| grep -E '...'` | Show custom SSH settings only |
-| `t-python3` | `journalctl -f --no-pager \| grep -E 'python3' \| tspin` | Tail CNC script logs (allow ~2 min) |
+| `t-python3` | `journalctl -f --no-pager \| grep -E 'python3' \| tspin \| spacer` | Tail CNC script logs (allow ~2 min) |
 
 ---
 

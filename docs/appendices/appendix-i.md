@@ -255,7 +255,7 @@ The data collection scripts run constantly after they are installed with a servi
 
 Here is the alias:
 
-`alias t-python3='journalctl -f --no-pager | grep -E 'python3' | tspin'`
+`alias t-python3='journalctl -f --no-pager | grep -E 'python3' | tspin | spacer'`
 
 ```bash linenums='1' hl_lines='1'
 ┌─[haas@haas] - [~/Haas_Data_collect] - [3892]
@@ -287,7 +287,7 @@ If you suspect that the appliance is under attach you can use this alias to moni
 
 Here is the alias:
 
-`alias t-ufw='journalctl -f --no-pager | grep -Ev 'DST=224\.' | grep -E 'UFW' | tspin`
+`alias t-ufw='journalctl -f --no-pager | grep -Ev 'DST=224\.' | grep -E 'UFW' | tspin | spacer'`
 
 t-ufw example
 
@@ -313,7 +313,7 @@ The `t-ufwf` alias allows you to include a filter. The valid filters are:
 
 Here is the alias:
 
-`alias t-ufwf='(){journalctl -f --no-pager --grep=$1 | grep -Ev 'DST=224\.' | tspin}'`
+`alias t-ufwf='(){journalctl -f --no-pager --grep=$1 | grep -Ev 'DST=224\.' | tspin | spacer}'`
 
 t-ufwf example
 
