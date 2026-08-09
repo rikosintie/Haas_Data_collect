@@ -41,6 +41,10 @@ These are read-only and safe to click any time:
 
 To map a drive to a Mac/Windows/Linux computer or the Haas machine tools you need the share name. Clicking the `Display Shares` button provides a quick view of all the shares available on the appliance. To map a drive see
 
+The header row and each row's **SHARE** column are colored blue — enough
+to anchor each row at a glance without a full divider line between every
+share, since each one is only a single line to begin with.
+
 ----------------------------------------------------------------
 
 ![screenshot](./img/display-shares.resized.png)

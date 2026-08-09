@@ -226,6 +226,22 @@ pre#output {
     color: #eee;
 }
 
+/* Output color coding — same convention as cockpit_firewall/cockpit_python/cockpit_updates */
+pre#output span.info {
+    color: #4da3ff;
+}
+pre#output span.error {
+    color: #ff4d4d;
+    font-weight: bold;
+}
+pre#output span.success {
+    color: #4dff88;
+}
+pre#output span.warn {
+    color: #ffc107;
+    font-weight: bold;
+}
+
 /* Create Share / Create User forms — both share the panel space with the
    editor/output, and share this same visual treatment via .csf-panel and
    .csf-field rather than duplicating it per form. */

@@ -3,6 +3,38 @@ const confEditor         = document.getElementById("confEditor");
 const panelLabel         = document.getElementById("panelLabel");
 const validationMsg      = document.getElementById("validationMsg");
 
+// Sanitizes dynamic text (share names, paths, usernames, etc.) before
+// it's interpolated into output.innerHTML.
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
+
+// Colorizes Display Shares' table: the header row, and just the SHARE
+// column of each data row (list_shares.sh's fixed-width "%-20s %-55s
+// %-25s %-10s" format, so the first 20 characters of any non-header,
+// non-blank line are always the SHARE field) — anchors each row without
+// a full divider eating vertical space on what's otherwise a compact,
+// one-line-per-share list. Unlike this file's other dynamic content,
+// takes RAW (unescaped) text and escapes each sliced piece separately —
+// escaping first and then slicing the fixed 20-char offset could cut a
+// multi-character entity like "&lt;" in half across the span boundary.
+function colorizeSharesOutput(rawText) {
+    return rawText.split("\n").map(function(line, i) {
+        if (i === 0) {
+            return "<span class=\"info\">" + escapeHtml(line) + "</span>";
+        }
+        if (line.trim() === "") {
+            return line;
+        }
+        var shareCol = line.slice(0, 20);
+        var rest = line.slice(20);
+        return "<span class=\"info\">" + escapeHtml(shareCol) + "</span>" + escapeHtml(rest);
+    }).join("\n");
+}
+
 const editConfBtn           = document.getElementById("editConfBtn");
 const saveRestartBtn        = document.getElementById("saveRestartBtn");
 const displaySharesBtn      = document.getElementById("displaySharesBtn");
@@ -884,7 +916,22 @@ changePasswordSubmitBtn.addEventListener("click", function() {
 // ── Display Shares ────────────────────────────────────────────────────────────
 
 displaySharesBtn.addEventListener("click", function() {
-    runCommand(["/usr/local/sbin/list_shares.sh"], "Samba Shares");
+    lockAll();
+    showOutputPanel("Running: Samba Shares...\n");
+
+    cockpit.spawn(["/usr/local/sbin/list_shares.sh"], { superuser: "require", err: "message" })
+        .done(function(data) {
+            output.innerHTML = "<span class=\"info\">--- Samba Shares ---</span>\n\n" +
+                (data ? colorizeSharesOutput(data) : "(no output)");
+        })
+        .fail(function(ex, data) {
+            output.innerHTML = "<span class=\"info\">--- Samba Shares ---</span>\n\n<span class=\"error\">ERROR: " +
+                escapeHtml(ex.message || JSON.stringify(ex)) + "</span>";
+            if (data) output.innerHTML += "\n" + escapeHtml(data);
+        })
+        .always(function() {
+            unlockNormal();
+        });
 });
 
 // ── Display Shares CSV ────────────────────────────────────────────────────────
