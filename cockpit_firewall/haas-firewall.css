@@ -152,7 +152,7 @@ h1 {
 
 .active-rules {
     background-color: #111;
-    color: #0f0;
+    color: #eee;
     padding: 10px;
     border: 1px solid #444;
     border-radius: 4px;
@@ -360,7 +360,9 @@ input[type="checkbox"] {
     height: 300px;
     font-family: monospace;
     padding: 10px;
-    border: 1px solid #ccc;
+    background-color: #111;
+    color: #eee;
+    border: 1px solid #444;
     border-radius: 4px;
     margin-bottom: 10px;
 }
