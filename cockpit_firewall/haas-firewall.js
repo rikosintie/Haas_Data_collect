@@ -155,8 +155,8 @@
                 if (!confirm(
                     "WARNING: Disabling the firewall will remove ALL rules!\n\n" +
                     "The appliance will be vulnerable to attack!\n\n" +
-                    "This is NOT permanent: haas-firewall.timer runs at least once per " +
-                    "day and will automatically re-enable the firewall.\n\n" +
+                    "This is NOT permanent: haas-firewall.timer runs every 4 hours " +
+                    "and will automatically re-enable the firewall.\n\n" +
                     "If you need it off for longer than that, also run:\n" +
                     "sudo systemctl disable --now haas-firewall.timer\n\n" +
                     "Run sudo systemctl reenable --now haas-firewall.timer" +
@@ -526,6 +526,20 @@
                         // sets it correctly for whichever file was just
                         // edited.
                         document.getElementById("use-custom-csv").checked = false;
+
+                        // haas-firewall.timer's OnActiveSec=4h counts down from
+                        // this timer unit's own last activation — restarting it
+                        // here means a deliberate manual apply also resets the
+                        // 4-hour countdown, not just the timer's own scheduled
+                        // runs. This only pokes the timer (cheap, no-op besides
+                        // resetting its internal clock); it does not re-run
+                        // configure_ufw_from_csv.sh a second time.
+                        cockpit.spawn(["systemctl", "restart", "haas-firewall.timer"], { superuser: "require", err: "message" })
+                            .catch(function(error) {
+                                output.innerHTML += "<span class=\"warn\">[WARNING] Could not reset haas-firewall.timer: " +
+                                    escapeHtml(error) + "</span>\n";
+                                output.scrollTop = output.scrollHeight;
+                            });
 
                         // Firewall access (this CSV) and Samba/Linux
                         // accounts (Manage Samba's Create/Delete User) are

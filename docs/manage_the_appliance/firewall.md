@@ -38,12 +38,14 @@ At the top of the page:
   current IP isn't already covered by a rule in `users.csv`.
 
     !!! warning "Disabling is not permanent"
-        `haas-firewall.timer` runs `haas-firewall.service` at least once a
-        day as a self-heal, and that service runs `ufw --force enable` as
+        `haas-firewall.timer` runs `haas-firewall.service` every 4 hours
+        as a self-heal, and that service runs `ufw --force enable` as
         part of reapplying the CSV — so a firewall disabled here comes back
-        on by itself, usually within 24 hours. The confirmation dialog
-        says so. If you need it off for longer than that (an extended
-        troubleshooting session, for example), also run
+        on by itself, usually within 4 hours (sooner if someone clicks
+        **Apply Firewall Changes** in the meantime, which also resets that
+        countdown). The confirmation dialog says so. If you need it off
+        for longer than that (an extended troubleshooting session, for
+        example), also run
         `sudo systemctl disable --now haas-firewall.timer` — and remember
         to re-enable that timer afterward, or the appliance stops
         self-healing entirely, not just for this one disable.

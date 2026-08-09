@@ -1,26 +1,35 @@
-# Haas Appliance - Daily Firewall Refresh Timer
+# Haas Appliance - Periodic Firewall Refresh Timer
 #
 # This systemd timer unit triggers the haas-firewall.service
-# once per day to ensure the UFW configuration:
+# to ensure the UFW configuration:
 #   - Stays in sync with the CSV.
-#   - Self-heals if someone changes rules manually.
+#   - Self-heals if someone changes rules manually or disables the
+#     firewall (e.g. an MSP/helpdesk tech troubleshooting) and never
+#     re-enables it.
 #
 # BEHAVIOR:
-#   - OnCalendar=daily  → runs at least once per day.
-#   - Persistent=true   → catches up missed runs after downtime.
+#   - OnActiveSec=4h → fires every 4 hours, measured from this timer
+#     unit's own last activation (not the service's) — so it keeps
+#     counting down correctly across restarts of this timer unit.
+#   - No OnBootSec here: haas-install.sh separately runs
+#     `systemctl enable haas-firewall.service` (not just this timer), and
+#     the service's own [Install] WantedBy=multi-user.target already
+#     makes it run once at every boot on its own — adding OnBootSec here
+#     too would just make it run twice at boot.
+#   - Cockpit's Apply Firewall Changes button additionally runs
+#     `systemctl restart haas-firewall.timer` on a successful apply, so
+#     the 4-hour countdown also resets on a deliberate manual apply, not
+#     just on this timer's own scheduled runs — see
+#     cockpit_firewall/haas-firewall.js.
 #
 # The associated service is:
 #   haas-firewall.service
 
 [Unit]
-Description=Daily Haas Firewall Refresh
+Description=Periodic Haas Firewall Refresh
 
 [Timer]
-# Run once per day. Systemd chooses the exact time if not specified.
-OnCalendar=daily
-
-# If the system was down at the scheduled time, run once at next boot.
-Persistent=true
+OnActiveSec=4h
 
 [Install]
 WantedBy=timers.target
