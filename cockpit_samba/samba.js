@@ -35,6 +35,29 @@ function colorizeSharesOutput(rawText) {
     }).join("\n");
 }
 
+// Same concept as colorizeSharesOutput, but list_shares_csv.sh's output
+// is comma-delimited (list_shares_csv.sh:7) rather than fixed-width, so
+// the SHARE field is bounded by the first comma instead of a fixed
+// column offset. Same raw-text-in, escape-after-split contract, for the
+// same reason (an entity split across the boundary).
+function colorizeSharesCsvOutput(rawText) {
+    return rawText.split("\n").map(function(line, i) {
+        if (i === 0) {
+            return "<span class=\"info\">" + escapeHtml(line) + "</span>";
+        }
+        if (line.trim() === "") {
+            return line;
+        }
+        var commaIdx = line.indexOf(",");
+        if (commaIdx === -1) {
+            return escapeHtml(line);
+        }
+        var shareCol = line.slice(0, commaIdx);
+        var rest = line.slice(commaIdx);
+        return "<span class=\"info\">" + escapeHtml(shareCol) + "</span>" + escapeHtml(rest);
+    }).join("\n");
+}
+
 const editConfBtn           = document.getElementById("editConfBtn");
 const saveRestartBtn        = document.getElementById("saveRestartBtn");
 const displaySharesBtn      = document.getElementById("displaySharesBtn");
@@ -937,7 +960,22 @@ displaySharesBtn.addEventListener("click", function() {
 // ── Display Shares CSV ────────────────────────────────────────────────────────
 
 displaySharesCsvBtn.addEventListener("click", function() {
-    runCommand(["/usr/local/sbin/list_shares_csv.sh"], "Samba Shares (CSV)");
+    lockAll();
+    showOutputPanel("Running: Samba Shares (CSV)...\n");
+
+    cockpit.spawn(["/usr/local/sbin/list_shares_csv.sh"], { superuser: "require", err: "message" })
+        .done(function(data) {
+            output.innerHTML = "<span class=\"info\">--- Samba Shares (CSV) ---</span>\n\n" +
+                (data ? colorizeSharesCsvOutput(data) : "(no output)");
+        })
+        .fail(function(ex, data) {
+            output.innerHTML = "<span class=\"info\">--- Samba Shares (CSV) ---</span>\n\n<span class=\"error\">ERROR: " +
+                escapeHtml(ex.message || JSON.stringify(ex)) + "</span>";
+            if (data) output.innerHTML += "\n" + escapeHtml(data);
+        })
+        .always(function() {
+            unlockNormal();
+        });
 });
 
 // ── Display Shares by Username ────────────────────────────────────────────────
