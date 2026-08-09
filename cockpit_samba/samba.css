@@ -1,6 +1,8 @@
 body {
     font-family: sans-serif;
     padding: 20px;
+    background: #1a1a1a;
+    color: #eee;
 }
 
 h1 {
@@ -19,10 +21,10 @@ h1 {
 
 .network-info {
     font-size: 0.85em;
-    color: #555;
+    color: #aaa;
     padding-bottom: 10px;
     margin-bottom: 12px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #444;
 }
 
 .network-warning {
@@ -115,6 +117,14 @@ button {
     font-size: 15px;
     padding: 10px 14px;
     cursor: pointer;
+    background: #e0e0e0;
+    color: #1a1a1a;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+}
+
+button:hover {
+    background: #d5d5d5;
 }
 
 button:disabled {
