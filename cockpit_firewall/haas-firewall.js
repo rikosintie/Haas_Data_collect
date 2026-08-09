@@ -156,10 +156,11 @@
                     "WARNING: Disabling the firewall will remove ALL rules!\n\n" +
                     "The appliance will be vulnerable to attack!\n\n" +
                     "This is NOT permanent: haas-firewall.timer runs at least once per " +
-                    "day and will automatically re-enable the firewall. If you need it " +
-                    "off for longer than that, also run:\n" +
+                    "day and will automatically re-enable the firewall.\n\n" +
+                    "If you need it off for longer than that, also run:\n" +
                     "  sudo systemctl disable --now haas-firewall.timer\n" +
-                    "(and re-enable it when you're done, or protection stops updating.)\n\n" +
+                    "(and sudo systemctl reenable --now haas-firewall.timer" +
+                    "when you're done, or protection stops updating.)\n\n" +
                     "Are you absolutely sure?"
                 )) {
                     return;
