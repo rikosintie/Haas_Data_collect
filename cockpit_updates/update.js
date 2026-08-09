@@ -3,6 +3,63 @@ const statusBox = document.getElementById("status");
 const tableContainer = document.getElementById("tableContainer");
 const lastRun = document.getElementById("lastRun");
 
+// Sanitizes dynamic text (repo names, URLs, versions, etc.) before it's
+// interpolated into output.innerHTML.
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
+
+// Colorizes the fixed tags gh-updater.lib.sh's gh_install_inventory
+// produces (see install-tools.sh) — same idea as cockpit_firewall's
+// colorizeLogTags and cockpit_python's colorizeServiceOutput, but this
+// vocabulary uses "[ITEM N/M] repo (bin)"/"==== repo (bin) ====" as its
+// headers instead of "--- ... ---". Every [ITEM] header unconditionally
+// gets a divider before it (including the first — there's no other
+// section before it to visually separate it from), so, unlike
+// colorizeServiceOutput, this needs no cross-call state to track "have
+// we seen a header yet" — each line is judged independently. That
+// statelessness matters here specifically because Sync Tools streams
+// output live as install-tools.sh runs (cockpit.spawn().stream()), so
+// this runs on arbitrary partial chunks, not one complete captured
+// blob — same rare caveat as colorizeLogTags: if a tag is split exactly
+// across a chunk boundary, that one instance just won't get colored,
+// which is cosmetic only, not a correctness issue.
+function colorizeSyncToolsOutput(escapedText) {
+    return escapedText.split("\n").map(function(line) {
+        if (/^\[ITEM \d+\/\d+\]/.test(line)) {
+            return "-".repeat(60) + "\n<span class=\"info\">" + line + "</span>";
+        }
+        if (/^==== .+ ====$/.test(line)) {
+            return "<span class=\"info\">" + line + "</span>";
+        }
+        if (line === "[COMPLETE] All tools installed successfully") {
+            return "<span class=\"success\">" + line + "</span>";
+        }
+        if (/^\[COMPLETE\] Finished with \d+ failure/.test(line)) {
+            return "<span class=\"warn\">" + line + "</span>";
+        }
+        if (line === "[SKIP] Already up to date") {
+            return "<span class=\"success\">" + line + "</span>";
+        }
+        if (/^\[INSTALL\]/.test(line) || /^\[DONE\]/.test(line)) {
+            return "<span class=\"success\">" + line + "</span>";
+        }
+        if (/^\[WARN\]/.test(line)) {
+            return "<span class=\"warn\">" + line + "</span>";
+        }
+        if (/^\[DOWNLOAD\]/.test(line) || /^\[INFO\]/.test(line) || /^\[BOOTSTRAP\]/.test(line)) {
+            return "<span class=\"info\">" + line + "</span>";
+        }
+        if (/^ERROR:/.test(line)) {
+            return "<span class=\"error\">" + line + "</span>";
+        }
+        return line;
+    }).join("\n");
+}
+
 const checkBtn = document.getElementById("checkBtn");
 const updateBtn = document.getElementById("updateBtn");
 const rebootBtn = document.getElementById("rebootBtn");
@@ -326,20 +383,20 @@ function runUpdate() {
 
 function syncTools() {
     disableButtons(true);
-    output.textContent = "Syncing tools from GitHub...\n";
+    output.innerHTML = "Syncing tools from GitHub...\n";
 
     cockpit.spawn(["/usr/local/sbin/install-tools.sh"], { superuser: "require", err: "message" })
         .stream(function(data) {
-            output.textContent += data;
+            output.innerHTML += colorizeSyncToolsOutput(escapeHtml(data));
             output.scrollTop = output.scrollHeight;
         })
         .done(function() {
-            output.textContent += "\nSync complete.\n";
+            output.innerHTML += "\n<span class=\"success\">Sync complete.</span>\n";
             output.scrollTop = output.scrollHeight;
         })
         .fail(function(ex, data) {
-            output.textContent += "\nERROR: " + (ex.message || JSON.stringify(ex));
-            if (data) output.textContent += "\n" + data;
+            output.innerHTML += "\n<span class=\"error\">ERROR: " + escapeHtml(ex.message || JSON.stringify(ex)) + "</span>";
+            if (data) output.innerHTML += "\n" + escapeHtml(data);
         })
         .always(function() {
             disableButtons(false);

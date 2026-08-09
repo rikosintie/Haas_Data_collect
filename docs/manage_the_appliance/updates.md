@@ -54,6 +54,15 @@ A message will be displayed in the panel. If you are ready to reboot the applian
 
 Click `Sync Tools` after you run the `Check` to keep the installed third party tools up to date.
 
+Each tool gets a divider and a colored `[ITEM N/M] repo (binary)` header
+as its own section. Within a section: `[SKIP] Already up to date`,
+`[INSTALL]`, and `[DONE]` are green; `[DOWNLOAD]`/`[INFO]`/`[BOOTSTRAP]`
+are blue; a failed tool's `ERROR:` line is red and its `[WARN] Failed:
+...` line right below it is amber. The final summary line follows the
+same rule — `[COMPLETE] All tools installed successfully` is green,
+`[COMPLETE] Finished with N failure(s)` is amber — so you can tell at a
+glance whether a sync needs a second look without reading the whole log.
+
 ----------------------------------------------------------------
 
 ![screenshot](./img/sync-tools.resized.png)
