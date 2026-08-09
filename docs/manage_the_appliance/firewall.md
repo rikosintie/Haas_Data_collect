@@ -36,6 +36,17 @@ At the top of the page:
   first — disabling warns that all rules are removed and the appliance
   becomes vulnerable; enabling warns that you'll be disconnected if your
   current IP isn't already covered by a rule in `users.csv`.
+
+    !!! warning "Disabling is not permanent"
+        `haas-firewall.timer` runs `haas-firewall.service` at least once a
+        day as a self-heal, and that service runs `ufw --force enable` as
+        part of reapplying the CSV — so a firewall disabled here comes back
+        on by itself, usually within 24 hours. The confirmation dialog
+        says so. If you need it off for longer than that (an extended
+        troubleshooting session, for example), also run
+        `sudo systemctl disable --now haas-firewall.timer` — and remember
+        to re-enable that timer afterward, or the appliance stops
+        self-healing entirely, not just for this one disable.
 - **Active Firewall Rules** — the live output of `ufw status numbered`,
   refreshed automatically. Rules are sorted by the **From** IP address
   numerically (`192.168.10.9` before `192.168.10.10`, not the reverse a

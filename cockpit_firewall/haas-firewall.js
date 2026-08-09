@@ -152,7 +152,16 @@
 
             // Green - firewall is enabled
             if (r > 80 && r < 100 && g > 175 && g < 195 && b > 80 && b < 100) {
-                if (!confirm("WARNING: Disabling the firewall will remove ALL rules!\n\nThe appliance will be vulnerable to attack!\n\nAre you absolutely sure?")) {
+                if (!confirm(
+                    "WARNING: Disabling the firewall will remove ALL rules!\n\n" +
+                    "The appliance will be vulnerable to attack!\n\n" +
+                    "This is NOT permanent: haas-firewall.timer runs at least once per " +
+                    "day and will automatically re-enable the firewall. If you need it " +
+                    "off for longer than that, also run:\n" +
+                    "  sudo systemctl disable --now haas-firewall.timer\n" +
+                    "(and re-enable it when you're done, or protection stops updating.)\n\n" +
+                    "Are you absolutely sure?"
+                )) {
                     return;
                 }
                 cockpit.spawn(["ufw", "--force", "disable"], { superuser: "require", err: "out" })
