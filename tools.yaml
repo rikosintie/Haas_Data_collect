@@ -16,3 +16,6 @@ tools:
 
   - repo: ajeetdsouza/zoxide
     binary: zoxide
+
+  - repo: samwho/spacer
+    binary: spacer
