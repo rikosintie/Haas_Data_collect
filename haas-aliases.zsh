@@ -41,8 +41,8 @@ alias t-cockpit='sudo journalctl -u cockpit -f | tspin | spacer' # cockpit logs 
 alias t-health='sudo journalctl -u smbd -u ssh -u cockpit -f | tspin | spacer' # logs for Samba, ssh and cockpit colorized with tspin
 alias t-samba='sudo journalctl -u smbd -f | tspin | spacer' # samba logs colorized with tspin
 alias t-ssh='sudo tail -f /var/log/auth.log | tspin | spacer' # ssh logs colorized with tspin
-alias t-python3='journalctl -f --no-pager | grep -E 'python3' | tspin | spacer' # haas data collection script logs
-alias t-ufw='journalctl -f --no-pager | grep -Ev 'DST=224\.' | grep -E 'UFW' | tspin | spacer' # UFW with filtering for multicast traffic
+alias t-python3='journalctl -f --no-pager | grep --line-buffered -E 'python3' | tspin | spacer' # haas data collection script logs
+alias t-ufw='journalctl -f --no-pager | grep --line-buffered -Ev 'DST=224\.' | grep --line-buffered -E 'UFW' | tspin | spacer' # UFW with filtering for multicast traffic
 
 # Directory aliases
 alias haas-bin='cd /usr/local/sbin' # Haas custom scripts for appliance management
@@ -296,7 +296,7 @@ t-ufwf() {
 
   # Run filtered UFW logs
   journalctl -f --no-pager --grep="$FILTER" \
-    | grep -Ev 'DST=224\.' \
+    | grep --line-buffered -Ev 'DST=224\.' \
     | tspin \
     | spacer
 }
