@@ -24,6 +24,21 @@ const svcPort              = document.getElementById("svcPort");
 
 const HAAS_SYSTEMD_DIR = "/etc/systemd/system";
 
+// Shared by Create Service's structured IP/Port fields and Edit Services'
+// validation of the ExecStart line it parses out of free-text unit-file
+// content, so both paths enforce the same rules instead of drifting apart.
+function isValidIpv4(ip) {
+    var parts = ip.split(".");
+    return parts.length === 4 && parts.every(function(p) {
+        return /^\d+$/.test(p) && parseInt(p, 10) >= 0 && parseInt(p, 10) <= 255;
+    });
+}
+
+function isValidServicePort(port) {
+    var n = parseInt(port, 10);
+    return /^\d+$/.test(port) && n >= 5001 && n <= 5099;
+}
+
 // Same idea as the haas-ports shell alias (haas-aliases.zsh), plus a
 // duplicate-port check: two services both pointing "-t <ip> --port <port>"
 // at the same address means one of them is very likely misconfigured
@@ -931,18 +946,13 @@ saveServiceBtn.addEventListener("click", function() {
             return;
         }
 
-        var ipParts = ipAddress.split(".");
-        var ipValid = ipParts.length === 4 && ipParts.every(function(p) {
-            return /^\d+$/.test(p) && parseInt(p, 10) >= 0 && parseInt(p, 10) <= 255;
-        });
-        if (!ipValid) {
+        if (!isValidIpv4(ipAddress)) {
             output.textContent = "ERROR: IP address must be a valid IPv4 address (e.g. 192.168.10.143).\n";
             output.classList.remove("hidden");
             return;
         }
 
-        var portNum = parseInt(port, 10);
-        if (!/^\d+$/.test(port) || portNum < 5001 || portNum > 5099) {
+        if (!isValidServicePort(port)) {
             output.textContent = "ERROR: Port must be an integer between 5001 and 5099 (Haas's recommended TCP/IP port range).\n";
             output.classList.remove("hidden");
             return;
@@ -1037,6 +1047,38 @@ saveServiceBtn.addEventListener("click", function() {
         output.textContent = "ERROR: Editor is empty — not saving.\n";
         hideServiceEditor();
         return;
+    }
+
+    // Create Service validates IP/port on its structured fields, but this
+    // editor is free text — an admin can type anything into ExecStart, and
+    // nothing here would otherwise catch it (e.g. a mistyped IP octet like
+    // "192.168.10.1435" would save and restart the service unchecked).
+    // Only validate when the expected -t/--port/--name flags are actually
+    // present, so edits to non-standard unit files aren't blocked.
+    var execStartMatch = content.match(/^ExecStart=.*$/m);
+    if (execStartMatch) {
+        var execStartLine = execStartMatch[0];
+
+        var ipMatch = execStartLine.match(/-t\s+(\S+)/);
+        if (ipMatch && !isValidIpv4(ipMatch[1])) {
+            output.textContent = "ERROR: Invalid IP address in ExecStart (-t " + ipMatch[1] + ") — must be a valid IPv4 address.\n";
+            output.classList.remove("hidden");
+            return;
+        }
+
+        var portMatch = execStartLine.match(/--port\s+(\S+)/);
+        if (portMatch && !isValidServicePort(portMatch[1])) {
+            output.textContent = "ERROR: Invalid port in ExecStart (--port " + portMatch[1] + ") — must be an integer between 5001 and 5099.\n";
+            output.classList.remove("hidden");
+            return;
+        }
+
+        var nameMatch = execStartLine.match(/--name\s+(\S+)/);
+        if (nameMatch && /[^0-9a-zA-Z_-]/.test(nameMatch[1])) {
+            output.textContent = "ERROR: Invalid machine name in ExecStart (--name " + nameMatch[1] + ") — letters, digits, underscore, and hyphen only.\n";
+            output.classList.remove("hidden");
+            return;
+        }
     }
 
     var path = currentServicePath;
