@@ -158,7 +158,7 @@
                     "This is NOT permanent: haas-firewall.timer runs at least once per " +
                     "day and will automatically re-enable the firewall.\n\n" +
                     "If you need it off for longer than that, also run:\n" +
-                    "sudo systemctl disable --now haas-firewall.timer\n" +
+                    "sudo systemctl disable --now haas-firewall.timer\n\n" +
                     "Run sudo systemctl reenable --now haas-firewall.timer" +
                     " when you're done, or protection stops updating.\n\n" +
                     "Are you absolutely sure?"
