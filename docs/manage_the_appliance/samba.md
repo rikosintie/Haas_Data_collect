@@ -91,6 +91,15 @@ than just dropping the raw text into cell A1.
 
 ----------------------------------------------------------------
 
+The data in the spreadsheet program. This is Libre Calc, but it's the in Excel, Google Sheets.
+
+----------------------------------------------------------------
+
+![screenshot](./img/shares-imported-correctly.resized.png)
+
+----------------------------------------------------------------
+
+
 ### Shares by User
 
 Use this button to see if a specific user has a drive mapped to the appliance. The machines should always show up connected. In this example, I'm checking on user `thubbard`:
