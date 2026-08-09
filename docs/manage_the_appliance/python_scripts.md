@@ -117,6 +117,17 @@ The whole button is disabled for the duration of the run (including the
 connectivity sweep, which can take a couple seconds per machine) so a
 second click can't stack an overlapping sweep against the same targets.
 
+Each of the six sections above is separated by a divider line, with its
+`--- ... ---` header colored blue. Within each section, the all-clear
+summary line (`No duplicate ports found.`, `All services use python3
+-u.`, and so on) is green; anything flagged (`[DUPLICATE PORT]`,
+`[MISSING -u]`, `[MISSING Restart=on-failure]`) is amber; `[CRASH LOOP]`
+is red, since a service stuck there has already stopped retrying
+entirely rather than just having a configuration smell. In the
+connectivity check, `reachable` and `already connected` are green, and
+`not reachable` is blue rather than red or amber — matching the note
+above that it isn't necessarily a problem.
+
 !!! note "\"Not reachable\" isn't always a problem"
     This check is deliberately only run here, on demand, and not
     automatically right after Create Service. During initial deployment

@@ -181,6 +181,22 @@ pre {
     overflow: auto;
 }
 
+/* Output color coding — same convention as cockpit_firewall */
+pre span.info {
+    color: #4da3ff;
+}
+pre span.error {
+    color: #ff4d4d;
+    font-weight: bold;
+}
+pre span.success {
+    color: #4dff88;
+}
+pre span.warn {
+    color: #ffc107;
+    font-weight: bold;
+}
+
 #serviceEditorSection {
     margin-top: 20px;
 }

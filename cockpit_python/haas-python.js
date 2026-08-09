@@ -3,6 +3,55 @@ const output = document.getElementById("output");
 const scriptsLogBtn = document.getElementById("scriptsLogBtn");
 const stopLogBtn    = document.getElementById("stopLogBtn");
 
+// Sanitizes dynamic text (service names, IPs, etc.) before it's
+// interpolated into output.innerHTML.
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
+
+// Colorizes the fixed section headers and summary/flag lines that
+// Service State's underlying shell checks (HAAS_PORTS_SCRIPT,
+// HAAS_BUFFERING_CHECK_SCRIPT, etc.) always produce verbatim, and puts a
+// divider before every header after the first one seen in this call —
+// same idea as cockpit_firewall's colorizeLogTags, but per-line since
+// these checks mix fixed headers/summaries with per-service/per-machine
+// dynamic lines rather than a small fixed set of bracket tags. Call only
+// on already-escaped text.
+function colorizeServiceOutput(escapedText) {
+    var sawHeader = false;
+    return escapedText.split("\n").map(function(line) {
+        if (/^--- .+ ---$/.test(line)) {
+            var divider = sawHeader ? ("-".repeat(60) + "\n") : "";
+            sawHeader = true;
+            return divider + "<span class=\"info\">" + line + "</span>";
+        }
+        if (
+            line === "No duplicate ports found." ||
+            line === "All services use python3 -u." ||
+            line === "All services restart automatically on failure." ||
+            line === "No services are stuck in a crash loop."
+        ) {
+            return "<span class=\"success\">" + line + "</span>";
+        }
+        if (/^\s*\[CRASH LOOP\]/.test(line)) {
+            return "<span class=\"error\">" + line + "</span>";
+        }
+        if (/^\s*\[(DUPLICATE PORT|MISSING -u|MISSING Restart=on-failure)\]/.test(line)) {
+            return "<span class=\"warn\">" + line + "</span>";
+        }
+        if (/\bnot reachable$/.test(line)) {
+            return "<span class=\"info\">" + line + "</span>";
+        }
+        if (/\breachable$/.test(line) || /already connected \(skipped probe\)$/.test(line)) {
+            return "<span class=\"success\">" + line + "</span>";
+        }
+        return line;
+    }).join("\n");
+}
+
 const serviceStateBtn      = document.getElementById("serviceStateBtn");
 const editServicesBtn      = document.getElementById("editServicesBtn");
 const createServiceBtn     = document.getElementById("createServiceBtn");
@@ -534,38 +583,39 @@ serviceStateBtn.addEventListener("click", function() {
     // it can take a couple seconds per machine, and a re-click mid-run
     // would stack a second overlapping sweep against the same targets.
     disableButtons(true);
-    output.textContent = "--- Haas Service Status ---\n";
-    output.textContent += "Files are located in " + HAAS_SYSTEMD_DIR + "\n\n";
+    output.innerHTML = "<span class=\"info\">--- Haas Service Status ---</span>\n";
+    output.innerHTML += "Files are located in " + escapeHtml(HAAS_SYSTEMD_DIR) + "\n\n";
 
     cockpit.spawn(
         ["bash", "-c", "systemctl list-unit-files --type=service | grep haas"],
         { superuser: "require", err: "message" }
     )
         .done(function(data) {
-            output.textContent += data || "(no haas services found)";
+            output.innerHTML += escapeHtml(data || "(no haas services found)");
 
             cockpit.spawn(["bash", "-c", HAAS_PORTS_SCRIPT], { superuser: "require", err: "message" })
                 .done(function(portData) {
-                    output.textContent += portData;
+                    output.innerHTML += "\n" + "-".repeat(60) + "\n" + colorizeServiceOutput(escapeHtml(portData));
 
                     cockpit.spawn(["bash", "-c", HAAS_BUFFERING_CHECK_SCRIPT + "\n" + HAAS_RESTART_POLICY_CHECK_SCRIPT], { superuser: "require", err: "message" })
                         .done(function(bufData) {
-                            output.textContent += bufData;
+                            output.innerHTML += "\n" + "-".repeat(60) + "\n" + colorizeServiceOutput(escapeHtml(bufData));
                         })
                         .fail(function(ex, data4) {
-                            output.textContent += "\nERROR checking for -u / restart policy: " + (ex.message || JSON.stringify(ex));
-                            if (data4) output.textContent += "\n" + data4;
+                            output.innerHTML += "\n<span class=\"error\">ERROR checking for -u / restart policy: " + escapeHtml(ex.message || JSON.stringify(ex)) + "</span>";
+                            if (data4) output.innerHTML += "\n" + escapeHtml(data4);
                         })
                         .always(function() {
-                            output.textContent += "\nRunning connectivity check (this can take several seconds)...\n";
+                            output.innerHTML += "\n" + "-".repeat(60) + "\n";
+                            output.innerHTML += "Running connectivity check (this can take several seconds)...\n";
 
                             cockpit.spawn(["bash", "-c", HAAS_CONNECTIVITY_SCRIPT + "\n" + HAAS_CRASH_LOOP_CHECK_SCRIPT], { superuser: "require", err: "message" })
                                 .done(function(connData) {
-                                    output.textContent += connData;
+                                    output.innerHTML += colorizeServiceOutput(escapeHtml(connData));
                                 })
                                 .fail(function(ex, data3) {
-                                    output.textContent += "\nERROR checking connectivity / crash loop: " + (ex.message || JSON.stringify(ex));
-                                    if (data3) output.textContent += "\n" + data3;
+                                    output.innerHTML += "\n<span class=\"error\">ERROR checking connectivity / crash loop: " + escapeHtml(ex.message || JSON.stringify(ex)) + "</span>";
+                                    if (data3) output.innerHTML += "\n" + escapeHtml(data3);
                                 })
                                 .always(function() {
                                     setActiveLogBtn(null);
@@ -574,15 +624,15 @@ serviceStateBtn.addEventListener("click", function() {
                         });
                 })
                 .fail(function(ex, data2) {
-                    output.textContent += "\nERROR checking ports: " + (ex.message || JSON.stringify(ex));
-                    if (data2) output.textContent += "\n" + data2;
+                    output.innerHTML += "\n<span class=\"error\">ERROR checking ports: " + escapeHtml(ex.message || JSON.stringify(ex)) + "</span>";
+                    if (data2) output.innerHTML += "\n" + escapeHtml(data2);
                     setActiveLogBtn(null);
                     disableButtons(false);
                 });
         })
         .fail(function(ex, data) {
-            output.textContent += "\nERROR: " + (ex.message || JSON.stringify(ex));
-            if (data) output.textContent += "\n" + data;
+            output.innerHTML += "\n<span class=\"error\">ERROR: " + escapeHtml(ex.message || JSON.stringify(ex)) + "</span>";
+            if (data) output.innerHTML += "\n" + escapeHtml(data);
             setActiveLogBtn(null);
             disableButtons(false);
         });
