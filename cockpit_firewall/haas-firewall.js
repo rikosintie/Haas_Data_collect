@@ -525,8 +525,9 @@
                         // an admin who only ever touches the firewall side
                         // doesn't leave a departed contractor's login
                         // account active, or forget to create a new one.
-                        cockpit.file(fileToCheck, { superuser: "require" }).read()
-                            .then(function(csvContent) {
+                        function runAccountCheck() {
+                            cockpit.file(fileToCheck, { superuser: "require" }).read()
+                                .then(function(csvContent) {
                                 const csvUsernames = (csvContent || "").split("\n")
                                     .slice(1) // skip header row
                                     .map(function(line) { return line.split(",")[0].trim().toLowerCase(); })
@@ -613,6 +614,42 @@
                             .catch(function() {
                                 // Same — a failed re-read of the CSV shouldn't undo the
                                 // fact that the firewall was already successfully applied.
+                            });
+                        }
+
+                        // haas-firewall.timer fires haas-firewall.service once a
+                        // day as a "self-heal" against manual drift, and that
+                        // service runs configure_ufw_from_csv.sh with no
+                        // arguments — which falls back to reading CSV_PATH from
+                        // this conf file. Without updating it here, the next
+                        // daily refresh silently reverts a deliberately-applied
+                        // custom CSV back to plain users.csv within 24 hours.
+                        cockpit.file("/etc/haas-firewall.conf", { superuser: "require" }).read()
+                            .then(function(confContent) {
+                                confContent = confContent || "";
+                                const newConfContent = /^CSV_PATH=/m.test(confContent)
+                                    ? confContent.replace(/^CSV_PATH=.*$/m, "CSV_PATH=\"" + fileToCheck + "\"")
+                                    : confContent.replace(/\s*$/, "\n") + "CSV_PATH=\"" + fileToCheck + "\"\n";
+
+                                return cockpit.file("/etc/haas-firewall.conf", { superuser: "require" }).replace(newConfContent)
+                                    .then(function() {
+                                        output.innerHTML += "<span class=\"info\">[INFO] haas-firewall.conf's CSV_PATH updated to " +
+                                            escapeHtml(fileToCheck) + " — the daily self-heal timer will keep reapplying this file.</span>\n";
+                                        output.scrollTop = output.scrollHeight;
+                                    })
+                                    .catch(function(error) {
+                                        output.innerHTML += "<span class=\"warn\">[WARNING] Could not update haas-firewall.conf's CSV_PATH: " +
+                                            escapeHtml(error) + " — the daily self-heal timer may revert to the previous CSV_PATH.</span>\n";
+                                        output.scrollTop = output.scrollHeight;
+                                    });
+                            })
+                            .catch(function(error) {
+                                output.innerHTML += "<span class=\"warn\">[WARNING] Could not read haas-firewall.conf to update CSV_PATH: " +
+                                    escapeHtml(error) + "</span>\n";
+                                output.scrollTop = output.scrollHeight;
+                            })
+                            .then(function() {
+                                runAccountCheck();
                             });
                     }, preamble);
                 })

@@ -184,6 +184,19 @@ haas-firewall.timer
 
     `sudo systemctl start haas-firewall.service`
 
+!!! Note "The daily timer follows whichever CSV you last applied"
+    `haas-firewall.service` runs `configure_ufw_from_csv.sh` with no
+    arguments, so it always falls back to the `CSV_PATH` set in
+    `/etc/haas-firewall.conf`. Cockpit's **Apply Firewall Changes**
+    updates that `CSV_PATH` to match whatever file was just applied —
+    `users.csv` by default, or the custom CSV path if **Use custom CSV
+    file** was checked — so the daily self-heal keeps reapplying that
+    same file instead of silently reverting to plain `users.csv` within
+    24 hours. This only happens through Cockpit; manually running
+    `configure_ufw_from_csv.sh <path>` from the terminal applies that CSV
+    once but does not update `CSV_PATH`, so the next timer run will fall
+    back to whatever `CSV_PATH` was already set to.
+
 ----------------------------------------------------------------
 
 ## Logs
