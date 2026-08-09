@@ -37,13 +37,12 @@ haas-script () {
    }
 
 # Troubleshooting aliases
-alias t-cockpit='sudo journalctl -u cockpit -f | tspin' # cockpit logs colorized with tspin
-alias t-health='sudo journalctl -u smbd -u ssh -u cockpit -f | tspin' # logs for Samba, ssh and cockpit colorized with tspin
-alias t-samba='sudo journalctl -u smbd -f | tspin' # samba logs colorized with tspin
-alias t-ssh='sudo tail -f /var/log/auth.log | tspin' # ssh logs colorized with tspin
-alias t-python3='journalctl -f --no-pager | grep -E 'python3' | tspin' # haas data collection script logs
-
-alias t-ufw='journalctl -f --no-pager | grep -Ev 'DST=224\.' | grep -E 'UFW' | tspin' # UFW with filtering for multicast traffic
+alias t-cockpit='sudo journalctl -u cockpit -f | tspin | spacer' # cockpit logs colorized with tspin
+alias t-health='sudo journalctl -u smbd -u ssh -u cockpit -f | tspin | spacer' # logs for Samba, ssh and cockpit colorized with tspin
+alias t-samba='sudo journalctl -u smbd -f | tspin | spacer' # samba logs colorized with tspin
+alias t-ssh='sudo tail -f /var/log/auth.log | tspin | spacer' # ssh logs colorized with tspin
+alias t-python3='journalctl -f --no-pager | grep -E 'python3' | tspin | spacer' # haas data collection script logs
+alias t-ufw='journalctl -f --no-pager | grep -Ev 'DST=224\.' | grep -E 'UFW' | tspin | spacer' # UFW with filtering for multicast traffic
 
 # Directory aliases
 alias haas-bin='cd /usr/local/sbin' # Haas custom scripts for appliance management
@@ -261,7 +260,7 @@ haas-smb-shares() {
 
 # UFW use BLOCK, ALLOW, or AUDIT to filter
 #t-ufwf() {
-#    journalctl -f --no-pager --grep="$1" | grep -Ev 'DST=224\.' | tspin
+#    journalctl -f --no-pager --grep="$1" | grep -Ev 'DST=224\.' | tspin | spacer
 #}
 
 t-ufwf() {
@@ -298,7 +297,8 @@ t-ufwf() {
   # Run filtered UFW logs
   journalctl -f --no-pager --grep="$FILTER" \
     | grep -Ev 'DST=224\.' \
-    | tspin
+    | tspin \
+    | spacer
 }
 
 
