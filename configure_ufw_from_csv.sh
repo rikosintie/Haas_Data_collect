@@ -19,6 +19,17 @@
 #   --dry-run     (simulate changes)
 #   --compare     (compare current vs planned rules)
 #   --show-rules  (show current UFW rules)
+#   --persist     (after a real apply, also update CSV_PATH in
+#                  /etc/haas-firewall.conf to whatever CSV was just used,
+#                  and reset haas-firewall.timer's countdown — mirrors
+#                  what Cockpit's Apply Firewall Changes button does, for
+#                  terminal-only use. Cannot be combined with --dry-run,
+#                  --compare, or --show-rules, since none of those apply
+#                  a real change to persist. Without this flag, a CSV
+#                  path given on the command line is a one-off override
+#                  only, same as always — the appliance's daily/periodic
+#                  self-heal will keep reinforcing whatever CSV_PATH was
+#                  already set, not the one-off path.)
 #
 
 # Check for root FIRST
@@ -83,6 +94,7 @@ echo ""
 DRY_RUN=false
 SHOW_RULES=false
 COMPARE=false
+PERSIST=false
 
 ########################################
 # LOGGING
@@ -112,9 +124,16 @@ while [[ $# -gt 0 ]]; do
     --compare)
       COMPARE=true
       ;;
+    --persist)
+      PERSIST=true
+      ;;
     -h|--help)
-      echo "Usage: $0 [--dry-run] [--show-rules] [--compare] [CSV_FILE]"
+      echo "Usage: $0 [--dry-run] [--show-rules] [--compare] [--persist] [CSV_FILE]"
       echo "If CSV_FILE is omitted, uses CSV_PATH from $CONFIG_FILE or default."
+      echo "--persist updates CSV_PATH in $CONFIG_FILE and resets haas-firewall.timer"
+      echo "after a real apply, so the appliance's self-heal keeps reinforcing this CSV"
+      echo "instead of whatever it was set to before. Cannot combine with --dry-run,"
+      echo "--compare, or --show-rules."
       exit 0
       ;;
     *)
@@ -125,6 +144,11 @@ while [[ $# -gt 0 ]]; do
 done
 
 CSV_FILE="${CSV_ARG:-$CSV_PATH}"
+
+if $PERSIST && { $DRY_RUN || $COMPARE || $SHOW_RULES; }; then
+  echo "[ERROR] --persist cannot be combined with --dry-run, --compare, or --show-rules — none of those apply a real change to persist." >&2
+  exit 1
+fi
 
 ########################################
 # SHOW RULES MODE
@@ -293,6 +317,32 @@ apply_ufw_rules() {
   log "Firewall rule application complete."
 }
 
+########################################
+# PERSIST (--persist only)
+########################################
+
+# Mirrors what cockpit_firewall/haas-firewall.js's Apply Firewall Changes
+# button does after a successful apply: update CSV_PATH in the conf file
+# to whatever CSV was just used, and reset haas-firewall.timer's
+# countdown, so the appliance's periodic self-heal reinforces this CSV
+# going forward instead of whatever CSV_PATH was set to before.
+persist_csv_path() {
+  local new_path="$1"
+
+  if grep -q '^CSV_PATH=' "$CONFIG_FILE" 2>/dev/null; then
+    sed -i "s|^CSV_PATH=.*|CSV_PATH=\"${new_path}\"|" "$CONFIG_FILE"
+  else
+    echo "CSV_PATH=\"${new_path}\"" >> "$CONFIG_FILE"
+  fi
+  log "Persisted CSV_PATH=${new_path} to $CONFIG_FILE"
+
+  if systemctl restart haas-firewall.timer; then
+    log "Reset haas-firewall.timer's countdown."
+  else
+    log_error "Failed to reset haas-firewall.timer — the next scheduled self-heal may still use a stale reference point."
+  fi
+}
+
 if $DRY_RUN; then
   log "DRY-RUN mode: No firewall changes will be applied."
   apply_ufw_rules "$CSV_FILE"
@@ -303,6 +353,9 @@ else
   ufw --force reset
   echo ""
   apply_ufw_rules "$CSV_FILE"
+  if $PERSIST; then
+    persist_csv_path "$CSV_FILE"
+  fi
 fi
 echo ""
 echo "#################################################################################################"

@@ -202,10 +202,23 @@ countdown too, not just the timer's own scheduled runs.
     `users.csv` by default, or the custom CSV path if **Use custom CSV
     file** was checked — so the self-heal keeps reapplying that same file
     instead of silently reverting to plain `users.csv` within a few
-    hours. This only happens through Cockpit; manually running
-    `configure_ufw_from_csv.sh <path>` from the terminal applies that CSV
-    once but does not update `CSV_PATH`, so the next timer run will fall
-    back to whatever `CSV_PATH` was already set to.
+    hours.
+
+    Plain `configure_ufw_from_csv.sh <path>` from the terminal applies
+    that CSV once but does not update `CSV_PATH`, so the next timer run
+    falls back to whatever `CSV_PATH` was already set to — same one-off
+    behavior as always. For terminal use that should stick, add
+    `--persist`:
+
+    ```bash
+    sudo configure_ufw_from_csv.sh --persist /home/haas/Haas_Data_collect/users1.csv
+    ```
+
+    This updates `CSV_PATH` in `/etc/haas-firewall.conf` and resets
+    `haas-firewall.timer`'s countdown, mirroring exactly what Apply
+    Firewall Changes does in Cockpit. `--persist` can't be combined with
+    `--dry-run`, `--compare`, or `--show-rules`, since none of those
+    apply a real change worth persisting.
 
 ----------------------------------------------------------------
 
