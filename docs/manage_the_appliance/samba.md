@@ -160,11 +160,11 @@ filled in from a fixed template.
     also fixed and identical for every share — none of it is user-editable
     through this form.
 
-----------------------------------------------------------------
+   ----------------------------------------------------------------
 
-![screenshot](./img/create-share.resized.png)
+   ![screenshot](./img/create-share.resized.png)
 
-----------------------------------------------------------------
+   ----------------------------------------------------------------
 
 3. Click **Save & Restart**. A confirmation dialog names the directory and
    share it's about to create, and reminds you that this only creates the
@@ -186,11 +186,19 @@ filled in from a fixed template.
     appended to `smb.conf` and `smbd` restarted; the output panel then shows
     the restart result and `systemctl status smbd`.
 
-----------------------------------------------------------------
+  ----------------------------------------------------------------
 
-![screenshot](./img/create-share-final.resized.png)
+  ![screenshot](./img/create-share-final.resized.png)
 
-----------------------------------------------------------------
+  ----------------------------------------------------------------
+
+Here is the stanza added to smb.conf:
+
+  ----------------------------------------------------------------
+
+  ![screenshot](./img/create-share-stanza.png)
+
+  ----------------------------------------------------------------
 
 4. Click **Clear Output** to discard the form and cancel — it doubles as
    Cancel here too.
