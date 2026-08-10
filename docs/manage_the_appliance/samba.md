@@ -173,13 +173,13 @@ filled in from a fixed template.
 
     Before anything is written:
 
-    * The machine directory is created with `mkdir -p` if it doesn't
+    - The machine directory is created with `mkdir -p` if it doesn't
       already exist yet — you don't need to create it (or a service for
       that machine) first.
-    * The **machine name** is checked against the existing `smb.conf` for
+    - The **machine name** is checked against the existing `smb.conf` for
       a section that already uses it — duplicates are rejected rather
       than silently shadowing the existing share.
-    * The assembled config (existing `smb.conf` + the new stanza) is run
+    - The assembled config (existing `smb.conf` + the new stanza) is run
       through `testparm`, exactly like the Edit smb.conf flow.
 
     Only if the name is free and `testparm` passes is the new stanza
@@ -188,20 +188,19 @@ filled in from a fixed template.
 
   ----------------------------------------------------------------
 
-  ![screenshot](./img/create-share-final.resized.png)
+   ![screenshot](./img/create-share-final.resized.png)
 
   ----------------------------------------------------------------
 
-Here is the stanza added to smb.conf:
+  Here is the stanza added to smb.conf:
 
   ----------------------------------------------------------------
 
-  ![screenshot](./img/create-share-stanza.png)
+   ![screenshot](./img/create-share-stanza.png)
 
   ----------------------------------------------------------------
 
-4. Click **Clear Output** to discard the form and cancel — it doubles as
-   Cancel here too.
+4\. Click Clear Output</strong> to discard the form and cancel — it doubles as `Cancel` here too.
 
 ## Delete Share
 
