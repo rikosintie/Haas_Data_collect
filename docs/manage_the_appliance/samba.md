@@ -31,8 +31,7 @@ These are read-only and safe to click any time:
 |---|---|
 | Display Shares | Runs `list_shares.sh` — lists the shares defined in `smb.conf` |
 | Shares CSV | Runs `list_shares_csv.sh` — same share list in CSV format for use in Excel |
-| Samba Users | Lists every account in the Samba password database (`pdbedit -L`) |
-| Linux Users | Lists local Linux accounts with UID 1000–59999, showing UID, GID, and home directory |
+| Users | Two sections: **Samba Users** — every account in the Samba password database (`pdbedit -L`), including machine-tool accounts that have no Linux login; **Linux Users** — only the accounts that also have a real shell and home directory (i.e. admin accounts), showing UID, GID, and home directory |
 | Shares by User | Enter a username in the field next to the button, then click it to run `smbstatus --user=<name>` and show that user's **active** Samba sessions |
 
 ----------------------------------------------------------------
@@ -308,8 +307,8 @@ the same pattern as **Delete Share**.
    of `HaasGroup` except `haas` itself (the appliance's own account,
    deliberately excluded — deleting it would be catastrophic).
 2. Select a user. A confirmation dialog names them and warns this cannot
-   be undone. It also makes clear their home directory, if they have one,
-   is not deleted — only the Linux and Samba accounts themselves.
+   be undone — it removes the Linux account, its home directory (if it
+   has one), and the Samba account together.
 3. Confirming runs `manage_users.sh <username> --delete-user --force` and
    shows the result in the output panel.
 

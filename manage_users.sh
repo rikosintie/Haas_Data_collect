@@ -144,19 +144,35 @@ create_samba_user() {
             echo "Samba user does not exist"
         fi
 
-        # Remove Linux user
+        # Remove Linux user, home directory included. Appliance accounts
+        # aren't meant to hold anything of value in $HOME — everything real
+        # lives under /home/haas/Haas_Data_collect — and standard (non-admin)
+        # accounts don't even have a home directory (created with useradd
+        # -M). -r is a no-op for those; for admin accounts it prevents the
+        # home directory silently outliving the account, which is what
+        # happened to m6800 and haassvc2.
         if id "$USERNAME" &>/dev/null; then
-            echo "Deleting Linux user"
-            run_cmd sudo userdel "$USERNAME"
+            echo "Deleting Linux user (and home directory, if any)"
+            run_cmd sudo userdel -r "$USERNAME"
             local USERDEL_STATUS=$?
             if [[ $USERDEL_STATUS -ne 0 ]]; then
                 if [[ $USERDEL_STATUS -eq 8 ]]; then
                     echo "ERROR: '$USERNAME' still has an active login session (running process) — not deleted." >&2
                     echo "Terminate their session first (e.g. 'sudo pkill -KILL -u $USERNAME'), then retry --delete-user." >&2
+                    LINUX_DELETE_FAILED=true
+                elif [[ $USERDEL_STATUS -eq 12 ]]; then
+                    # The account itself is gone at this point (userdel removes
+                    # the home directory last) — this is cleanup residue, not
+                    # a failed deletion, so it's a warning rather than
+                    # something that flips LINUX_DELETE_FAILED and blocks the
+                    # "Deletion complete" message below.
+                    echo "WARNING: Account '$USERNAME' was deleted, but its home directory could not be fully removed" >&2
+                    echo "(e.g. a file inside is owned by another user, or something has it mounted/open)." >&2
+                    echo "Check /home/$USERNAME manually." >&2
                 else
                     echo "ERROR: Failed to delete Linux user '$USERNAME' (userdel exit $USERDEL_STATUS)." >&2
+                    LINUX_DELETE_FAILED=true
                 fi
-                LINUX_DELETE_FAILED=true
             fi
         else
             echo "Linux user does not exist"

@@ -759,8 +759,8 @@ usersList.addEventListener("change", function() {
     if (!username) return;
 
     if (!confirm(
-        "Delete user \"" + username + "\"? This removes both the Linux and Samba " +
-        "accounts and cannot be undone. Their home directory (if any) is not deleted."
+        "Delete user \"" + username + "\"? This removes the Linux account, its home " +
+        "directory (if any), and the Samba account. Cannot be undone."
     )) {
         usersList.value = "";
         return;
