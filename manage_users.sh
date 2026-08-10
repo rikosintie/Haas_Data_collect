@@ -213,8 +213,23 @@ create_samba_user() {
     else
         if $ADMIN_USER; then
             echo "Creating ADMIN user"
+            # useradd -m silently reuses a home directory that already
+            # exists (e.g. left over from an earlier account of the same
+            # name that was deleted before -r was added to the delete flow)
+            # WITHOUT fixing its ownership — the new account then can't
+            # write to its own home directory, which is exactly what broke
+            # setup_zsh.sh's "mkdir .oh-my-zsh: Permission denied" here.
+            # Warn loudly (files inside belong to whoever had this username
+            # before, not this account) and fix ownership either way — a
+            # freshly-created directory is already owned correctly, so the
+            # chown below is a harmless no-op in that case.
+            if [[ -d "/home/$USERNAME" ]]; then
+                echo "WARNING: /home/$USERNAME already exists (left over from a previous account of this name)." >&2
+                echo "Reusing it and resetting ownership to $USERNAME — any files inside belong to that earlier account, not this one. Review /home/$USERNAME manually if that matters." >&2
+            fi
             run_cmd sudo useradd -m -s /bin/bash -c "MSP Admin Account" "$USERNAME"
             run_cmd sudo usermod -aG sudo "$USERNAME"
+            run_cmd sudo chown -R "$USERNAME":"$USERNAME" "/home/$USERNAME"
         else
             echo "Creating standard Samba user"
             run_cmd sudo useradd -M -s /usr/sbin/nologin "$USERNAME"
