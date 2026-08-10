@@ -31,11 +31,11 @@ plugins=(
             colored-man-pages
         )
 
-# Must run before oh-my-zsh.sh: that's what sources
-# custom/haas-aliases.zsh, and haas-aliases.zsh calls the `z` function
-# zoxide defines here to auto-cd into Haas_Data_collect on every fresh
-# shell — if `z` isn't defined yet when haas-aliases.zsh runs, that call
-# is silently skipped.
+# Defines the `z` shell function for ad-hoc directory jumping during the
+# session (haas-aliases.zsh's own auto-cd on login uses a plain `cd` to a
+# known path instead of `z`, since a fuzzy match isn't reliable for a
+# freshly seeded account with no usage history yet to break ties between
+# similarly-named directories).
 eval "$(zoxide init zsh)"
 
 source $ZSH/oh-my-zsh.sh

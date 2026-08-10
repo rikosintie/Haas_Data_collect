@@ -517,11 +517,20 @@ nano() {
 
 # The user almost always wants to start in the Haas_Data_collect repo,
 # whether logging in over SSH or opening the Cockpit Terminal — both spawn
-# a fresh interactive shell that sources this file. zoxide's fuzzy match
-# on "ha" resolves to /home/haas/Haas_Data_collect since haas-install.sh
-# seeds it into the zoxide database.
-if [[ -o interactive ]] && (( $+functions[z] )); then
-    z ha 2>/dev/null
+# a fresh interactive shell that sources this file. This used to be `z ha`,
+# relying on zoxide's fuzzy match on "ha" to land here — that only actually
+# worked for the haas user because years of real day-to-day `cd` usage gave
+# this directory a much higher frecency score than anything else matching
+# "ha". A freshly seeded account (setup_zsh.sh's one-time batch add, same
+# score for every entry) has no such history to break the tie, so which of
+# several "ha"-matching seeded directories (haas-python, haas-samba,
+# haas-firewall, ...) wins is arbitrary — for mspadmin it landed in
+# /usr/share/cockpit/haas-python instead. A plain cd to the known path
+# sidesteps that fragility entirely; zoxide is still seeded and available
+# for ad-hoc `z <query>` jumps during the session, just not depended on for
+# this one deterministic jump.
+if [[ -o interactive ]]; then
+    cd /home/haas/Haas_Data_collect 2>/dev/null
 fi
 
 # end
