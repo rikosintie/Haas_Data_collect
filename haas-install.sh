@@ -44,8 +44,10 @@
 #   - Installs pip
 #   - Runs install-tools.sh to install the CLI tools listed in tools.yaml
 #     (csvlens, tspin, bat, fresh, superfile, zoxide, ...)
-#   - Populates the zoxide database for the haas user with the
-#     appliance's common directories
+#   - Runs setup_zsh.sh for the haas user, which (among other things)
+#     populates that user's zoxide database with the appliance's common
+#     directories — the same setup_zsh.sh call the Manage Samba "Create
+#     User" button makes for every Administrator account it creates
 #   - Creates the backup directory in the repo
 #   - Triggers an initial firewall configuration via systemd
 #   - Removes the ubuntu ESM and K8 boot messages from the boot menu
@@ -1271,28 +1273,11 @@ sudo chmod -R 2774 /home/haas/Haas_Data_collect
 # files also inherit the HaasGroup.
 
 ########################################
-# Populate zoxide database for the haas user
+# Zoxide database for the haas user is seeded by setup_zsh.sh above (it now
+# seeds every user it's run for, haas included, so any account created
+# later via Manage Samba's Create User button gets the same treatment
+# instead of starting with an empty zoxide database).
 ########################################
-if command -v zoxide >/dev/null 2>&1; then
-    echo ""
-    echo ""
-    banner "${CYAN}[*] Populating zoxide database for haas user...${RESET}"
-    echo ""
-    for dir in \
-        /usr/local/sbin \
-        /usr/share/cockpit/haas-firewall/ \
-        /var/log/ \
-        /home/haas/Haas_Data_collect/ \
-        /usr/share/cockpit/haas-samba/ \
-        /etc/ssh/sshd_config.d \
-        /etc/systemd/system \
-        /usr/share/cockpit/haas-update-appliance/ \
-        /usr/share/cockpit/haas-python/
-    do
-        sudo -H -u haas zoxide add "$dir"
-    done
-    echo ""
-fi
 
 echo ""
 echo ""

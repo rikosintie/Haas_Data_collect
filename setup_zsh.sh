@@ -146,6 +146,37 @@ cp "$REPO_DIR/haas-aliases.zsh" "$ZSH_CUSTOM_DIR/haas-aliases.zsh"
 chown "$TARGET_USER:$TARGET_USER" "$ZSH_CUSTOM_DIR/haas-aliases.zsh"
 ok "haas-aliases.zsh installed → $ZSH_CUSTOM_DIR/haas-aliases.zsh"
 
+# ── Seed zoxide database for the target user ─────────────────────────────────
+
+# zoxide's database is per-user (keyed off $HOME) — haas-aliases.zsh's
+# login-time `z ha` (which jumps to /home/haas/Haas_Data_collect) only
+# resolves if *this* user's own database already has a matching entry, and
+# a brand-new account's database starts completely empty. Previously only
+# haas-install.sh seeded this, and only for the haas user itself, so every
+# other account (anyone created later via the Manage Samba "Create User"
+# button) got "zoxide: no match found" on first login. Keep this directory
+# list in sync with haas-install.sh's own (now-redundant) seed loop if it
+# changes.
+if command -v zoxide >/dev/null 2>&1; then
+    header "Seeding zoxide database for $TARGET_USER"
+    for dir in \
+        /usr/local/sbin \
+        /usr/share/cockpit/haas-firewall/ \
+        /var/log/ \
+        /home/haas/Haas_Data_collect/ \
+        /usr/share/cockpit/haas-samba/ \
+        /etc/ssh/sshd_config.d \
+        /etc/systemd/system \
+        /usr/share/cockpit/haas-update-appliance/ \
+        /usr/share/cockpit/haas-python/
+    do
+        sudo -H -u "$TARGET_USER" zoxide add "$dir"
+    done
+    ok "zoxide database seeded for $TARGET_USER"
+else
+    warn "zoxide not found — skipping database seeding (install it via tools.yaml first)"
+fi
+
 # ── Set zsh as the default shell for the target user ─────────────────────────
 
 header "Setting default shell to zsh for $TARGET_USER"
