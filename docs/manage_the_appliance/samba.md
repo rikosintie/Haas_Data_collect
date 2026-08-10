@@ -14,14 +14,24 @@ for what it means and why more than one active interface is flagged.
 
 ----------------------------------------------------------------
 
-The page has a single output/editor panel below a row of buttons. Only one
-of five things is ever shown there:
+The buttons are grouped into two panels — **Shares & Configuration** (Edit
+smb.conf, Create Share, Delete Share, Display Shares, Shares CSV, Shares by
+User) and **Users** (Users, Create User, Delete User, Change Password) —
+above a single output/editor panel. Only one of five things is ever shown
+in that panel:
 
 - command output
 - the `smb.conf` editor
 - the `Create Share` form
 - the `Create User` form
 - the `Change Password` form — never more than one at once.
+
+**Save & Restart** and **Clear Output** sit in their own row directly above
+that panel, separate from both button panels. **Clear Output** is always
+there; **Save & Restart** stays hidden the rest of the time and appears
+only while you're editing `smb.conf`, creating a share, or creating a user
+— instead of sitting permanently in the button row, disabled, when it
+doesn't apply.
 
 ## View buttons
 
@@ -113,8 +123,9 @@ In this example, I'm checking on user `thubbard`:
 ## Edit smb.conf
 
 1. Click **Edit smb.conf** to load `/etc/samba/smb.conf` into the editor
-   panel. While editing, every other view button is disabled except
-   **Save & Restart** and **Clear Output**.
+   panel. While editing, every button in both panels is disabled, and
+   **Save & Restart** appears in its own row above the editor (otherwise
+   hidden) alongside **Clear Output**.
 2. Make your changes directly in the text box.
 3. Click **Save & Restart**. A confirmation dialog asks you to confirm
    before anything is written. Confirming first validates your edits with
@@ -141,8 +152,9 @@ same idea as **Create Service** on the Updates/Logs page: only the parts
 that vary between shares are exposed as fields, and everything else is
 filled in from a fixed template.
 
-1. Click **Create Share**. Every other view button is disabled except
-   **Save & Restart** and **Clear Output**, same as edit mode.
+1. Click **Create Share**. Same as edit mode: every button in both panels
+   is disabled, and **Save & Restart** appears above the form alongside
+   **Clear Output**.
 
 2. Fill in the two fields:
 
@@ -236,9 +248,10 @@ script documented for terminal use — it isn't copied to
 and runs from there either way), instead of needing SSH access to run it
 by hand.
 
-1. Click **Create User**. Every other view button is disabled except
-   **Create User** (the panel's main action button briefly relabels
-   itself from **Save & Restart**) and **Clear Output**.
+1. Click **Create User**. Every button in both panels is disabled, and the
+   same button that appears above the panel as **Save & Restart** in the
+   other flows shows up here too — relabeled **Create User** — alongside
+   **Clear Output**.
 2. Fill in the four fields:
 
     | Field | Notes |
@@ -271,10 +284,14 @@ step is skipped for them.
 
 !!! tip "Verify an Administrator account"
     The Manage Samba page has a collapsed **&#8505;&#65039; Verify an Administrator
-    account** note with the same checklist, right below the button row.
-    If you want to confirm a new Administrator account end-to-end, open
-    the Cockpit **Terminal** page and run each of these (replace
-    `<username>`):
+    account** note below the two button panels, with the same checklist.
+    It stays hidden until at least one Administrator account actually
+    exists on the appliance (checked via `sudo` group membership, and
+    re-checked automatically right after Create User / Delete User), so it
+    doesn't clutter the page on an appliance that only has Samba-only
+    machine accounts. If you want to confirm a new Administrator account
+    end-to-end, open the Cockpit **Terminal** page and run each of these
+    (replace `<username>`):
 
     ```bash
     getent passwd <username>                                    # shell should be /bin/zsh, home /home/<username>
