@@ -984,53 +984,68 @@ displaySharesByUserBtn.addEventListener("click", function() {
         });
 });
 
-// ── Display Users (Linux + Samba, merged) ─────────────────────────────────────
+// ── Display Users (Samba section + Linux section) ─────────────────────────────
 
-// One row per Linux local account (UID 1000-59999, same range Linux Users
-// used), each annotated with whether it also has a Samba account —
-// replaces the separate Samba Users / Linux Users buttons since the two
-// account sets overlap almost completely and were awkward to cross-reference
-// as two separate button clicks.
+// Renders one heading + alternating-color list of plain strings — shared by
+// both sections below so the two blocks stay visually identical.
+function renderUserListSection(heading, lines) {
+    var html = "<span class=\"info\">" + escapeHtml(heading) + "</span>\n";
+    if (lines.length === 0) {
+        html += "(none found)\n";
+    } else {
+        html += lines.map(function(line, i) {
+            // Alternating row coloring: 1st/3rd/... rows default white,
+            // 2nd/4th/... rows blue (.info) — makes a long list easier to
+            // scan line-by-line.
+            return (i % 2 === 1)
+                ? "<span class=\"info\">" + escapeHtml(line) + "</span>"
+                : escapeHtml(line);
+        }).join("\n") + "\n";
+    }
+    return html;
+}
+
+// Two separate sections, not one merged table: on this appliance most
+// accounts are Samba-only (manage_users.sh creates standard users with
+// `useradd -M -s /usr/sbin/nologin` — no home directory at all, e.g. one
+// per machine tool) while only admin accounts get a real Linux login
+// (`useradd -m -s /bin/bash`). A merged table showed a "Home" value for
+// every account regardless, which was misleading for the nologin ones that
+// never got a home directory — the passwd database still reports a homedir
+// *path* for them even though it was never created. The nologin shell is
+// the same signal manage_users.sh itself uses to decide whether to create
+// a home directory, so it's what separates the two sections here too.
 displayUsersBtn.addEventListener("click", function() {
     lockAll();
     showOutputPanel("Loading users...\n");
 
-    cockpit.spawn(["bash", "-c", "pdbedit -L 2>/dev/null | cut -d: -f1"], { superuser: "require", err: "message" })
+    cockpit.spawn(["bash", "-c", "pdbedit -L 2>/dev/null | cut -d: -f1 | sort"], { superuser: "require", err: "message" })
         .then(function(sambaData) {
-            var sambaUsers = {};
-            (sambaData || "").trim().split("\n").forEach(function(u) {
-                if (u.trim()) sambaUsers[u.trim()] = true;
-            });
+            var sambaUsers = (sambaData || "").trim() ? sambaData.trim().split("\n") : [];
 
             return cockpit.spawn(
-                ["bash", "-c", "getent passwd | awk -F: '$3 >= 1000 && $3 < 60000 {printf \"%s|%s|%s|%s\\n\", $1, $3, $4, $6}'"],
+                ["bash", "-c", "getent passwd | awk -F: '$3 >= 1000 && $3 < 60000 {printf \"%s|%s|%s|%s|%s\\n\", $1, $3, $4, $6, $7}'"],
                 { superuser: "require", err: "message" }
             ).then(function(linuxData) {
                 var rows = (linuxData || "").trim() ? linuxData.trim().split("\n") : [];
-                var users = rows.map(function(line) {
-                    var f = line.split("|");
-                    return { name: f[0], uid: f[1], gid: f[2], home: f[3], hasSamba: !!sambaUsers[f[0]] };
-                }).sort(function(a, b) { return a.name.localeCompare(b.name); });
+                var linuxUsers = rows
+                    .map(function(line) {
+                        var f = line.split("|");
+                        return { name: f[0], uid: f[1], gid: f[2], home: f[3], shell: f[4] };
+                    })
+                    // nologin == manage_users.sh's standard (Samba-only, no
+                    // home dir) accounts — exclude them here, they belong
+                    // in the Samba Users section, not this one.
+                    .filter(function(u) { return u.shell !== "/usr/sbin/nologin"; })
+                    .sort(function(a, b) { return a.name.localeCompare(b.name); });
 
-                var header = "Username             UID    GID    Samba   Home\n" +
-                    "─────────────────────────────────────────────────────────────";
-                var html = "<span class=\"info\">--- Users (Linux + Samba) ---</span>\n\n" +
-                    "<span class=\"info\">" + escapeHtml(header) + "</span>\n";
+                var linuxLines = linuxUsers.map(function(u) {
+                    return u.name.padEnd(20) + " UID:" + u.uid.padEnd(6) + " GID:" + u.gid.padEnd(6) + " " + u.home;
+                });
 
-                if (users.length === 0) {
-                    html += "(none found)";
-                } else {
-                    html += users.map(function(u, i) {
-                        var line = u.name.padEnd(20) + " " + u.uid.padEnd(6) + " " + u.gid.padEnd(6) + " " +
-                            (u.hasSamba ? "Yes" : "No").padEnd(7) + " " + u.home;
-                        // Alternating row coloring: 1st/3rd/... rows default
-                        // white, 2nd/4th/... rows blue (.info) — makes a
-                        // long user list easier to scan line-by-line.
-                        return (i % 2 === 1)
-                            ? "<span class=\"info\">" + escapeHtml(line) + "</span>"
-                            : escapeHtml(line);
-                    }).join("\n");
-                }
+                var html = renderUserListSection("--- Samba Users ---", sambaUsers) +
+                    "\n" +
+                    renderUserListSection("--- Linux Users (login-capable, with a home directory) ---", linuxLines);
 
                 output.innerHTML = html;
                 unlockNormal();
@@ -1041,7 +1056,7 @@ displayUsersBtn.addEventListener("click", function() {
         // isn't guaranteed to survive a .then() hop) — unlockNormal() is
         // called explicitly on both the success path above and here.
         .catch(function(ex) {
-            output.innerHTML = "<span class=\"info\">--- Users (Linux + Samba) ---</span>\n\n<span class=\"error\">ERROR: " +
+            output.innerHTML = "<span class=\"error\">ERROR: " +
                 escapeHtml((ex && ex.message) || JSON.stringify(ex)) + "</span>";
             unlockNormal();
         });
