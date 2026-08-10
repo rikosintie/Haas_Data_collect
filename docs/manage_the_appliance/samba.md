@@ -95,24 +95,21 @@ The data in the spreadsheet program. This is Libre Calc, but it's the in Excel, 
 
 ----------------------------------------------------------------
 
-![screenshot](./img/shares-imported-correctly.resized.png)
+![screenshot](./img/shares-imported-correctly.png)
 
 ----------------------------------------------------------------
-
 
 ### Shares by User
 
-Use this button to see if a specific user has a drive mapped to the appliance. The machines should always show up connected. In this example, I'm checking on user `thubbard`:
+Use this button to see if a specific user has a drive mapped to the appliance. The machines should always show up connected. If no drives are actively mapped, nothing will appear.
+
+In this example, I'm checking on user `thubbard`:
 
 ----------------------------------------------------------------
 
-![screenshot](./img/share-user.resized.png)
+![screenshot](./img/share-user.png)
 
 ----------------------------------------------------------------
-
-
-
-
 
 ## Edit smb.conf
 
@@ -163,6 +160,12 @@ filled in from a fixed template.
     also fixed and identical for every share — none of it is user-editable
     through this form.
 
+----------------------------------------------------------------
+
+![screenshot](./img/create-share.resized.png)
+
+----------------------------------------------------------------
+
 3. Click **Save & Restart**. A confirmation dialog names the directory and
    share it's about to create, and reminds you that this only creates the
    share — you still need to use **Create Service** on the Updates - Logs
@@ -182,6 +185,12 @@ filled in from a fixed template.
     Only if the name is free and `testparm` passes is the new stanza
     appended to `smb.conf` and `smbd` restarted; the output panel then shows
     the restart result and `systemctl status smbd`.
+
+----------------------------------------------------------------
+
+![screenshot](./img/create-share-final.resized.png)
+
+----------------------------------------------------------------
 
 4. Click **Clear Output** to discard the form and cancel — it doubles as
    Cancel here too.
