@@ -193,12 +193,31 @@ create_samba_user() {
     if id "$USERNAME" &>/dev/null; then
         echo "User exists"
 
-        # Prevent SSH key on nologin user unless admin flag used
         current_shell=$(getent passwd "$USERNAME" | cut -d: -f7)
+        home_dir=$(getent passwd "$USERNAME" | cut -d: -f6)
+
+        # Prevent SSH key on nologin user unless admin flag used
         if [[ "$current_shell" == "/usr/sbin/nologin" && -n "$SSH_KEY" ]]; then
             echo "ERROR: Existing user has nologin shell." >&2
             echo "Use --admin-user to enable SSH access." >&2
             return 1
+        fi
+
+        # useradd -m only creates the home directory at account-creation
+        # time — this branch runs instead of that whenever the account
+        # already exists, so if the home directory is gone now (e.g.
+        # manually `rm -rf`'d from the terminal instead of removing the
+        # account through Delete User, which leaves the account itself
+        # intact) re-running Create User on this username silently did
+        # nothing about it before this check existed. Recreate it from
+        # /etc/skel, the same template useradd -m itself uses, for any
+        # login-capable (non-nologin) account.
+        if [[ "$current_shell" != "/usr/sbin/nologin" && -n "$home_dir" && ! -d "$home_dir" ]]; then
+            echo "WARNING: $USERNAME's home directory ($home_dir) is missing — recreating it." >&2
+            run_cmd sudo mkdir -p "$home_dir"
+            run_cmd sudo cp -a /etc/skel/. "$home_dir"
+            run_cmd sudo chown -R "$USERNAME":"$USERNAME" "$home_dir"
+            run_cmd sudo chmod 750 "$home_dir"
         fi
 
         if ! $SET_PASSWORD && ! $FORCE; then
