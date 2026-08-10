@@ -166,7 +166,7 @@ filled in from a fixed template.
 
    ----------------------------------------------------------------
 
-3. Click **Save & Restart**. A confirmation dialog names the directory and
+3\. Click **Save & Restart**. A confirmation dialog names the directory and
    share it's about to create, and reminds you that this only creates the
    share — you still need to use **Create Service** on the Updates - Logs
    page to set up the logger service that actually collects data into it. The logic here is that you probably have machines that aren't Haas, but you still want to drop CNC programs onto the appliance and load them to the control.
@@ -200,7 +200,7 @@ filled in from a fixed template.
 
   ----------------------------------------------------------------
 
-4\. Click Clear Output</strong> to discard the form and cancel — it doubles as `Cancel` here too.
+4\. Click `Clear Output` to discard the form and cancel — it doubles as `Cancel` here too.
 
 ## Delete Share
 
@@ -221,6 +221,13 @@ Service** on the Updates/Logs page: pick from a dropdown, confirm, done.
    runs the result through `testparm` (same gate as Edit smb.conf and
    Create Share), and only then writes the file and restarts `smbd`. If
    `testparm` rejects the result, nothing is saved or restarted.
+
+
+----------------------------------------------------------------
+
+![screenshot](./img/delete-share-confirm.resized.png)
+
+----------------------------------------------------------------
 
 ## Create User
 

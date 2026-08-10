@@ -62,11 +62,11 @@ const editConfBtn           = document.getElementById("editConfBtn");
 const saveRestartBtn        = document.getElementById("saveRestartBtn");
 const displaySharesBtn      = document.getElementById("displaySharesBtn");
 const displaySharesCsvBtn   = document.getElementById("displaySharesCsvBtn");
-const displaySambaUsersBtn  = document.getElementById("displaySambaUsersBtn");
-const displayLinuxUsersBtn = document.getElementById("displayLinuxUsersBtn");
+const displayUsersBtn       = document.getElementById("displayUsersBtn");
 const clearOutputBtn       = document.getElementById("clearOutputBtn");
 const displaySharesByUserBtn = document.getElementById("displaySharesByUserBtn");
 const usernameInput        = document.getElementById("usernameInput");
+const verifyAdminNote       = document.getElementById("verifyAdminNote");
 
 const createShareBtn    = document.getElementById("createShareBtn");
 const createShareForm   = document.getElementById("createShareForm");
@@ -223,8 +223,7 @@ function lockAll() {
     deleteShareBtn.disabled         = true;
     displaySharesBtn.disabled       = true;
     displaySharesCsvBtn.disabled    = true;
-    displaySambaUsersBtn.disabled   = true;
-    displayLinuxUsersBtn.disabled   = true;
+    displayUsersBtn.disabled        = true;
     clearOutputBtn.disabled         = true;
     displaySharesByUserBtn.disabled = true;
     createUserBtn.disabled          = true;
@@ -232,19 +231,20 @@ function lockAll() {
     changePasswordBtn.disabled      = true;
 }
 
-// Normal output mode — all view buttons enabled, Save & Restart disabled
+// Normal output mode — all view buttons enabled, Save & Restart hidden
+// (it only means something while editing/creating).
 function unlockNormal() {
     editMode = false;
     creatingShare = false;
     creatingUser = false;
     editConfBtn.disabled            = false;
     saveRestartBtn.disabled         = true;
+    saveRestartBtn.classList.add("hidden");
     createShareBtn.disabled         = false;
     deleteShareBtn.disabled         = false;
     displaySharesBtn.disabled       = false;
     displaySharesCsvBtn.disabled    = false;
-    displaySambaUsersBtn.disabled   = false;
-    displayLinuxUsersBtn.disabled   = false;
+    displayUsersBtn.disabled        = false;
     clearOutputBtn.disabled         = false;
     displaySharesByUserBtn.disabled = false;
     createUserBtn.disabled          = false;
@@ -259,12 +259,12 @@ function unlockEditMode() {
     editMode = true;
     editConfBtn.disabled            = true;
     saveRestartBtn.disabled         = false;
+    saveRestartBtn.classList.remove("hidden");
     createShareBtn.disabled         = true;
     deleteShareBtn.disabled         = true;
     displaySharesBtn.disabled       = true;
     displaySharesCsvBtn.disabled    = true;
-    displaySambaUsersBtn.disabled   = true;
-    displayLinuxUsersBtn.disabled   = true;
+    displayUsersBtn.disabled        = true;
     clearOutputBtn.disabled         = false;   // acts as Cancel
     displaySharesByUserBtn.disabled = true;
     createUserBtn.disabled          = true;
@@ -282,32 +282,12 @@ function lockForChangePassword() {
     deleteShareBtn.disabled         = true;
     displaySharesBtn.disabled       = true;
     displaySharesCsvBtn.disabled    = true;
-    displaySambaUsersBtn.disabled   = true;
-    displayLinuxUsersBtn.disabled   = true;
+    displayUsersBtn.disabled        = true;
     clearOutputBtn.disabled         = true;
     displaySharesByUserBtn.disabled = true;
     createUserBtn.disabled          = true;
     deleteUserBtn.disabled          = true;
     changePasswordBtn.disabled      = true;
-}
-
-// ── run a command and show result in the output panel ─────────────────────────
-
-function runCommand(args, label) {
-    lockAll();
-    showOutputPanel("Running: " + label + "...\n");
-
-    cockpit.spawn(args, { superuser: "require", err: "message" })
-        .done(function(data) {
-            output.textContent = "--- " + label + " ---\n\n" + (data || "(no output)");
-        })
-        .fail(function(ex, data) {
-            output.textContent = "--- " + label + " ---\n\nERROR: " + (ex.message || JSON.stringify(ex));
-            if (data) output.textContent += "\n" + data;
-        })
-        .always(function() {
-            unlockNormal();
-        });
 }
 
 // ── Edit smb.conf ─────────────────────────────────────────────────────────────
@@ -460,6 +440,7 @@ saveRestartBtn.addEventListener("click", function() {
             })
             .done(function() {
                 output.textContent += "\n[SUCCESS] User \"" + username + "\" created.\n";
+                refreshAdminNoteVisibility();
 
                 if (role === "admin") {
                     output.textContent += "\nSetting up zsh, Oh My Zsh, and haas-aliases for \"" + username +
@@ -800,6 +781,7 @@ usersList.addEventListener("change", function() {
         .done(function() {
             usersList.classList.add("hidden");
             output.textContent += "\n[SUCCESS] User \"" + username + "\" deleted.\n";
+            refreshAdminNoteVisibility();
             unlockNormal();
         })
         .fail(function(ex, data) {
@@ -1002,36 +984,90 @@ displaySharesByUserBtn.addEventListener("click", function() {
         });
 });
 
-// ── Display Samba Users ───────────────────────────────────────────────────────
+// ── Display Users (Linux + Samba, merged) ─────────────────────────────────────
 
-displaySambaUsersBtn.addEventListener("click", function() {
-    runCommand(["bash", "-c", "pdbedit -L 2>/dev/null | cut -d: -f1"], "Samba Users");
-});
-
-// ── Display Linux Users ───────────────────────────────────────────────────────
-
-displayLinuxUsersBtn.addEventListener("click", function() {
+// One row per Linux local account (UID 1000-59999, same range Linux Users
+// used), each annotated with whether it also has a Samba account —
+// replaces the separate Samba Users / Linux Users buttons since the two
+// account sets overlap almost completely and were awkward to cross-reference
+// as two separate button clicks.
+displayUsersBtn.addEventListener("click", function() {
     lockAll();
-    showOutputPanel("Loading Linux users...\n");
+    showOutputPanel("Loading users...\n");
 
-    cockpit.spawn(
-        ["bash", "-c", "getent passwd | awk -F: '$3 >= 1000 && $3 < 60000 {printf \"%-20s UID:%-6s GID:%-6s %s\\n\", $1, $3, $4, $6}'"],
-        { superuser: "require", err: "message" }
-    )
-        .done(function(data) {
-            output.textContent  = "--- Linux Local User Accounts ---\n\n";
-            output.textContent += "Username             UID    GID    Home\n";
-            output.textContent += "─────────────────────────────────────────────────────\n";
-            output.textContent += (data || "(none found)");
+    cockpit.spawn(["bash", "-c", "pdbedit -L 2>/dev/null | cut -d: -f1"], { superuser: "require", err: "message" })
+        .then(function(sambaData) {
+            var sambaUsers = {};
+            (sambaData || "").trim().split("\n").forEach(function(u) {
+                if (u.trim()) sambaUsers[u.trim()] = true;
+            });
+
+            return cockpit.spawn(
+                ["bash", "-c", "getent passwd | awk -F: '$3 >= 1000 && $3 < 60000 {printf \"%s|%s|%s|%s\\n\", $1, $3, $4, $6}'"],
+                { superuser: "require", err: "message" }
+            ).then(function(linuxData) {
+                var rows = (linuxData || "").trim() ? linuxData.trim().split("\n") : [];
+                var users = rows.map(function(line) {
+                    var f = line.split("|");
+                    return { name: f[0], uid: f[1], gid: f[2], home: f[3], hasSamba: !!sambaUsers[f[0]] };
+                }).sort(function(a, b) { return a.name.localeCompare(b.name); });
+
+                var header = "Username             UID    GID    Samba   Home\n" +
+                    "─────────────────────────────────────────────────────────────";
+                var html = "<span class=\"info\">--- Users (Linux + Samba) ---</span>\n\n" +
+                    "<span class=\"info\">" + escapeHtml(header) + "</span>\n";
+
+                if (users.length === 0) {
+                    html += "(none found)";
+                } else {
+                    html += users.map(function(u, i) {
+                        var line = u.name.padEnd(20) + " " + u.uid.padEnd(6) + " " + u.gid.padEnd(6) + " " +
+                            (u.hasSamba ? "Yes" : "No").padEnd(7) + " " + u.home;
+                        // Alternating row coloring: 1st/3rd/... rows default
+                        // white, 2nd/4th/... rows blue (.info) — makes a
+                        // long user list easier to scan line-by-line.
+                        return (i % 2 === 1)
+                            ? "<span class=\"info\">" + escapeHtml(line) + "</span>"
+                            : escapeHtml(line);
+                    }).join("\n");
+                }
+
+                output.innerHTML = html;
+                unlockNormal();
+            });
         })
-        .fail(function(ex, data) {
-            output.textContent = "ERROR: " + (ex.message || JSON.stringify(ex));
-            if (data) output.textContent += "\n" + data;
-        })
-        .always(function() {
+        // Chained through .then(), so cleanup can't use the jQuery-style
+        // .always() the rest of this file relies on elsewhere (that method
+        // isn't guaranteed to survive a .then() hop) — unlockNormal() is
+        // called explicitly on both the success path above and here.
+        .catch(function(ex) {
+            output.innerHTML = "<span class=\"info\">--- Users (Linux + Samba) ---</span>\n\n<span class=\"error\">ERROR: " +
+                escapeHtml((ex && ex.message) || JSON.stringify(ex)) + "</span>";
             unlockNormal();
         });
 });
+
+// ── Verify Administrator note visibility ─────────────────────────────────────
+
+// The note only means something once an Administrator account exists (role
+// "admin" == sudo group membership, per manage_users.sh's --admin-user).
+// Checked against actual current state — not a flag set at Create User time
+// — so it stays correct across page reloads and after Delete User removes
+// the last admin, not just within one browser session.
+function refreshAdminNoteVisibility() {
+    cockpit.spawn(
+        ["bash", "-c", "getent group sudo | cut -d: -f4 | tr ',' '\\n' | grep -v '^haas$' | grep -v '^$'"],
+        { superuser: "require", err: "message" }
+    )
+        .then(function(data) {
+            verifyAdminNote.classList.toggle("hidden", !(data || "").trim());
+        })
+        .catch(function() {
+            // Leave current visibility as-is on error.
+        });
+}
+
+refreshAdminNoteVisibility();
 
 // ── Clear Output ──────────────────────────────────────────────────────────────
 

@@ -16,22 +16,32 @@
     </div>
     <div id="network-info" class="network-info">Loading network info...</div>
 
-    <div id="actionButtons">
-        <button id="editConfBtn" data-tooltip="Open smb.conf in the editor">Edit smb.conf</button>
-        <button id="saveRestartBtn" data-tooltip="Save changes to smb.conf and restart the Samba service" disabled>Save &amp; Restart</button>
-        <button id="createShareBtn" data-tooltip="Add a new share to smb.conf">Create Share</button>
-        <button id="deleteShareBtn" data-tooltip="Stop sharing a machine directory">Delete Share</button>
-        <button id="displaySharesBtn" data-tooltip="Display the Samba shares from smb.conf">Display Shares</button>
-        <button id="displaySharesCsvBtn" data-tooltip="Display the Samba shares from smb.conf in CSV format">Shares CSV</button>
-        <button id="displaySambaUsersBtn" data-tooltip="List all users in the Samba database">Samba Users</button>
-        <button id="displayLinuxUsersBtn" data-tooltip="Display local user accounts defined in Linux">Linux Users</button>
-        <button id="createUserBtn" data-tooltip="Create a new Linux + Samba user account">Create User</button>
-        <button id="deleteUserBtn" data-tooltip="Remove a Linux + Samba user account">Delete User</button>
-        <button id="changePasswordBtn" data-tooltip="Set a new password for an existing user">Change Password</button>
-        <button id="clearOutputBtn" data-tooltip="Clear the output window">Clear Output</button>
+    <div class="section">
+        <h2>Shares &amp; Configuration</h2>
+        <div id="actionButtons" class="button-row">
+            <button id="editConfBtn" data-tooltip="Open smb.conf in the editor">Edit smb.conf</button>
+            <button id="createShareBtn" data-tooltip="Add a new share to smb.conf">Create Share</button>
+            <button id="deleteShareBtn" data-tooltip="Stop sharing a machine directory">Delete Share</button>
+            <button id="displaySharesBtn" data-tooltip="Display the Samba shares from smb.conf">Display Shares</button>
+            <button id="displaySharesCsvBtn" data-tooltip="Display the Samba shares from smb.conf in CSV format">Shares CSV</button>
+        </div>
+        <div id="userRow" class="button-row">
+            <input type="text" id="usernameInput" placeholder="Enter username">
+            <button id="displaySharesByUserBtn" data-tooltip="Display active Samba sessions for the specified user">Shares by User</button>
+        </div>
     </div>
 
-    <details class="info-note">
+    <div class="section">
+        <h2>Users</h2>
+        <div class="button-row">
+            <button id="displayUsersBtn" data-tooltip="List Linux and Samba user accounts together">Users</button>
+            <button id="createUserBtn" data-tooltip="Create a new Linux + Samba user account">Create User</button>
+            <button id="deleteUserBtn" data-tooltip="Remove a Linux + Samba user account">Delete User</button>
+            <button id="changePasswordBtn" data-tooltip="Set a new password for an existing user">Change Password</button>
+        </div>
+    </div>
+
+    <details class="info-note hidden" id="verifyAdminNote">
         <summary>&#8505;&#65039; Verify an Administrator account</summary>
         <p>If you want to verify a newly created Administrator account, open the Cockpit <strong>Terminal</strong> page and run each of these (replace <code>&lt;username&gt;</code>):</p>
         <pre>getent passwd &lt;username&gt;                                    # shell should be /bin/zsh, home /home/&lt;username&gt;
@@ -41,11 +51,6 @@ sudo pdbedit -L -v &lt;username&gt; | grep "Account Flags"          # should sho
 ls -la /home/&lt;username&gt;/.zshrc /home/&lt;username&gt;/.oh-my-zsh/custom/haas-aliases.zsh   # both owned &lt;username&gt;:&lt;username&gt;</pre>
         <p>Then, logged in as that user (e.g. <code>ssh &lt;username&gt;@&lt;appliance_ip&gt;</code>), type <code>haas</code> and press Tab — it should list the full <code>haas-*</code>/<code>t-*</code> alias menu.</p>
     </details>
-
-    <div id="userRow">
-        <input type="text" id="usernameInput" placeholder="Enter username">
-        <button id="displaySharesByUserBtn" data-tooltip="Display active Samba sessions for the specified user">Shares by User</button>
-    </div>
 
     <select id="sharesList" class="hidden">
         <option value="">— select a share to delete —</option>
@@ -61,6 +66,10 @@ ls -la /home/&lt;username&gt;/.zshrc /home/&lt;username&gt;/.oh-my-zsh/custom/ha
 
     <div id="panelLabel"></div>
     <pre id="validationMsg" class="hidden"></pre>
+    <div id="panelActions" class="button-row">
+        <button id="saveRestartBtn" class="hidden" data-tooltip="Save changes to smb.conf and restart the Samba service">Save &amp; Restart</button>
+        <button id="clearOutputBtn" data-tooltip="Clear the output window">Clear Output</button>
+    </div>
     <div id="panel">
         <textarea id="confEditor" spellcheck="false"></textarea>
         <pre id="output">Ready.</pre>

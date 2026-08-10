@@ -74,18 +74,37 @@ h1 {
     color: #1a1a1a;
 }
 
-#actionButtons {
+/* Grouped panels — same convention as cockpit_firewall's .section */
+.section {
+    margin-bottom: 16px;
+    padding: 12px 16px 16px;
+    border: 1px solid #444;
+    border-radius: 4px;
+}
+
+.section h2 {
+    margin: 0 0 10px;
+    font-size: 16px;
+    color: #ccc;
+}
+
+.button-row {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: 8px;
-    margin-bottom: 12px;
+}
+
+#actionButtons {
+    margin-bottom: 10px;
 }
 
 #userRow {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 16px;
+    margin-bottom: 0;
+}
+
+#panelActions {
+    margin-bottom: 12px;
 }
 
 #userRow input[type="text"] {
@@ -295,9 +314,4 @@ pre#output span.warn {
 .csf-field input[readonly] {
     background: #222;
     color: #999;
-}
-
-.button-row {
-    display: flex;
-    gap: 10px;
 }

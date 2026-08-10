@@ -96,9 +96,9 @@
 
 === "macOS"
 
-    **List Shares**
+    **List Shares sorted by share name**
     ```
-    smbutil view //<user>@<appliance_ip>
+    smbutil view //<user>@<appliance_ip> | sort
     ```
 
     **Test Anonymous Access (should fail)**
