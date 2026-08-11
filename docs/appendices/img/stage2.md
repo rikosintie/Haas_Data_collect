@@ -1,5 +1,5 @@
 ```mermaid
-
+%%{init: {"themeCSS": ".stage2 .nodeLabel{color:#1b5e20 !important} .terminal .nodeLabel{color:#212121 !important}"}}%%
 flowchart LR
 
     classDef stage2 fill:#e8f5e9,stroke:#43a047,stroke-width:1px,color:#1b5e20 !important;
@@ -24,6 +24,7 @@ flowchart LR
 ```
 
 ```mermaid
+%%{init: {"themeCSS": ".stage2 .nodeLabel{color:#1b5e20 !important} .terminal .nodeLabel{color:#212121 !important}"}}%%
 flowchart LR
 
     %% Styles
