@@ -785,8 +785,7 @@ ip a show eth0
     router advertisements. That's the part worth disabling: my reason for
     doing this in the first place was that the appliance had picked up a
     global IPv6 address that got published to DNS, but that address
-    didn't actually work for reaching Cockpit or SSH on the appliance —
-    so a client resolving the appliance's hostname would get an IPv6
+    won't work for reaching Cockpit or SSH on the appliance because the UFW firewall isn't configured for IPv6. — so a client resolving the appliance's hostname would get an IPv6
     address back and try that first, stall, and only fall back to IPv4
     after a delay. Disabling global IPv6 address acquisition here stops
     that AAAA record from ever existing to begin with. The link-local
