@@ -1,5 +1,7 @@
 # Directories and aliases
 
+----------------------------------------------------------------
+
 The Linux shell allows a mix of `aliases` and `functions` to simplify common tasks. The zsh shell (terminal) on the appliance has several custom `aliases` and `functions` in the file `/home/haas/.oh-my-zsh/custom/haas-aliases.zsh`. To edit the `haas-aliases.zsh` file, enter `ec1` at the terminal prompt. There is an alias defined that opens it in the `fresh` editor.
 
 These `aliases` and `functions` allow you to:

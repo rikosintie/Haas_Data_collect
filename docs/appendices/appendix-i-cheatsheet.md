@@ -1,5 +1,7 @@
 # Haas Appliance — Shell Cheat sheet
 
+----------------------------------------------------------------
+
 Aliases and functions live in `/home/haas/.oh-my-zsh/custom/haas-aliases.zsh`.
 Edit with `ec1` at the terminal prompt, or via the Cockpit terminal at `https://<appliance_ip>:9090`.
 

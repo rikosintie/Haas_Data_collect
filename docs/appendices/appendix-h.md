@@ -1,5 +1,7 @@
 # Pair Bluetooth keyboard
 
+----------------------------------------------------------------
+
 If you used a Raspberry Pi 5 for your appliance, it has bluetooth built in. If you used physical PC it might have Bluetooth built in or you can use a [USB Bluetooth dongle](https://www.amazon.com/gp/aw/d/B09DMP6T22/) available on Amazon for about $15.
 
 ## Desktop version
