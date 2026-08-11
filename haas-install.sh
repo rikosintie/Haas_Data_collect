@@ -841,6 +841,14 @@ id "haas"
     sudo chown haas:HaasGroup /home/haas/Haas_Data_collect
     sudo chmod 2775 /home/haas/Haas_Data_collect
 
+    # Parent directory for the [machines] share below — created up front so
+    # that share has somewhere to point even before any individual machine
+    # share (which each get their own subdirectory here via Cockpit's
+    # Create Share button) has ever been created.
+    sudo mkdir -p /home/haas/Haas_Data_collect/machines
+    sudo chown haas:HaasGroup /home/haas/Haas_Data_collect/machines
+    sudo chmod 2775 /home/haas/Haas_Data_collect/machines
+
     # Backup original smb.conf
     sudo cp /etc/samba/smb.conf /etc/samba/smb.conf.backup
 
@@ -881,9 +889,9 @@ id "haas"
     printcap name = /dev/null
 
 
-[Haas]
-    comment = Haas Data Collection Share
-    path = /home/haas/Haas_Data_collect
+[machines]
+    comment = File Share for all machines
+    path = /home/haas/Haas_Data_collect/machines
     browseable = Yes
     writable = Yes
     public = No

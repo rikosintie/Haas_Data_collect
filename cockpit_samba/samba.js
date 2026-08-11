@@ -719,8 +719,9 @@ function escapeRegExp(s) {
     return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-// [Haas] is the appliance's main data share, created by haas-install.sh —
-// it is not a per-machine share, so it's kept out of the delete list.
+// [Haas] and [machines] are the appliance's own umbrella shares, both
+// created by haas-install.sh rather than per-machine through Create
+// Share — neither is kept in the delete list for the same reason.
 function populateSharesList() {
     sharesList.innerHTML = "<option value=\"\">— loading... —</option>";
     sharesList.classList.remove("hidden");
@@ -735,7 +736,7 @@ function populateSharesList() {
                 .map(function(l) { return l.replace(/[\[\]]/g, "").trim(); })
                 .filter(function(name) {
                     var lower = name.toLowerCase();
-                    return name && lower !== "global" && lower !== "haas";
+                    return name && lower !== "global" && lower !== "haas" && lower !== "machines";
                 });
 
             sharesList.innerHTML = "<option value=\"\">— select a share to delete —</option>";
