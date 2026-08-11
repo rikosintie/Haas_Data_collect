@@ -1,4 +1,6 @@
-#
+# SMB Protocols
+
+----------------------------------------------------------------
 
 ![screenshot](../appendices/img/tux-smb-ref.png)
 

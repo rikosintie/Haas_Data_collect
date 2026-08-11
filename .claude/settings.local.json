@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sed -i \"s/if lw in DANGLING_WORDS:/if not ends_with_terminal_punct and lw in DANGLING_WORDS:/\" /tmp/claude-1000/-home-mhubbard-Insync-GD-04-Tools-Haas-Haas-Data-collect/12733860-c2e7-497f-b748-656f0ff78ced/scratchpad/find_truncated.py)",
+      "Bash(python3 /tmp/claude-1000/-home-mhubbard-Insync-GD-04-Tools-Haas-Haas-Data-collect/12733860-c2e7-497f-b748-656f0ff78ced/scratchpad/find_truncated.py /tmp/claude-1000/-home-mhubbard-Insync-GD-04-Tools-Haas-Haas-Data-collect/12733860-c2e7-497f-b748-656f0ff78ced/scratchpad/md_files.txt)"
+    ]
+  }
+}

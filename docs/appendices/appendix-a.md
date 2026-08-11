@@ -1,4 +1,6 @@
-#
+# Securing the Appliance
+
+----------------------------------------------------------------
 
 ![screenshot](../appendices/img/tux-harden-appliance.png)
 

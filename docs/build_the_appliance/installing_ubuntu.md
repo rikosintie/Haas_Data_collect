@@ -84,7 +84,7 @@ After Ubuntu is installed, but before booting for the first time:
 
 ----------------------------------------------------------------
 
-#### Ubuntu is version 24.04.3 now
+#### Ubuntu is version 24.04.4 now
 
 Below is the updated link to `wget` 24.04.4 Server:
 
@@ -752,7 +752,7 @@ gone:
 ip a show eth0
 ```
 
-```unixconfig hl_lines="4" title='Command Output'
+```unixconfig hl_lines="5" title='Command Output'
 2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
     link/ether 88:a2:9e:43:4d:de brd ff:ff:ff:ff:ff:ff
     inet 192.168.10.137/24 metric 100 brd 192.168.10.255 scope global dynamic eth0
