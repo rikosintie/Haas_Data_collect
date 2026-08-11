@@ -1,9 +1,21 @@
 # Which version of Ubuntu should you use
 
-Ubuntu comes in two versions:
+Ubuntu comes in two versions — Server (no desktop) and Desktop (includes
+the GNOME desktop). Use **Server**.
 
-- Server - No desktop.
-- Desktop - Includes the Gnome desktop
+Earlier versions of this guide also documented Desktop as an option for
+anyone new to Linux, since it gave you GUI tools (Gnome Text Editor,
+LibreOffice Calc for editing the firewall CSV) instead of a bare terminal.
+That reasoning doesn't hold up anymore: `haas-install.sh` fully automates
+the terminal side — installs zsh, Oh My Zsh, and a full set of aliases
+automatically, see
+[The terminal will be configured for you later](#the-terminal-will-be-configured-for-you-later)
+— and Cockpit gives you a full browser-based admin UI, including editing
+CSVs directly with no spreadsheet program needed, reachable from any
+device on your network rather than only from a screen plugged into the
+appliance itself. There's no remaining GUI advantage to running a desktop
+environment on the appliance — just extra resource overhead on a device
+meant to run headless in the background.
 
 ## Server version (Headless)
 
@@ -14,16 +26,6 @@ You can connect a monitor and keyboard, but you still use terminal-only tools si
 ### Serial Console cable
 
 If you are building your appliance on a Raspberry Pi 5, I recommend purchasing the [serial console cable](../build_the_appliance/build_an_appliance.md/#usb-serial-cable-for-the-raspberry-pi-5). It allows you to configure the Pi from your laptop if the Pi doesn't have an IP Address or you have locked yourself out with the firewall.
-
-----------------------------------------------------------------
-
-## Desktop Version
-
-If you are new to Linux and building appliances, use the desktop version. The desktop version of Ubuntu uses the GNOME desktop, which is similar to a Windows desktop. It includes LibreOffice Calc (spreadsheet), allowing you to manage the firewall configuration file from the appliance.
-
-With the desktop version, you can use a keyboard, mouse, and monitor (KVM) to configure the Pi using GUI tools like Gnome Text Editor, File Manager, Local Send, etc. [Local Send](https://localsend.org/) is a free, open-source Flatpak app that allows you to move files between two systems. It supports Windows, Mac, Linux, Android, and iOS. On a Windows client, the popular `putty` application has an [SCP client](https://the.earth.li/~sgtatham/putty/0.83/htmldoc/Chapter5.html#pscp).
-
-The other advantage is that you can register with Canonical for Ubuntu Pro at $25/year vs. $300/year for the server version. The Ubuntu Pro is a great deal. You get automatic updates and most do not require a reboot. The appliance will stay patched for at least one quarter with no user intervention.
 
 ----------------------------------------------------------------
 
@@ -44,9 +46,13 @@ For ease of logging into the appliance, create ssh keys as shown here - [Use SSH
 
 ### Raspberry Pi 5 install
 
-Once you have decided on a version, follow these instructions to complete the installation. The instructions are from the Wolf Paulus blog, he does a great job, and I didn't see that I could do any better!
+Follow these instructions to complete the installation. The instructions are from the Wolf Paulus blog, he does a great job, and I didn't see that I could do any better!
 
-Regardless of which version you want for production, install the desktop version of Raspberry Pi OS for the first step.
+This first step needs the desktop version of **Raspberry Pi OS** — a
+different OS entirely from Ubuntu, only booted briefly here to get GUI
+access for preparing the NVMe drive. It has nothing to do with the Ubuntu
+Server-vs-Desktop choice above; Ubuntu Server is still what ends up
+installed on the appliance itself in the steps that follow.
 
 - [Raspberry Pi 5 with NVMe](https://wolfpaulus.com/rp5/)
 - [Install Ubuntu Server on Raspberry Pi 5 with NVMe SSD (Headless Setup)](https://wolfpaulus.com/rp5-ubuntu-cli/)
@@ -80,20 +86,11 @@ After Ubuntu is installed, but before booting for the first time:
 
 #### Ubuntu is version 24.04.3 now
 
-Below are updated links to `wget` 24.04.3.
-
-Server installer
+Below is the updated link to `wget` 24.04.3 Server:
 
 ```bash
 cd ~
 wget https://cdimage.ubuntu.com/releases/24.04.3/release/ubuntu-24.04.3-preinstalled-server-arm64+raspi.img.xz`.
-```
-
-Desktop installer
-
-```bash
-cd ~
-`wget https://cdimage.ubuntu.com/releases/24.04.3/release/ubuntu-24.04.3-preinstalled-desktop-arm64+raspi.img.xz`
 ```
 
 ----------------------------------------------------------------
@@ -105,16 +102,12 @@ Just like for the Raspberry Pi 5, there are a lot of quality tutorials on instal
 **Server Install**
 Here is a link to the official Canonical tutorial - [Install Ubuntu server](https://ubuntu.com/tutorials/install-ubuntu-server){target="_blank"}
 
-If you need instructions to create a bootable flash drive - Open the Desktop link below and it explains how to use Rufus to create a flash drive. For a virtual machine you will use the ISO image that you downloaded.
-
-**Desktop install**
-Here is a link to the official Canonical tutorial - [Install Ubuntu Desktop](https://documentation.ubuntu.com/desktop/en/latest/tutorial/install-ubuntu-desktop/){target="_blank"}
-
-When you get to this screen:
-
-![screenshot](../build_the_appliance/img/Ubuntu-Install.resized.png)
-
-Select `Install Ubuntu` and click `next`.
+If you need instructions to create a bootable flash drive with Rufus, the
+[Install Ubuntu Desktop](https://documentation.ubuntu.com/desktop/en/latest/tutorial/install-ubuntu-desktop/){target="_blank"}
+tutorial covers that step (the Rufus walkthrough itself isn't
+Desktop-specific, it's just documented on that page) — you're still
+writing the Server ISO you downloaded above, not the Desktop one. For a
+virtual machine you will use the ISO image that you downloaded.
 
 ----------------------------------------------------------------
 
@@ -201,15 +194,7 @@ this page.
 
 ### Static IP address
 
-The desktop version uses a GUI to change IP address configuration. Go to the **system menu** which is accessible from the top-right screen corner, or by prssing `windows_key+s`, click the gear icon, then network. The network settings dialog is very similar to Windows 11. Here is a screenshot:
-
-----------------------------------------------------------------
-
-![Ubuntu Network settings](../build_the_appliance/img/Ubuntu-Desktop-static.resized.png)
-
-----------------------------------------------------------------
-
-Ubuntu server doesn't have a GUI to change IP address settings. You have to modify a `yaml` file in the `/etc/netplan` directory. On the server version to use a static IP address instead of DHCP, replace `/etc/netplan/91-nw-init.yaml` with this yaml file:
+Ubuntu server doesn't have a GUI to change IP address settings. You have to modify a `yaml` file in the `/etc/netplan` directory. To use a static IP address instead of DHCP, replace `/etc/netplan/91-nw-init.yaml` with this yaml file:
 
 ```bash linenums='1' hl_lines='1'
 network:
