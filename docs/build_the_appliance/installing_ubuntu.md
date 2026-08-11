@@ -86,11 +86,11 @@ After Ubuntu is installed, but before booting for the first time:
 
 #### Ubuntu is version 24.04.3 now
 
-Below is the updated link to `wget` 24.04.3 Server:
+Below is the updated link to `wget` 24.04.4 Server:
 
 ```bash
 cd ~
-wget https://cdimage.ubuntu.com/releases/24.04.3/release/ubuntu-24.04.3-preinstalled-server-arm64+raspi.img.xz`.
+wget https://cdimage.ubuntu.com/releases/24.04.4/release/ubuntu-24.04.4-preinstalled-server-arm64+raspi.img.xz
 ```
 
 ----------------------------------------------------------------
