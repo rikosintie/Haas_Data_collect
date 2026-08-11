@@ -173,7 +173,7 @@ filled in from a fixed template.
 
    ----------------------------------------------------------------
 
-   ![screenshot](./img/create-share.resized.png)
+   ![screenshot](./img/create-share.png)
 
    ----------------------------------------------------------------
 
@@ -198,6 +198,8 @@ filled in from a fixed template.
     the restart result and `systemctl status smbd`.
 
   ----------------------------------------------------------------
+
+Output if the share was created successfully:
 
    ![screenshot](./img/create-share-final.resized.png)
 
@@ -300,6 +302,12 @@ step is skipped for them.
     from reporting — there's no need to open a Terminal and run these by
     hand anymore.
 
+----------------------------------------------------------------
+
+![screenshot](./img/admin-created-success.resized.png)
+
+----------------------------------------------------------------
+
 !!! note "This is a separate system from firewall access"
     `users.csv`/**Apply Firewall Changes** control *network* access — which
     IPs can reach the appliance at all. This controls *account* access —
@@ -324,13 +332,19 @@ the same pattern as **Delete Share**.
 3. Confirming runs `manage_users.sh <username> --delete-user --force` and
    shows the result in the output panel.
 
+----------------------------------------------------------------
+
+![screenshot](./img/delete-user-confirm-dialog.png)
+
+----------------------------------------------------------------
+
 If the user still has an active login session (an open SSH connection,
 for example), `userdel` refuses to remove the Linux account and the
 output panel shows `[ERROR]` naming the account as still active, with
 the command to terminate the session first (`sudo pkill -KILL -u
 <username>`) before retrying. The account is not silently left in place
 without a warning — deletion either fully succeeds or is reported as
-failed.
+failed. Have the user logout of the SSH or Cockpit session.
 
 ## Change Password
 
