@@ -1,15 +1,23 @@
 # Haas Appliance - Firewall Automation Service
 #
 # This systemd service is responsible for applying the UFW firewall
-# configuration based on the CSV at:
-#
-#   /home/haas/Haas_Data_collect/users.csv
+# configuration from a CSV file. Which CSV is NOT hardcoded here — it's
+# whatever CSV_PATH is set to in /etc/haas-firewall.conf, falling back to
+# <script_dir>/users.csv only if that config file doesn't define it.
+# Cockpit's "Apply Firewall Changes" button (and this script's own
+# --persist flag, for terminal use) update CSV_PATH in that conf file
+# after a successful apply, so this service picks up whatever CSV was
+# last deliberately applied — not necessarily users.csv.
 #
 # It runs the oneshot script:
 #   /usr/local/sbin/configure_ufw_from_csv.sh
 #
 # BEHAVIOR:
-#   - Runs once at boot (when enabled).
+#   - Runs once at boot (via this service's own [Install] section below).
+#   - Also runs every 4 hours via haas-firewall.timer, as a self-heal
+#     against manual UFW changes or someone disabling the firewall for
+#     troubleshooting and forgetting to re-enable it — see
+#     haas-firewall.timer for the full explanation.
 #   - Can be started manually by the operator.
 #   - Does NOT remain running (Type=oneshot).
 #
@@ -19,7 +27,8 @@
 #       * Backs up the CSV.
 #       * Applies Haas subnet and role-based rules.
 #       * Logs to /var/log/haas-firewall.log.
-#   - No arguments are passed; the script uses the default CSV path.
+#   - No CLI arguments are passed by this service; the script reads
+#     CSV_PATH from /etc/haas-firewall.conf itself (see above).
 
 [Unit]
 Description=Haas Appliance Firewall Auto-Configuration
@@ -29,7 +38,8 @@ Wants=network-online.target
 [Service]
 Type=oneshot
 
-# Main firewall script (no arguments; uses default CSV).
+# Main firewall script — no CLI arguments; CSV_PATH comes from
+# /etc/haas-firewall.conf (see the doc comment above).
 ExecStart=/usr/local/sbin/configure_ufw_from_csv.sh
 
 # Optional: set lower priority so this work is less disruptive.
