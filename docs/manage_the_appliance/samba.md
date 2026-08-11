@@ -41,7 +41,7 @@ These are read-only and safe to click any time:
 |---|---|
 | Display Shares | Runs `list_shares.sh` — lists the shares defined in `smb.conf` |
 | Shares CSV | Runs `list_shares_csv.sh` — same share list in CSV format for use in Excel |
-| Users | Two sections: **Samba Users** — every account in the Samba password database (`pdbedit -L`), including machine-tool accounts that have no Linux login; **Linux Users** — only the accounts that also have a real shell and home directory (i.e. admin accounts), showing UID, GID, and home directory |
+| Users | Three sections: **Samba Users** — every account in the Samba password database (`pdbedit -L`); **Linux Users (login-capable, with a home directory)** — only the accounts that also have a real shell and home directory (i.e. admin accounts), showing UID, GID, and home directory; **Linux Users (no home directory, Samba share only)** — the machine-tool/share-only accounts, so the count difference between the first two sections is self-explanatory instead of looking like a discrepancy |
 | Shares by User | Enter a username in the field next to the button, then click it to run `smbstatus --user=<name>` and show that user's **active** Samba sessions |
 
 ----------------------------------------------------------------

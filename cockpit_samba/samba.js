@@ -1028,24 +1028,33 @@ displayUsersBtn.addEventListener("click", function() {
                 { superuser: "require", err: "message" }
             ).then(function(linuxData) {
                 var rows = (linuxData || "").trim() ? linuxData.trim().split("\n") : [];
-                var linuxUsers = rows
+                var accounts = rows
                     .map(function(line) {
                         var f = line.split("|");
                         return { name: f[0], uid: f[1], gid: f[2], home: f[3], shell: f[4] };
                     })
-                    // nologin == manage_users.sh's standard (Samba-only, no
-                    // home dir) accounts — exclude them here, they belong
-                    // in the Samba Users section, not this one.
-                    .filter(function(u) { return u.shell !== "/usr/sbin/nologin"; })
                     .sort(function(a, b) { return a.name.localeCompare(b.name); });
 
-                var linuxLines = linuxUsers.map(function(u) {
+                // nologin == manage_users.sh's standard (Samba-only, no home
+                // dir) accounts. Splitting these out into their own section
+                // — instead of just omitting them from the Linux Users list
+                // — is what makes the Samba Users vs. Linux Users count
+                // mismatch self-explanatory: every nologin account here
+                // accounts for exactly one name that's in Samba Users but
+                // not in Linux Users below it.
+                var loginUsers = accounts.filter(function(u) { return u.shell !== "/usr/sbin/nologin"; });
+                var nologinUsers = accounts.filter(function(u) { return u.shell === "/usr/sbin/nologin"; });
+
+                var loginLines = loginUsers.map(function(u) {
                     return u.name.padEnd(20) + " UID:" + u.uid.padEnd(6) + " GID:" + u.gid.padEnd(6) + " " + u.home;
                 });
+                var nologinLines = nologinUsers.map(function(u) { return u.name; });
 
                 var html = renderUserListSection("--- Samba Users ---", sambaUsers) +
                     "\n" +
-                    renderUserListSection("--- Linux Users (login-capable, with a home directory) ---", linuxLines);
+                    renderUserListSection("--- Linux Users (login-capable, with a home directory) ---", loginLines) +
+                    "\n" +
+                    renderUserListSection("--- Linux Users (no home directory, Samba share only) ---", nologinLines);
 
                 output.innerHTML = html;
                 unlockNormal();
