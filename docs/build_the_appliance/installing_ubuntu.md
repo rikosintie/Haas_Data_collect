@@ -181,11 +181,21 @@ You can find a detailed list of `nanorc` options at [NANORC](https://www.nano-ed
 
 ----------------------------------------------------------------
 
-### Change the shell to zsh
+### The terminal will be configured for you later
 
-When the Ubuntu installation is complete and you have rebooted, follow these [instructions](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal) to configure the terminal for ease of use. I wrote that procedure on Ubuntu 18.04 and have updated it as versions have changed. It will make the appliance's  terminal use much easier.
+Earlier guides for this appliance had you manually follow
+[these instructions](https://rikosintie.github.io/Ubuntu4NetworkEngineers/terminal)
+at this point to set up zsh for a friendlier terminal. That's no longer
+necessary — `haas-install.sh`, which you'll run later in
+[Creating the Appliance](configuring_appliance.md), installs zsh and Oh
+My Zsh, copies this repo's `zshrc` and `haas-aliases.zsh` into place, and
+sets zsh as the login shell automatically for the `haas` user. The same
+setup runs again for any Administrator account created afterward through
+Manage Samba's Create User button, so there's nothing to configure by
+hand here or later.
 
-If you skip this step, not recommended, replace `.zshrc` with `.bashrc` where you see it in the documentation.
+There's nothing to do in this section — just continue with the rest of
+this page.
 
 ----------------------------------------------------------------
 
