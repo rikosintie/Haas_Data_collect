@@ -6,13 +6,13 @@ To share files between the CNC programmer and the machine control we have to cre
 
 ## The directory structure
 
-We will need the [table](../build_the_appliance/directories_shares.md/#table-of-machines) we created earlier for reference. It's listed below for reference. The concept is to create a share on the `Haas_Data_collect` directory named `Haas`. This top level share will be able so see the entire directory structure when it's mapped to a Windows network drive. Operations personnel will map to this share so that they can pull spreadsheets from every machine.
+We will need the [table](../build_the_appliance/directories_shares.md/#table-of-machines) we created earlier for reference. It's listed below for reference. The concept is a `[machines]` share on the `Haas_Data_collect/machines` directory, created automatically by `haas-install.sh`. This top level share will be able to see every machine's subdirectory when it's mapped to a Windows network drive. Operations personnel will map to this share so that they can pull spreadsheets from every machine.
 
-Then create a directory/share for each Haas machine tool. The Haas machine tool share will be used:
+You can also create a directory/share for each Haas machine tool individually, instead of (or alongside) the shared `[machines]` drive, if you want tighter segmentation — for example, tracking which users touched which machine, or limiting a given Samba account to only its own machine. Each per-machine share is used:
 
-- By for the CNC programmer to drop programs into
-- The machine operator to load programs from.
-- A subdirectory, cnc_logs, will hold the data collected from DPRNT.
+- By the CNC programmer to drop programs into
+- By the machine operator to load programs from
+- A subdirectory, `cnc_logs`, holds the data collected from DPRNT
 
 This share is used when setting up the Ethernet on the CNC control. The format will be `\\<appliance_ip>\st30` for a share named st30.
 
@@ -32,11 +32,19 @@ The final structure will look like this:
                  └── cnc_logs
 ```
 
+!!! note "The repo root is not shared over Samba"
+    Only `/home/haas/Haas_Data_collect/machines` (and any per-machine
+    subdirectory under it) is exposed over Samba — the repo root itself
+    (scripts, config, backups) is reachable only over SSH. Every Samba
+    account, including one created for a single machine tool, is a member
+    of `HaasGroup`, so sharing the repo root would expose it to every
+    account, not just admins.
+
 ----------------------------------------------------------------
 
 ### Table of machines
 
-First we need to create the directories. We can refer to our table for the names:
+We can refer to our table for the names:
 
 ----------------------------------------------------------------
 
@@ -50,14 +58,6 @@ First we need to create the directories. We can refer to our table for the names
 | ST30L    | 5052  | 192.168.10.145 |
 
 ----------------------------------------------------------------
-
-If you are only doing a handful of machines use:
-
-```bash
-mkdir /home/haas/Haas_Data_collect/st40
-```
-
-And repeat for each machine. If you used the Python script under [Scaling up](configuring_appliance.md/#scaling-up) with the `systemd-template.txt` it creates the 'mkdir' command along with the aliases.
 
 ### The tree command
 
@@ -74,11 +74,11 @@ tree
 .
 ├── minimill
 ├── st30
-│   └── cnc_logs
-│       └── st30_265-4183.csv
+│   └── cnc_logs
+│       └── st30_265-4183.csv
 ├── st30l
-│   └── cnc_logs
-│       └── st30l_265-4183.csv
+│   └── cnc_logs
+│       └── st30l_265-4183.csv
 └── st40
     └── cnc_logs
         └── st40_265-4183.csv
@@ -97,11 +97,11 @@ tree -h
 [4.0K]  .
 ├── [4.0K]  minimill
 ├── [4.0K]  st30
-│   └── [4.0K]  cnc_logs
-│       └── [ 232]  st30_265-4183.csv
+│   └── [4.0K]  cnc_logs
+│       └── [ 232]  st30_265-4183.csv
 ├── [4.0K]  st30l
-│   └── [4.0K]  cnc_logs
-│       └── [ 233]  st30l_265-4183.csv
+│   └── [4.0K]  cnc_logs
+│       └── [ 233]  st30l_265-4183.csv
 └── [4.0K]  st40
     └── [4.0K]  cnc_logs
         └── [ 232]  st40_265-4183.csv
@@ -121,9 +121,9 @@ tree -d
 .
 ├── minimill
 ├── st30
-│   └── cnc_logs
+│   └── cnc_logs
 ├── st30l
-│   └── cnc_logs
+│   └── cnc_logs
 └── st40
     └── cnc_logs
 ```
@@ -132,49 +132,30 @@ tree -d
 
 ## Create the shares
 
-Each share is created by updating the file `/etc/samba/smb.conf` with the information defining the share
+!!! tip "Use the Manage Samba extension instead of editing smb.conf by hand"
+    Everything below this point used to be a manual `sudo nano
+    /etc/samba/smb.conf` walkthrough. That's no longer the recommended
+    path — the Cockpit **Manage Samba** extension's **Create Share**
+    button does the same work (creates the machine directory if it
+    doesn't exist, appends the share stanza, validates with `testparm`,
+    and restarts `smbd`) in one confirmed click, with no risk of a typo
+    breaking the rest of `smb.conf`. See
+    [Create Share](../manage_the_appliance/samba.md#create-share) for the
+    full walkthrough. `Machine Name` and `Comment` are the only two fields
+    you fill in — the path (`/home/haas/Haas_Data_collect/machines/<name>`)
+    and every permission/mask setting shown below are filled in
+    automatically from a fixed template, matching what's described here.
 
-### Update the smb.conf file
-
-Open the file using:
-
-```bash
-sudo nano /etc/samba/smb.conf
-```
-
-Go to the bottom of the file and paste this code in (Note, the installation script creates this share):
-
-```bash
-# Share for Haas Data Collection files
-[Haas]
-    comment = Haas
-    path = /home/haas/Haas_Data_collect
-    read only = no
-    browsable = yes
-    writable = yes
-    browsable = yes
-    public = no
-    valid users = @HaasGroup, haas # Ensure the user is valid
-    force user = haas
-    force group = HaasGroup
-    create mask = 0664
-    force create mode = 0664
-    directory mask = 0775
-    force directory mode = 0775
-```
-
-This is the root directory for the project. The share names will be appended to the end of `/home/haas/Haas_Data_collect/machines`. For example:
+For reference, here's what a per-machine share stanza looks like once created (this is what Create Share writes for you):
 
 ```bash linenums='1' hl_lines='1'
-[ST40]
+[st40]
     comment = st40
     path = /home/haas/Haas_Data_collect/machines/st40
-    read only = no
-    browsable = yes
-    writable = yes
-    browsable = yes
-    public = no
-    valid users = @HaasGroup, haas # Ensure the user is valid
+    browseable = Yes
+    writable = Yes
+    public = No
+    valid users = @HaasGroup, haas
     force user = haas
     force group = HaasGroup
     create mask = 0664
@@ -185,41 +166,11 @@ This is the root directory for the project. The share names will be appended to 
 
 ----------------------------------------------------------------
 
-If you used the Python script with the `systemd-template.txt`, it creates all of the smb.conf share commands. Open each file and copy the code after `Create the share configuration`.
-
-```bash hl_lines='13-27'
-# Create the directory for the share
-mkdir -p /home/haas/Haas_Data_collect/machines/st30
-
-sudo cp haas-st30.service /etc/systemd/system/haas-st30.service
-sudo systemctl daemon-reload
-sudo systemctl enable st1.service
-sudo systemctl start st1.service
-sudo systemctl status st1.service
-
-
-Create the share configuration
-
-[st30]
-    comment =
-    path = /home/haas/Haas_Data_collect/machines/st30
-    read only = no
-    browsable = yes
-    writable = yes
-    browsable = yes
-    public = no
-    valid users = @HaasGroup, haas # Ensure the user is valid
-    force user = haas
-    force group = HaasGroup
-    create mask = 0664
-    force create mode = 0664
-    directory mask = 0775
-    force directory mode = 0775
-```
+If you have double or triple digits of machines to set up, doing them one at a time through Create Share gets tedious — see [Scaling up](configuring_appliance.md/#scaling-up) for the `conf-gen_xlsx_v1.py` script, which bulk-generates both the systemd service files and the matching `smb.conf` share stanzas from a spreadsheet.
 
 ----------------------------------------------------------------
 
-The following options are needed so that files created from Windows, Mac, Linux with mapped drives get the correct permissions:
+The following options are needed so that files created from Windows, Mac, Linux with mapped drives get the correct permissions — Create Share fills these in for you, but they're explained here since they matter if you're troubleshooting a permissions issue (see [Permission errors](#permission-errors) below) or reviewing the share bulk-generation script's output:
 
 1. **force user = haas:** Ensures that all operations on this share are performed as the user haas, making them the owner of all new files.
 1. **force group = HaasGroup:** Ensures that all new files and directories are assigned to the group HaasGroup.
@@ -228,177 +179,18 @@ The following options are needed so that files created from Windows, Mac, Linux 
 
 ----------------------------------------------------------------
 
-After you add all the share configurations, save `/etc/samba/smb.conf` and exit nano using `ctrl+s` to save and `ctrl+x` to exit.
-
-----------------------------------------------------------------
-
-Run the following commands to set the permissions correctly.
-
-```bash
-sudo chown -R haas:HaasGroup /home/haas/Haas_Data_collect
-sudo chmod -R 2774 /home/haas/Haas_Data_collect
-```
-
-The 2 in 2774 sets the setgid bit, which ensures that all locally created files also inherit the HaasGroup. Run the following to verify:
-
-```bash
-cd ~
-ls -l
-```
-
-```unixconfig title='Command Output'
-drwxrwsr-- 9 haas HaasGroup 4096 Mar 18 19:32 Haas_Data_collect
-```
-
-----------------------------------------------------------------
-
-### The smb.conf Share section
-
-Based on the [table](directories_shares.md/#table-of-machines) above this is what the share section will look like:
-
-```bash linenums='1'
-# Share for Haas Data Collection files
-
-[Haas]
-    comment = Haas Directory Share
-    path = /home/haas/Haas_Data_collect
-    browseable = yes
-    writable = yes
-    guest ok = no
-    valid users = @HaasGroup, haas # Ensure the user is valid
-    force user = haas
-    force group = HaasGroup
-    create mask = 0664
-    force create mode = 0664
-    directory mask = 0775
-    force directory mode = 0775
-[ST40]
-    comment = ST40
-    path = /home/haas/Haas_Data_collect/machines/st40
-    read only = no
-    browsable = yes
-    public = no
-    valid users = @HaasGroup, haas # Ensure the user is valid
-    force user = haas
-    force group = HaasGroup
-    create mask = 0664
-    force create mode = 0664
-    directory mask = 0775
-    force directory mode = 0775
-[ST30]
-    comment = st30
-    path = /home/haas/Haas_Data_collect/machines/st30
-    read only = no
-    browsable = yes
-    public = no
-    valid users = @HaasGroup, haas # Ensure the user is valid
-    force user = haas
-    force group = HaasGroup
-    create mask = 0664
-    force create mode = 0664
-    directory mask = 0775
-    force directory mode = 0775
-[ST30L]
-    comment = st30l
-    path = /home/haas/Haas_Data_collect/machines/st30l
-    read only = no
-    browsable = yes
-    public = no
-    valid users = @HaasGroup, haas # Ensure the user is valid
-    force user = haas
-    force group = HaasGroup
-    create mask = 0664
-    force create mode = 0664
-    directory mask = 0775
-   force directory mode = 0775
-```
-
-----------------------------------------------------------------
-
-### Restart the Samba Server
-
-Now that the `/etc/samba/smb.conf` file has been updated you need to test for errors. Use the following:
-
-```bash
-testparm -s
-```
-
-The entire `smb.conf` file will be displayed. You will need to scroll up to see any error messages since the conf file is longer than one screen. Restart the Samba Server service using:.
-
-```bash
-sudo systemctl restart smbd
-```
-
-**There is no output from this command.**
-
-----------------------------------------------------------------
-
 ### Display the Samba Shares
 
-Here is a function that you can add to your `~/.bashrc` or `~/.zshrc` file to display the paths to each share. Use the following to open your ~./bashrc (or ~/.zshrc) file:
+The Manage Samba extension's **Display Shares** button lists every share and its path directly in the Cockpit UI — no need to write your own `~/.zshrc` function or run a script by hand. See [Display shares](../manage_the_appliance/samba.md#display-shares) for a walkthrough, or [Shares CSV](../manage_the_appliance/samba.md#shares-csv) if you want the same list in a spreadsheet-friendly format.
+
+If you're working from the terminal instead, the repo also includes `lshares.sh` (installed to the repo root by `haas-install.sh`) for the same listing:
 
 ```bash linenums='1' hl_lines='1'
-nano ~/.bashrc
-```
-
-Then paste this at the bottom of the file, save and exit.
-
-----------------------------------------------------------------
-
-```bash linenums='1' hl_lines='1'
-smb-shares() {
-    while IFS= read -r line; do
-        if [[ "$line" == \[*\] ]]; then
-            # Extract share name without brackets
-            name="${line#\[}"
-            name="${name%\]}"
-        fi
-        if [[ "$line" == *path\ =* ]]; then
-            # Skip global, printers, and print$ shares
-            if [[ "$name" != "global" && "$name" != "printers" && "$name" != "print$" ]]; then
-                # Extract path after "path = "
-                sharepath="${line#*path = }"
-                # Print formatted output
-                printf "%-12s %s\n" "$name" "$sharepath"
-            fi
-        fi
-    done < /etc/samba/smb.conf
-}
-```
-
-```bash hl_lines='1'
-smb-shares
+./lshares.sh
 ```
 
 ```bash title='Command Output'
-[Haas]        path = /home/haas/Haas_Data_collect
-[st40]        path = /home/haas/Haas_Data_collect/machines/st40
-[st30]        path = /home/haas/Haas_Data_collect/machines/st30
-[st30l]        path = /home/haas/Haas_Data_collect/machines/st30l
-```
-
-If you don't want to add the function to your .bashrc file you can use the `lshares.sh` file that is included with the repository. You have to make it executable using:
-
-```bash linenums='1' hl_lines='1'
-chmod +x lshare.sh
-```
-
-Then run the script from the `/home/Haas_Data_collect` directory using:
-
-```bash linenums='1' hl_lines='1'
-./lshare.sh
-```
-
-----------------------------------------------------------------
-
-Here is the output of the script:
-
-```bash hl-lines='1'
-smb-shares
-```
-
-```bash title='Command Output'
-Haas         /home/haas/Haas_Data_collect
+machines     /home/haas/Haas_Data_collect/machines
 st40         /home/haas/Haas_Data_collect/machines/st40
 st30         /home/haas/Haas_Data_collect/machines/st30
 st30l        /home/haas/Haas_Data_collect/machines/st30l
@@ -426,7 +218,7 @@ PID     Username     Group        Machine                                   Prot
 Service      pid     Machine       Connected at                     Encryption   Signing
 ---------------------------------------------------------------------------------------------
 minimill     127455  192.168.10.104 Fri Jan  9 07:41:53 PM 2026 PST  -            -
-Haas         127051  192.168.10.143 Fri Jan  9 06:27:16 PM 2026 PST  -            -
+machines     127051  192.168.10.143 Fri Jan  9 06:27:16 PM 2026 PST  -            -
 ST40         127044  192.168.10.143 Fri Jan  9 06:26:33 PM 2026 PST  -            -
 ST30         117495  192.168.10.120 Thu Jan  8 11:45:23 AM 2026 PST  -            -
 
@@ -434,12 +226,12 @@ ST30         117495  192.168.10.120 Thu Jan  8 11:45:23 AM 2026 PST  -          
 Locked files:
 Pid          User(ID)   DenyMode   Access      R/W        Oplock           SharePath   Name   Time
 --------------------------------------------------------------------------------------------------
-127455       1002       DENY_NONE  0x100081    RDONLY     NONE             /home/haas/Haas_Data_collect/minimill   .   Fri Jan  9 19:49:03 2026
-127455       1002       DENY_NONE  0x100081    RDONLY     NONE             /home/haas/Haas_Data_collect/minimill   .   Fri Jan  9 19:49:03 2026
-127455       1002       DENY_NONE  0x100081    RDONLY     NONE             /home/haas/Haas_Data_collect/minimill   .   Fri Jan  9 19:49:03 2026
-127455       1002       DENY_NONE  0x120089    RDONLY     LEASE(RWH)       /home/haas/Haas_Data_collect/minimill   O1000.txt   Fri Jan  9 19:57:32 2026
-117495       1003       DENY_NONE  0x100081    RDONLY     NONE             /home/haas/Haas_Data_collect/st30   .   Thu Jan  8 11:45:51 2026
-117495       1003       DENY_NONE  0x100081    RDONLY     NONE             /home/haas/Haas_Data_collect/st30   .   Thu Jan  8 11:45:51 2026
+127455       1002       DENY_NONE  0x100081    RDONLY     NONE             /home/haas/Haas_Data_collect/machines/minimill   .   Fri Jan  9 19:49:03 2026
+127455       1002       DENY_NONE  0x100081    RDONLY     NONE             /home/haas/Haas_Data_collect/machines/minimill   .   Fri Jan  9 19:49:03 2026
+127455       1002       DENY_NONE  0x100081    RDONLY     NONE             /home/haas/Haas_Data_collect/machines/minimill   .   Fri Jan  9 19:49:03 2026
+127455       1002       DENY_NONE  0x120089    RDONLY     LEASE(RWH)       /home/haas/Haas_Data_collect/machines/minimill   O1000.txt   Fri Jan  9 19:57:32 2026
+117495       1003       DENY_NONE  0x100081    RDONLY     NONE             /home/haas/Haas_Data_collect/machines/st30   .   Thu Jan  8 11:45:51 2026
+117495       1003       DENY_NONE  0x100081    RDONLY     NONE             /home/haas/Haas_Data_collect/machines/st30   .   Thu Jan  8 11:45:51 2026
 
 ```
 
@@ -454,7 +246,7 @@ The first section list the username, group, IP address of the machine that mappe
 The second section lists the `systemd service file` that was used for each device, the IP address and the `pid`. In this case, there are the following devices connected:
 
 - 192.168.10.104 - A Windows 11 laptop with a mapping to the `minimill` share
-- 192.168.10.143 - An Ubuntu laptop with a mapping to the `Haas` share
+- 192.168.10.143 - An Ubuntu laptop with a mapping to the `machines` share
 - 192.168.10.143 - An Ubuntu laptop with a mapping to the `ST40` share
 - 192.168.10.120 - An Apple Silicon MacBook with a mapping to the `ST30` share
 
@@ -464,42 +256,11 @@ The third section lists files that are locked. This can useful information if a 
 
 ----------------------------------------------------------------
 
-To force all new files and directories created via Samba to have a specific owner and permissions, you need to modify the share's configuration in your smb.conf file.
-
-This configuration requires two main changes:
-
-- Enforce the desired user and group ownership for all connections to that share.
-- Set the default file and directory creation masks to match the desired permissions.
+You can also check current sessions for one specific user without the rest of the `smbstatus shares` output — see [Shares by User](../manage_the_appliance/samba.md#shares-by-user).
 
 ## Permission errors
 
-If you have any problems with permissions after mapping a drive follow these steps to make sure new files get the correct permissions.
-
-- Edit your Samba configuration file:
-Use a text editor like nano to edit the smb.conf file. The path is typically /etc/samba/smb.conf.
-
-```bash
-sudo nano /etc/samba/smb.conf
-```
-
-Locate the relevant share definition (e.g., [Haas]) and add or modify the following lines within that specific share section:
-ini
-
-```bash
-[HAAS]
-  comment = Haas Data collector home
-  path = /home/haas/Haas_Data_collect
-  writable = yes
-  browsable = yes
-  public = no
-  valid users = @HaasGroup, haas # Ensure the user is valid
-  force user = haas
-  force group = HaasGroup
-  create mask = 0664
-  force create mode = 0664
-  directory mask = 0775
-  force directory mode = 0775
-```
+If you have any problems with permissions after mapping a drive, the fastest fix is usually to delete and recreate the share through the Manage Samba extension — [Delete Share](../manage_the_appliance/samba.md#delete-share) followed by [Create Share](../manage_the_appliance/samba.md#create-share) — since Create Share always writes the correct permission settings from its fixed template, described below. Use [Edit smb.conf](../manage_the_appliance/samba.md#edit-smbconf) instead if you only need to tweak one existing share rather than recreate it, or if you're troubleshooting a share that predates this appliance's Cockpit extensions.
 
 ### Definitions
 
@@ -510,30 +271,11 @@ ini
 
 ----------------------------------------------------------------
 
-### Restart Samba
-
-After any changes to the Samba configuration file you must test the configuration and restart the service.  Use the following:
+If the underlying Linux directory permissions themselves are wrong (not just the smb.conf settings), make sure the shared directory is owned by `haas:HaasGroup`:
 
 ```bash
-testparm -s
-```
-
-If there are no errors reported, restart the Samba Server service using:.
-
-```bash
-sudo systemctl restart smbd
-```
-
-**There is no output from this command.**
-
-----------------------------------------------------------------
-
-Ensure the underlying Linux directory permissions are correct:
-On the server's filesystem, make sure the shared directory (/home/haas/Haas_Data_collect) in this example) is owned by haas:HaasGroup.
-
-```bash
-sudo chown -R haas:HaasGroup /home/haas/Haas_Data_collect
-sudo chmod -R 2774 /home/haas/Haas_Data_collect
+sudo chown -R haas:HaasGroup /home/haas/Haas_Data_collect/machines
+sudo chmod -R 2774 /home/haas/Haas_Data_collect/machines
 ```
 
 The 2 in 2774 sets the setgid bit, which ensures that all locally created files also inherit the HaasGroup.

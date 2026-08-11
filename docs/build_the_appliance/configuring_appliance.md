@@ -70,7 +70,7 @@ The repository includes a script named: `haas-install.sh`. The script does a lot
 - Writes the `/etc/haas-firewall.conf` file that allows you to add a custom subnet for the Haas CNCs if your network uses segmentation. Allows you to set a custom SSH port for the firewall rules if your security policy requires it.
 - Installs the systemd firewall service + timer
 - Installs Samba server and updates /etc/samba/smb.conf
-- Sets up Samba security and creates the "[Haas]" share
+- Sets up Samba security and creates the "[machines]" share — a single shared drive exposing every machine's subdirectory. The repo root itself is not shared over Samba, only reachable over SSH, to limit exposure of scripts and config to every Samba account. Per-machine shares are created individually afterward via Manage Samba's Create Share button.
 - Creates Samba and Linux users from the `initial_users.csv` file
 - Installs the Cockpit extension for managing/monitoring the firewall
 - Installs the "micro" cli text editor
@@ -761,10 +761,10 @@ I have a lot of Jinja2 resources on my [Cisco DevNet](https://github.com/rikosin
 
 ### Create aliases
 
-During debugging you will find yourself typing the `systemctl` commands a lot. I recommend creating some bash aliases to cut down on the typing. Open the bashrc file on the Pi using `nano ~/.bashrc` or `gnome-text-editor ~/.bashrc`. If you are using zsh as your shell, the commands will be `nano ~/.zshrc` or `gnome-text-editor ~/.zshrc`
+During debugging you will find yourself typing the `systemctl` commands a lot. I recommend creating some aliases to cut down on the typing. `haas-install.sh` now installs zsh and sets it as the default shell for the `haas` user and any Administrator account created afterward via Manage Samba's Create User button, so open `~/.zshrc` using `nano ~/.zshrc` or `gnome-text-editor ~/.zshrc`. (If you're on an older account that's still using bash — a Standard user account never gets a shell at all — use `~/.bashrc` instead.)
 
 !!! note
-    Notice the period in front of the bashrc filename. In Linux/Unix the period at the front of a filename means it is a hidden file. To see hidden files use `ls -la` which means show all files.
+    Notice the period in front of the filename. In Linux/Unix the period at the front of a filename means it is a hidden file. To see hidden files use `ls -la` which means show all files.
 
 Paste the following in at the bottom of the file:
 
@@ -777,7 +777,7 @@ alias status='(){sudo systemctl status "$1".service}'
 alias servfile='(){sudo nano /etc/systemd/system."$1".service}'
 ```
 
-Save the file with `ctrl+s`, close it with `ctrl+x` Update bash by typing `exec bash` and pressing enter.
+Save the file with `ctrl+s`, close it with `ctrl+x`, then reload the shell by typing `exec zsh` (or `exec bash` if you're on an older bash-based account) and pressing enter.
 
 ----------------------------------------------------------------
 
@@ -853,19 +853,26 @@ Key changes:
     # Performance
     socket options = TCP_NODELAY IPTOS_LOWDELAY
 
-[Haas]
-    comment = Haas Directory Share
+[machines]
+    comment = File Share for all machines
     create mask = 0664
     directory mask = 0775
     force create mode = 0664
     force directory mode = 0775
     force user = haas
     force group = HaasGroup
-    path = /home/haas/Haas_Data_collect
+    path = /home/haas/Haas_Data_collect/machines
     read only = No
     valid users = @HaasGroup haas
     browseable = yes
 ```
+
+The repo root (`/home/haas/Haas_Data_collect` itself) is deliberately **not**
+shared over Samba — only `/home/haas/Haas_Data_collect/machines` is, via the
+`[machines]` share above. Every Samba account (including one created for a
+single machine tool) is a member of `HaasGroup`, so sharing the repo root
+itself would expose scripts and config to every account, not just admins.
+Anyone who needs repo-root access already has it over SSH.
 
 Security improvements in this config:
 

@@ -32,7 +32,12 @@
 #   - Installs the Link Layer Discovery Protocol daemon (lldpd) for network visibility
 #   - Installs Samba server and updates /etc/samba/smb.conf
 #   - Adds the "haas" user to Samba, and creates a "HaasGroup"
-#       sets security and creates the "[Haas]" share
+#       sets security and creates the "[machines]" share (one shared drive
+#       exposing every machine's subdirectory under Haas_Data_collect —
+#       per-machine shares are created individually via Cockpit's Create
+#       Share button instead; the repo root itself is not shared over
+#       Samba, only reachable over SSH, to limit exposure of scripts and
+#       config)
 #   - Reads initial_users.csv and creates the Linux/Samba users
 #   - Installs custom Cockpit extensions:
 #       /usr/share/cockpit/haas-firewall          (from cockpit_firewall/)
@@ -930,11 +935,11 @@ EOF
     echo ""
 
     IP_ADDR=$(hostname -I | awk '{print $1}')
-    share="\\\\$IP_ADDR\\Haas"
-    sharenix="smb://$IP_ADDR/Haas"
+    share="\\\\$IP_ADDR\\machines"
+    sharenix="smb://$IP_ADDR/machines"
 
 
-banner "${CYAN}✔ Samba share 'Haas' configured successfully${RESET}" "${CYAN}Share for Windows is available at${RESET} ${GREEN}${share}${RESET}" "${CYAN}Share for Mac/Linux is available at${RESET} ${GREEN}${sharenix}${RESET}"
+banner "${CYAN}✔ Samba share 'machines' configured successfully${RESET}" "${CYAN}Share for Windows is available at${RESET} ${GREEN}${share}${RESET}" "${CYAN}Share for Mac/Linux is available at${RESET} ${GREEN}${sharenix}${RESET}"
 sleep 5
 else
     echo ""

@@ -719,9 +719,14 @@ function escapeRegExp(s) {
     return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-// [Haas] and [machines] are the appliance's own umbrella shares, both
-// created by haas-install.sh rather than per-machine through Create
-// Share — neither is kept in the delete list for the same reason.
+// [machines] is the appliance's own umbrella share (every machine's
+// subdirectory in one shared drive), created by haas-install.sh rather
+// than per-machine through Create Share, so it's kept out of the delete
+// list. "haas" stays excluded too, defensively — haas-install.sh no
+// longer creates a [Haas] share (removed: it exposed the whole repo root,
+// including scripts, to every HaasGroup member, not just admins), but an
+// appliance installed before that change may still have one until it's
+// manually removed via Edit smb.conf.
 function populateSharesList() {
     sharesList.innerHTML = "<option value=\"\">— loading... —</option>";
     sharesList.classList.remove("hidden");
@@ -813,7 +818,7 @@ sharesList.addEventListener("change", function() {
 
 // Scoped to HaasGroup members, excluding "haas" itself (the appliance's own
 // admin/service account) — the same "don't offer to delete the thing that
-// runs everything" exclusion already used for the [Haas] share above.
+// runs everything" exclusion already used for the [machines] share above.
 function populateUsersList() {
     usersList.innerHTML = "<option value=\"\">— loading... —</option>";
     usersList.classList.remove("hidden");

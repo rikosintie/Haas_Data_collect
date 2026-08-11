@@ -50,7 +50,13 @@ can live anywhere.
 - Hardens SSH (`/etc/ssh/sshd_config.d/99-haas-hardening.conf`) and installs
   the pre-login banner.
 - Installs Samba, creates the `haas` user and `HaasGroup`, and sets up the
-  `[Haas]` share with SMBv2/SMBv3-only, NetBIOS/printing disabled.
+  `[machines]` share (one shared drive exposing every machine's
+  subdirectory) with SMBv2/SMBv3-only, NetBIOS/printing disabled. The repo
+  root itself is not shared over Samba — only reachable over SSH — so
+  scripts and config aren't exposed to every Samba account. Per-machine
+  shares (recommended if you want tighter segmentation than `[machines]`
+  gives you) are created individually via Manage Samba's Create Share
+  button.
 - Creates any additional Samba accounts listed in `initial_users.csv`.
 - Installs Cockpit (web UI, port 9090) plus three custom extensions:
   - `haas-firewall` — firewall control
@@ -71,32 +77,33 @@ can live anywhere.
 1. Open **Explorer**.
 2. Click **This PC** in the sidebar, right-click **This PC**, and select **Map network drive...**
 3. Choose an available drive letter.
-4. In the **Folder** field, enter: `\\<appliance-ip>\Haas`
+4. In the **Folder** field, enter: `\\<appliance-ip>\machines` (or a
+   specific per-machine share name if one was created via Create Share)
 5. Check **Connect using different credentials** (and check **Reconnect at sign-in** if you want it persistent).
 6. Click **Finish**, then enter your Samba username and password when prompted.
 7. *Optional (Terminal):* To map it from the terminal to drive `Z:`, run:
 
     ```cmd
-    net use Z: \\<appliance_IP>\Haas /user:<username> <password> /persistent:yes
+    net use Z: \\<appliance_IP>\machines /user:<username> <password> /persistent:yes
     ```
 
 ### Mac
 
 1. Open **Finder**.
 2. Press `Cmd + K` (or select **Go > Connect to Server...** in the menu bar).
-3. In the **Server Address** field, enter: `smb://<appliance-ip>/Haas`
+3. In the **Server Address** field, enter: `smb://<appliance-ip>/machines`
 4. Click **Connect**.
 5. Select **Registered User**, enter your Samba username and password, then click **Connect**.
 
 !!! info "Auto-connect on Boot"
-    To make it auto-connect on boot, go to **System Settings > General > Login Items**, click the **+** button, and select the mounted `Haas` volume from your desktop or Finder sidebar.
+    To make it auto-connect on boot, go to **System Settings > General > Login Items**, click the **+** button, and select the mounted `machines` volume from your desktop or Finder sidebar.
 
 ### Linux
 
 1. Open your file manager (**Files** in Ubuntu).
 2. Click **Network** in the left sidebar.
 3. At the bottom of the window, locate the **Connect to Server** box.
-4. Type in the SMB URL: `smb://<appliance-ip>/Haas`
+4. Type in the SMB URL: `smb://<appliance-ip>/machines`
 5. Click **Connect** and select **Registered User**.
 6. Enter your credentials.
 7. Select one of the password options:
@@ -129,8 +136,8 @@ The Haas NGC runs an embedded Linux stack under the hood and natively supports S
 ---
 
 !!! warning "Common Gotchas on Haas NGC"
-    - **Case Sensitivity:** SMB share names can be picky depending on the NGC software release. Ensure `Haas` matches the exact capitalization defined in `smb.conf`.
-    - **Path Traversal:** Do not add slashes to the share name (use `Haas`, not `/Haas` or `\\<appliance-ip>\Haas`). The control appends the IP and slash automatically.
+    - **Case Sensitivity:** SMB share names can be picky depending on the NGC software release. Ensure the share name (e.g. `machines`) matches the exact capitalization defined in `smb.conf`.
+    - **Path Traversal:** Do not add slashes to the share name (use `machines`, not `/machines` or `\\<appliance-ip>\machines`). The control appends the IP and slash automatically.
     - **Network Speed / Delays:** If the control takes a long time to list directory contents when pressing **[LIST PROGRAM]**, double-check that your Samba server isn't attempting reverse DNS lookups on the control's IP (`hostname lookups = off` in `smb.conf`)
 ---
 
