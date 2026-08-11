@@ -288,7 +288,7 @@ ip route show
 
 ## Show the processor
 
-The Raspberry Pi uses `Advanced RISC Machine (ARM)` architecture vs the Intel x86 in your laptop. You can use the standard Linux command `List CPU - lscpu' to display the CPU in your device:
+The Raspberry Pi uses `Advanced RISC Machine (ARM)` architecture vs the Intel x86 in your laptop. You can use the standard Linux command `List CPU - lscpu` to display the CPU in your device:
 
 ```bash linenums='1' hl_lines='1'
 lscpu
@@ -453,7 +453,7 @@ The `$env:USERPROFILE\` expands out to your full user path.
 
 I had to use `-p 3333` because I had changed the port that is used for ssh.
 
-The message about `The authenticity of host can't be established is because the appliance has a set of ssh keys and it offered its key to the W11 box. If you logged in initially with a password you could run:
+The message about `The authenticity of host can't be established` is because the appliance has a set of ssh keys and it offered its key to the W11 box. If you logged in initially with a password you could run:
 
 ```bash hl_lines='1'
 ssh-keygen -l -f /etc/ssh/ssh_host_ed25519_key.pub
@@ -559,7 +559,7 @@ The message "Now try logging into the machine..." is because even though you see
 
 ----------------------------------------------------------------
 
-The message about `The authenticity of host can't be established is because the appliance has a set of ssh keys and it offered its key to the W11 box. If you logged in initially with a password you could run:
+The message about `The authenticity of host can't be established` is because the appliance has a set of ssh keys and it offered its key to the W11 box. If you logged in initially with a password you could run:
 
 ```bash hl_lines='1'
 ssh-keygen -l -f /etc/ssh/ssh_host_ed25519_key.pub

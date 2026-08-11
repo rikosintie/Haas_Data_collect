@@ -194,6 +194,7 @@ Interface:    eth0, via: LLDP, RID: 1, Time: 0 day, 00:24:38
 
 ```bash hl_lines='1'
 [lldpcli] $ show interfaces
+```
 
 ```bash title='Command Output'
 -------------------------------------------------------------------------------

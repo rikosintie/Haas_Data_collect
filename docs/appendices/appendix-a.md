@@ -231,7 +231,7 @@ If you are concerned about SSH security, I recommend switching to SSH keys after
 
 ### The ssh_port script
 
-The script must be run with `sudo` since it modifies `/ect/haas-firewall.conf` and /etc/ssh/sshd_config.d/99-haas-hardening.conf`. Use the following to run the script and set ssh to use port 3333:
+The script must be run with `sudo` since it modifies `/etc/haas-firewall.conf` and `/etc/ssh/sshd_config.d/99-haas-hardening.conf`. Use the following to run the script and set ssh to use port 3333:
 
 ```bash linenums='1' hl_lines='1'
 sudo ./ssh_port.sh
@@ -327,7 +327,7 @@ Status: active
 ----------------------------------------------------------------
 
 !!! Note
-        I have run this while connected to the appliance over ssh/port 22 and didn't get disconnected. But, it is possible that you will lose connectivity. If that happens reconnect using `ss -p 3333 haas@<ip_address>
+        I have run this while connected to the appliance over ssh/port 22 and didn't get disconnected. But, it is possible that you will lose connectivity. If that happens reconnect using `ssh -p 3333 haas@<ip_address>`
 
 ----------------------------------------------------------------
 
@@ -517,7 +517,7 @@ The Haas Data Collection Appliance applies SSH hardening using configuration dro
 
 `/etc/ssh/sshd_config.d/99-haas-hardening.conf`
 
-This provides protection during Operating System upgrades because the updater will now try to overwrite the files in cat /etc/ssh/sshd_config.d/`
+This provides protection during Operating System upgrades because the updater will now try to overwrite the files in `/etc/ssh/sshd_config.d/`
 
 ----------------------------------------------------------------
 

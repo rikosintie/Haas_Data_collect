@@ -214,7 +214,7 @@ Now you can create new users by running the following. Here I am creating the `r
 sudo ./setup_user.sh rgoodwin
 ```
 
-*How the script works**
+**How the script works**
 
 - You will be asked for your password to activate `sudo`.
 - You will be  asked for the password to use for the username.

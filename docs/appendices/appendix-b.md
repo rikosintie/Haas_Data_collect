@@ -191,7 +191,7 @@ You can think of it like:
 
 ### 2. Who owns what (user and group)
 
-To make permissions easy to reason about, everything under `Haas_Data_collect1 is set up like this:
+To make permissions easy to reason about, everything under `Haas_Data_collect` is set up like this:
 
 - Owner (user): haas
 - Group: HaasGroup

@@ -36,7 +36,7 @@ If you want to skip the details and dive right in, here is a [Shell Cheat sheet]
 
 ## Aliases
 
-You can type `haas-` and tap the `tab' key to get a list of the haas aliases for changing directories, listing key files and checking the state of the haas service files. These aliases are added during installation..
+You can type `haas-` and tap the `tab` key to get a list of the haas aliases for changing directories, listing key files and checking the state of the haas service files. These aliases are added during installation.
 
 ```bash
 haas- [tab]
@@ -335,7 +335,7 @@ t-ufwf example
 
 ### Path function
 
-This is an incredibly useful function! Sometimes a command just wont run or isn't found. You can use the `which` command to see where the executable is, then `path to see if the executable is in the path.
+This is an incredibly useful function! Sometimes a command just wont run or isn't found. You can use the `which` command to see where the executable is, then `path` to see if the executable is in the path.
 
 ```bash
 # "path" shows current path, one element per line.

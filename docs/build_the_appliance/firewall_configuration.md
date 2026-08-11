@@ -580,7 +580,7 @@ The compare argument is a nice feature if you need to change the firewall rules 
 
 ### The show rules option
 
-You can list the current firewall rules with the `--show-rules`` argument.
+You can list the current firewall rules with the `--show-rules` argument.
 
 ??? Info "Listing of firewall rules"
 
