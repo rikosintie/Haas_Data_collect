@@ -696,10 +696,10 @@ I don't like to disable IPv6 because it is the future. But your company security
 
 - Change to the to `/etc/netplan` directory using `cd /etc/netplan`
 - View the files in the directory using `l` (that is a lowercase elle, not an i). There should only be one `yaml` file in the directory.
-- Open it using `sudo fresh 50-cloud-init.yaml` or the filename on your appliance.
+- Open it using `sudo nano 50-cloud-init.yaml` or the filename on your appliance. (`fresh` isn't installed yet at this point in the walkthrough — it's one of the CLI tools `haas-install.sh` installs later, so `nano` is what you have available here.)
 
-```zsh
-sudo fresh  50-cloud-init.yaml
+```bash
+sudo nano 50-cloud-init.yaml
 ```
 
 Add the `dhcp6: false` and `accept-ra: false` entries:
@@ -722,7 +722,7 @@ network:
       regulatory-domain: "US"
 ```
 
-Save the file `ctrl+s`, close the file `ctrl+q`. Then reload netplan:
+Save the file `ctrl+s`, close the file `ctrl+x`. Then reload netplan:
 
 ```bash linenums='1' hl_lines='1'
 sudo netplan try
@@ -752,7 +752,47 @@ If there are no errors you will get the message to press ENTER to accept the new
 
 #### Apply the changes
 
-Now that the
+Now that you've pressed ENTER to keep the settings from `netplan try`, run
+`netplan apply` to make sure the configuration is fully committed (not just
+held until the next reboot):
+
+```bash linenums='1' hl_lines='1'
+sudo netplan apply
+```
+
+**There is no output from this command.** Verify the global IPv6 address is
+gone:
+
+```bash hl_lines='1'
+ip a show eth0
+```
+
+```unixconfig hl_lines="4" title='Command Output'
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+    link/ether 88:a2:9e:43:4d:de brd ff:ff:ff:ff:ff:ff
+    inet 192.168.10.137/24 metric 100 brd 192.168.10.255 scope global dynamic eth0
+       valid_lft 28463sec preferred_lft 28463sec
+    inet6 fe80::8aa2:9eff:fe43:4dde/64 scope link
+       valid_lft forever preferred_lft forever
+```
+
+!!! note "The link-local address never goes away"
+    Even with `dhcp6: false` and `accept-ra: false`, you'll still see an
+    `inet6 fe80::...` line — that's the link-local address, and Linux
+    assigns it automatically at the kernel level regardless of these
+    netplan settings. What those two settings actually prevent is the
+    appliance obtaining a *global* (routable) IPv6 address via DHCPv6 or
+    router advertisements. That's the part worth disabling: my reason for
+    doing this in the first place was that the appliance had picked up a
+    global IPv6 address that got published to DNS, but that address
+    didn't actually work for reaching Cockpit or SSH on the appliance —
+    so a client resolving the appliance's hostname would get an IPv6
+    address back and try that first, stall, and only fall back to IPv4
+    after a delay. Disabling global IPv6 address acquisition here stops
+    that AAAA record from ever existing to begin with. The link-local
+    address doesn't cause this problem — it's never published to DNS and
+    isn't reachable outside the local network segment, so leaving it in
+    place is harmless.
 
 ----------------------------------------------------------------
 
