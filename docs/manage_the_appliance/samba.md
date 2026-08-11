@@ -235,10 +235,9 @@ Service** on the Updates/Logs page: pick from a dropdown, confirm, done.
    Create Share), and only then writes the file and restarts `smbd`. If
    `testparm` rejects the result, nothing is saved or restarted.
 
-
 ----------------------------------------------------------------
 
-![screenshot](./img/delete-share-confirm.resized.png)
+![screenshot](./img/delete-share-confirm.png)
 
 ----------------------------------------------------------------
 
@@ -304,7 +303,7 @@ step is skipped for them.
 
 ----------------------------------------------------------------
 
-![screenshot](./img/admin-created-success.resized.png)
+![screenshot](./img/admin-created-success.png)
 
 ----------------------------------------------------------------
 
