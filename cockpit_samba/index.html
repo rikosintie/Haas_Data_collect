@@ -41,17 +41,6 @@
         </div>
     </div>
 
-    <details class="info-note hidden" id="verifyAdminNote">
-        <summary>&#8505;&#65039; Verify an Administrator account</summary>
-        <p>If you want to verify a newly created Administrator account, open the Cockpit <strong>Terminal</strong> page and run each of these (replace <code>&lt;username&gt;</code>):</p>
-        <pre>getent passwd &lt;username&gt;                                    # shell should be /bin/zsh, home /home/&lt;username&gt;
-groups &lt;username&gt;                                             # should include sudo and HaasGroup
-sudo -l -U &lt;username&gt;                                         # confirms sudo actually works
-sudo pdbedit -L -v &lt;username&gt; | grep "Account Flags"          # should show [U] (enabled), not [D]
-ls -la /home/&lt;username&gt;/.zshrc /home/&lt;username&gt;/.oh-my-zsh/custom/haas-aliases.zsh   # both owned &lt;username&gt;:&lt;username&gt;</pre>
-        <p>Then, logged in as that user (e.g. <code>ssh &lt;username&gt;@&lt;appliance_ip&gt;</code>), type <code>haas</code> and press Tab — it should list the full <code>haas-*</code>/<code>t-*</code> alias menu.</p>
-    </details>
-
     <select id="sharesList" class="hidden">
         <option value="">— select a share to delete —</option>
     </select>

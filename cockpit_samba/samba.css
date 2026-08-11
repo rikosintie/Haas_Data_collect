@@ -37,43 +37,6 @@ h1 {
     font-weight: bold;
 }
 
-/* Collapsed-by-default reference note — informational, not a warning, so
-   it gets its own neutral color rather than reusing .network-warning's
-   amber. */
-.info-note {
-    margin-bottom: 12px;
-    padding: 8px 12px;
-    background-color: #eef3f8;
-    border: 1px solid #b6cbe0;
-    border-radius: 4px;
-    color: #2c4a6b;
-    font-size: 0.9em;
-}
-
-.info-note summary {
-    cursor: pointer;
-    font-weight: bold;
-}
-
-.info-note pre {
-    font-family: monospace;
-    font-size: 0.85em;
-    background: #111;
-    color: #eee;
-    padding: 10px;
-    border-radius: 4px;
-    margin: 8px 0;
-    overflow-x: auto;
-    white-space: pre;
-}
-
-.info-note code {
-    background: #dbe6f0;
-    padding: 1px 4px;
-    border-radius: 3px;
-    color: #1a1a1a;
-}
-
 /* Grouped panels — same convention as cockpit_firewall's .section */
 .section {
     margin-bottom: 16px;

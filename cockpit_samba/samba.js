@@ -66,7 +66,6 @@ const displayUsersBtn       = document.getElementById("displayUsersBtn");
 const clearOutputBtn       = document.getElementById("clearOutputBtn");
 const displaySharesByUserBtn = document.getElementById("displaySharesByUserBtn");
 const usernameInput        = document.getElementById("usernameInput");
-const verifyAdminNote       = document.getElementById("verifyAdminNote");
 
 const createShareBtn    = document.getElementById("createShareBtn");
 const createShareForm   = document.getElementById("createShareForm");
@@ -381,6 +380,104 @@ function showValidationError(errText, modeLabel) {
     unlockEditMode();
 }
 
+// ── Verify Administrator account ────────────────────────────────────────────
+
+// Replaces the old collapsed "Verify an Administrator account" reference
+// note (which just told the admin which commands to run by hand in the
+// Terminal) — running these same five checks automatically right after
+// zsh setup and reporting PASS/FAIL is a direct answer to "did this
+// actually work", instead of leaving that to a manual, easy-to-skip
+// follow-up step. $1 is the username; each check is self-contained so one
+// failing check doesn't prevent the others from running.
+function verifyAdminAccount(username) {
+    var script = [
+        'USERNAME="$1"',
+        'pass=0; fail=0',
+        'check() {',
+        '    if [ "$2" = "true" ]; then echo "PASS|$1|$3"; pass=$((pass+1));',
+        '    else echo "FAIL|$1|$3"; fail=$((fail+1)); fi',
+        '}',
+        '',
+        'shell=$(getent passwd "$USERNAME" | cut -d: -f7)',
+        'home=$(getent passwd "$USERNAME" | cut -d: -f6)',
+        'if [ "$(basename "$shell")" = "zsh" ] && [ "$home" = "/home/$USERNAME" ]; then',
+        '    check "Shell is zsh, home is /home/$USERNAME" true "shell=$shell home=$home"',
+        'else',
+        '    check "Shell is zsh, home is /home/$USERNAME" false "shell=$shell home=$home"',
+        'fi',
+        '',
+        'grp_out=$(groups "$USERNAME" 2>&1)',
+        'if echo "$grp_out" | grep -qw sudo && echo "$grp_out" | grep -qw HaasGroup; then',
+        '    check "Member of sudo and HaasGroup" true "$grp_out"',
+        'else',
+        '    check "Member of sudo and HaasGroup" false "$grp_out"',
+        'fi',
+        '',
+        'sudo_out=$(sudo -l -U "$USERNAME" 2>&1)',
+        'if echo "$sudo_out" | grep -qi "not allowed to run sudo"; then',
+        '    check "sudo access works" false "$sudo_out"',
+        'else',
+        '    check "sudo access works" true "$sudo_out"',
+        'fi',
+        '',
+        'flags_line=$(sudo pdbedit -L -v "$USERNAME" 2>/dev/null | grep "Account Flags")',
+        'if echo "$flags_line" | grep -q "\\[U"; then',
+        '    check "Samba account enabled" true "$flags_line"',
+        'else',
+        '    check "Samba account enabled" false "${flags_line:-Account Flags line not found}"',
+        'fi',
+        '',
+        'zshrc="/home/$USERNAME/.zshrc"',
+        'aliasfile="/home/$USERNAME/.oh-my-zsh/custom/haas-aliases.zsh"',
+        'zshrc_owner=$(stat -c "%U:%G" "$zshrc" 2>/dev/null)',
+        'aliasfile_owner=$(stat -c "%U:%G" "$aliasfile" 2>/dev/null)',
+        'expected="$USERNAME:$USERNAME"',
+        'if [ -f "$zshrc" ] && [ -f "$aliasfile" ] && [ "$zshrc_owner" = "$expected" ] && [ "$aliasfile_owner" = "$expected" ]; then',
+        '    check "zsh config files present, correctly owned" true ".zshrc ($zshrc_owner), haas-aliases.zsh ($aliasfile_owner)"',
+        'else',
+        '    check "zsh config files present, correctly owned" false ".zshrc owner=$zshrc_owner haas-aliases.zsh owner=$aliasfile_owner"',
+        'fi',
+        '',
+        'echo "SUMMARY|$pass|$fail"'
+    ].join('\n');
+
+    output.innerHTML += "\n<span class=\"info\">--- Verifying Administrator account: " +
+        escapeHtml(username) + " ---</span>\n";
+    output.scrollTop = output.scrollHeight;
+
+    cockpit.spawn(["bash", "-c", script, "--", username], { superuser: "require", err: "message" })
+        .then(function(result) {
+            var lines = (result || "").trim() ? result.trim().split("\n") : [];
+            var html = "";
+            var checkPass = 0, checkFail = 0;
+
+            lines.forEach(function(line) {
+                var parts = line.split("|");
+                if (parts[0] === "PASS") {
+                    html += "<span class=\"success\">✅ " + escapeHtml(parts[1]) + "</span> — " + escapeHtml(parts[2] || "") + "\n";
+                } else if (parts[0] === "FAIL") {
+                    html += "<span class=\"error\">❌ " + escapeHtml(parts[1]) + "</span> — " + escapeHtml(parts[2] || "") + "\n";
+                } else if (parts[0] === "SUMMARY") {
+                    checkPass = parseInt(parts[1], 10) || 0;
+                    checkFail = parseInt(parts[2], 10) || 0;
+                }
+            });
+
+            html += (checkFail === 0)
+                ? "\n<span class=\"success\">All " + checkPass + " checks passed — \"" + escapeHtml(username) + "\" is fully configured.</span>\n"
+                : "\n<span class=\"error\">" + checkFail + " of " + (checkPass + checkFail) + " checks failed — see above.</span>\n";
+
+            output.innerHTML += html;
+            output.scrollTop = output.scrollHeight;
+            unlockNormal();
+        })
+        .catch(function(ex) {
+            output.innerHTML += "<span class=\"error\">ERROR running verification checks: " +
+                escapeHtml((ex && ex.message) || JSON.stringify(ex)) + "</span>\n";
+            unlockNormal();
+        });
+}
+
 saveRestartBtn.addEventListener("click", function() {
     if (creatingUser) {
         var username = newUsername.value.trim().toLowerCase();
@@ -440,7 +537,6 @@ saveRestartBtn.addEventListener("click", function() {
             })
             .done(function() {
                 output.textContent += "\n[SUCCESS] User \"" + username + "\" created.\n";
-                refreshAdminNoteVisibility();
 
                 if (role === "admin") {
                     output.textContent += "\nSetting up zsh, Oh My Zsh, and haas-aliases for \"" + username +
@@ -454,7 +550,7 @@ saveRestartBtn.addEventListener("click", function() {
                         })
                         .done(function() {
                             output.textContent += "\n[SUCCESS] zsh environment configured for \"" + username + "\".\n";
-                            unlockNormal();
+                            verifyAdminAccount(username);
                         })
                         .fail(function(ex, data) {
                             output.textContent += "\n[WARNING] User \"" + username + "\" was created, but zsh setup " +
@@ -781,7 +877,6 @@ usersList.addEventListener("change", function() {
         .done(function() {
             usersList.classList.add("hidden");
             output.textContent += "\n[SUCCESS] User \"" + username + "\" deleted.\n";
-            refreshAdminNoteVisibility();
             unlockNormal();
         })
         .fail(function(ex, data) {
@@ -1070,28 +1165,6 @@ displayUsersBtn.addEventListener("click", function() {
             unlockNormal();
         });
 });
-
-// ── Verify Administrator note visibility ─────────────────────────────────────
-
-// The note only means something once an Administrator account exists (role
-// "admin" == sudo group membership, per manage_users.sh's --admin-user).
-// Checked against actual current state — not a flag set at Create User time
-// — so it stays correct across page reloads and after Delete User removes
-// the last admin, not just within one browser session.
-function refreshAdminNoteVisibility() {
-    cockpit.spawn(
-        ["bash", "-c", "getent group sudo | cut -d: -f4 | tr ',' '\\n' | grep -v '^haas$' | grep -v '^$'"],
-        { superuser: "require", err: "message" }
-    )
-        .then(function(data) {
-            verifyAdminNote.classList.toggle("hidden", !(data || "").trim());
-        })
-        .catch(function() {
-            // Leave current visibility as-is on error.
-        });
-}
-
-refreshAdminNoteVisibility();
 
 // ── Clear Output ──────────────────────────────────────────────────────────────
 

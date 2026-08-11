@@ -282,28 +282,23 @@ output panel shows the exact command to re-run manually. **Standard
 user** accounts get `/usr/sbin/nologin` and never have a shell, so this
 step is skipped for them.
 
-!!! tip "Verify an Administrator account"
-    The Manage Samba page has a collapsed **&#8505;&#65039; Verify an Administrator
-    account** note below the two button panels, with the same checklist.
-    It stays hidden until at least one Administrator account actually
-    exists on the appliance (checked via `sudo` group membership, and
-    re-checked automatically right after Create User / Delete User), so it
-    doesn't clutter the page on an appliance that only has Samba-only
-    machine accounts. If you want to confirm a new Administrator account
-    end-to-end, open the Cockpit **Terminal** page and run each of these
-    (replace `<username>`):
+!!! tip "Administrator accounts are verified automatically"
+    Right after that zsh setup finishes (success or failure doesn't
+    matter — a nologin/no-shell **Standard user** never runs any of this),
+    the panel automatically re-checks the new account end-to-end and
+    prints a PASS/FAIL line for each of five checks directly in the output
+    panel:
 
-    ```bash
-    getent passwd <username>                                    # shell should be /bin/zsh, home /home/<username>
-    groups <username>                                           # should include sudo and HaasGroup
-    sudo -l -U <username>                                       # confirms sudo actually works
-    sudo pdbedit -L -v <username> | grep "Account Flags"        # should show [U] (enabled), not [D]
-    ls -la /home/<username>/.zshrc /home/<username>/.oh-my-zsh/custom/haas-aliases.zsh   # both owned <username>:<username>
-    ```
+    - Shell is `zsh` and home directory is `/home/<username>`
+    - Member of both `sudo` and `HaasGroup`
+    - `sudo -l -U <username>` doesn't report "not allowed to run sudo"
+    - The Samba account's flags show `[U]` (enabled), not `[D]`
+    - `.zshrc` and `.oh-my-zsh/custom/haas-aliases.zsh` both exist and are
+      owned by `<username>:<username>`
 
-    Then, logged in as that user (e.g. `ssh <username>@<appliance_ip>`),
-    type `haas` and press Tab — it should list the full `haas-*`/`t-*`
-    alias menu.
+    Each check runs independently, so one failure doesn't stop the rest
+    from reporting — there's no need to open a Terminal and run these by
+    hand anymore.
 
 !!! note "This is a separate system from firewall access"
     `users.csv`/**Apply Firewall Changes** control *network* access — which
