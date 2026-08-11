@@ -2,8 +2,8 @@
 
 flowchart LR
 
-    classDef stage3 fill:#fce4ec,stroke:#d81b60,stroke-width:1px,color:#880e4f;
-    classDef terminal fill:#eeeeee,stroke:#424242,color:#212121;
+    classDef stage3 fill:#fce4ec,stroke:#d81b60,stroke-width:1px,color:#880e4f !important;
+    classDef terminal fill:#eeeeee,stroke:#424242,color:#212121 !important;
 
     A([From Stage 2]) --> B{3. Drive mapping fails?}
     class A,B stage3
@@ -31,8 +31,8 @@ flowchart LR
 flowchart LR
 
     %% Styles
-    classDef stage3 fill:#fce4ec,stroke:#d81b60,stroke-width:1px,color:#880e4f;
-    classDef terminal fill:#eeeeee,stroke:#424242,color:#212121,stroke-width:1px;
+    classDef stage3 fill:#fce4ec,stroke:#d81b60,stroke-width:1px,color:#880e4f !important;
+    classDef terminal fill:#eeeeee,stroke:#424242,color:#212121,stroke-width:1px !important;
 
     %% Stage 3 Entry
     A([➡ From Stage 2]) --> D{3. Drive mapping fails?}

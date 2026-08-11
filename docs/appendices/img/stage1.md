@@ -1,8 +1,8 @@
 ```mermaid
 flowchart LR
 
-    classDef stage1 fill:#e3f2fd,stroke:#1e88e5,stroke-width:1px,color:#0d47a1;
-    classDef terminal fill:#eeeeee,stroke:#424242,color:#212121;
+    classDef stage1 fill:#e3f2fd,stroke:#1e88e5,stroke-width:1px,color:#0d47a1 !important;
+    classDef terminal fill:#eeeeee,stroke:#424242,color:#212121 !important;
 
     A([Start]) --> B{1. Can workstation ping appliance?}
     class A,B stage1
@@ -33,8 +33,8 @@ flowchart LR
 flowchart LR
 
     %% Styles
-    classDef stage1 fill:#e3f2fd,stroke:#1e88e5,stroke-width:1px,color:#0d47a1;
-    classDef terminal fill:#eeeeee,stroke:#424242,color:#212121,stroke-width:1px;
+    classDef stage1 fill:#e3f2fd,stroke:#1e88e5,stroke-width:1px,color:#0d47a1 !important;
+    classDef terminal fill:#eeeeee,stroke:#424242,color:#212121,stroke-width:1px !important;
 
     %% Stage 1 Entry
     A([🟢 0. Start: SMB Issue Reported]) --> B{1. Port 445 reachable?}

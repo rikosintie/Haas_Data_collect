@@ -2,8 +2,8 @@
 
 flowchart LR
 
-    classDef stage2 fill:#e8f5e9,stroke:#43a047,stroke-width:1px,color:#1b5e20;
-    classDef terminal fill:#eeeeee,stroke:#424242,color:#212121;
+    classDef stage2 fill:#e8f5e9,stroke:#43a047,stroke-width:1px,color:#1b5e20 !important;
+    classDef terminal fill:#eeeeee,stroke:#424242,color:#212121 !important;
 
     A([From Stage 1]) --> B{2. Can workstation list SMB shares?}
     class A,B stage2
@@ -27,8 +27,8 @@ flowchart LR
 flowchart LR
 
     %% Styles
-    classDef stage2 fill:#e8f5e9,stroke:#43a047,stroke-width:1px,color:#1b5e20;
-    classDef terminal fill:#eeeeee,stroke:#424242,color:#212121,stroke-width:1px;
+    classDef stage2 fill:#e8f5e9,stroke:#43a047,stroke-width:1px,color:#1b5e20 !important;
+    classDef terminal fill:#eeeeee,stroke:#424242,color:#212121,stroke-width:1px !important;
 
     %% Stage 2 Entry
     A([➡ From Stage 1]) --> C{2. Can workstation list SMB shares?}
