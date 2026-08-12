@@ -540,7 +540,7 @@ cat manage_users.sh
 
 ## Troubleshooting
 
-Samba includes a utility called `testparm` that reads the `/etc/samba/smb.conf` file. The `-s` argument reads the file  and reports any errors at the top of the output. It displays the entire smb/conf file so you will have to scroll up to see any errors.
+Samba includes a utility called `testparm` that reads the `/etc/samba/smb.conf` file. The `-s` argument reads the file and reports any errors at the top of the output. It displays the entire smb/conf file so you will have to scroll up to see any errors.
 
 ```bash hl_lines='1'
 testparm -s
@@ -572,20 +572,30 @@ Server role: ROLE_STANDALONE
     idmap config * : backend = tdb
     printing = bsd
 
-
-[Haas]
-    comment = Haas Data Collection Share
-    create mask = 0664
+[machines]
+    comment = File Share for all machines
+    path = /home/haas/Haas_Data_collect/machines
 ```
+
+----------------------------------------------------------------
+
+!!! note
+    `testparm -s` only shows non-default entries. To see all smb.conf entries use `testparm -v`
+
+----------------------------------------------------------------
 
 ```bash title='Review the Journal for user haassvc' hl_lines='1'
 id haas
 sudo journalctl -u smbd.service -n 50 --no-pager
 ```
 
-```bash
+----------------------------------------------------------------
+
+```bash title='Command Output'
 uid=1000(haas) gid=1003(haas) groups=1003(haas),4(adm),20(dialout),24(cdrom),27(sudo),29(audio),44(video),46(plugdev),60(games),100(users),995(input),992(render),107(netdev),1000(gpio),1001(spi),1002(i2c),1004(HaasGroup)
 ```
+
+----------------------------------------------------------------
 
 ```bash
 smbclient -L //localhost/Haas -U haas
@@ -604,6 +614,8 @@ Password for [WORKGROUP\haas]:
 SMB1 disabled -- no workgroup available
 ```
 
+----------------------------------------------------------------
+
 List only shares:
 
 ```bash
@@ -615,6 +627,8 @@ Service      pid     Machine       Connected at                     Encryption  
 ---------------------------------------------------------------------------------------------
 Haas         531619  192.168.10.113 Tue Mar 24 16:38:21 2026 PDT
 ```
+
+----------------------------------------------------------------
 
 List `locked files`
 
@@ -631,6 +645,8 @@ Pid          User(ID)   DenyMode   Access      R/W        Oplock           Share
 531619       1000       DENY_NONE  0x100081    RDONLY     NONE             /home/haas/Haas_Data_collect   .   Tue Mar 24 16:38:27 2026
 531619       1000       DENY_NONE  0x100081    RDONLY     NONE             /home/haas/Haas_Data_collect   .   Tue Mar 24 16:38:27 2026
 ```
+
+----------------------------------------------------------------
 
 Managing Locked Files
 If a file is inappropriately locked (e.g., a client disconnected improperly), you can identify the process and kill it:
