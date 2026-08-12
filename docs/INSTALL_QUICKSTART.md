@@ -138,7 +138,7 @@ The Haas NGC runs an embedded Linux stack under the hood and natively supports S
 !!! warning "Common Gotchas on Haas NGC"
     - **Case Sensitivity:** SMB share names can be picky depending on the NGC software release. Ensure the share name (e.g. `machines`) matches the exact capitalization defined in `smb.conf`.
     - **Path Traversal:** Do not add slashes to the share name (use `machines`, not `/machines` or `\\<appliance-ip>\machines`). The control appends the IP and slash automatically.
-    - **Network Speed / Delays:** If the control takes a long time to list directory contents when pressing **[LIST PROGRAM]**, double-check that your Samba server isn't attempting reverse DNS lookups on the control's IP (`hostname lookups = off` in `smb.conf`)
+    - **Network Speed / Delays:** `haas-install.sh` sets `hostname lookups = No` in `smb.conf` by default, since machine tools are essentially never in DNS on a real shop network — without it, every connection triggers a reverse DNS lookup that times out and makes **[LIST PROGRAM]** noticeably slow. If you hand-edited `smb.conf` (or restored an older backup) and see this slowness again, verify that setting is still present under `[global]`.
 ---
 
 - A full summary (paths, current UFW rules, zoxide entries) is printed at the very end. Save the onscreen summary before you close the SSH session, since the terminal output itself is gone once you disconnect. The `haas-install-summary.txt` file is saved to `repo_dir>/haas-install-summary.txt`. The  `haas-install-summary.txt` file is permanent.

@@ -886,6 +886,14 @@ id "haas"
     # bind interfaces only = Yes
     socket options = TCP_NODELAY IPTOS_LOWDELAY
 
+    # Machine tools are essentially never in DNS on a real shop network (and
+    # IT typically won't add them even if asked) — without this, Samba
+    # attempts a reverse DNS lookup on every connecting client, which times
+    # out and makes LIST PROGRAM on the Haas control noticeably slow. This
+    # isn't a rare edge case, so it's a default rather than a documented
+    # workaround.
+    hostname lookups = No
+
     # Disable unused services
     disable netbios = Yes
     disable spoolss = Yes

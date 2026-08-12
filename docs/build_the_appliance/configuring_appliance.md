@@ -852,6 +852,7 @@ Key changes:
 
     # Performance
     socket options = TCP_NODELAY IPTOS_LOWDELAY
+    hostname lookups = No
 
 [machines]
     comment = File Share for all machines
