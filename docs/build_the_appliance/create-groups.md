@@ -643,6 +643,9 @@ Service      pid     Machine       Connected at                     Encryption  
 machines     1904676 192.168.10.113 Tue Aug 11 17:44:13 2026 PDT     -            -
 ```
 
+!!! note
+    Under `machine` is `192.16810.113`. That is the IP address of the client connected to the share. In a real environment you should see a mapping for every Haas machine and any programmers/OPs personnel that have mapped drives.
+
 ----------------------------------------------------------------
 
 List `locked files`

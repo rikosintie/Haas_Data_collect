@@ -1087,20 +1087,26 @@ displaySharesByUserBtn.addEventListener("click", function() {
 
 // ── Display Users (Samba section + Linux section) ─────────────────────────────
 
-// Renders one heading + alternating-color list of plain strings — shared by
-// both sections below so the two blocks stay visually identical.
+// Renders one heading + alternating-color, numbered list of plain strings —
+// shared by all three sections below so they stay visually identical. Each
+// line is prefixed "N. " (right-justified so the dots line up once counts
+// hit double digits) specifically so an auditor can compare counts across
+// the three sections at a glance, rather than having to count entries by
+// hand — see the counts summary appended after all three sections too.
 function renderUserListSection(heading, lines) {
     var html = "<span class=\"info\">" + escapeHtml(heading) + "</span>\n";
     if (lines.length === 0) {
         html += "(none found)\n";
     } else {
+        var numWidth = String(lines.length).length;
         html += lines.map(function(line, i) {
+            var numbered = (i + 1).toString().padStart(numWidth) + ". " + line;
             // Alternating row coloring: 1st/3rd/... rows default white,
             // 2nd/4th/... rows blue (.info) — makes a long list easier to
             // scan line-by-line.
             return (i % 2 === 1)
-                ? "<span class=\"info\">" + escapeHtml(line) + "</span>"
-                : escapeHtml(line);
+                ? "<span class=\"info\">" + escapeHtml(numbered) + "</span>"
+                : escapeHtml(numbered);
         }).join("\n") + "\n";
     }
     return html;
@@ -1151,11 +1157,22 @@ displayUsersBtn.addEventListener("click", function() {
                 });
                 var nologinLines = nologinUsers.map(function(u) { return u.name; });
 
+                // Counts summary — an auditor comparing this output to
+                // Cockpit's own Accounts page (which only lists accounts
+                // with a home directory) needs the totals spelled out, not
+                // just three lists to count by hand.
+                var summary = "-".repeat(60) + "\n" +
+                    "<span class=\"info\">Totals:</span>\n" +
+                    "Samba Users: " + sambaUsers.length + "\n" +
+                    "Linux Users (with home directory): " + loginLines.length + "\n" +
+                    "Linux Users (no home directory): " + nologinLines.length;
+
                 var html = renderUserListSection("--- Samba Users ---", sambaUsers) +
                     "\n" +
                     renderUserListSection("--- Linux Users (login-capable, with a home directory) ---", loginLines) +
                     "\n" +
-                    renderUserListSection("--- Linux Users (no home directory, Samba share only) ---", nologinLines);
+                    renderUserListSection("--- Linux Users (no home directory, Samba share only) ---", nologinLines) +
+                    "\n" + summary;
 
                 output.innerHTML = html;
                 unlockNormal();
