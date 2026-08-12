@@ -254,6 +254,22 @@ Service** on the Updates/Logs page: pick from a dropdown, confirm, done.
 
 ----------------------------------------------------------------
 
+## Users
+
+This button presents all users in the display panel. There are three sections:
+
+- Samba users
+- Linux Users with home directories (Administrator role)
+- Linux users without home directories (user role)
+
+Each section is sorted alphabetically and each user is numbered. After all users are displayed a summary is generated so that any orphaned users will obvious. A user could be orphaned is an Administrator deleted an account manually in the terminal.
+
+----------------------------------------------------------------
+
+![screenshot](./img/users.png)
+
+----------------------------------------------------------------
+
 ## Create User
 
 Creates a Linux + Samba account by running `manage_users.sh` (the same
@@ -275,13 +291,26 @@ by hand.
     | Password | Set for both the Linux account and the Samba account |
     | Confirm Password | Must match exactly |
 
-3. Click **Create User**. A confirmation dialog names the username and
+----------------------------------------------------------------
+
+![screenshot](./img/create-user.resized.png)
+
+----------------------------------------------------------------
+
+3\. Click **Create User**. A confirmation dialog names the username and
    role before anything runs. Confirming runs
    `manage_users.sh <username> --set-password --force` (plus
    `--admin-user` for the Administrator role), with the password you
    entered piped to the script's own interactive prompts — the output
    panel shows the script's full log as it runs.
-4. Click **Clear Output** instead to discard the form and cancel.
+
+----------------------------------------------------------------
+
+![screenshot](./img/creaet-user-confirm.png)
+
+----------------------------------------------------------------
+
+4\. Click **Clear Output** instead to discard the form and cancel.
 
 For the **Administrator** role, once the account itself is created the
 panel automatically runs `setup_zsh.sh <repo_dir> <username>` for the new
