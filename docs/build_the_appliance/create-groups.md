@@ -584,29 +584,44 @@ Server role: ROLE_STANDALONE
 
 ----------------------------------------------------------------
 
-```bash title='Review the Journal for user haassvc' hl_lines='1'
+```bash title='Review the haas user attributes' hl_lines='1'
 id haas
-sudo journalctl -u smbd.service -n 50 --no-pager
 ```
 
-----------------------------------------------------------------
-
-```bash title='Command Output'
+```bash title='id command Output'
 uid=1000(haas) gid=1003(haas) groups=1003(haas),4(adm),20(dialout),24(cdrom),27(sudo),29(audio),44(video),46(plugdev),60(games),100(users),995(input),992(render),107(netdev),1000(gpio),1001(spi),1002(i2c),1004(HaasGroup)
 ```
 
 ----------------------------------------------------------------
 
+```bash title='Review the Journal for the Samba service' hl_lines='1'
+sudo journalctl -u smbd.service -n 50 --no-pager
+```
+
+```bash title='Journal command Output'
+sudo journalctl -u smbd.service -n 10 --no-pager                                                                                          [17:55:21]
+Aug 11 17:32:32 haas systemd[1]: Stopping smbd.service - Samba SMB Daemon...
+Aug 11 17:32:32 haas systemd[1]: smbd.service: Deactivated successfully.
+Aug 11 17:32:32 haas systemd[1]: Stopped smbd.service - Samba SMB Daemon.
+Aug 11 17:32:32 haas systemd[1]: Starting smbd.service - Samba SMB Daemon...
+Aug 11 17:32:32 haas systemd[1]: Started smbd.service - Samba SMB Daemon.
+```
+
+----------------------------------------------------------------
+
+List Samba shares
+
 ```bash
 smbclient -L //localhost/Haas -U haas
 ```
 
-```bash title='Command Output'
+```bash title='smbclient command Output'
 Password for [WORKGROUP\haas]:
 
     Sharename       Type      Comment
     ---------       ----      -------
     Haas            Disk      Haas Data Collection Share
+    machines        Disk      File Share for all machines
     st40            Disk      Logger for ST40
     st30            Disk      Logger for ST30
     st30l           Disk      Logger for ST30L
@@ -616,7 +631,7 @@ SMB1 disabled -- no workgroup available
 
 ----------------------------------------------------------------
 
-List only shares:
+List only shares with a drive mapped to it:
 
 ```bash
 sudo smbstatus -S
@@ -625,7 +640,7 @@ sudo smbstatus -S
 ```bash title='Command Output'
 Service      pid     Machine       Connected at                     Encryption   Signing
 ---------------------------------------------------------------------------------------------
-Haas         531619  192.168.10.113 Tue Mar 24 16:38:21 2026 PDT
+machines     1904676 192.168.10.113 Tue Aug 11 17:44:13 2026 PDT     -            -
 ```
 
 ----------------------------------------------------------------
