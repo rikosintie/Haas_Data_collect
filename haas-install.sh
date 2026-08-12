@@ -917,6 +917,21 @@ id "haas"
     force directory mode = 0775
 EOF
 
+    # Ubuntu/Debian's smbd.service unit references $SMBDOPTIONS (and
+    # nmbd.service references $NMBDOPTIONS) without a default, so if
+    # /etc/default/samba doesn't explicitly define them, every start/restart
+    # logs a harmless but alarming-looking journal warning: "Referenced but
+    # unset environment variable evaluates to an empty string: SMBDOPTIONS".
+    # This is a known packaging bug (Debian #1073969), not anything specific
+    # to this appliance's config — defining them here as empty is the
+    # standard fix: the variable becomes set-but-empty instead of unset, and
+    # the warning stops appearing (e.g. every time Manage Samba's
+    # Save & Restart runs).
+    sudo tee /etc/default/samba > /dev/null <<EOF
+SMBDOPTIONS=""
+NMBDOPTIONS=""
+EOF
+
     # Test the configuration
     if sudo testparm -s /etc/samba/smb.conf > /dev/null 2>&1; then
         echo ""

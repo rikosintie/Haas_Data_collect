@@ -145,6 +145,19 @@ In this example, I'm checking on user `thubbard`:
     *syntax* errors; it can't tell you whether a share definition actually
     does what you intend.
 
+!!! note "\"Referenced but unset environment variable...SMBDOPTIONS\" in the log"
+    If `systemctl status smbd`'s output (or the system journal) shows a line
+    like `smbd.service: Referenced but unset environment variable evaluates
+    to an empty string: SMBDOPTIONS`, that's harmless — it's a known
+    Debian/Ubuntu Samba packaging quirk
+    ([Debian #1073969](https://bugs-devel.debian.org/1073969)), not a real
+    error, and it doesn't affect Samba working correctly.
+    `haas-install.sh` writes `/etc/default/samba` with `SMBDOPTIONS=""` on
+    install specifically to prevent it from appearing at all; you'd only
+    see it on an appliance that predates that fix, or if `/etc/default/samba`
+    was manually removed. Add `SMBDOPTIONS=""` (and `NMBDOPTIONS=""`) to
+    that file and restart `smbd` to make it stop for good.
+
 ## Create Share
 
 Adds a new share stanza to `smb.conf` without hand-editing the file — the
