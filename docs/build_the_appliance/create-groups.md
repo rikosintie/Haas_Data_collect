@@ -113,7 +113,7 @@ drwxrwsr-- 9 haas HaasGroup 4096 Mar 24 15:30 Haas_Data_collect
 
 ```
 
-Now the account `haas` has `rwx` (read/write/execute) and and the group `HaasGroup` has `rws` (read\write\setgid) to directories. The `other` group has `r--` (read only). Files will have rw-, read/write.
+Now the account `haas` has `rwx` (read/write/execute) and the group `HaasGroup` has `rws` (read\write\setgid) to directories. The `other` group has `r--` (read only). Files will have rw-, read/write.
 
 The bash scripts in Haas_Data_collect:
 

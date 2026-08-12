@@ -112,7 +112,7 @@ virtual machine you will use the ISO image that you downloaded.
 ----------------------------------------------------------------
 
 !!! Note
-    From here on out the steps apply whether you installing on an Raspberry Pi 5 or an Intel based devices.
+    From here on out the steps apply whether you're installing on a Raspberry Pi 5 or an Intel based device.
 
 ----------------------------------------------------------------
 
@@ -314,7 +314,7 @@ Vendor ID:                ARM
     BogoMIPS:             108.00
 ```
 
-In this example I ran it on an Raspberry Pi 5.
+In this example I ran it on a Raspberry Pi 5.
 
 ----------------------------------------------------------------
 

@@ -507,7 +507,7 @@ When changing SSH ports or authentication settings, always apply changes in this
 1. Log into a second session before starting the change
 2. Update the ssh configuration files (run `./ssh_port.sh`)
 3. update the firewall rules (`sudo /usr/local/sbin/configure_ufw_from_csv.sh` )
-4. Verify new access from a another session
+4. Verify new access from another session
 
 This staged approach prevents administrative lockout.
 

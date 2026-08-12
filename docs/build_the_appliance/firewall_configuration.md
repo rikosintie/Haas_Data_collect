@@ -190,7 +190,7 @@ successful apply, so a deliberate manual apply resets the 4-hour
 countdown too, not just the timer's own scheduled runs.
 
 !!! Note
-    If you make a change to to the `csv` file and don't want to reboot or wait until the timer goes off you can run:
+    If you make a change to the `csv` file and don't want to reboot or wait until the timer goes off you can run:
 
     `sudo systemctl start haas-firewall.service`
 

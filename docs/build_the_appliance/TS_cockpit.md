@@ -116,7 +116,7 @@ this renderer mismatch never applies to it.
 Link Layer Discovery Protocol (LLDP) is an IEEE standard that comes installed on a majority of networking appliances. This appliance uses the [lldpd: implementation of IEEE 802.1ab (LLDP)](https://github.com/lldpd/lldpd) from GitHub. The tool is useful when you are connecting the appliance to a network and want to know what it is connected to over Ethernet or WiFI.
 
 !!! Note
-    lldpd also implements CDP (Cisco Discovery Protocol), FDP (Foundry Discovery Protocol), SONMP (Nortel Discovery Protocol) and EDP (Extreme Discovery Protocol). However, recent versions of IOS should support LLDP and most Extreme stuff support LLDP. When a EDP, CDP or SONMP frame is received on a given interface, lldpd starts sending EDP, CDP, FDP or SONMP frame on this interface. Information collected through EDP/CDP/FDP/SONMP are integrated with other information and can be queried with lldpcli or through SNMP.
+    lldpd also implements CDP (Cisco Discovery Protocol), FDP (Foundry Discovery Protocol), SONMP (Nortel Discovery Protocol) and EDP (Extreme Discovery Protocol). However, recent versions of IOS should support LLDP and most Extreme stuff support LLDP. When an EDP, CDP or SONMP frame is received on a given interface, lldpd starts sending EDP, CDP, FDP or SONMP frame on this interface. Information collected through EDP/CDP/FDP/SONMP are integrated with other information and can be queried with lldpcli or through SNMP.
 
 The `lldp` daemon has a lot of capabilities beyond just showing what the appliance is directly connected to. We are only going to use:
 

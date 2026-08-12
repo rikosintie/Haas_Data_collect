@@ -386,7 +386,7 @@ path sbin
 
 This script uses `mkdir -p` to create a directory, and if necessary, the parent path, then switches to the directory. THe function saves several steps when creating the CNC machine folders under the `machines` directory.
 
-You can switch to the `machines` folder, then use `mkd` as shown in teh example below.
+You can switch to the `machines` folder, then use `mkd` as shown in the example below.
 
 ```bash
 mkd() {

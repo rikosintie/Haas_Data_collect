@@ -91,7 +91,7 @@ drwxrwsr-x 2 haas HaasGroup 4096 Dec 26 21:37 vf2ss
 drwxrwsr-x 2 haas HaasGroup 4096 Dec 26 21:37 vf5ss
 ```
 
-Now the account `haas` has `rwx` (read/write/execute) and and the group `HaasGroup` has `rws` (read\write\setgid) to directories. The `other` group has `r--` (read only). Files will have rw-, read/write.
+Now the account `haas` has `rwx` (read/write/execute) and the group `HaasGroup` has `rws` (read\write\setgid) to directories. The `other` group has `r--` (read only). Files will have rw-, read/write.
 
 drwxrwsr-x 6 haas HaasGroup 4096 Jan  6 20:05 Haas_Data_collect
 

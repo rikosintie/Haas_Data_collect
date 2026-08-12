@@ -765,7 +765,7 @@ if sudo nala install samba -y; then
     echo ""
     sudo useradd -m -G HaasGroup haas 2>/dev/null || echo "User haas already exists"
 
-# Add hass user to Samba HaasGroup
+# Add haas user to Samba HaasGroup
 echo ""
 echo ""
 banner "${CYAN}Add haas user to Samba${RESET}"

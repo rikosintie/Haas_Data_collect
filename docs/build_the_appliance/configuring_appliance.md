@@ -682,7 +682,7 @@ Fill out as many rows as you need, save it in the root of the Haas_Data_collect 
 
 ----------------------------------------------------------------
 
-Here is a example:
+Here is an example:
 
 | description   -  | username | ip_address    |  name |
 |------------------|----------|---------------|-------|
