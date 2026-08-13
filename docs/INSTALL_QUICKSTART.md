@@ -50,16 +50,18 @@ sudo ./haas-install.sh
 - Installs Samba, creates the `haas` user and `HaasGroup`, and sets up the
   `[machines]` share (one shared drive exposing every machine's
   subdirectory) with SMBv2/SMBv3-only, NetBIOS/printing disabled. The repo
-  root itself is not shared over Samba — only reachable over SSH — so
-  scripts and config aren't exposed to every Samba account. Per-machine
+  root itself is not shared over Samba — only reachable over SSH or the
+  Cockpit terminal — so scripts and config aren't exposed to every Samba
+  account. Per-machine
   shares (recommended if you want tighter segmentation than `[machines]`
   gives you) are created individually via Manage Samba's Create Share
   button.
 - Creates any additional Samba accounts listed in `initial_users.csv`.
-- Installs Cockpit (web UI, port 9090) plus three custom extensions:
+- Installs Cockpit (web UI, port 9090) plus four custom extensions:
   - `haas-firewall` — firewall control
   - `haas-samba` — manage Samba shares/users
   - `haas-update-appliance` — view/trigger CLI tool updates
+  - `haas-python` — Python script services (CNC-logger management)
 - Installs CLI tools listed in `tools.yaml` (via `install-tools.sh` /
   `gh-updater.lib.sh`) — currently `csvlens`, `tspin`, `bat`, `fresh`,
   `superfile`, `zoxide` — and sets up zsh + Oh My Zsh for the `haas` user.
@@ -139,11 +141,10 @@ The Haas NGC runs an embedded Linux stack under the hood and natively supports S
 !!! warning "Common Gotchas on Haas NGC"
     - **Case Sensitivity:** SMB share names can be picky depending on the NGC software release. Ensure the share name (e.g. `machines`) matches the exact capitalization defined in `smb.conf`.
     - **Path Traversal:** Do not add slashes to the share name (use `machines`, not `/machines` or `\\<appliance-ip>\machines`). The control appends the IP and slash automatically.
-    - **Network Speed / Delays:** `haas-install.sh` sets `hostname lookups = No` in `smb.conf` by default, since machine tools are essentially never in DNS on a real shop network — without it, every connection triggers a reverse DNS lookup that times out and makes **[LIST PROGRAM]** noticeably slow. If you hand-edited `smb.conf` (or restored an older backup) and see this slowness again, verify that setting is still present under `[global]`.
+    - **Network Speed / Delays:** `haas-install.sh` sets `hostname lookups = No` in `smb.conf` by default, since machine tools are essentially never in DNS on a real shop network — without it, every connection triggers a reverse DNS lookup that times out and makes **[LIST PROGRAM]** noticeably slow. If you hand-edited `smb.conf` (or restored an older backup) and see this slowness again, confirm the *effective* setting with `testparm -v | grep -i "hostname lookups"` — it should print `No`. Don't use plain `testparm -s` to check this one: it only lists settings that differ from Samba's own compiled default, and `No` already *is* that default, so `-s` won't show it either way, whether it's genuinely set or not.
 ---
 
-- A full summary (paths, current UFW rules, zoxide entries) is printed at the very end. Save the onscreen summary before you close the SSH session, since the terminal output itself is gone once you disconnect. The `haas-install-summary.txt` file is saved to `repo_dir>/haas-install-summary.txt`. The  `haas-install-summary.txt` file is permanent.
-- If the installer reports a reboot is required, reboot before relying on the firewall service using `sudo reboot now`.
+- A full summary (paths, current UFW rules, zoxide entries) is printed at the very end. Save the onscreen summary before you close the SSH session, since the terminal output itself is gone once you disconnect. The `haas-install-summary.txt` file is saved to `<repo_dir>/haas-install-summary.txt`. The `haas-install-summary.txt` file is permanent — see [Install Summary](manage_the_appliance/updates.md#install-summary) to view it from Cockpit later.
 - If the installer reports a reboot is required, reboot before relying on
   the firewall service using `sudo reboot now`.
 
