@@ -80,9 +80,15 @@ const saveServiceBtn       = document.getElementById("saveServiceBtn");
 const cancelServiceEditBtn = document.getElementById("cancelServiceEditBtn");
 
 const editSyncToolsBtn = document.getElementById("editSyncToolsBtn");
+const installSummaryBtn = document.getElementById("installSummaryBtn");
 
 const TOOLS_YAML_PATH = "/usr/local/sbin/tools.yaml";
 const TOOLS_YAML_VALIDATE_TMP_PREFIX = "/tmp/tools.yaml.validate.";
+
+// Written once by haas-install.sh at the end of a run — not regenerated
+// afterward, so this is always that original install's record, not a
+// live status snapshot.
+const HAAS_INSTALL_SUMMARY_PATH = "/home/haas/Haas_Data_collect/haas-install-summary.txt";
 
 // Runs against a scratch copy of the edited tools.yaml, never the real
 // file. Checks (in order): yq is installed, the YAML parses, the top-level
@@ -177,6 +183,7 @@ function disableButtons(state) {
     rebootBtn.disabled = state;
     syncToolsBtn.disabled = state;
     editSyncToolsBtn.disabled = state;
+    installSummaryBtn.disabled = state;
     cockpitLogBtn.disabled = state;
     sshLogBtn.disabled = state;
     sambaLogBtn.disabled = state;
@@ -471,6 +478,42 @@ document.querySelectorAll("input[name='ufwFilter']").forEach(function(radio) {
 stopLogBtn.addEventListener("click", function() {
     stopLiveLog();
     output.textContent += "\n[Stopped]\n";
+});
+
+// ── Install Summary ──────────────────────────────────────────────────────────
+
+// Alternating-row coloring, same convention as Manage Samba's "Users"
+// button — every other line colored blue (.info) — makes a file this long
+// (UFW rules dump, zoxide directory list, etc.) easier to scan line by
+// line instead of one undifferentiated block of text.
+installSummaryBtn.addEventListener("click", function() {
+    stopLiveLog();
+    setActiveLogBtn(null);
+    output.classList.remove("hidden");
+    output.innerHTML = "Loading " + escapeHtml(HAAS_INSTALL_SUMMARY_PATH) + "...\n";
+
+    cockpit.file(HAAS_INSTALL_SUMMARY_PATH, { superuser: "require" }).read()
+        .done(function(content) {
+            if (content === null) {
+                output.innerHTML = "<span class=\"error\">ERROR: " + escapeHtml(HAAS_INSTALL_SUMMARY_PATH) +
+                    " does not exist.</span>\nThis file is written once by haas-install.sh at the end of installation — if the appliance predates that, or the file was moved, it won't be here.";
+                return;
+            }
+
+            var lines = content.split("\n");
+            var html = "<span class=\"info\">--- " + escapeHtml(HAAS_INSTALL_SUMMARY_PATH) + " ---</span>\n\n";
+            html += lines.map(function(line, i) {
+                return (i % 2 === 1)
+                    ? "<span class=\"info\">" + escapeHtml(line) + "</span>"
+                    : escapeHtml(line);
+            }).join("\n");
+
+            output.innerHTML = html;
+        })
+        .fail(function(ex) {
+            output.innerHTML = "<span class=\"error\">ERROR reading " + escapeHtml(HAAS_INSTALL_SUMMARY_PATH) + ": " +
+                escapeHtml(ex.message || JSON.stringify(ex)) + "</span>";
+        });
 });
 
 // ── Edit Sync Tools ───────────────────────────────────────────────────────────

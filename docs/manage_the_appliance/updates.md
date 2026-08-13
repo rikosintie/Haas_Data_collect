@@ -37,6 +37,7 @@ from this page (persisted across page reloads).
 | Reboot | Reboots the appliance immediately — asks for confirmation first |
 | Sync Tools | Runs `/usr/local/sbin/install-tools.sh` to install/update the CLI tools listed in `/usr/local/sbin/tools.yaml` (csvlens, tspin, bat, fresh, superfile, zoxide, ...) |
 | Edit Sync Tools | Edits `/usr/local/sbin/tools.yaml` itself, to add/remove/change which tools Sync Tools installs — see below |
+| Install Summary | Displays `haas-install-summary.txt` — the one-time record `haas-install.sh` writes at the end of installation (repo paths, CSV path, backup directory, UFW rules at install time, zoxide directories). Not a live status snapshot — it's never regenerated after that first run |
 
 ----------------------------------------------------------------
 
@@ -103,6 +104,22 @@ check passes, the file is saved and **Sync Tools** runs automatically.
 ----------------------------------------------------------------
 
 ![screenshot](./img/edit-sync-tools.resized.png)
+
+----------------------------------------------------------------
+
+### Install Summary
+
+Click **Install Summary** to display `haas-install-summary.txt` in the
+output pane — the record `haas-install.sh` writes once, at the very end of
+installation, since the terminal output itself is gone as soon as that SSH
+session closes. It has the repo root, CSV path, backup directory, config
+file location, the UFW rules that were active at install time, and the
+`zoxide` directories seeded for the `haas` user.
+
+This is a fixed record of that original install, not a live status
+snapshot — none of it updates afterward, so a firewall rule you've since
+changed through **Apply Firewall Changes** won't be reflected here. For
+current firewall state, use [Firewall Control](./firewall.md) instead.
 
 ----------------------------------------------------------------
 
