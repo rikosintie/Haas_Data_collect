@@ -5,13 +5,13 @@ install, networking, etc.) see the docs under `docs/build_the_appliance/`.
 
 ## 1. Prerequisites
 
-- A Raspberry Pi 5, a Virtual Machine, or an Intel/AMD PC, with Ubuntu already installed and
-  internet access.
+- A Raspberry Pi 5, a Virtual Machine, or an Intel/AMD PC, with Ubuntu server 24.04/26.04 already installed and internet access.
 - User `haas` with Root/sudo access.
 
 ## 2. Clone the repo
 
 ```bash
+cd ~ # make sure you are in the repo root
 git clone https://github.com/rikosintie/Haas_Data_collect.git
 cd Haas_Data_collect
 ```
@@ -34,11 +34,9 @@ them first.
 ## 4. Run the installer
 
 ```bash
+cd ~  # make sure you are in the repo root
 sudo ./haas-install.sh
 ```
-
-Run it from the repo root — it detects its own location, so the checkout
-can live anywhere.
 
 ## 5. What it actually does
 
@@ -69,8 +67,11 @@ can live anywhere.
 
 ## 6. After it finishes
 
-- **Cockpit UI:** `https://<appliance-ip>:9090`
-- **Samba share:** To map a drive to the appliance:
+**Cockpit UI:** Open a browser to `https://<appliance-ip>:9090`
+
+**Samba share:**
+
+To map a drive to the appliance from a computer or Haas CNC:
 
 ### Windows
 
