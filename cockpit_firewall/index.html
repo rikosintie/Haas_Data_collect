@@ -66,20 +66,30 @@
         <h2>Simulate / Compare</h2>
         <p>These operations do not make persistent changes to the firewall.</p>
         <div class="button-row">
-            <button id="btn-dry-run" class="btn" data-tooltip="Simulate rules from users.csv without making changes">Simulate Firewall Update (Dry-Run)</button>
+            <button id="btn-dry-run" class="btn" data-tooltip="Simulate rules from the currently active CSV_PATH without making changes">Simulate Firewall Update (Dry-Run)</button>
             <button id="btn-show-rules" class="btn" data-tooltip="List current rules with descriptions">Show Current UFW Rules</button>
-            <button id="btn-edit-csv" class="btn" data-tooltip="Edit ~/Haas_Data_collect/users.csv">Edit users.csv</button>
-            <button id="btn-edit-custom-csv" class="btn" data-tooltip="Edits whatever file path is currently in the Compare Current vs Planned Rules box below">Edit Custom CSV</button>
             <button id="btn-edit-conf" class="btn" data-tooltip="Edit /etc/haas-firewall.conf">Edit conf file</button>
         </div>
-        <div class="button-row compare-row">
-            <button id="btn-compare" class="btn" data-tooltip="List rules from new csv file vs current rules">Compare Current vs Planned Rules</button>
-            <input type="text"
-                   id="compare-csv-path"
-                   class="wide"
-                   placeholder="/home/haas/Haas_Data_collect/users1.csv"
-                   value="/home/haas/Haas_Data_collect/users1.csv">
+        <div class="button-row">
+            <button id="btn-edit-users-a" class="btn" data-tooltip="Edit ~/Haas_Data_collect/users-a.csv">Edit Users-A</button>
+            <button id="btn-edit-users-b" class="btn" data-tooltip="Edit ~/Haas_Data_collect/users-b.csv">Edit Users-B</button>
+            <button id="btn-compare-ab" class="btn" data-tooltip="Compares users-b.csv against the currently active firewall rules">Compare Users-A to Users-B</button>
         </div>
+
+        <details class="advanced">
+            <summary>Advanced: custom CSV path</summary>
+            <p>For rollback previews, one-off comparisons, or editing any file by full path — not just the Users-A / Users-B slots above.</p>
+            <div class="button-row">
+                <button id="btn-edit-custom-csv" class="btn" data-tooltip="Edits whatever file path is currently in the box below">Edit Custom CSV</button>
+            </div>
+            <div class="button-row compare-row">
+                <button id="btn-compare" class="btn" data-tooltip="List rules from the given csv file vs current rules">Compare Current vs Planned Rules</button>
+                <input type="text"
+                       id="compare-csv-path"
+                       class="wide"
+                       placeholder="/home/haas/Haas_Data_collect/users-b.csv">
+            </div>
+        </details>
     </div>
 
     <!-- Output -->
@@ -100,21 +110,21 @@
         <div>
             <label>
                 <input type="checkbox" id="use-custom-csv">
-                Use custom CSV file
+                Apply Users-B (or a custom CSV) instead of Users-A
             </label>
         </div>
 
         <div>
-            <label for="custom-csv-path">Custom CSV path (use full path, e.g. /home/haas/Haas_Data_collect/users1.csv):</label>
+            <label for="custom-csv-path">CSV path (defaults to Users-B when checked; use full path for a custom file, e.g. /home/haas/Haas_Data_collect/users-b.csv):</label>
             <input type="text"
                    id="custom-csv-path"
                    class="wide"
-                   placeholder="/home/haas/Haas_Data_collect/users1.csv">
+                   placeholder="/home/haas/Haas_Data_collect/users-b.csv">
         </div>
 
         <div class="button-row">
             <button id="btn-reset" class="btn btn-warning" data-tooltip="Deletes all custom firewall rules">Reset Firewall Only</button>
-            <button id="btn-apply" class="btn btn-danger" data-tooltip="Apply users.csv or a custom csv file to the firewall">Apply Firewall Changes</button>
+            <button id="btn-apply" class="btn btn-danger" data-tooltip="Apply Users-A, Users-B, or a custom csv file to the firewall">Apply Firewall Changes</button>
         </div>
     </div>
 

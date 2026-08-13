@@ -244,6 +244,25 @@ h1 {
     margin-top: 0;
 }
 
+/* Advanced (custom CSV path) collapsible */
+details.advanced {
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #444;
+}
+
+details.advanced summary {
+    cursor: pointer;
+    font-weight: bold;
+    color: #ccc;
+}
+
+details.advanced p {
+    color: #aaa;
+    font-size: 0.9em;
+    margin: 0.5rem 0;
+}
+
 /* Utility spacing */
 .mt-1 {
     margin-top: 0.5rem;

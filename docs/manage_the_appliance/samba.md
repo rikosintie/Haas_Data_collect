@@ -350,7 +350,7 @@ step is skipped for them.
 ----------------------------------------------------------------
 
 !!! note "This is a separate system from firewall access"
-    `users.csv`/**Apply Firewall Changes** control *network* access — which
+    `users-a.csv`/`users-b.csv`/**Apply Firewall Changes** control *network* access — which
     IPs can reach the appliance at all. This controls *account* access —
     who can actually log in and read/write files once they're on the
     network. They're related but independent; applying a firewall CSV
@@ -390,7 +390,7 @@ failed. Have the user logout of the SSH or Cockpit session.
 ## Change Password
 
 Sets a new password for an existing account — for a departed contractor's
-CSV row being pulled from `users.csv` (revoking network access) but their
+CSV row being pulled from `users-a.csv`/`users-b.csv` (revoking network access) but their
 Samba/Linux login left active, use **Delete User** above instead; this is
 for rotating a *current* user's password (a suspected credential
 compromise, or a routine 90-day rotation policy), which otherwise has no

@@ -78,9 +78,9 @@ The repository includes a script named: `haas-install.sh`. The script does a lot
 - Installs Python PIP
 - Installs the Linux "tree" command for listing directories and files.
 - Copies `issue.net` to `/etc/issue.net` (This is the Pre-logon banner)
-- Copies csvlens binary to /usr/local/sbin - csvlens is a cli tool for viewing csv files. Example `csvlens users.csv`
+- Copies csvlens binary to /usr/local/sbin - csvlens is a cli tool for viewing csv files. Example `csvlens users-a.csv`
 - Creates the backup directory in the repo
-- Triggers an initial firewall configuration via systemd using the `users.csv` file.
+- Triggers an initial firewall configuration via systemd using the `users-a.csv` file.
 
 It does NOT modify or delete anything inside the repo.
 
@@ -92,23 +92,23 @@ The installation script does not create the [The systemd service files](configur
 
 There are a three files in the `Haas_Data_collect` directory that need to be updated to fit your environment **before you run the install script**:
 
-- users.csv - This file contains usernames, ip addresses and roles for configuring the firewall.
+- users-a.csv - This file contains usernames, ip addresses and roles for configuring the firewall. A second slot, users-b.csv, is also present alongside it for planned/alternate rule sets — see [Simulate / Compare](../manage_the_appliance/firewall.md#simulate-compare) for how the two are used day to day.
 - initial_users.csv - Users who need access to the Windows shares on the appliance. The CNC controls will use the `haassvc` user account. Add CNC programmers, and operations personnel that need to copy files to/from the appliance.
 - issue.net - This is the login banner. It gets copied to `/etc/issue.net` by the `haas-firewall-install.sh` script. This is a generic file. Update it per your company's security policy.
 
 These files are used as input to the `haas-firewall-install.sh` script that is presented next.
 
-There two user components to the appliance setup, which may be confusing at first! The appliance is protected by the Ubuntu firewall. The firewall is configured automatically by the data in the file `users.csv`.
+There two user components to the appliance setup, which may be confusing at first! The appliance is protected by the Ubuntu firewall. The firewall is configured automatically by the data in the file `users-a.csv`.
 
 There are also `users` created from data in the file `initial_users.csv`. These are users that need to have both Linux and Samba accounts to access the file shares. The installation scripts creates the user accounts.
 
 ----------------------------------------------------------------
 
-### users.csv
+### users-a.csv
 
 This is a comma-separated value (csv) file that contains the users, ip addresses and roles of any users that need to access the Raspberry Pi 5 appliance. Every Haas CNC machine will need to be in this file, otherwise the firewall will block access. If your machines are on a dedicated IP subnet, a best practice, you can edit the `/etc/haas-firewall.conf` file and enter the subnet. There is a script that will read the `haas-firewall.conf` file and update the firewall. That is explained in the `Cockpit management` section.
 
-The format for `users.csv` is:
+The format for `users-a.csv` is:
 
 ```bash hl_lines='1'
 username,ip_address,role
@@ -160,13 +160,13 @@ Status: active
 
 ----------------------------------------------------------------
 
-The `users.csv` file will remain in the `Haas_Data_collection` folder after the appliance is in production. Anytime the firewall needs to be modified you will update the `users.csv` file.
+The `users-a.csv` file will remain in the `Haas_Data_collection` folder after the appliance is in production. Anytime the firewall needs to be modified you will update the `users-a.csv` file.
 
 Use the following to edit the file if you are connected over ssh:
 
 ```bash
 cd ~/haas/Haas_Data_collect
-nano users.csv
+nano users-a.csv
 ```
 
 When you are finished use the following to `save` and `close` the file:
@@ -182,7 +182,7 @@ Or use the `micro text editor`:
 
 ```bash linenums='1' hl_lines='1'
 cd ~/haas/Haas_Data_collect
-micro users.csv
+micro users-a.csv
 ```
 
 When you are finished use the following to `save` and `close` the file:
@@ -194,7 +194,7 @@ ctrl+q
 
 ----------------------------------------------------------------
 
-If you are in the Desktop version of Ubuntu you can open the `Files` application and double click on `users.csv`. That will open the file in LibreOffice Calc. Make sure you save the file as a `csv` file and not an `odf` or `excel` format.
+If you are in the Desktop version of Ubuntu you can open the `Files` application and double click on `users-a.csv`. That will open the file in LibreOffice Calc. Make sure you save the file as a `csv` file and not an `odf` or `excel` format.
 
 ----------------------------------------------------------------
 
@@ -206,9 +206,9 @@ To create administrative users, say an admin for an MSP, use the [Manage users b
 
 User with only drive mapping permissions would include:
 
-- **Haas CNC controls** - Use `haassvc` on all machine tools when enabling file sharing. Their role in `users.csv` would be `user`.
-- **CNC Programmers** - You can map a drive using a Windows user name or use `haassvc` since the programmers only need to access the shares. Their role in `users.csv` would be `user`.
-- **Operations employees** - These are users that will be copying log files for data analysis. You can map a drive using a Windows user name or use `haassvc` since the programmers only need to access the shares. Their role in `users.csv` would be `user`.
+- **Haas CNC controls** - Use `haassvc` on all machine tools when enabling file sharing. Their role in `users-a.csv` would be `user`.
+- **CNC Programmers** - You can map a drive using a Windows user name or use `haassvc` since the programmers only need to access the shares. Their role in `users-a.csv` would be `user`.
+- **Operations employees** - These are users that will be copying log files for data analysis. You can map a drive using a Windows user name or use `haassvc` since the programmers only need to access the shares. Their role in `users-a.csv` would be `user`.
 
 #### There are two trains of thoughts on usernames
 
@@ -250,7 +250,7 @@ username, password
 haassvc, xxxxxxxxx
 ```
 
-I know it's odd that there are `users.csv` and `initial_users.csv` but there is no secure way to leave passwords lying around in plain text files.
+I know it's odd that there are `users-a.csv` and `initial_users.csv` but there is no secure way to leave passwords lying around in plain text files.
 
 !!! Warning
     This file contains usernames/passwords that the installation script will use to create the Samba shares. You should delete this file as soon as the script finishes the installation.
@@ -289,7 +289,7 @@ ctrl+q
 
 ----------------------------------------------------------------
 
-If you are in the Desktop version of Ubuntu you can open the `Files` application and double click on `users.csv`. That will open the file in LibreOffice Calc. Make sure you save the file as a `csv` file and not an `odf` or `excel` format.
+If you are in the Desktop version of Ubuntu you can open the `Files` application and double click on `users-a.csv`. That will open the file in LibreOffice Calc. Make sure you save the file as a `csv` file and not an `odf` or `excel` format.
 
 ----------------------------------------------------------------
 
@@ -354,7 +354,7 @@ ctrl+s
 ctrl+x
 ```
 
-If you are in the Desktop version of Ubuntu you can open the `Files` application and double click on `users.csv`. That will open the file in LibreOffice Calc. Make sure you save the file as a `csv` file and not an `odf` or excel format.
+If you are in the Desktop version of Ubuntu you can open the `Files` application and double click on `users-a.csv`. That will open the file in LibreOffice Calc. Make sure you save the file as a `csv` file and not an `odf` or excel format.
 
 ----------------------------------------------------------------
 

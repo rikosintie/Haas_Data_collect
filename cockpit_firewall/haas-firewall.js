@@ -470,14 +470,14 @@
                 });
         });
 
-        // Checking "Use custom CSV file" pre-fills the path with the usual
-        // convention (users1.csv, alongside the default users.csv) as a
-        // starting point — only when the field is still empty, so it never
-        // overwrites a path someone already typed.
+        // Checking "Apply Users-B..." pre-fills the path with the Users-B
+        // slot as a starting point — only when the field is still empty,
+        // so it never overwrites a path someone already typed (e.g. a
+        // custom/rollback path left there from Edit Custom CSV).
         document.getElementById("use-custom-csv").addEventListener("change", function() {
             var pathInput = document.getElementById("custom-csv-path");
             if (this.checked && !pathInput.value.trim()) {
-                pathInput.value = "/home/haas/Haas_Data_collect/users1.csv";
+                pathInput.value = "/home/haas/Haas_Data_collect/users-b.csv";
             }
         });
 
@@ -493,7 +493,7 @@
 
             const fileToCheck = useCustom
                 ? customPath
-                : "/home/haas/Haas_Data_collect/users.csv";
+                : "/home/haas/Haas_Data_collect/users-a.csv";
 
             if (!confirm("This will reset and reapply firewall rules using:\n" + fileToCheck + "\n\nContinue?")) {
                 return;
@@ -519,12 +519,12 @@
                         // happened to trigger updateFirewallStatus()
                         // manually.
                         updateFirewallStatus();
-                        // Clear "Use custom CSV file" after every apply
+                        // Clear "Apply Users-B..." after every apply
                         // (whether or not it was checked) so it never sits
                         // checked from one apply to the next — the next
-                        // Edit users.csv / Edit Custom CSV save is what
-                        // sets it correctly for whichever file was just
-                        // edited.
+                        // Edit Users-A / Edit Users-B / Edit Custom CSV
+                        // save is what sets it correctly for whichever
+                        // file was just edited.
                         document.getElementById("use-custom-csv").checked = false;
 
                         // haas-firewall.timer's OnActiveSec=4h counts down from
@@ -647,7 +647,8 @@
                         // arguments — which falls back to reading CSV_PATH from
                         // this conf file. Without updating it here, the next
                         // daily refresh silently reverts a deliberately-applied
-                        // custom CSV back to plain users.csv within 24 hours.
+                        // Users-B/custom CSV back to plain users-a.csv within
+                        // 24 hours.
                         cockpit.file("/etc/haas-firewall.conf", { superuser: "require" }).read()
                             .then(function(confContent) {
                                 confContent = confContent || "";
@@ -686,12 +687,13 @@
                 });
         });
 
-        // Button 6: Edit CSV
-        // Shared validation for users.csv / custom CSV saves — mirrors what
-        // configure_ufw_from_csv.sh actually parses (`tail -n +2` skips the
-        // header line, `IFS=',' read -r user ip role`), so a bad edit is
-        // caught here instead of silently producing an "UNKNOWN ROLE" or
-        // skipped firewall rule later when Apply Firewall Changes runs.
+        // Button 6: Edit Users-A / Users-B CSV
+        // Shared validation for users-a.csv / users-b.csv / custom CSV
+        // saves — mirrors what configure_ufw_from_csv.sh actually parses
+        // (`tail -n +2` skips the header line, `IFS=',' read -r user ip
+        // role`), so a bad edit is caught here instead of silently
+        // producing an "UNKNOWN ROLE" or skipped firewall rule later when
+        // Apply Firewall Changes runs.
         function validateUsersCsv(content) {
             const nameRe = /^[0-9a-zA-Z_-]+$/;
             const lines = content.split(/\r?\n/);
@@ -744,82 +746,11 @@
             }).join("\n");
         }
 
-        document.getElementById("btn-edit-csv").addEventListener("click", function() {
-            const csvPath = "/home/haas/Haas_Data_collect/users.csv";
-            output.textContent = "Loading " + csvPath + "...\n";
-
-            cockpit.file(csvPath, { superuser: "require" })
-                .read()
-                .then(function(content) {
-                    const textarea = document.createElement("textarea");
-                    textarea.className = "csv-editor";
-                    textarea.value = content;
-
-                    const saveBtn = document.createElement("button");
-                    saveBtn.textContent = "Save Changes";
-                    saveBtn.className = "btn";
-
-                    const cancelBtn = document.createElement("button");
-                    cancelBtn.textContent = "Cancel";
-                    cancelBtn.className = "btn";
-
-                    const btnContainer = document.createElement("div");
-                    btnContainer.className = "button-row";
-                    btnContainer.appendChild(saveBtn);
-                    btnContainer.appendChild(cancelBtn);
-
-                    output.innerHTML = "";
-                    output.appendChild(textarea);
-                    output.appendChild(btnContainer);
-
-                    saveBtn.addEventListener("click", function() {
-                        const validationError = validateUsersCsv(textarea.value);
-                        if (validationError) {
-                            // Popup, not output.textContent — output is the
-                            // <pre> the textarea itself lives inside, so
-                            // overwriting its text would destroy the editor
-                            // (and the user's unsaved edits) along with it.
-                            alert("CSV not saved — invalid content:\n\n" + validationError);
-                            return;
-                        }
-                        const normalized = normalizeUsersCsv(textarea.value);
-                        cockpit.file(csvPath, { superuser: "require" })
-                            .replace(normalized)
-                            .then(function() {
-                                output.textContent = "File saved successfully!\n";
-                                // Apply Firewall Changes uses users.csv only
-                                // when "Use custom CSV file" is unchecked —
-                                // force that here rather than just warning
-                                // about it, so Apply is guaranteed to use
-                                // the file just saved, not a stale custom
-                                // path left checked from an earlier edit.
-                                document.getElementById("use-custom-csv").checked = false;
-                                alert("File saved. Click \"Apply Firewall Changes\" to activate the new rules.");
-                            })
-                            .catch(function(error) {
-                                output.textContent = "Error saving file: " + error + "\n";
-                            });
-                    });
-
-                    cancelBtn.addEventListener("click", function() {
-                        output.textContent = "Edit cancelled.\n";
-                    });
-                })
-                .catch(function(error) {
-                    output.textContent = "Error reading file: " + error + "\n";
-                });
-        });
-
-        // Button 6a: Edit Custom CSV — same editor pattern as "Edit users.csv",
-        // but against whatever path is currently typed in the Compare
-        // Current vs Planned Rules box, read fresh at click time (not
-        // whatever it was when the page loaded).
-        document.getElementById("btn-edit-custom-csv").addEventListener("click", function() {
-            const csvPath = document.getElementById("compare-csv-path").value.trim();
-            if (!csvPath) {
-                output.textContent = "Please enter a CSV file path in the Compare Current vs Planned Rules box first.\n";
-                return;
-            }
+        // Shared inline editor used by Edit Users-A / Edit Users-B / Edit
+        // Custom CSV — the three differ only in which path they open and
+        // what should happen to Apply Firewall Changes' checkbox/path
+        // state afterward (afterSave handles that per-caller).
+        function openCsvEditor(csvPath, afterSave) {
             output.textContent = "Loading " + csvPath + "...\n";
 
             cockpit.file(csvPath, { superuser: "require" })
@@ -866,16 +797,7 @@
                             .replace(normalized)
                             .then(function() {
                                 output.textContent = "File saved successfully!\n";
-                                // Apply Firewall Changes only uses this path
-                                // when "Use custom CSV file" is checked AND
-                                // its path field matches what was just
-                                // edited — set both here rather than just
-                                // telling the user to, so the file just
-                                // saved is guaranteed to be what Apply
-                                // actually uses next, with no retyping.
-                                document.getElementById("use-custom-csv").checked = true;
-                                document.getElementById("custom-csv-path").value = csvPath;
-                                alert("File saved to " + csvPath + ".\n\n\"Use custom CSV file\" has been checked and the path filled in — click \"Apply Firewall Changes\" to activate these rules.");
+                                afterSave();
                             })
                             .catch(function(error) {
                                 output.textContent = "Error saving file: " + error + "\n";
@@ -889,6 +811,63 @@
                 .catch(function(error) {
                     output.textContent = "Error reading file: " + error + "\n";
                 });
+        }
+
+        document.getElementById("btn-edit-users-a").addEventListener("click", function() {
+            openCsvEditor("/home/haas/Haas_Data_collect/users-a.csv", function() {
+                // Apply Firewall Changes uses Users-A only when "Apply
+                // Users-B..." is unchecked — force that here rather than
+                // just warning about it, so Apply is guaranteed to use the
+                // file just saved, not a stale Users-B/custom path left
+                // checked from an earlier edit.
+                document.getElementById("use-custom-csv").checked = false;
+                alert("File saved. Click \"Apply Firewall Changes\" to activate the new rules.");
+            });
+        });
+
+        document.getElementById("btn-edit-users-b").addEventListener("click", function() {
+            const csvPath = "/home/haas/Haas_Data_collect/users-b.csv";
+            openCsvEditor(csvPath, function() {
+                // Mirrors Edit Custom CSV below: editing Users-B implies
+                // you want to apply Users-B next, so set Apply's
+                // checkbox/path state to match the file just saved rather
+                // than leaving it pointed at Users-A or a stale path.
+                document.getElementById("use-custom-csv").checked = true;
+                document.getElementById("custom-csv-path").value = csvPath;
+                alert("File saved to " + csvPath + ".\n\n\"Apply Users-B...\" has been checked — click \"Apply Firewall Changes\" to activate these rules.");
+            });
+        });
+
+        // Button 6a: Edit Custom CSV — same editor pattern as Edit Users-A/B,
+        // but against whatever path is currently typed in the Advanced
+        // section's box, read fresh at click time (not whatever it was
+        // when the page loaded).
+        document.getElementById("btn-edit-custom-csv").addEventListener("click", function() {
+            const csvPath = document.getElementById("compare-csv-path").value.trim();
+            if (!csvPath) {
+                output.textContent = "Please enter a CSV file path in the box below first.\n";
+                return;
+            }
+            openCsvEditor(csvPath, function() {
+                // Apply Firewall Changes only uses this path when "Apply
+                // Users-B..." is checked AND its path field matches what
+                // was just edited — set both here rather than just telling
+                // the user to, so the file just saved is guaranteed to be
+                // what Apply actually uses next, with no retyping.
+                document.getElementById("use-custom-csv").checked = true;
+                document.getElementById("custom-csv-path").value = csvPath;
+                alert("File saved to " + csvPath + ".\n\n\"Apply Users-B...\" has been checked and the path filled in — click \"Apply Firewall Changes\" to activate these rules.");
+            });
+        });
+
+        // Button 6c: Compare Users-A to Users-B — a fixed-path convenience
+        // wrapper around the same --compare mechanism as the Advanced
+        // section's free-text Compare button. "Current active rules" are
+        // assumed to reflect whatever was last applied (normally Users-A),
+        // so this answers "what would change if I applied Users-B instead."
+        document.getElementById("btn-compare-ab").addEventListener("click", function() {
+            const usersBPath = "/home/haas/Haas_Data_collect/users-b.csv";
+            runCommand(["/usr/local/sbin/configure_ufw_from_csv.sh", "--compare", usersBPath], "Compare current rules against Users-B (" + usersBPath + ")");
         });
 
         // Button 6b: Edit conf file
@@ -1019,14 +998,15 @@
                 return;
             }
             runCommand(["/usr/local/sbin/rollback_csv.sh", backupName], "Rollback from " + backupName, function() {
-                // rollback_csv.sh always restores into plain users.csv
-                // (see its own "Target:" line) — never a custom path — so,
-                // same as Edit users.csv, make sure "Use custom CSV file"
-                // is off before reminding the user to apply, rather than
-                // risking Apply using a stale custom path instead of the
-                // file that was just restored.
+                // rollback_csv.sh always restores into CSV_PATH from
+                // /etc/haas-firewall.conf (see its own "Target:" line) —
+                // normally users-a.csv, never a custom path — so, same as
+                // Edit Users-A, make sure "Apply Users-B..." is off before
+                // reminding the user to apply, rather than risking Apply
+                // using a stale Users-B/custom path instead of the file
+                // that was just restored.
                 document.getElementById("use-custom-csv").checked = false;
-                alert("CSV restored to /home/haas/Haas_Data_collect/users.csv.\n\nClick \"Apply Firewall Changes\" to activate these rules.");
+                alert("CSV restored to users-a.csv.\n\nClick \"Apply Firewall Changes\" to activate these rules.");
             });
         });
 

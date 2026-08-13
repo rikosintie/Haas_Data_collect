@@ -10,7 +10,7 @@
 #       HAAS_MACHINES_SUBNET_V6
 #
 # Defaults (if config missing):
-#   CSV_PATH               = <script_dir>/users.csv
+#   CSV_PATH               = <script_dir>/users-a.csv
 #   BACKUP_DIR             = <script_dir>/backups
 #   HAAS_MACHINES_SUBNET_V4 = ""
 #   HAAS_MACHINES_SUBNET_V6 = ""
@@ -51,7 +51,7 @@ LOG_FILE="/var/log/haas-firewall.log"
 VALIDATOR="/usr/local/sbin/validate_users_csv.sh"
 
 # Default values (used if config is missing)
-CSV_PATH_DEFAULT="${SCRIPT_DIR}/users.csv"
+CSV_PATH_DEFAULT="${SCRIPT_DIR}/users-a.csv"
 BACKUP_DIR_DEFAULT="${SCRIPT_DIR}/backups"
 HAAS_MACHINES_SUBNET_V4_DEFAULT=""
 HAAS_MACHINES_SUBNET_V6_DEFAULT=""

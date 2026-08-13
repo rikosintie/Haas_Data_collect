@@ -199,10 +199,10 @@ countdown too, not just the timer's own scheduled runs.
     arguments, so it always falls back to the `CSV_PATH` set in
     `/etc/haas-firewall.conf`. Cockpit's **Apply Firewall Changes**
     updates that `CSV_PATH` to match whatever file was just applied —
-    `users.csv` by default, or the custom CSV path if **Use custom CSV
-    file** was checked — so the self-heal keeps reapplying that same file
-    instead of silently reverting to plain `users.csv` within a few
-    hours.
+    `users-a.csv` by default, or `users-b.csv`/a custom CSV path if
+    **Apply Users-B (or a custom CSV) instead of Users-A** was checked —
+    so the self-heal keeps reapplying that same file instead of silently
+    reverting to plain `users-a.csv` within a few hours.
 
     Plain `configure_ufw_from_csv.sh <path>` from the terminal applies
     that CSV once but does not update `CSV_PATH`, so the next timer run
@@ -211,7 +211,7 @@ countdown too, not just the timer's own scheduled runs.
     `--persist`:
 
     ```bash
-    sudo configure_ufw_from_csv.sh --persist /home/haas/Haas_Data_collect/users1.csv
+    sudo configure_ufw_from_csv.sh --persist /home/haas/Haas_Data_collect/users-b.csv
     ```
 
     This updates `CSV_PATH` in `/etc/haas-firewall.conf` and resets
@@ -243,7 +243,8 @@ Several files are needed to build the rules, run a timer to make sure the firewa
   configure_ufw_from_csv.sh
 
 /home/haas/Haas_Data_collect/
-  users.csv
+  users-a.csv
+  users-b.csv
 
 /etc/systemd/system/
   haas-firewall.service
@@ -283,7 +284,7 @@ sudo ./haas-install.sh
 - Systemd is configured correctly
 - Firewall rules apply at boot
 - Daily timer provides self‑healing
-- Customer directory stays clean (only users.csv remains)
+- Customer directory stays clean (only users-a.csv / users-b.csv remain)
 
 #### If you want to uninstall the `Firewall Service`
 
@@ -378,7 +379,7 @@ Need output
 
 ### The bash script that creates the rules
 
-In the root of `Haas_Data_Collect` is a script named `configure_ufw_from_csv.sh` and a `csv` file named users.csv. The script reads the data in a `csv` file and creates the `Uncomplicated Firewall (UFW)` rules.
+In the root of `Haas_Data_Collect` is a script named `configure_ufw_from_csv.sh` and a `csv` file named users-a.csv (a second slot, users-b.csv, is also present for planned/alternate rules). The script reads the data in a `csv` file and creates the `Uncomplicated Firewall (UFW)` rules.
 
 **make script executable. Run the following:**
 
@@ -411,7 +412,7 @@ The installation script sets up a firewall service and creates a file - `/etc/ha
 │       HAAS_MACHINES_SUBNET_V6
 │
 │ Defaults (if config missing):
-│   CSV_PATH               = <script_dir>/users.csv
+│   CSV_PATH               = <script_dir>/users-a.csv
 │   BACKUP_DIR             = <script_dir>/backups
 │   HAAS_MACHINES_SUBNET_V4 = ""
 │   HAAS_MACHINES_SUBNET_V6 = ""
@@ -432,7 +433,7 @@ The script lives in `/usr/local/sbin/` so it requires root access to run it manu
 sudo /usr/local/sbin/configure_ufw_from_csv.sh --dry-run
 ```
 
-Dry run mode reads the users.csv file, processes it and then displays what would be configured for `UFW`.
+Dry run mode reads the active CSV file (users-a.csv by default), processes it and then displays what would be configured for `UFW`.
 
 **Why is there a `dry-run` mode?**
 
@@ -460,7 +461,7 @@ This is extremely helpful when:
     [DRY-RUN] ufw deny 139/tcp
     [*] Creating rules for Haas machines (haassvc)...
     [DRY-RUN] ufw allow from 192.168.50.0/24 to any port 445 proto tcp comment 'Haas machines IPv4 -> Samba'
-    [*] Processing CSV: users.csv
+    [*] Processing CSV: users-a.csv
     [*] Adding ADMIN 'haas' from 192.168.10.143
     [DRY-RUN] ufw allow from 192.168.10.143 to any port 445 proto tcp comment 'Admin haas -> Samba'
     [DRY-RUN] ufw allow from 192.168.10.143 to any port 22 proto tcp comment 'Admin haas -> SSH'
@@ -488,12 +489,12 @@ This is extremely helpful when:
 
 ### Compare current vs planned rules
 
-Before making firewall changes you can see what the changes would look like using the ``--compare <new-file.csv>`` command. In this example, the default `users.csv` file is compared to the `users1.csv` file.
+Before making firewall changes you can see what the changes would look like using the ``--compare <new-file.csv>`` command. In this example, the default `users-a.csv` file is compared to the `users-b.csv` file.
 
-`sudo ./configure_ufw_from_csv.sh --compare users1.csv`
+`sudo ./configure_ufw_from_csv.sh --compare users-b.csv`
 
 ```bash hl_lines='1'
-cat -p users.csv
+cat -p users-a.csv
 username,ip_address,role
 vf2ss,192.168.10.104,Administrator
 msp_admin,192.168.10.113,Administrator
@@ -506,7 +507,7 @@ st30l,192.168.10.145,user
 ----------------------------------------------------------------
 
 ```bash hl_lines='1'
-cat -p users1.csv
+cat -p users-b.csv
 username,ip_address,role
 vf2ss,192.168.10.104,Administrator
 msp_admin,192.168.10.113,Administrator
@@ -523,13 +524,13 @@ As you can see, the st30l line was deleted.
 ??? Info "Compare option output"
 
     ```bash hl_lines='1'
-    sudo ./configure_ufw_from_csv.sh --compare users1.csv
-    [INFO] Using CSV file: /home/haas/Haas_Data_collect/users.csv
+    sudo ./configure_ufw_from_csv.sh --compare users-b.csv
+    [INFO] Using CSV file: /home/haas/Haas_Data_collect/users-a.csv
     [INFO] Using backup directory: /home/haas/Haas_Data_collect/backups
     2026-04-06 15:59:50 [INFO] Starting UFW configuration from CSV.
-    2026-04-06 15:59:50 [INFO] Using CSV file: users1.csv
+    2026-04-06 15:59:50 [INFO] Using CSV file: users-b.csv
     2026-04-06 15:59:50 [INFO] Validating CSV...
-    [*] Validating CSV: users1.csv
+    [*] Validating CSV: users-b.csv
     [*] CSV validation PASSED successfully.
     2026-04-06 15:59:50 [INFO] CSV validation passed.
     2026-04-06 15:59:50 [INFO] CSV backup created at: /home/haas/Haas_Data_collect/backups/users_2026-04-06_15-59-50.csv
@@ -586,7 +587,7 @@ You can list the current firewall rules with the `--show-rules` argument.
 
     ``` bash
     sudo ./configure_ufw_from_csv.sh --show-rules
-    [INFO] Using CSV file: /home/haas/Haas_Data_collect/users.csv
+    [INFO] Using CSV file: /home/haas/Haas_Data_collect/users-a.csv
     [INFO] Using backup directory: /home/haas/Haas_Data_collect/backups
     2026-04-06 16:09:43 [INFO] Showing current UFW rules...
     Status: active
@@ -615,7 +616,7 @@ You can also use the Linux command `sudo ufw status numbered | sort -k5` to see 
 
 ### Custom `csv` file option
 
-The default file name is users.csv. For testing, you can run a different `csv` file using the following:
+The default file name is users-a.csv, with users-b.csv as a second, equally-valid slot for planned/alternate rules. For testing, you can run a different `csv` file using the following:
 
 ```bash
 sudo /usr/local/sbin/configure_ufw_from_csv.sh /path/to/test.csv

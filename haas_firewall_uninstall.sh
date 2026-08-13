@@ -10,7 +10,7 @@
 #
 # It does NOT delete:
 #   - The repo directory
-#   - users.csv or backups inside the repo
+#   - users-a.csv / users-b.csv or backups inside the repo
 #
 
 set -euo pipefail
@@ -93,5 +93,5 @@ echo "=============================================="
 echo "[SUCCESS] Haas Firewall uninstalled."
 echo "=============================================="
 echo ""
-echo "Note: Your repo, users.csv, and backups in the repo were NOT removed."
+echo "Note: Your repo, users-a.csv/users-b.csv, and backups in the repo were NOT removed."
 echo ""

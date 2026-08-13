@@ -86,10 +86,10 @@ mkd machines/vf2ss/cnc_logs    # creates full path and switches to it
 
 | Script | Purpose |
 |---|---|
-| `configure_ufw_from_csv.sh` | Apply / simulate UFW rules from `users.csv` |
+| `configure_ufw_from_csv.sh` | Apply / simulate UFW rules from `users-a.csv` (or `users-b.csv`/a custom path) |
 | `rollback_csv.sh` | Restore a CSV backup |
 | `manage_users.sh` (stays in the repo, not `/usr/local/sbin`) | Create/delete Linux + Samba accounts, change passwords — also available via Cockpit's Manage Samba page (Create/Delete User, Change Password) |
-| `validate_users_csv.sh` | Validate `users.csv` before applying |
+| `validate_users_csv.sh` | Validate a users CSV before applying |
 | `update-check.sh` | Check for Ubuntu package updates |
 | `update-system.sh` | Install Ubuntu updates |
 | `install-tools.sh` | Sync 3rd-party tools from GitHub |

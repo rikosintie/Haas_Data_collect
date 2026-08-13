@@ -280,16 +280,16 @@ Apr 22 16:40:06 haas sshd[250180]: Server listening on :: port 3333.
 #############################################################
 #                                                           #
 #     Preparing to run configure_ufw_from_csv.sh            #
-#     Enter the users file to use (users.csv for ex.)       #
+#     Enter the users file to use (users-a.csv for ex.)     #
 #                                                           #
 #############################################################
 
 
-Enter the CSV filename to use: users.csv
-[*] Validating CSV: users.csv
+Enter the CSV filename to use: users-a.csv
+[*] Validating CSV: users-a.csv
 [*] CSV validation PASSED successfully.
 
-[INFO] Using CSV file: /home/haas/Haas_Data_collect/users.csv
+[INFO] Using CSV file: /home/haas/Haas_Data_collect/users-a.csv
 [INFO] Using backup directory: /home/haas/Haas_Data_collect/backups
 ```
 
@@ -618,7 +618,7 @@ sudo systemctl status smbd
 
 ## The UFW firewall
 
-The Linux UFW firewall is used to prevent attacks against the appliance. During the initial setup the installation script enable the UFW firewall and configures it based on the file `users.csv`. This file contains:
+The Linux UFW firewall is used to prevent attacks against the appliance. During the initial setup the installation script enable the UFW firewall and configures it based on the file `users-a.csv`. This file contains:
 
 - username
 - ip address
@@ -626,10 +626,10 @@ The Linux UFW firewall is used to prevent attacks against the appliance. During 
 
 for all users that need access.
 
-Based on this `users.csv` file:
+Based on this `users-a.csv` file:
 
 ```bash linenums='1' hl_lines='1'
-cat users.csv
+cat users-a.csv
 username,ip_address,role
 haas,192.168.10.143,Administrator
 msp_admin,192.168.10.113,Administrator
@@ -755,7 +755,7 @@ BACKUP_FILE="$BACKUP_DIR/$BACKUP_FILENAME"
 1S1K-G5          # <- contents of /etc/hostname, not a backup CSV
 ```
 
-Since **Edit users.csv** then displays `$CSV_PATH`'s content in a textarea, this chained into arbitrary-file-read-as-root through the UI (e.g. `/etc/shadow`, SSH host keys), on top of corrupting the live firewall configuration.
+Since **Edit Users-A** then displays `$CSV_PATH`'s content in a textarea, this chained into arbitrary-file-read-as-root through the UI (e.g. `/etc/shadow`, SSH host keys), on top of corrupting the live firewall configuration.
 
 **Fix:** reject any filename containing a path separator or a leading dot outright, then independently confirm with `realpath` that the resolved file is still inside `BACKUP_DIR` — the second check also catches a symlink planted inside `BACKUP_DIR` pointing outside it, which the filename-shape check alone would miss:
 

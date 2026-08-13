@@ -1,0 +1,6 @@
+username,ip_address,role
+haas,192.168.10.143,Administrator
+toolroom,192.168.10.104,Administrator
+msp_admin,192.168.10.113,Administrator
+thubbard,192.168.10.100,user
+rgoodwin,192.168.10.223,Administrator

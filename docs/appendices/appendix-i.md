@@ -434,7 +434,8 @@ alias treeh='tree -h --dirsfirst'
 .
 . Output truncated
 .
-├── [ 215]  users1.csv
+├── [ 203]  users-a.csv
+├── [ 203]  users-b.csv
 ├── [4.4K]  validate_users_csv.sh
 └── [2.0K]  zshrc
 

@@ -35,7 +35,7 @@ At the top of the page:
   that reflects the current state. Both directions ask for confirmation
   first — disabling warns that all rules are removed and the appliance
   becomes vulnerable; enabling warns that you'll be disconnected if your
-  current IP isn't already covered by a rule in `users.csv`.
+  current IP isn't already covered by a rule in `users-a.csv`.
 
     !!! warning "Disabling is not permanent"
         `haas-firewall.timer` runs `haas-firewall.service` every 4 hours
@@ -90,59 +90,67 @@ check what *would* happen:
 
 | Button | What it does |
 |---|---|
-| Simulate Firewall Update (Dry-Run) | Runs `configure_ufw_from_csv.sh --dry-run` against the current `users.csv` |
+| Simulate Firewall Update (Dry-Run) | Runs `configure_ufw_from_csv.sh --dry-run` against the currently active CSV (whatever `CSV_PATH` in `/etc/haas-firewall.conf` currently points to) |
 | Show Current UFW Rules | Runs `configure_ufw_from_csv.sh --show-rules`, sorted and grouped by IP the same way as Active Firewall Rules above |
-| Edit users.csv | Opens `~/Haas_Data_collect/users.csv` in an inline editor (see below) |
-| Edit Custom CSV | Opens whatever path is currently typed in the **Compare Current vs Planned Rules** box (below) in the same inline editor |
 | Edit conf file | Opens `/etc/haas-firewall.conf` in an inline editor |
-| Compare Current vs Planned Rules | Runs `configure_ufw_from_csv.sh --compare <path>` against whatever CSV path you enter — defaults to `users1.csv`, the usual convention for a planned/alternate file, since comparing against `users.csv` (the file already active) wouldn't show anything interesting |
+| Edit Users-A | Opens `~/Haas_Data_collect/users-a.csv` in an inline editor (see below) |
+| Edit Users-B | Opens `~/Haas_Data_collect/users-b.csv` in an inline editor (see below) |
+| Compare Users-A to Users-B | Runs `configure_ufw_from_csv.sh --compare users-b.csv` against the currently active rules — answers "what would change if I applied Users-B instead" |
 
-!!! note "What users1.csv is actually for"
-    `users1.csv` isn't just a scratch file for testing changes — the
-    convention on this appliance is to use it for **contractors and
-    temporary employees** (contract CNC programmers, temp Ops staff,
-    etc.) who need access for a limited time. When one needs access,
-    add them to `users1.csv` — via **Edit Custom CSV** — check **Use
-    custom CSV file**, and run **Apply Firewall Changes**. When their
-    contract ends, run **Apply Firewall Changes** again against plain
-    `users.csv` (uncheck **Use custom CSV file**, or just click
-    **Apply Firewall Changes** without checking it) to drop their
-    access — no need to hand-edit `users1.csv` back out or remember
-    which rows were theirs.
+!!! note "Users-A and Users-B — two interchangeable slots, not a hierarchy"
+    Neither slot is inherently "the real one" — think of it like an A/B
+    firmware update: `users-a.csv` is simply whichever slot is active right
+    now (normally the one applied at install time), and `users-b.csv` is
+    the other slot, used for planned or alternate rule sets. A common
+    pattern: edit **Users-B** to add or remove a contractor's temporary
+    access, use **Compare Users-A to Users-B** to review exactly what
+    would change, then **Apply Firewall Changes** against Users-B when
+    you're satisfied. There's nothing special about switching back to
+    Users-A later — it's just applying the other slot again.
 
-The **Edit users.csv** / **Edit Custom CSV** / **Edit conf file** buttons
-load the file into a text box in place of the output pane, with **Save
+The **Edit Users-A** / **Edit Users-B** / **Edit conf file** buttons load
+the file into a text box in place of the output pane, with **Save
 Changes** and **Cancel** buttons. Saving writes the file directly — it does
 not apply firewall changes by itself; use **Apply Firewall Changes** below
-for that. **Edit Custom CSV** reads the path field fresh each time you
-click it, so it always edits whatever file is currently typed in
-**Compare Current vs Planned Rules** — change that field first if you want
-to edit a different file.
+for that.
 
-Saving from **Edit users.csv** or **Edit Custom CSV** doesn't touch the
+Saving from **Edit Users-A** or **Edit Users-B** doesn't touch the
 live firewall by itself — you still need **Apply Firewall Changes**
 below, and each save button sets up the Apply section for exactly the
 file you just saved, so there's nothing to retype and no stale state left
 over from an earlier edit:
 
-- **Edit users.csv** — saving unchecks **Use custom CSV file** (in case
-  it was left checked from an earlier custom-CSV edit), then pops up a
-  reminder to click **Apply Firewall Changes**.
-- **Edit Custom CSV** — saving checks **Use custom CSV file** and fills
-  its path field with the exact file just saved, then pops up a reminder
-  naming that path, so **Apply Firewall Changes** is one click away with
-  no manual checkbox/path matching required.
-- **Apply Firewall Changes** itself clears **Use custom CSV file** again
-  once it succeeds, so that state doesn't carry over to the next apply —
-  the next Edit users.csv/Edit Custom CSV save is what sets it correctly
-  for whichever file you edit next.
+- **Edit Users-A** — saving unchecks **Apply Users-B (or a custom CSV)
+  instead of Users-A** (in case it was left checked from an earlier
+  Users-B/custom edit), then pops up a reminder to click **Apply Firewall
+  Changes**.
+- **Edit Users-B** — saving checks that same box and fills its path field
+  with `users-b.csv`, then pops up a reminder, so **Apply Firewall
+  Changes** is one click away with no manual checkbox/path matching
+  required.
+- **Apply Firewall Changes** itself clears that checkbox again once it
+  succeeds, so the state doesn't carry over to the next apply — the next
+  Edit Users-A/Edit Users-B save is what sets it correctly for whichever
+  file you edit next.
 
 **Edit conf file** doesn't do any of this, since
 `/etc/haas-firewall.conf` isn't a rules file `configure_ufw_from_csv.sh`
 reads.
 
+!!! note "Advanced: custom CSV path"
+    Below the primary buttons, an **Advanced** section (collapsed by
+    default) still has the free-text **Edit Custom CSV** and **Compare
+    Current vs Planned Rules** tools from before — useful for editing or
+    comparing against an arbitrary file by full path: a Rollback backup
+    you want to preview, or a one-off file outside the normal Users-A/B
+    slots. **Edit Custom CSV** reads the path field fresh each time you
+    click it, so it always edits whatever file is currently typed there.
+    Saving from it behaves the same as **Edit Users-B** — it checks
+    **Apply Users-B (or a custom CSV) instead of Users-A** and fills in
+    the path just saved.
+
 !!! note "Save Changes validates the CSV first"
-    **Edit users.csv** and **Edit Custom CSV** both check every row before
+    **Edit Users-A**, **Edit Users-B**, and **Edit Custom CSV** all check every row before
     writing anything, mirroring exactly what `configure_ufw_from_csv.sh`
     itself parses — the header line is always skipped, and each remaining
     non-blank row must be `name,ip_address,role`:
@@ -181,16 +189,16 @@ Rollback lives at the very bottom of the page for that reason.
 - **Reset Firewall Only** — runs `ufw reset`, deleting all custom rules.
   Asks for confirmation first.
 - **Apply Firewall Changes** — runs `configure_ufw_from_csv.sh` against
-  `users.csv` (or a custom CSV path, if you check **Use custom CSV file**
-  and provide one). Checking that box pre-fills the path field with
-  `/home/haas/Haas_Data_collect/users1.csv` as a starting point — the
-  usual convention alongside the default `users.csv` — as long as the
-  field is still empty; it won't overwrite a path you've already typed.
-  Asks for confirmation, **naming exactly which CSV file it's about to
-  use** (`users.csv`, or your custom path) so you're not confirming
-  blind — then checks that file actually exists before touching
-  anything; if it doesn't, the firewall is left untouched and you get an
-  error instead.
+  `users-a.csv` (or Users-B / a custom CSV path, if you check **Apply
+  Users-B (or a custom CSV) instead of Users-A** and provide one).
+  Checking that box pre-fills the path field with
+  `/home/haas/Haas_Data_collect/users-b.csv` as a starting point, as long
+  as the field is still empty; it won't overwrite a path you've already
+  typed. Asks for confirmation, **naming exactly which CSV file it's
+  about to use** (`users-a.csv`, `users-b.csv`, or your custom path) so
+  you're not confirming blind — then checks that file actually exists
+  before touching anything; if it doesn't, the firewall is left untouched
+  and you get an error instead.
 
 Both buttons refresh **Active Firewall Rules** immediately once the
 command actually finishes, rather than waiting on the dashboard's normal
@@ -199,7 +207,8 @@ what rules exist, they shouldn't leave the dashboard above showing stale
 state even briefly.
 
 !!! tip "Apply Firewall Changes checks Samba/Linux accounts too"
-    `users.csv` controls *network* access; it has no connection to the
+    Whichever CSV is applied (Users-A, Users-B, or a custom file) controls
+    *network* access; it has no connection to the
     actual Samba/Linux login accounts (created via Manage Samba's
     **Create User** / **Delete User** — see
     [Create User](./samba.md#create-user)). A successful **Apply Firewall
@@ -232,6 +241,8 @@ reach for far less often than Simulate/Compare or Apply Firewall Changes.
 
 **Rollback CSV** only restores the file — like the CSV editors above, it
 doesn't touch the live firewall by itself. Since `rollback_csv.sh` always
-restores into the same fixed CSV path (never a custom one), a successful
-rollback unchecks **Use custom CSV file** and pops up a reminder to click
-**Apply Firewall Changes**, exactly like saving from **Edit users.csv**.
+restores into whatever `CSV_PATH` currently points to (normally
+`users-a.csv`, never a custom one), a successful rollback unchecks
+**Apply Users-B (or a custom CSV) instead of Users-A** and pops up a
+reminder to click **Apply Firewall Changes**, exactly like saving from
+**Edit Users-A**.

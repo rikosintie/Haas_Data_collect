@@ -16,14 +16,17 @@ git clone https://github.com/rikosintie/Haas_Data_collect.git
 cd Haas_Data_collect
 ```
 
-## 3. Edit `users.csv` and `initial_users.csv` before running anything
+## 3. Edit `users-a.csv` and `initial_users.csv` before running anything
 
-- Use `nano users.csv` and `nano initial_users.csv` to edit the files
+- Use `nano users-a.csv` and `nano initial_users.csv` to edit the files
 - The installer creates Linux/Samba accounts and firewall rules straight from
 these — get them right first:
 
-  - **`users.csv`** — one row per machine/admin that needs firewall access:
-`username,ip_address,role`
+  - **`users-a.csv`** — one row per machine/admin that needs firewall access:
+`username,ip_address,role`. A second slot, `users-b.csv`, is also present
+for planned/alternate rule sets — see
+[Simulate / Compare](manage_the_appliance/firewall.md#simulate-compare) —
+but only `users-a.csv` needs review before the initial install.
   - **`initial_users.csv`** — Samba accounts to create automatically:
   `username, password`
 
@@ -44,7 +47,7 @@ sudo ./haas-install.sh
   subnets, SSH port).
 - Installs the firewall scripts into `/usr/local/sbin/` and the
   `haas-firewall` systemd service + timer, which apply firewall rules from
-  `users.csv` on a schedule.
+  `users-a.csv` on a schedule.
 - Hardens SSH (`/etc/ssh/sshd_config.d/99-haas-hardening.conf`) and installs
   the pre-login banner.
 - Installs Samba, creates the `haas` user and `HaasGroup`, and sets up the

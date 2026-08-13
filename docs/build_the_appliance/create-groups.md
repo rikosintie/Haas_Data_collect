@@ -5,7 +5,7 @@
 
 ----------------------------------------------------------------
 
-The Installation script creates the `HaasGroup` and users that are in the `users.csv` and `initial_users.csv` files. The instructions are included here to clarify how the installation script works.
+The Installation script creates the `HaasGroup` and users that are in the `users-a.csv` and `initial_users.csv` files. The instructions are included here to clarify how the installation script works.
 
 ----------------------------------------------------------------
 

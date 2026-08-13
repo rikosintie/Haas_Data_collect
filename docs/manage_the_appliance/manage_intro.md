@@ -81,6 +81,6 @@ listed, with a highlighted amber warning box on its own line underneath
     [Network Deployment: DHCP, DNS, and a Stable Network Identity](../build_the_appliance/network_deployment.md)
     for how to set that up during initial deployment.
 
-This has no effect on the firewall itself — `users.csv` rules apply
+This has no effect on the firewall itself — `users-a.csv`/`users-b.csv` rules apply
 per-IP regardless of which interface it's reachable on — it's purely
 informational, read fresh (no caching) every time the page loads.

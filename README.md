@@ -19,6 +19,6 @@
 
 This is the code repository for the project.
 
-**New here? Start with [INSTALL_QUICKSTART.md](./docs/INSTALL_QUICKSTART.md).**
+**New here? Start with [Quick Start](https://rikosintie.github.io/Haas_Data_collect/INSTALL_QUICKSTART/).**
 
 **The complete project documentation is a Github book located [here](https://rikosintie.github.io/Haas_Data_collect/).**
