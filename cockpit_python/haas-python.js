@@ -640,19 +640,43 @@ serviceStateBtn.addEventListener("click", function() {
 
 // ── Data Freshness ────────────────────────────────────────────────────────────
 
+// Colorizes Data Freshness's per-machine lines the same way Manage Samba's
+// Users button colors its lists — alternating blue/white rows so a long
+// machine list is easy to scan — and flags the two "found a problem"
+// messages the script itself already emits (no cnc_logs directory yet /
+// no data files found) in warn, matching Service State's convention of
+// flagging problem lines instead of leaving everything one color. Call
+// only on already-escaped text.
+function colorizeDataFreshness(escapedText) {
+    var i = 0;
+    return escapedText.split("\n").map(function(line) {
+        if (line.trim() === "") return line;
+        var colored;
+        if (/no cnc_logs directory yet$/.test(line) || /no data files found$/.test(line)) {
+            colored = "<span class=\"warn\">" + line + "</span>";
+        } else {
+            colored = (i % 2 === 1) ? "<span class=\"info\">" + line + "</span>" : line;
+        }
+        i++;
+        return colored;
+    }).join("\n");
+}
+
 dataFreshnessBtn.addEventListener("click", function() {
     if (!confirmLeavingLiveLog()) return;
     stopLiveLog();
     setActiveLogBtn(dataFreshnessBtn);
-    output.textContent = "--- Data Freshness (newest file in each machine's cnc_logs/) ---\n\n";
+    output.innerHTML = "<span class=\"info\">--- Data Freshness (newest file in each machine's cnc_logs/) ---</span>\n\n";
 
     cockpit.spawn(["bash", "-c", HAAS_DATA_FRESHNESS_SCRIPT], { superuser: "require", err: "message" })
         .done(function(data) {
-            output.textContent += data || "(no machine directories found under " + HAAS_MACHINES_DIR + ")";
+            output.innerHTML += data
+                ? colorizeDataFreshness(escapeHtml(data))
+                : "(no machine directories found under " + escapeHtml(HAAS_MACHINES_DIR) + ")";
         })
         .fail(function(ex, data) {
-            output.textContent += "\nERROR: " + (ex.message || JSON.stringify(ex));
-            if (data) output.textContent += "\n" + data;
+            output.innerHTML += "\n<span class=\"error\">ERROR: " + escapeHtml(ex.message || JSON.stringify(ex)) + "</span>";
+            if (data) output.innerHTML += "\n" + escapeHtml(data);
         })
         .always(function() {
             setActiveLogBtn(null);
@@ -714,6 +738,25 @@ function parseFreshnessOutput(text) {
     return byMachine;
 }
 
+// Pads first, then escapes, then wraps in a colored span — in that order
+// specifically, so the span tag's own characters never count toward the
+// padded column width and alignment stays intact.
+function colorMachineHealthField(text, width, cssClass) {
+    var padded = width ? String(text).padEnd(width) : String(text);
+    var escaped = escapeHtml(padded);
+    return cssClass ? "<span class=\"" + cssClass + "\">" + escaped + "</span>" : escaped;
+}
+
+// Mirrors colorizeServiceOutput's own connectivity color choices exactly
+// (info for "not reachable", success for "reachable"/"already connected")
+// — same underlying script, same meaning, same colors, just applied to a
+// table cell instead of a full log line.
+function machineHealthConnClass(value) {
+    if (/\bnot reachable$/.test(value)) return "info";
+    if (/\breachable$/.test(value) || /already connected \(skipped probe\)$/.test(value)) return "success";
+    return null;
+}
+
 function buildMachineHealthTable(portsText, bufferingText, connText, freshText) {
     var ports = parsePortsOutput(portsText);
     var missingU = parseBufferingOutput(bufferingText);
@@ -744,15 +787,23 @@ function buildMachineHealthTable(portsText, bufferingText, connText, freshText) 
     });
 
     var header = "Machine".padEnd(15) + "Port".padEnd(7) + "Dup".padEnd(5) + "-u".padEnd(9) + "Connectivity".padEnd(36) + "Data Age";
-    var lines = [header, "-".repeat(header.length)];
+    // Header + divider colored the same blue as Service State's "--- X ---"
+    // section headers, for a consistent visual anchor across extensions.
+    var lines = [
+        "<span class=\"info\">" + escapeHtml(header) + "</span>",
+        "<span class=\"info\">" + escapeHtml("-".repeat(header.length)) + "</span>"
+    ];
     rows.forEach(function(r) {
+        var freshnessClass = (/no cnc_logs directory yet$/.test(r.freshness) || /no data files found$/.test(r.freshness))
+            ? "warn"
+            : null;
         lines.push(
-            r.machine.padEnd(15) +
-            String(r.port).padEnd(7) +
-            r.dup.padEnd(5) +
-            r.uStatus.padEnd(9) +
-            r.connectivity.padEnd(36) +
-            r.freshness
+            colorMachineHealthField(r.machine, 15, null) +
+            colorMachineHealthField(r.port, 7, null) +
+            colorMachineHealthField(r.dup, 5, r.dup ? "warn" : null) +
+            colorMachineHealthField(r.uStatus, 9, r.uStatus === "MISSING" ? "warn" : (r.uStatus === "OK" ? "success" : null)) +
+            colorMachineHealthField(r.connectivity, 36, machineHealthConnClass(r.connectivity)) +
+            colorMachineHealthField(r.freshness, 0, freshnessClass)
         );
     });
     return lines.join("\n");
@@ -763,7 +814,7 @@ machineHealthBtn.addEventListener("click", function() {
     stopLiveLog();
     setActiveLogBtn(machineHealthBtn);
     disableButtons(true);
-    output.textContent = "--- Machine Health ---\nGathering port/duplicate, buffering, and data freshness info...\n";
+    output.innerHTML = "<span class=\"info\">--- Machine Health ---</span>\nGathering port/duplicate, buffering, and data freshness info...\n";
 
     cockpit.spawn(["bash", "-c", HAAS_PORTS_SCRIPT], { superuser: "require", err: "message" })
         .done(function(portsData) {
@@ -771,16 +822,16 @@ machineHealthBtn.addEventListener("click", function() {
                 .done(function(bufData) {
                     cockpit.spawn(["bash", "-c", HAAS_DATA_FRESHNESS_SCRIPT], { superuser: "require", err: "message" })
                         .done(function(freshData) {
-                            output.textContent += "\nRunning connectivity check (this can take several seconds)...\n";
+                            output.innerHTML += "\nRunning connectivity check (this can take several seconds)...\n";
 
                             cockpit.spawn(["bash", "-c", HAAS_CONNECTIVITY_SCRIPT], { superuser: "require", err: "message" })
                                 .done(function(connData) {
-                                    output.textContent = "--- Machine Health ---\n\n" +
+                                    output.innerHTML = "<span class=\"info\">--- Machine Health ---</span>\n\n" +
                                         buildMachineHealthTable(portsData, bufData, connData, freshData);
                                 })
                                 .fail(function(ex, data) {
-                                    output.textContent += "\nERROR checking connectivity: " + (ex.message || JSON.stringify(ex));
-                                    if (data) output.textContent += "\n" + data;
+                                    output.innerHTML += "\n<span class=\"error\">ERROR checking connectivity: " + escapeHtml(ex.message || JSON.stringify(ex)) + "</span>";
+                                    if (data) output.innerHTML += "\n" + escapeHtml(data);
                                 })
                                 .always(function() {
                                     setActiveLogBtn(null);
@@ -788,22 +839,22 @@ machineHealthBtn.addEventListener("click", function() {
                                 });
                         })
                         .fail(function(ex, data) {
-                            output.textContent += "\nERROR checking data freshness: " + (ex.message || JSON.stringify(ex));
-                            if (data) output.textContent += "\n" + data;
+                            output.innerHTML += "\n<span class=\"error\">ERROR checking data freshness: " + escapeHtml(ex.message || JSON.stringify(ex)) + "</span>";
+                            if (data) output.innerHTML += "\n" + escapeHtml(data);
                             setActiveLogBtn(null);
                             disableButtons(false);
                         });
                 })
                 .fail(function(ex, data) {
-                    output.textContent += "\nERROR checking for -u: " + (ex.message || JSON.stringify(ex));
-                    if (data) output.textContent += "\n" + data;
+                    output.innerHTML += "\n<span class=\"error\">ERROR checking for -u: " + escapeHtml(ex.message || JSON.stringify(ex)) + "</span>";
+                    if (data) output.innerHTML += "\n" + escapeHtml(data);
                     setActiveLogBtn(null);
                     disableButtons(false);
                 });
         })
         .fail(function(ex, data) {
-            output.textContent += "\nERROR checking ports: " + (ex.message || JSON.stringify(ex));
-            if (data) output.textContent += "\n" + data;
+            output.innerHTML += "\n<span class=\"error\">ERROR checking ports: " + escapeHtml(ex.message || JSON.stringify(ex)) + "</span>";
+            if (data) output.innerHTML += "\n" + escapeHtml(data);
             setActiveLogBtn(null);
             disableButtons(false);
         });
