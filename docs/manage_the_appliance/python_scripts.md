@@ -321,7 +321,7 @@ Here is what Machine Health looks like:
 
 ----------------------------------------------------------------
 
-![screenshot](./img/machine-health.png)
+![screenshot](./img/machine-health-perms.png)
 
 ----------------------------------------------------------------
 
@@ -331,3 +331,19 @@ In this example there is:
 - Six machines are online and have received data in the last few minutes
 - Machine 01_test has a `cnc_log` directory so it has connected, but no csv files have been created.
 - Machine st40l has not connect to a machine yet. No cnc_logs directory has been created.
+
+If the directory permissions in the `machines` folder are not correct, the `Dir Perms` column with highlight in yellow. I have had the permission be incorrect rarely, but I spent several minutes troubleshooting it! I finally click `Logs` and filtered on `vf5ss`. This will immediately tell you why a machine isn't writing files if it's a permission error.
+
+----------------------------------------------------------------
+
+![screenshot](./img/machine-health-root.png)
+
+----------------------------------------------------------------
+
+Here is the error in the `Log`:
+
+----------------------------------------------------------------
+
+![screenshot](./img/machine-health-error.png)
+
+----------------------------------------------------------------
