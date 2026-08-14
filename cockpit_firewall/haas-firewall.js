@@ -749,7 +749,11 @@
         // Shared inline editor used by Edit Users-A / Edit Users-B / Edit
         // Custom CSV — the three differ only in which path they open and
         // what should happen to Apply Firewall Changes' checkbox/path
-        // state afterward (afterSave handles that per-caller).
+        // state afterward (afterSave handles that per-caller). Every path
+        // that reaches here is CSV-shaped by the time it's saved —
+        // validateUsersCsv() below blocks anything else — so restoring
+        // haas:HaasGroup ownership after save (see the save handler) is
+        // always correct, not just for the two known repo paths.
         function openCsvEditor(csvPath, afterSave) {
             output.textContent = "Loading " + csvPath + "...\n";
 
@@ -796,8 +800,36 @@
                         cockpit.file(csvPath, { superuser: "require" })
                             .replace(normalized)
                             .then(function() {
-                                output.textContent = "File saved successfully!\n";
-                                afterSave();
+                                // cockpit.file().replace() writes as root
+                                // (superuser: "require"), which resets the
+                                // file's ownership to root:HaasGroup — this
+                                // silently broke direct terminal edits
+                                // ("nano users-a.csv") for the haas user
+                                // afterward, since haas is then covered only
+                                // by the read-only group bit, not the owner
+                                // bit. Restore the ownership/mode every
+                                // saved CSV is supposed to have, matching
+                                // every other repo file haas edits directly.
+                                // Runs regardless of who's logged into
+                                // Cockpit (haas, mspadmin, or any other
+                                // Administrator-role account) — the chown
+                                // target is always haas:HaasGroup, and it
+                                // runs with root privilege either way, so
+                                // the acting user doesn't change the result.
+                                cockpit.spawn(["chown", "haas:HaasGroup", csvPath], { superuser: "require", err: "message" })
+                                    .then(function() {
+                                        return cockpit.spawn(["chmod", "664", csvPath], { superuser: "require", err: "message" });
+                                    })
+                                    .then(function() {
+                                        output.textContent = "File saved successfully!\n";
+                                        afterSave();
+                                    })
+                                    .catch(function(error) {
+                                        output.textContent = "File saved, but restoring ownership failed: " + error + "\n" +
+                                            "Run this on the appliance to fix it by hand:\n" +
+                                            "sudo chown haas:HaasGroup " + csvPath + " && sudo chmod 664 " + csvPath + "\n";
+                                        afterSave();
+                                    });
                             })
                             .catch(function(error) {
                                 output.textContent = "Error saving file: " + error + "\n";

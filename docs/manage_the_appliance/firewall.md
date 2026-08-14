@@ -114,6 +114,17 @@ Changes** and **Cancel** buttons. Saving writes the file directly — it does
 not apply firewall changes by itself; use **Apply Firewall Changes** below
 for that.
 
+!!! note "Saving restores haas:HaasGroup ownership"
+    Every save through **Edit Users-A**, **Edit Users-B**, or **Edit
+    Custom CSV** runs as root (Cockpit's `superuser: "require"`
+    escalation), which would otherwise leave the file `root`-owned and
+    quietly break direct terminal edits (`nano users-a.csv`) for the
+    `haas` user afterward. Each save explicitly restores
+    `haas:HaasGroup` ownership and `664` permissions once the write
+    succeeds, so the file stays editable both ways no matter which
+    Administrator-role account (`haas`, `mspadmin`, or any other) saved
+    it last.
+
 Saving from **Edit Users-A** or **Edit Users-B** doesn't touch the
 live firewall by itself — you still need **Apply Firewall Changes**
 below, and each save button sets up the Apply section for exactly the
