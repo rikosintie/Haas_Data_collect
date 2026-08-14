@@ -241,13 +241,15 @@ daemon-reload`.
 
 ----------------------------------------------------------------
 
+![screenshot](./img/delete-service.png)
+
+----------------------------------------------------------------
+
 ### Data Freshness
 
 Click **Data Freshness** for a one-shot list of when each machine under
 `/home/haas/Haas_Data_collect/machines/` last wrote a CSV file — the
-newest file in that machine's `cnc_logs/` directory, however logging was
-set up (append mode or per-cycle files, it just checks modification
-time).
+newest file in that machine's `cnc_logs/` directory.
 
 The list is sorted **oldest first**, so a machine that's silently stopped
 producing data floats straight to the top instead of only being noticed
@@ -260,6 +262,11 @@ This doesn't tell you *why* a machine stopped writing — pair it with
 above to see whether it's a connection problem, a wrong/duplicate port,
 or something else. Or just click **Machine Health** below, which answers
 all of that in one table.
+
+
+----------------------------------------------------------------
+
+![screenshot](./img/data-freshness.png)
 
 ----------------------------------------------------------------
 
@@ -301,7 +308,8 @@ Here is what Machine Health looks like:
 ----------------------------------------------------------------
 
 In this example there is:
+
 - Machine v2fss appears to be turned off
-- Seven machines are online and have received data in the last few minutes
+- Six machines are online and have received data in the last few minutes
 - Machine 01_test has a `cnc_log` directory so it has connected, but no csv files have been created.
 - Machine st40l has not connect to a machine yet. No cnc_logs directory has been created.
