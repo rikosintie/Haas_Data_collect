@@ -595,43 +595,73 @@ saveRestartBtn.addEventListener("click", function() {
         validationMsg.classList.add("hidden");
         panelLabel.textContent = "Ensuring " + path + " exists...";
 
+        // Runs once the directory is confirmed to exist with correct
+        // ownership/permissions — separated out so the mkdir/chown/chmod
+        // chain below it doesn't have to nest this whole step one level
+        // deeper (same pattern used for cockpit_python's Create Service).
+        function continueCreateShareAfterDir() {
+            panelLabel.textContent = "Loading current " + SMB_CONF + "...";
+
+            cockpit.file(SMB_CONF, { superuser: "require" }).read()
+                .done(function(currentContent) {
+                    currentContent = currentContent || "";
+
+                    if (new RegExp("^\\s*\\[" + machine + "\\]", "im").test(currentContent)) {
+                        showValidationError(
+                            "A share named [" + machine + "] already exists in " + SMB_CONF + " — edit it directly via Edit smb.conf instead.",
+                            createShareModeLabel
+                        );
+                        return;
+                    }
+
+                    var stanza = "\n[" + machine + "]\n" +
+                        "    comment = " + comment + "\n" +
+                        "    path = " + path + "\n" +
+                        SHARE_STATIC_LINES + "\n";
+
+                    var newContent = currentContent.replace(/\s*$/, "\n") + stanza;
+
+                    panelLabel.textContent = "Validating configuration with testparm...";
+                    validateSmbConf(newContent,
+                        function onValid() {
+                            hideCreateShareForm();
+                            showOutputPanel("Configuration OK. Saving " + SMB_CONF + "...\n");
+                            writeConfAndRestart(newContent);
+                        },
+                        function onInvalid(errText) {
+                            showValidationError(errText, createShareModeLabel);
+                        }
+                    );
+                })
+                .fail(function(ex) {
+                    showValidationError("ERROR reading " + SMB_CONF + ": " + (ex.message || JSON.stringify(ex)), createShareModeLabel);
+                });
+        }
+
         cockpit.spawn(["mkdir", "-p", path], { superuser: "require", err: "message" })
             .done(function() {
-                panelLabel.textContent = "Loading current " + SMB_CONF + "...";
-
-                cockpit.file(SMB_CONF, { superuser: "require" }).read()
-                    .done(function(currentContent) {
-                        currentContent = currentContent || "";
-
-                        if (new RegExp("^\\s*\\[" + machine + "\\]", "im").test(currentContent)) {
-                            showValidationError(
-                                "A share named [" + machine + "] already exists in " + SMB_CONF + " — edit it directly via Edit smb.conf instead.",
-                                createShareModeLabel
-                            );
-                            return;
-                        }
-
-                        var stanza = "\n[" + machine + "]\n" +
-                            "    comment = " + comment + "\n" +
-                            "    path = " + path + "\n" +
-                            SHARE_STATIC_LINES + "\n";
-
-                        var newContent = currentContent.replace(/\s*$/, "\n") + stanza;
-
-                        panelLabel.textContent = "Validating configuration with testparm...";
-                        validateSmbConf(newContent,
-                            function onValid() {
-                                hideCreateShareForm();
-                                showOutputPanel("Configuration OK. Saving " + SMB_CONF + "...\n");
-                                writeConfAndRestart(newContent);
-                            },
-                            function onInvalid(errText) {
-                                showValidationError(errText, createShareModeLabel);
-                            }
-                        );
+                // mkdir runs as root (superuser: "require"), so a newly
+                // created directory comes out root-owned with root's
+                // umask by default — "force user"/"force directory mode"
+                // in smb.conf don't bypass the underlying filesystem
+                // permission check, they just tell smbd which user/mode
+                // to apply on ITS OWN writes, so a root:HaasGroup 755
+                // directory (no group write) still rejects smbd's write
+                // as haas the same way it rejected haas_logger2.py's
+                // service in the cockpit_python Create Service bug this
+                // mirrors. Match every existing machines/ subdirectory's
+                // ownership/mode explicitly rather than relying on mkdir
+                // + smb.conf's force directives alone.
+                cockpit.spawn(["chown", "haas:HaasGroup", path], { superuser: "require", err: "message" })
+                    .done(function() {
+                        cockpit.spawn(["chmod", "2774", path], { superuser: "require", err: "message" })
+                            .done(function() { continueCreateShareAfterDir(); })
+                            .fail(function(ex, data) {
+                                showValidationError("ERROR setting permissions on " + path + ": " + (data || ex.message || JSON.stringify(ex)), createShareModeLabel);
+                            });
                     })
-                    .fail(function(ex) {
-                        showValidationError("ERROR reading " + SMB_CONF + ": " + (ex.message || JSON.stringify(ex)), createShareModeLabel);
+                    .fail(function(ex, data) {
+                        showValidationError("ERROR setting ownership on " + path + ": " + (data || ex.message || JSON.stringify(ex)), createShareModeLabel);
                     });
             })
             .fail(function(ex, data) {
