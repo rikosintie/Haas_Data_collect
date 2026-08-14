@@ -303,6 +303,23 @@ if [[ ! -f "$CSV_PATH" ]]; then
   exit 1
 fi
 
+# users-a.csv / users-b.csv / initial_users.csv are tracked in git as
+# starter templates, but every real appliance immediately customizes them
+# with its own usernames/IPs/passwords. Without this, a later `git pull`
+# to pick up an appliance software update fails with "Your local changes
+# would be overwritten by merge" the moment any of these three has been
+# edited — which is always, on a real deployment. --skip-worktree tells
+# git to stop comparing the working-tree copy against upstream for these
+# paths entirely, so pull/checkout leave the local, customized files
+# alone from here on. Run as the invoking (non-root) user, not root —
+# this script runs under sudo, and writing to .git/index as root would
+# leave it root-owned, breaking ordinary `git` commands for that user
+# afterward.
+banner "${CYAN}[*] Excluding users-a.csv / users-b.csv / initial_users.csv from future git pulls${RESET}"
+for f in users-a.csv users-b.csv initial_users.csv; do
+  sudo -u "${SUDO_USER:-haas}" git -C "$REPO_DIR" update-index --skip-worktree "$f" 2>/dev/null || true
+done
+
 if [[ ! -d "$COCKPIT_SRC" ]]; then
   banner "${YELLOW}[ERROR] Cockpit directory missing:${RESET}${CYAN} $COCKPIT_SRC ${RESET}"
   exit 1

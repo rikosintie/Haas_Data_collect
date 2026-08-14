@@ -1,4 +1,4 @@
-# Troubleshooting cockpit
+# Troubleshooting the Appliance
 
 ----------------------------------------------------------------
 
@@ -15,16 +15,15 @@
 The extension `Privacy Badger` will cause the:
 
 - Accounts
--Services
+- Services
 
 Pages to flash constantly. If this occurs, click on the `Privacy Badger` and then click "Disable for this site"
 
-The web console in `Developer tools` is useful for troubleshooting Cockpit. While the cockpit homepage is displayed (`https://localhost:9090` or `https://[appliance_ip:9090]`) press F12 to view the developer tools. The click on `console` to view real time messages.
+The web console in `Developer tools` is useful for troubleshooting Cockpit. While the cockpit homepage is displayed (`https://localhost:9090` or `https://<appliance-ip>:9090`) press F12 to view the developer tools. Then click on `console` to view real time messages.
 
 So we can now eliminate:
 
-permissions
-
+- permissions
 - directory visibility
 - manifest structure
 - manifest encoding
@@ -44,7 +43,7 @@ drwxr-xr-x 15 root root 4096 Jan 15 14:59 /usr/share/cockpit
 
 ----------------------------------------------------------------
 
-Use the `namei - follow a pathname until a terminal point is found` tool to view all the permissions. One advanatege of `namei` is that it shows you the entire path.
+Use the `namei - follow a pathname until a terminal point is found` tool to view all the permissions. One advantage of `namei` is that it shows you the entire path.
 
 ```bash hl_lines='1'
 /usr/share/cockpit/haas-firewall ⌚ 18:34:28
@@ -55,9 +54,9 @@ drwxr-xr-x root root usr
 drwxr-xr-x root root share
 drwxr-xr-x root root cockpit
 drwxr-xr-x root root haas-firewall
+```
 
 ----------------------------------------------------------------
-```
 
 ``` bash
 ┌─[haas@haas] - [/usr/share/cockpit/haas-firewall] - [2875]
@@ -69,7 +68,6 @@ drwxr-xr-x root root haas-firewall
     "version": 2,
     "name": "haas-firewall",
     "label": "Haas Firewall",
-    "icon": "icon.png",
     "requires": {
         "cockpit": "*"
     },
@@ -111,6 +109,111 @@ this renderer mismatch never applies to it.
 
 ----------------------------------------------------------------
 
+## A Cockpit extension change doesn't take effect
+
+Every custom extension (`haas-firewall`, `haas-samba`,
+`haas-update-appliance`, `haas-python`) lives in the repo as a
+`cockpit_X/` source folder, but Cockpit never runs that folder directly —
+it only serves whatever was copied to `/usr/share/cockpit/haas-X/` by
+`haas-install.sh` at install time. Editing the repo (even `git pull`ing a
+fix) changes nothing until that copy is redeployed by hand. This one
+underlying gap shows up as several different-looking symptoms:
+
+**1. Wrong deploy target.** Not every file in a `cockpit_X/` folder
+deploys to the same place. For example, `cockpit_samba/list_shares.sh`
+stays alongside `samba.js`/`samba.css`/`index.html` in the repo, but
+`haas-install.sh` copies it separately to `/usr/local/sbin/`, not to
+`/usr/share/cockpit/haas-samba/`. A fix to a file like that appears to do
+nothing if you redeploy "the rest of the folder" and assume it went with
+them. Check `haas-install.sh` for the file's actual `cp` destination
+before assuming a redeploy covered it.
+
+**2. Partial copy.** Redeploying only the file you remember changing
+(e.g. just `.css`) instead of the full set (`.js`, `.css`, `index.html`,
+`manifest.json`) leaves the others stale. A JS fix paired with an HTML
+change — a new button, a renamed element ID — needs `index.html` copied
+too, or the new JS will crash trying to attach a listener to an element
+that doesn't exist yet: `Uncaught TypeError: Cannot read properties of
+null (reading 'addEventListener')` in the browser console is the
+signature of this one.
+
+**3. `git pull` alone isn't enough.** This is the mirror image of #2 —
+`git pull` updates the repo checkout (so `ls -la` on the repo folder
+shows fresh timestamps and looks fully up to date) but does nothing to
+the deployed copy under `/usr/share/cockpit/`. The `cp` step below still
+has to be run by hand every time, even right after a clean pull.
+
+**4. A prior click "locks in" old behavior.** If a fix changes what a
+button does when clicked (for example, persisting a value to a config
+file for a systemd timer to read later), redeploying the JS only changes
+what happens on the *next* click. A click from before the redeploy still
+ran the old code and produced its old, incomplete result — nothing
+retroactively fixes that until the button is clicked again after the
+redeploy.
+
+**Diagnosing which one you're looking at:** compare the deployed file
+against the repo copy directly, rather than guessing from symptoms alone:
+
+```bash
+grep -c "<new element id or code string>" /usr/share/cockpit/haas-X/index.html
+ls -la cockpit_X/ /usr/share/cockpit/haas-X/
+```
+
+A `0` from `grep`, or an older timestamp on the deployed side than the
+repo side, confirms the deploy is stale. Redeploy the full set and
+restart Cockpit:
+
+```bash
+sudo cp cockpit_X/{index.html,haas-X.js,haas-X.css,manifest.json} /usr/share/cockpit/haas-X/
+sudo systemctl restart cockpit
+```
+
+Then re-run whatever action you clicked before the fix, if it's the kind
+that persists state (case #4 above) — the redeploy alone doesn't replay
+it for you.
+
+----------------------------------------------------------------
+
+## `git pull` fails with "local changes would be overwritten"
+
+Running `git pull` in the repo directory (`/home/haas/Haas_Data_collect`)
+is how an appliance picks up software/documentation updates. It's a
+normal, supported thing to do any time — not just during initial setup.
+
+If it fails with something like:
+
+```text
+error: Your local changes to the following files would be overwritten by merge:
+        users-a.csv
+Please commit your changes or stash them before you merge.
+```
+
+the cause is that `users-a.csv`, `users-b.csv`, and `initial_users.csv`
+ship as tracked starter templates, but every real appliance immediately
+customizes them with its own usernames, IPs, and passwords — and git
+sees that customization as a conflict with whatever the update changed
+elsewhere in the repo.
+
+**Appliances installed (or reinstalled) after this note was added don't
+hit this** — `haas-install.sh` runs `git update-index --skip-worktree`
+on all three files right after the pre-flight review step, which tells
+git to stop comparing their working-tree contents against upstream
+entirely. Your edits stay exactly as you made them, and `git pull` no
+longer looks at those three paths at all.
+
+If you're on an appliance that was set up before this fix, run it once
+by hand from the repo directory:
+
+```bash
+git update-index --skip-worktree users-a.csv users-b.csv initial_users.csv
+```
+
+(Run this as the `haas` user, not root/sudo — running it as root would
+leave `.git/index` root-owned and break ordinary `git` commands for the
+`haas` user afterward.)
+
+----------------------------------------------------------------
+
 ## LLDP
 
 Link Layer Discovery Protocol (LLDP) is an IEEE standard that comes installed on a majority of networking appliances. This appliance uses the [lldpd: implementation of IEEE 802.1ab (LLDP)](https://github.com/lldpd/lldpd) from GitHub. The tool is useful when you are connecting the appliance to a network and want to know what it is connected to over Ethernet or WiFI.
@@ -124,8 +227,9 @@ The `lldp` daemon has a lot of capabilities beyond just showing what the applian
 - show interface - shows the interfaces on the appliance.
 - show chassis - lists information about the Operating System, and capabilities
 
-Start the user interface by running `lldpcli`. You can then type `help` to see the category of commands available. Once you enter a category you can type a question mark `?` to get more hel.
+Start the user interface by running `lldpcli`. You can then type `help` to see the category of commands available. Once you enter a category you can type a question mark `?` to get more help.
 
+```bash title='Command Output'
 [lldpcli] $ help
 
 -- Help
@@ -135,6 +239,7 @@ Start the user interface by running `lldpcli`. You can then type `help` to see t
      pause  Pause lldpd operations
     resume  Resume lldpd operations
       exit  Exit interpreter
+```
 
 ----------------------------------------------------------------
 

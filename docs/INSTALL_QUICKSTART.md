@@ -1,17 +1,23 @@
 # Installation Quick Start
 
 This is the short version. For the full walkthrough (partitioning, Ubuntu
-install, networking, etc.) see the docs under `docs/build_the_appliance/`.
+install, networking, etc.) see the docs under [Use an appliance for the scripts](https://rikosintie.github.io/Haas_Data_collect/build_the_appliance/build_an_appliance/){: target="_blank" rel="noopener" }.
 
 ## 1. Prerequisites
 
-- A Raspberry Pi 5, a Virtual Machine, or an Intel/AMD PC, with Ubuntu server 24.04/26.04 already installed and internet access.
+You will need either of these:
+
+- Raspberry Pi 5
+- Virtual Machine on WSL, HyperV, KVM, Proxmox, Virtual Box, Etc.
+- Intel/AMD PC
+- Ubuntu server 24.04/26.04 already installed
+- internet access.
 - User `haas` with Root/sudo access.
 
 ## 2. Clone the repo
 
 ```bash
-cd ~ # make sure you are in the repo root
+cd ~ # make sure you are in the home directory
 git clone https://github.com/rikosintie/Haas_Data_collect.git
 cd Haas_Data_collect
 ```
@@ -22,23 +28,23 @@ cd Haas_Data_collect
 - The installer creates Linux/Samba accounts and firewall rules straight from
 these — get them right first:
 
-  - **`users-a.csv`** — one row per machine/admin that needs firewall access:
-`username,ip_address,role`. A second slot, `users-b.csv`, is also present
+  - **`users-a.csv`** — one row per machine/user that needs firewall access. Format is `username,ip_address,role`. Role can be Administrator or user.
+  - **`initial_users.csv`** — Samba accounts to create automatically. The format is: `username, password`.
+
+A second slot, `users-b.csv`, is also present
 for planned/alternate rule sets — see
 [Simulate / Compare](manage_the_appliance/firewall.md#simulate-compare) —
 but only `users-a.csv` needs review before the initial install.
-  - **`initial_users.csv`** — Samba accounts to create automatically:
-  `username, password`
 
 The installer itself will pause on a banner and remind you to check these
 before it touches anything — Ctrl+C there is safe if you need to go edit
-them first.
+them first. Then rerun the installer.
 
 ## 4. Run the installer
 
 ```bash
-cd ~  # make sure you are in the repo root
-sudo ./haas-install.sh
+cd ~ # make sure you are in the repo root
+sudo ./haas-install.sh # launch the installer
 ```
 
 ## 5. What it actually does
@@ -50,24 +56,29 @@ sudo ./haas-install.sh
   `users-a.csv` on a schedule.
 - Hardens SSH (`/etc/ssh/sshd_config.d/99-haas-hardening.conf`) and installs
   the pre-login banner.
-- Installs Samba, creates the `haas` user and `HaasGroup`, and sets up the
-  `[machines]` share (one shared drive exposing every machine's
+- Installs Samba, creates the `haas` Samba user and `HaasGroup`, and sets up the
+  `[machines]` share (one shared drive exposing every CNC machine's
   subdirectory) with SMBv2/SMBv3-only, NetBIOS/printing disabled. The repo
   root itself is not shared over Samba — only reachable over SSH or the
   Cockpit terminal — so scripts and config aren't exposed to every Samba
   account. Per-machine
   shares (recommended if you want tighter segmentation than `[machines]`
-  gives you) are created individually via Manage Samba's Create Share
-  button.
+  gives you) are created individually via Cockpit's "Manage Samba's" page, `Create Share` button.
 - Creates any additional Samba accounts listed in `initial_users.csv`.
 - Installs Cockpit (web UI, port 9090) plus four custom extensions:
-  - `haas-firewall` — firewall control
+  - `haas-firewall` — firewall management
   - `haas-samba` — manage Samba shares/users
   - `haas-update-appliance` — view/trigger CLI tool updates
   - `haas-python` — Python script services (CNC-logger management)
 - Installs CLI tools listed in `tools.yaml` (via `install-tools.sh` /
-  `gh-updater.lib.sh`) — currently `csvlens`, `tspin`, `bat`, `fresh`,
-  `superfile`, `zoxide` — and sets up zsh + Oh My Zsh for the `haas` user.
+  `gh-updater.lib.sh`) — currently:
+  - `csvlens`
+  - `tspin`
+  - `bat`
+  - `fresh`
+  - `superfile`
+  - `zoxide`
+- sets up zsh as the shell + Oh My Zsh for the `haas` user.
 - Removes the Ubuntu ESM/Livepatch boot-menu noise.
 
 ## 6. After it finishes
@@ -145,11 +156,11 @@ The Haas NGC runs an embedded Linux stack under the hood and natively supports S
     - **Case Sensitivity:** SMB share names can be picky depending on the NGC software release. Ensure the share name (e.g. `machines`) matches the exact capitalization defined in `smb.conf`.
     - **Path Traversal:** Do not add slashes to the share name (use `machines`, not `/machines` or `\\<appliance-ip>\machines`). The control appends the IP and slash automatically.
     - **Network Speed / Delays:** `haas-install.sh` sets `hostname lookups = No` in `smb.conf` by default, since machine tools are essentially never in DNS on a real shop network — without it, every connection triggers a reverse DNS lookup that times out and makes **[LIST PROGRAM]** noticeably slow. If you hand-edited `smb.conf` (or restored an older backup) and see this slowness again, confirm the *effective* setting with `testparm -v | grep -i "hostname lookups"` — it should print `No`. Don't use plain `testparm -s` to check this one: it only lists settings that differ from Samba's own compiled default, and `No` already *is* that default, so `-s` won't show it either way, whether it's genuinely set or not.
+
 ---
 
 - A full summary (paths, current UFW rules, zoxide entries) is printed at the very end. Save the onscreen summary before you close the SSH session, since the terminal output itself is gone once you disconnect. The `haas-install-summary.txt` file is saved to `<repo_dir>/haas-install-summary.txt`. The `haas-install-summary.txt` file is permanent — see [Install Summary](manage_the_appliance/updates.md#install-summary) to view it from Cockpit later.
-- If the installer reports a reboot is required, reboot before relying on
-  the firewall service using `sudo reboot now`.
+- If the installer reports a reboot is required, reboot before relying on the firewall service using `sudo reboot now`.
 
 ---
 
@@ -158,5 +169,4 @@ The Haas NGC runs an embedded Linux stack under the hood and natively supports S
 - Re-running `sudo ./haas-install.sh` is safe — it's idempotent for most
   steps (existing users/groups/packages are detected and skipped).
 - Check firewall status any time with `sudo ufw status numbered | sort -k5` or use the Cockpit extension at `https://<appliance-ip>:9090`.
-- For deeper troubleshooting, see `docs/build_the_appliance/` and
-  `docs/appendices/`.
+- For deeper troubleshooting, see [Troubleshooting](https://rikosintie.github.io/Haas_Data_collect/build_the_appliance/TS_cockpit/){: target="_blank" rel="noopener" } and [Appliance Apendicies](https://rikosintie.github.io/Haas_Data_collect/appendices/intro/){: target="_blank" rel="noopener" }.
