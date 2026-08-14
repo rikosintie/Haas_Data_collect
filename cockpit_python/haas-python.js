@@ -70,6 +70,7 @@ const svcDescription       = document.getElementById("svcDescription");
 const svcName              = document.getElementById("svcName");
 const svcIpAddress         = document.getElementById("svcIpAddress");
 const svcPort              = document.getElementById("svcPort");
+const svcAppendMode        = document.getElementById("svcAppendMode");
 
 const HAAS_SYSTEMD_DIR = "/etc/systemd/system";
 
@@ -380,6 +381,7 @@ function hideServiceEditor() {
     svcName.value = "";
     svcIpAddress.value = "";
     svcPort.value = "";
+    svcAppendMode.checked = true;
     output.classList.remove("hidden");
     servicesList.classList.add("hidden");
     currentServicePath = null;
@@ -1040,6 +1042,7 @@ saveServiceBtn.addEventListener("click", function() {
         var machine     = svcName.value.trim().toLowerCase();
         var ipAddress   = svcIpAddress.value.trim();
         var port        = svcPort.value.trim();
+        var appendMode  = svcAppendMode.checked;
 
         if (!description || !machine || !ipAddress || !port) {
             output.textContent = "ERROR: All four fields are required.\n";
@@ -1067,7 +1070,7 @@ saveServiceBtn.addEventListener("click", function() {
             "[Service]",
             "User=haas",
             "WorkingDirectory=/home/haas/Haas_Data_collect/machines/" + machine,
-            "ExecStart=/usr/bin/python3 -u /home/haas/Haas_Data_collect/haas_logger2.py -a -t " + ipAddress + " --port " + port + " --name " + machine.toUpperCase(),
+            "ExecStart=/usr/bin/python3 -u /home/haas/Haas_Data_collect/haas_logger2.py " + (appendMode ? "-a " : "") + "-t " + ipAddress + " --port " + port + " --name " + machine.toUpperCase(),
             "Type=idle",
             "Restart=on-failure",
             "RestartSec=5",

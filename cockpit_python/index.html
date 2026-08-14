@@ -68,6 +68,12 @@
                 <label for="svcPort">Port</label>
                 <input type="text" id="svcPort" placeholder="e.g. 5055 (range: 5001-5099)">
             </div>
+            <div class="csf-field">
+                <label for="svcAppendMode">Append mode</label>
+                <span data-tooltip="-a — save all cycles for one part number to a single file, instead of one file per cycle. Recommended for most shops; leave checked unless you specifically want a separate file per cycle.">
+                    <input type="checkbox" id="svcAppendMode" checked>
+                </span>
+            </div>
         </div>
         <textarea id="serviceEditorArea"></textarea>
     </div>
