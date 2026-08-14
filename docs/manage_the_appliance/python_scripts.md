@@ -291,3 +291,17 @@ same reason (no overlapping probes against the same targets). This is
 meant for an occasional full check, not something to click repeatedly —
 Data Freshness alone is instant if all you need is "did data arrive
 recently."
+
+Here is what Machine Health looks like:
+
+----------------------------------------------------------------
+
+![screenshot](./img/machine-health.png)
+
+----------------------------------------------------------------
+
+In this example there is:
+- Machine v2fss appears to be turned off
+- Seven machines are online and have received data in the last few minutes
+- Machine 01_test has a `cnc_log` directory so it has connected, but no csv files have been created.
+- Machine st40l has not connect to a machine yet. No cnc_logs directory has been created.
