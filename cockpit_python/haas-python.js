@@ -318,6 +318,25 @@ var HAAS_DATA_FRESHNESS_SCRIPT = [
     "done | sort -t'|' -k1,1n | awk -F'|' '{printf \"%-15s %s\\n\", $2, $3}'"
 ].join("\n");
 
+// Checks each machine directory's owner:group and mode against what
+// Create Service now sets explicitly (haas:HaasGroup, 2774) — added after
+// a directory created by an older version of Create Service came out
+// root-owned with root's umask (mkdir runs as root via superuser:
+// "require", with nothing afterward to fix ownership), which let a
+// service report "connected" and "end of cycle detected" in the logs
+// right up until the actual CSV write failed with a Permission denied
+// that was easy to miss without knowing to look for it.
+var HAAS_DIR_PERMS_SCRIPT = [
+    "base=\"" + HAAS_MACHINES_DIR + "\"",
+    "for dir in \"$base\"/*/; do",
+    "    [ -d \"$dir\" ] || continue",
+    "    machine=$(basename \"$dir\")",
+    "    owner=$(stat -c '%U:%G' \"$dir\")",
+    "    mode=$(stat -c '%a' \"$dir\")",
+    "    echo \"$machine|$owner|$mode\"",
+    "done"
+].join("\n");
+
 var currentServicePath = null;
 var isCreatingService = false;
 var serviceListMode = "edit"; // "edit" or "delete"
@@ -740,6 +759,16 @@ function parseFreshnessOutput(text) {
     return byMachine;
 }
 
+function parseDirPermsOutput(text) {
+    var byMachine = {};
+    text.split("\n").forEach(function(line) {
+        var parts = line.split("|");
+        if (parts.length !== 3) return;
+        byMachine[parts[0].toLowerCase()] = { owner: parts[1], mode: parts[2] };
+    });
+    return byMachine;
+}
+
 // Pads first, then escapes, then wraps in a colored span — in that order
 // specifically, so the span tag's own characters never count toward the
 // padded column width and alignment stays intact.
@@ -759,19 +788,27 @@ function machineHealthConnClass(value) {
     return null;
 }
 
-function buildMachineHealthTable(portsText, bufferingText, connText, freshText) {
+function buildMachineHealthTable(portsText, bufferingText, connText, freshText, dirPermsText) {
     var ports = parsePortsOutput(portsText);
     var missingU = parseBufferingOutput(bufferingText);
     var conn = parseConnectivityOutput(connText);
     var fresh = parseFreshnessOutput(freshText);
+    var dirPerms = parseDirPermsOutput(dirPermsText);
 
     var allKeys = {};
-    [ports, missingU, conn, fresh].forEach(function(src) {
+    [ports, missingU, conn, fresh, dirPerms].forEach(function(src) {
         Object.keys(src).forEach(function(k) { allKeys[k] = true; });
     });
 
     var rows = Object.keys(allKeys).map(function(key) {
         var p = ports[key] || {};
+        var dp = dirPerms[key];
+        // Matches exactly what Create Service now sets explicitly
+        // (haas:HaasGroup, 2774) — anything else means the directory
+        // predates that fix, or its ownership drifted some other way,
+        // and the service can look "connected" while every write to it
+        // silently fails.
+        var dirPermsOk = dp && dp.owner === "haas:HaasGroup" && dp.mode === "2774";
         return {
             machine: key,
             port: p.port || "—",
@@ -779,6 +816,8 @@ function buildMachineHealthTable(portsText, bufferingText, connText, freshText) 
             dup: p.dup ? "DUP" : "",
             uStatus: (key in missingU) ? "MISSING" : ((key in ports) ? "OK" : "—"),
             connectivity: conn[key] || "—",
+            dirPerms: !dp ? "—" : (dirPermsOk ? "OK" : (dp.owner + " " + dp.mode)),
+            dirPermsOk: dirPermsOk,
             freshness: fresh[key] || "—"
         };
     });
@@ -788,7 +827,7 @@ function buildMachineHealthTable(portsText, bufferingText, connText, freshText) 
         return a.machine < b.machine ? -1 : (a.machine > b.machine ? 1 : 0);
     });
 
-    var header = "Machine".padEnd(15) + "Port".padEnd(7) + "Dup".padEnd(5) + "-u".padEnd(9) + "Connectivity".padEnd(36) + "Data Age";
+    var header = "Machine".padEnd(15) + "Port".padEnd(7) + "Dup".padEnd(5) + "-u".padEnd(9) + "Connectivity".padEnd(36) + "Dir Perms".padEnd(22) + "Data Age";
     // Header + divider colored the same blue as Service State's "--- X ---"
     // section headers, for a consistent visual anchor across extensions.
     var lines = [
@@ -805,6 +844,7 @@ function buildMachineHealthTable(portsText, bufferingText, connText, freshText) 
             colorMachineHealthField(r.dup, 5, r.dup ? "warn" : null) +
             colorMachineHealthField(r.uStatus, 9, r.uStatus === "MISSING" ? "warn" : (r.uStatus === "OK" ? "success" : null)) +
             colorMachineHealthField(r.connectivity, 36, machineHealthConnClass(r.connectivity)) +
+            colorMachineHealthField(r.dirPerms, 22, r.dirPerms === "OK" ? "success" : (r.dirPerms === "—" ? null : "warn")) +
             colorMachineHealthField(r.freshness, 0, freshnessClass)
         );
     });
@@ -816,7 +856,7 @@ machineHealthBtn.addEventListener("click", function() {
     stopLiveLog();
     setActiveLogBtn(machineHealthBtn);
     disableButtons(true);
-    output.innerHTML = "<span class=\"info\">--- Machine Health ---</span>\nGathering port/duplicate, buffering, and data freshness info...\n";
+    output.innerHTML = "<span class=\"info\">--- Machine Health ---</span>\nGathering port/duplicate, buffering, data freshness, and directory permissions info...\n";
 
     cockpit.spawn(["bash", "-c", HAAS_PORTS_SCRIPT], { superuser: "require", err: "message" })
         .done(function(portsData) {
@@ -828,14 +868,23 @@ machineHealthBtn.addEventListener("click", function() {
 
                             cockpit.spawn(["bash", "-c", HAAS_CONNECTIVITY_SCRIPT], { superuser: "require", err: "message" })
                                 .done(function(connData) {
-                                    output.innerHTML = "<span class=\"info\">--- Machine Health ---</span>\n\n" +
-                                        buildMachineHealthTable(portsData, bufData, connData, freshData);
+                                    cockpit.spawn(["bash", "-c", HAAS_DIR_PERMS_SCRIPT], { superuser: "require", err: "message" })
+                                        .done(function(dirPermsData) {
+                                            output.innerHTML = "<span class=\"info\">--- Machine Health ---</span>\n\n" +
+                                                buildMachineHealthTable(portsData, bufData, connData, freshData, dirPermsData);
+                                        })
+                                        .fail(function(ex, data) {
+                                            output.innerHTML += "\n<span class=\"error\">ERROR checking directory permissions: " + escapeHtml(ex.message || JSON.stringify(ex)) + "</span>";
+                                            if (data) output.innerHTML += "\n" + escapeHtml(data);
+                                        })
+                                        .always(function() {
+                                            setActiveLogBtn(null);
+                                            disableButtons(false);
+                                        });
                                 })
                                 .fail(function(ex, data) {
                                     output.innerHTML += "\n<span class=\"error\">ERROR checking connectivity: " + escapeHtml(ex.message || JSON.stringify(ex)) + "</span>";
                                     if (data) output.innerHTML += "\n" + escapeHtml(data);
-                                })
-                                .always(function() {
                                     setActiveLogBtn(null);
                                     disableButtons(false);
                                 });
@@ -1036,6 +1085,54 @@ createServiceBtn.addEventListener("click", function() {
 
 // ── Save & Reload daemon ──────────────────────────────────────────────────────
 
+// Runs daemon-reload/enable/start plus a status+ports summary for a newly
+// created service. Pulled out of the mkdir/chown/chmod chain above it
+// specifically so fixing the directory-permissions bug didn't require
+// nesting this entire chain one level deeper.
+function finishServiceSetup(serviceName) {
+    output.textContent += "Directory ready.\n\nRunning systemctl daemon-reload...\n";
+    cockpit.spawn(["systemctl", "daemon-reload"], { superuser: "require", err: "message" })
+        .done(function() {
+            output.textContent += "daemon-reload complete.\n\nEnabling " + serviceName + "...\n";
+            cockpit.spawn(["systemctl", "enable", serviceName], { superuser: "require", err: "message" })
+                .done(function() {
+                    output.textContent += "Enabled.\n\nStarting " + serviceName + "...\n";
+                    cockpit.spawn(["systemctl", "start", serviceName], { superuser: "require", err: "message" })
+                        .done(function() {
+                            output.textContent += serviceName + " started successfully.\n\n--- systemctl status ---\n";
+                            cockpit.spawn(["systemctl", "status", serviceName], { superuser: "require", err: "message" })
+                                .done(function(data) {
+                                    output.textContent += data;
+
+                                    cockpit.spawn(["bash", "-c", HAAS_PORTS_SCRIPT], { superuser: "require", err: "message" })
+                                        .done(function(portData) {
+                                            output.textContent += "\n" + portData;
+                                        })
+                                        .fail(function(ex, data2) {
+                                            output.textContent += "\nERROR checking ports: " + (ex.message || JSON.stringify(ex));
+                                            if (data2) output.textContent += "\n" + data2;
+                                        });
+                                })
+                                .fail(function(ex, data) {
+                                    if (data) output.textContent += data;
+                                });
+                        })
+                        .fail(function(ex, data) {
+                            output.textContent += "start failed: " + (ex.message || JSON.stringify(ex)) + "\n";
+                            if (data) output.textContent += data;
+                        });
+                })
+                .fail(function(ex, data) {
+                    output.textContent += "enable failed: " + (ex.message || JSON.stringify(ex)) + "\n";
+                    if (data) output.textContent += data;
+                });
+        })
+        .fail(function(ex, data) {
+            output.textContent += "daemon-reload failed: " + (ex.message || JSON.stringify(ex)) + "\n";
+            if (data) output.textContent += data;
+        });
+}
+
 saveServiceBtn.addEventListener("click", function() {
     if (isCreatingService) {
         var description = svcDescription.value.trim();
@@ -1093,45 +1190,29 @@ saveServiceBtn.addEventListener("click", function() {
                 output.textContent += "Saved.\n\nCreating " + workDir + "...\n";
                 cockpit.spawn(["mkdir", "-p", workDir], { superuser: "require", err: "message" })
                     .done(function() {
-                        output.textContent += "Directory ready.\n\nRunning systemctl daemon-reload...\n";
-                        cockpit.spawn(["systemctl", "daemon-reload"], { superuser: "require", err: "message" })
+                        // mkdir runs as root (superuser: "require"), so the new
+                        // directory comes out root-owned with root's umask by
+                        // default — haas_logger2.py's systemd service runs as
+                        // User=haas and can't write CSVs into a directory it
+                        // doesn't own or can't write to. Explicitly match every
+                        // other machines/ subdirectory's ownership (haas:HaasGroup)
+                        // and mode (2774 — rwx owner, rws group w/ setgid, r--
+                        // other) rather than relying on umask + setgid
+                        // inheritance alone, which is exactly what silently
+                        // produced root:HaasGroup 755 directories (st40l, st42)
+                        // that only failed once real data actually arrived:
+                        // "[Errno 13] Permission denied".
+                        cockpit.spawn(["chown", "haas:HaasGroup", workDir], { superuser: "require", err: "message" })
                             .done(function() {
-                                output.textContent += "daemon-reload complete.\n\nEnabling " + serviceName + "...\n";
-                                cockpit.spawn(["systemctl", "enable", serviceName], { superuser: "require", err: "message" })
-                                    .done(function() {
-                                        output.textContent += "Enabled.\n\nStarting " + serviceName + "...\n";
-                                        cockpit.spawn(["systemctl", "start", serviceName], { superuser: "require", err: "message" })
-                                            .done(function() {
-                                                output.textContent += serviceName + " started successfully.\n\n--- systemctl status ---\n";
-                                                cockpit.spawn(["systemctl", "status", serviceName], { superuser: "require", err: "message" })
-                                                    .done(function(data) {
-                                                        output.textContent += data;
-
-                                                        cockpit.spawn(["bash", "-c", HAAS_PORTS_SCRIPT], { superuser: "require", err: "message" })
-                                                            .done(function(portData) {
-                                                                output.textContent += "\n" + portData;
-                                                            })
-                                                            .fail(function(ex, data2) {
-                                                                output.textContent += "\nERROR checking ports: " + (ex.message || JSON.stringify(ex));
-                                                                if (data2) output.textContent += "\n" + data2;
-                                                            });
-                                                    })
-                                                    .fail(function(ex, data) {
-                                                        if (data) output.textContent += data;
-                                                    });
-                                            })
-                                            .fail(function(ex, data) {
-                                                output.textContent += "start failed: " + (ex.message || JSON.stringify(ex)) + "\n";
-                                                if (data) output.textContent += data;
-                                            });
-                                    })
+                                cockpit.spawn(["chmod", "2774", workDir], { superuser: "require", err: "message" })
+                                    .done(function() { finishServiceSetup(serviceName); })
                                     .fail(function(ex, data) {
-                                        output.textContent += "enable failed: " + (ex.message || JSON.stringify(ex)) + "\n";
+                                        output.textContent += "chmod failed: " + (ex.message || JSON.stringify(ex)) + "\n";
                                         if (data) output.textContent += data;
                                     });
                             })
                             .fail(function(ex, data) {
-                                output.textContent += "daemon-reload failed: " + (ex.message || JSON.stringify(ex)) + "\n";
+                                output.textContent += "chown failed: " + (ex.message || JSON.stringify(ex)) + "\n";
                                 if (data) output.textContent += data;
                             });
                     })

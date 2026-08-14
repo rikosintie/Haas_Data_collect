@@ -214,6 +214,52 @@ leave `.git/index` root-owned and break ordinary `git` commands for the
 
 ----------------------------------------------------------------
 
+## A new machine connects and logs "End of cycle detected" but no CSV appears
+
+If `journalctl` for a `haas-<machine>.service` shows a normal-looking
+sequence — connected, part number detected, end of cycle detected — but
+no CSV ever shows up in that machine's `cnc_logs/`, look for this
+immediately after "End of cycle detected!":
+
+```text
+Error processing data from ('<ip>', <port>): [Errno 13] Permission denied: ...
+```
+
+The service runs as `User=haas`, and Create Service's `mkdir` for a new
+machine's working directory runs as root (`superuser: "require"` in
+Cockpit). Without an explicit fix afterward, that directory comes out
+`root:HaasGroup` with root's default umask — readable, but not writable
+by `haas` — so the connection, the parsing, and the "end of cycle"
+detection all work fine, and only the actual file write silently fails.
+It's easy to miss because nothing about the connection itself looks
+broken.
+
+**Confirm it directly:**
+
+```bash
+stat -c '%U:%G %A %n' /home/haas/Haas_Data_collect/machines/*
+```
+
+Every working directory should read `haas:HaasGroup` with mode
+`drwxrwsr--`. Anything showing `root:HaasGroup`/`drwxr-sr-x` instead has
+this exact problem.
+
+**Fix it:**
+
+```bash
+sudo chown haas:HaasGroup /home/haas/Haas_Data_collect/machines/<machine>
+sudo chmod 2774 /home/haas/Haas_Data_collect/machines/<machine>
+sudo systemctl restart haas-<machine>.service
+```
+
+Create Service now runs this chown/chmod automatically right after
+creating the directory, so this only affects machines created before
+that fix — and the **Machine Health** button (`haas-python` extension)
+has a **Dir Perms** column that flags any mismatch on sight, so it's no
+longer necessary to dig through logs or run `stat` by hand to catch it.
+
+----------------------------------------------------------------
+
 ## LLDP
 
 Link Layer Discovery Protocol (LLDP) is an IEEE standard that comes installed on a majority of networking appliances. This appliance uses the [lldpd: implementation of IEEE 802.1ab (LLDP)](https://github.com/lldpd/lldpd) from GitHub. The tool is useful when you are connecting the appliance to a network and want to know what it is connected to over Ethernet or WiFI.

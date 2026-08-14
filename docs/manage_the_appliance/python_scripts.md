@@ -173,25 +173,33 @@ above that it isn't necessarily a problem.
 ### Create Service
 
 Click **Create Service** to open a form (Description, Machine Name, IP
-Address, Port) instead of a raw editor — this generates a new
-`haas-<machine>.service` unit from a template, so you don't need to hand
--write systemd files for each new CNC machine.
+Address, Port, Append mode) instead of a raw editor — this generates a
+new `haas-<machine>.service` unit from a template, so you don't need to
+hand-write systemd files for each new CNC machine.
 
 - Typing in **Machine Name**, **Description**, and **IP Address** filters
   out invalid characters as you type (IP Address only accepts digits and
   dots, for example).
+- **Append mode** is checked by default — it adds `-a` to `ExecStart` so
+  all cycles for one part number save to a single file instead of one
+  file per cycle. Uncheck it if this machine specifically needs a
+  separate file per cycle. See [Append mode](../usage.md#append-mode)
+  for what the two modes actually produce.
 - **Save & Reload** validates before writing anything:
-    - all four fields are required
+    - description, machine name, IP address, and port are all required
     - IP Address must be a valid IPv4 address
     - Port must be an integer between 5001 and 5099 (Haas's recommended TCP/IP port range)
 - Once validated, it writes `/etc/systemd/system/haas-<machine>.service`,
   creates the machine's working directory under
-  `/home/haas/Haas_Data_collect/machines/<machine>`, then runs
-  `daemon-reload`, `enable`, and `start` for the new service — the output
-  pane shows each step, ending with `systemctl status` for the new
-  service, followed by the same IP/port/name breakdown (with duplicate
-  ports flagged) shown by **Service State** — a quick way to catch a
-  copy-pasted port before it causes a silent connection mix-up.
+  `/home/haas/Haas_Data_collect/machines/<machine>` — explicitly setting
+  it to `haas:HaasGroup` ownership and `2774` permissions, matching every
+  other machine directory, so the new service can actually write its CSV
+  files — then runs `daemon-reload`, `enable`, and `start` for the new
+  service. The output pane shows each step, ending with `systemctl
+  status` for the new service, followed by the same IP/port/name
+  breakdown (with duplicate ports flagged) shown by **Service State** —
+  a quick way to catch a copy-pasted port before it causes a silent
+  connection mix-up.
 
 !!! note "Why the template uses `python3 -u`"
     The `-u` flag forces unbuffered stdout. Without it, Python fully
@@ -282,15 +290,25 @@ combining everything the other buttons above report separately:
 | Dup | `DUP` if another machine shares this port |
 | `-u` | `OK` / `MISSING` |
 | Connectivity | reachable / not reachable / already connected |
+| Dir Perms | `OK`, or the actual `owner:group mode` if it doesn't match `haas:HaasGroup` `2774` |
 | Data Age | newest file in `cnc_logs/`, or "no data files found" |
 
-It's built by running the exact same four checks **Service State** and
-**Data Freshness** already run — nothing new is computed, this just
-joins their output into one table instead of leaving you to
-cross-reference three separate blocks of text by machine name yourself.
-Matching machines across the four is case-insensitive, since a unit's
-`--name` can be any case (`ST44`) while its working directory is always
-lowercase (`st44`) — both refer to the same machine.
+**Dir Perms** exists because a service can connect, parse, and log "End
+of cycle detected!" successfully while every actual CSV write silently
+fails with a permission error — see
+[Troubleshooting: A new machine connects and logs "End of cycle
+detected" but no CSV appears](../build_the_appliance/TS_cockpit.md) for
+the full story. This column flags that mismatch at a glance instead of
+requiring a trip to the logs (or a manual `stat`) to notice it.
+
+It's built by running the exact same checks **Service State** and
+**Data Freshness** already run, plus a `stat` of each machine's working
+directory — nothing else new is computed, this just joins their output
+into one table instead of leaving you to cross-reference several
+separate blocks of text by machine name yourself. Matching machines
+across all of them is case-insensitive, since a unit's `--name` can be
+any case (`ST44`) while its working directory is always lowercase
+(`st44`) — both refer to the same machine.
 
 Since it includes the same connectivity sweep Service State runs, it
 takes the same several seconds and locks the page the same way, for the
