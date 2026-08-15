@@ -556,7 +556,6 @@ All system scripts for the appliance are located here:
 
 ## Scripts
 
-- build-nmap.sh
 - configure_ufw_from_csv.sh
 - gh-updater.lib.sh
 - haas-install.sh

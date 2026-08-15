@@ -96,7 +96,6 @@ mkd machines/vf2ss/cnc_logs    # creates full path and switches to it
 | `smb_verify.sh` | Verify Samba share configuration |
 | `ssh_port.sh` | Show current SSH port |
 | `ssh_validate.sh` | Validate SSH configuration |
-| `build-nmap.sh` | Build nmap from source |
 | `lshares.sh` | List Samba shares |
 | `haas-install.sh` | Install the Haas appliance stack |
 | `haas_firewall_uninstall.sh` | Remove the Haas appliance stack |

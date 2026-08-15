@@ -10,7 +10,6 @@
 #       CSV_PATH, BACKUP_DIR, HAAS_MACHINES_SUBNET_V4, HAAS_MACHINES_SUBNET_V6, SSH_PORT
 #   - Copies issue.net to /etc/issue.net (Pre-logon banner)
 #   - Installs firewall scripts into /usr/local/sbin
-#        build-nmap.sh
 #        configure_ufw_from_csv.sh
 #        gh-updater.lib.sh
 #        install-tools.sh
@@ -259,7 +258,6 @@ CSV_PATH="$REPO_DIR/users-a.csv"
 
 
 REQUIRED_FILES=(
-  "build-nmap.sh"
   "configure_ufw_from_csv.sh"
   "gh-updater.lib.sh"
   "install-tools.sh"
@@ -420,7 +418,6 @@ echo ""
 # check /var/log permissions and fix if needed (prevents issues with logging from scripts)
 fix_var_log_perms
 
-sudo cp "$REPO_DIR/build-nmap.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/configure_ufw_from_csv.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/gh-updater.lib.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/install-tools.sh" /usr/local/sbin/
@@ -512,7 +509,6 @@ sleep 3
 # Add execute permission to scripts
 #########################################
 
-sudo chmod +x /usr/local/sbin/build-nmap.sh
 sudo chmod +x /usr/local/sbin/configure_ufw_from_csv.sh
 sudo chmod +x /usr/local/sbin/gh-updater.lib.sh
 sudo chmod +x /usr/local/sbin/install-tools.sh
@@ -1312,16 +1308,6 @@ banner "${CYAN}[SUCCESS] Haas Firewall installation complete.${RESET}"
 echo ""
 echo ""
 
-########################################
-# Install nmap
-########################################
-# to install nmap, remove the # on the next 5 lines
-# sudo /usr/local/sbin/build-nmap.sh
-# VERSION=$(nmap --version | head -n1 | awk '{print $3}')
-# echo "nmap version $VERSION was successfully installed."
-# echo ""
-# sleep 3
-
 # Ensure the underlying Linux directory permissions are correct:
 sudo chown -R haas:HaasGroup /home/haas/Haas_Data_collect
 sudo chmod -R 2774 /home/haas/Haas_Data_collect
@@ -1381,7 +1367,6 @@ Scripts:       /usr/local/sbin/configure_ufw_from_csv.sh
                /usr/local/sbin/validate_users_csv.sh
                /usr/local/sbin/rollback_csv.sh
                /usr/local/sbin/ssh_port.sh
-               /usr/local/sbin/build-nmap.sh
 Systemd:       /etc/systemd/system/haas-firewall.service
                /etc/systemd/system/haas-firewall.timer
 Cockpit UI:    /usr/share/cockpit/haas-firewall/
@@ -1413,7 +1398,6 @@ echo "Scripts:       /usr/local/sbin/configure_ufw_from_csv.sh"
 echo "               /usr/local/sbin/validate_users_csv.sh"
 echo "               /usr/local/sbin/rollback_csv.sh"
 echo "               /usr/local/sbin/ssh_port.sh"
-echo "               /usr/local/sbin/build-nmap.sh"
 echo "Systemd:       /etc/systemd/system/haas-firewall.service"
 echo "               /etc/systemd/system/haas-firewall.timer"
 echo "Cockpit UI:    /usr/share/cockpit/haas-firewall/"

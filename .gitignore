@@ -2,6 +2,9 @@
 # reference, never published
 /archive/
 
+# Claude Code local state — machine-specific permissions, not project content
+/.claude/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
