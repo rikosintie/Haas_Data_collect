@@ -524,7 +524,6 @@ sudo chmod +x /etc/update-motd.d/99-custom-function
 
 # scripts in the Haas_Data_collect repo (not copied to /usr/local/sbin)
 sudo chmod +x "$REPO_DIR/setup_zsh.sh"
-sudo chmod +x "$REPO_DIR/haas_firewall_uninstall.sh"
 sudo chmod +x "$REPO_DIR/lshares.sh"
 sudo chmod +x "$REPO_DIR/manage_users.sh"
 sudo chmod +x "$REPO_DIR/smb_verify.sh"

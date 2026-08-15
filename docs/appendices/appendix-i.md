@@ -558,7 +558,6 @@ All system scripts for the appliance are located here:
 Run directly from the repo root by the operator:
 
 - haas-install.sh
-- haas_firewall_uninstall.sh
 - lshares.sh
 - manage_users.sh
 - smb_verify.sh
