@@ -88,8 +88,8 @@ chmod +x /home/$USER/Haas_Data_collect/smb_verify.sh
 chmod +x /home/$USER/Haas_Data_collect/manage_users.sh
 chmod +x /home/$USER/Haas_Data_collect/tspin_setup.sh
 chmod +x /home/$USER/Haas_Data_collect/tspin_alias.sh
-chmod +x /home/$USER/Haas_Data_collect/rollback_csv.sh
-chmod +x /home/$USER/Haas_Data_collect/ssh_port.sh
+chmod +x /home/$USER/Haas_Data_collect/scripts/rollback_csv.sh
+chmod +x /home/$USER/Haas_Data_collect/scripts/ssh_port.sh
 chmod +x /home/$USER/Haas_Data_collect/ssh_validate.sh
 chmod +x /home/$USER/Haas_Data_collect/haas-install.sh
 ```

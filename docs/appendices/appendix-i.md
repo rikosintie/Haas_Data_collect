@@ -434,10 +434,9 @@ alias treeh='tree -h --dirsfirst'
 .
 . Output truncated
 .
+├── [4.0K]  scripts
 ├── [ 203]  users-a.csv
-├── [ 203]  users-b.csv
-├── [4.4K]  validate_users_csv.sh
-└── [2.0K]  zshrc
+└── [ 203]  users-b.csv
 
 23 directories, 399 files
 ```
@@ -556,17 +555,22 @@ All system scripts for the appliance are located here:
 
 ## Scripts
 
-- configure_ufw_from_csv.sh
-- gh-updater.lib.sh
+Run directly from the repo root by the operator:
+
 - haas-install.sh
 - haas_firewall_uninstall.sh
-- install-tools.sh
 - lshares.sh
 - manage_users.sh
-- rollback_csv.sh
 - smb_verify.sh
-- ssh_port.sh
 - ssh_validate.sh
-- update-check.sh
-- update-system.sh
-- validate_users_csv.sh
+
+Deployed elsewhere by `haas-install.sh` (source lives in `scripts/`):
+
+- scripts/configure_ufw_from_csv.sh
+- scripts/gh-updater.lib.sh
+- scripts/install-tools.sh
+- scripts/rollback_csv.sh
+- scripts/ssh_port.sh
+- scripts/update-check.sh
+- scripts/update-system.sh
+- scripts/validate_users_csv.sh

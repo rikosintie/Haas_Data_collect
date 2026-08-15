@@ -9,24 +9,24 @@
 #   - Writes /etc/haas-firewall.conf with:
 #       CSV_PATH, BACKUP_DIR, HAAS_MACHINES_SUBNET_V4, HAAS_MACHINES_SUBNET_V6, SSH_PORT
 #   - Copies issue.net to /etc/issue.net (Pre-logon banner)
-#   - Installs firewall scripts into /usr/local/sbin
-#        configure_ufw_from_csv.sh
-#        gh-updater.lib.sh
-#        install-tools.sh
+#   - Installs firewall scripts (from scripts/) into /usr/local/sbin
+#        scripts/configure_ufw_from_csv.sh
+#        scripts/gh-updater.lib.sh
+#        scripts/install-tools.sh
 #        cockpit_samba/list_shares.sh
 #        cockpit_samba/list_shares_csv.sh
-#        rollback_csv.sh
-#        ssh_port.sh
-#        tools.yaml
-#        update-check.sh
-#        update-system.sh
-#        validate_users_csv.sh
-#   - Installs 90-updates-clean.sh and 99-custom-function.sh into
-#     /etc/update-motd.d/ (without the .sh extension, since run-parts
+#        scripts/rollback_csv.sh
+#        scripts/ssh_port.sh
+#        scripts/tools.yaml
+#        scripts/update-check.sh
+#        scripts/update-system.sh
+#        scripts/validate_users_csv.sh
+#   - Installs scripts/90-updates-clean.sh and scripts/99-custom-function.sh
+#     into /etc/update-motd.d/ (without the .sh extension, since run-parts
 #     ignores filenames containing a dot)
-#   - Copies the service files to  /etc/systemd/system/
-#      - haas-firewall.service
-#      - haas-firewall.timer
+#   - Copies the service files (from scripts/) to /etc/systemd/system/
+#      - scripts/haas-firewall.service
+#      - scripts/haas-firewall.timer
 #   - Installs systemd firewall service + timer
 #   - Installs the Link Layer Discovery Protocol daemon (lldpd) for network visibility
 #   - Installs Samba server and updates /etc/samba/smb.conf
@@ -258,22 +258,22 @@ CSV_PATH="$REPO_DIR/users-a.csv"
 
 
 REQUIRED_FILES=(
-  "configure_ufw_from_csv.sh"
-  "gh-updater.lib.sh"
-  "install-tools.sh"
+  "scripts/configure_ufw_from_csv.sh"
+  "scripts/gh-updater.lib.sh"
+  "scripts/install-tools.sh"
   "issue.net"
   "cockpit_samba/list_shares.sh"
   "cockpit_samba/list_shares_csv.sh"
-  "rollback_csv.sh"
-  "ssh_port.sh"
-  "tools.yaml"
-  "update-check.sh"
-  "update-system.sh"
-  "validate_users_csv.sh"
-  "haas-firewall.service"
-  "haas-firewall.timer"
-  "99-custom-function.sh"
-  "90-updates-clean.sh"
+  "scripts/rollback_csv.sh"
+  "scripts/ssh_port.sh"
+  "scripts/tools.yaml"
+  "scripts/update-check.sh"
+  "scripts/update-system.sh"
+  "scripts/validate_users_csv.sh"
+  "scripts/haas-firewall.service"
+  "scripts/haas-firewall.timer"
+  "scripts/99-custom-function.sh"
+  "scripts/90-updates-clean.sh"
   "lshares.sh"
   "manage_users.sh"
   "smb_verify.sh"
@@ -418,20 +418,20 @@ echo ""
 # check /var/log permissions and fix if needed (prevents issues with logging from scripts)
 fix_var_log_perms
 
-sudo cp "$REPO_DIR/configure_ufw_from_csv.sh" /usr/local/sbin/
-sudo cp "$REPO_DIR/gh-updater.lib.sh" /usr/local/sbin/
-sudo cp "$REPO_DIR/install-tools.sh" /usr/local/sbin/
+sudo cp "$REPO_DIR/scripts/configure_ufw_from_csv.sh" /usr/local/sbin/
+sudo cp "$REPO_DIR/scripts/gh-updater.lib.sh" /usr/local/sbin/
+sudo cp "$REPO_DIR/scripts/install-tools.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/issue.net" /etc/issue.net
 sudo cp "$REPO_DIR/cockpit_samba/list_shares.sh" /usr/local/sbin
 sudo cp "$REPO_DIR/cockpit_samba/list_shares_csv.sh" /usr/local/sbin
-sudo cp "$REPO_DIR/rollback_csv.sh" /usr/local/sbin/
-sudo cp "$REPO_DIR/ssh_port.sh" /usr/local/sbin
-sudo cp "$REPO_DIR/tools.yaml" /usr/local/sbin/
-sudo cp "$REPO_DIR/update-check.sh" /usr/local/sbin/
-sudo cp "$REPO_DIR/update-system.sh" /usr/local/sbin/
-sudo cp "$REPO_DIR/validate_users_csv.sh" /usr/local/sbin/
-sudo cp "$REPO_DIR/90-updates-clean.sh" /etc/update-motd.d/90-updates-clean
-sudo cp "$REPO_DIR/99-custom-function.sh" /etc/update-motd.d/99-custom-function
+sudo cp "$REPO_DIR/scripts/rollback_csv.sh" /usr/local/sbin/
+sudo cp "$REPO_DIR/scripts/ssh_port.sh" /usr/local/sbin
+sudo cp "$REPO_DIR/scripts/tools.yaml" /usr/local/sbin/
+sudo cp "$REPO_DIR/scripts/update-check.sh" /usr/local/sbin/
+sudo cp "$REPO_DIR/scripts/update-system.sh" /usr/local/sbin/
+sudo cp "$REPO_DIR/scripts/validate_users_csv.sh" /usr/local/sbin/
+sudo cp "$REPO_DIR/scripts/90-updates-clean.sh" /etc/update-motd.d/90-updates-clean
+sudo cp "$REPO_DIR/scripts/99-custom-function.sh" /etc/update-motd.d/99-custom-function
 
 ########################################
 # Create custom SSH hardening config
@@ -528,7 +528,7 @@ sudo chmod +x "$REPO_DIR/haas_firewall_uninstall.sh"
 sudo chmod +x "$REPO_DIR/lshares.sh"
 sudo chmod +x "$REPO_DIR/manage_users.sh"
 sudo chmod +x "$REPO_DIR/smb_verify.sh"
-sudo chmod +x "$REPO_DIR/ssh_port.sh"
+sudo chmod +x "$REPO_DIR/scripts/ssh_port.sh"
 sudo chmod +x "$REPO_DIR/ssh_validate.sh"
 
 
@@ -568,8 +568,8 @@ echo ""
 echo ""
 sleep 3
 
-sudo cp "$REPO_DIR/haas-firewall.service" /etc/systemd/system/
-sudo cp "$REPO_DIR/haas-firewall.timer" /etc/systemd/system/
+sudo cp "$REPO_DIR/scripts/haas-firewall.service" /etc/systemd/system/
+sudo cp "$REPO_DIR/scripts/haas-firewall.timer" /etc/systemd/system/
 
 sudo systemctl daemon-reload
 

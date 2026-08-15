@@ -219,7 +219,7 @@ Failure to validate key access before disabling passwords may result in administ
 
 ## Custom SSH port
 
-If your company's security policy requires a custom SSH port, you can use the `ssh_port.sh` script in the root of the `Haas_Data_collect` directory. The script prompts for a port number, then:
+If your company's security policy requires a custom SSH port, you can use the `ssh_port.sh` script, deployed to `/usr/local/sbin/ssh_port.sh` by `haas-install.sh` (source lives in `scripts/ssh_port.sh` in the repo). The script prompts for a port number, then:
 
 - Updates /etc/ssh/sshd_config
 - Updates /etc/haas-firewall.conf
@@ -234,7 +234,7 @@ If you are concerned about SSH security, I recommend switching to SSH keys after
 The script must be run with `sudo` since it modifies `/etc/haas-firewall.conf` and `/etc/ssh/sshd_config.d/99-haas-hardening.conf`. Use the following to run the script and set ssh to use port 3333:
 
 ```bash linenums='1' hl_lines='1'
-sudo ./ssh_port.sh
+sudo /usr/local/sbin/ssh_port.sh
 ```
 
 ```bash title='Script Output'
@@ -505,7 +505,7 @@ Nmap done: 1 IP address (1 host up) scanned in 0.34 seconds
 When changing SSH ports or authentication settings, always apply changes in this order:
 
 1. Log into a second session before starting the change
-2. Update the ssh configuration files (run `./ssh_port.sh`)
+2. Update the ssh configuration files (run `sudo /usr/local/sbin/ssh_port.sh`)
 3. update the firewall rules (`sudo /usr/local/sbin/configure_ufw_from_csv.sh` )
 4. Verify new access from another session
 

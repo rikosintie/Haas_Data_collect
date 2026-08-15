@@ -307,9 +307,9 @@ It also checks for file existence before removing anything.
 Copy the files to the correct location using
 
 ```bash linenums='1' hl_lines='1'
-sudo cp haas-firewall.service /etc/systemd/system/
-sudo cp haas-firewall.timer /etc/systemd/system/
-sudo cp configure_ufw_from_csv.sh /usr/local/sbin/
+sudo cp scripts/haas-firewall.service /etc/systemd/system/
+sudo cp scripts/haas-firewall.timer /etc/systemd/system/
+sudo cp scripts/configure_ufw_from_csv.sh /usr/local/sbin/
 sudo chmod +x /usr/local/sbin/configure_ufw_from_csv.sh
 ```
 
@@ -328,7 +328,7 @@ ls -l /usr/local/sbin/configure_ufw_from_csv.sh
 If the file exits in `/usr/local/sbin`, then delete the copy in the `Haas_Data_collect` directory:
 
 ```bash linenums='1' hl_lines='1'
-rm /home/haas/Haas_Data_collect/configure_ufw_from_csv.sh
+rm /home/haas/Haas_Data_collect/scripts/configure_ufw_from_csv.sh
 ```
 
 **There is no output from this command.**
@@ -379,12 +379,12 @@ Need output
 
 ### The bash script that creates the rules
 
-In the root of `Haas_Data_Collect` is a script named `configure_ufw_from_csv.sh` and a `csv` file named users-a.csv (a second slot, users-b.csv, is also present for planned/alternate rules). The script reads the data in a `csv` file and creates the `Uncomplicated Firewall (UFW)` rules.
+In `scripts/` under `Haas_Data_Collect` is a script named `configure_ufw_from_csv.sh`, and in the repo root a `csv` file named users-a.csv (a second slot, users-b.csv, is also present for planned/alternate rules). The script reads the data in a `csv` file and creates the `Uncomplicated Firewall (UFW)` rules.
 
 **make script executable. Run the following:**
 
 ```bash
-cd /home/haas/Haas_Data_collect/
+cd /home/haas/Haas_Data_collect/scripts/
 chmod +x configure_ufw_from_csv.sh
 ls -l configure*
 ```

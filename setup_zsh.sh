@@ -32,8 +32,8 @@ fail()   { echo -e "  ❌ ${RED}$1${RESET}"; }
 # ── Preflight checks ─────────────────────────────────────────────────────────
 
 for f in zshrc haas-aliases.zsh; do
-    if [[ ! -f "$REPO_DIR/$f" ]]; then
-        fail "Missing required file: $REPO_DIR/$f"
+    if [[ ! -f "$REPO_DIR/scripts/$f" ]]; then
+        fail "Missing required file: $REPO_DIR/scripts/$f"
         exit 1
     fi
 done
@@ -134,7 +134,7 @@ clone_plugin "zsh-docker-aliases" \
 # ── Copy custom .zshrc (overwrites the default one Oh My Zsh created) ─────────
 
 header "Installing custom .zshrc"
-cp "$REPO_DIR/zshrc" "$TARGET_HOME/.zshrc"
+cp "$REPO_DIR/scripts/zshrc" "$TARGET_HOME/.zshrc"
 chown "$TARGET_USER:$TARGET_USER" "$TARGET_HOME/.zshrc"
 ok ".zshrc installed → $TARGET_HOME/.zshrc"
 
@@ -142,7 +142,7 @@ ok ".zshrc installed → $TARGET_HOME/.zshrc"
 
 header "Installing haas-aliases.zsh"
 sudo -u "$TARGET_USER" mkdir -p "$ZSH_CUSTOM_DIR"
-cp "$REPO_DIR/haas-aliases.zsh" "$ZSH_CUSTOM_DIR/haas-aliases.zsh"
+cp "$REPO_DIR/scripts/haas-aliases.zsh" "$ZSH_CUSTOM_DIR/haas-aliases.zsh"
 chown "$TARGET_USER:$TARGET_USER" "$ZSH_CUSTOM_DIR/haas-aliases.zsh"
 ok "haas-aliases.zsh installed → $ZSH_CUSTOM_DIR/haas-aliases.zsh"
 
