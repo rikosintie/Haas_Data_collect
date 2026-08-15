@@ -31,8 +31,6 @@ The flowchart has the following three stages:
 - **Is port 445 reachable**
     1. Use `nmap -Pn -p 445 <appliance_ip>` to verify
     2. Use `Test-NetConnection <appliance_ip> -Port 445` on Windows
-    3. Use `smb_audit.exe` (Windows), or `smb_audit-macos-arm64` (Apple Silicon) or `smb_audit` (Linux x86). `smb_audit` can test for all ports needed to manage the appliance and available shares. Usage: `smb_audit.exe -u <username> -s <share_name> <appliance_ip>`
-    4. Use `mt_audit <appliance_ip> -p 445`. Only checks for port 445. Useful to verify that the CNC control has port 445 open. `mt_audit` is in the releases directory
 - **Check Appliance firewall** - SSH to the appliance, run `sudo ufw status numbered | sort -k5` to list the appliance firewall rules
     1. Use `Cockpit` to manage the firewall from a browser `https://<appliance_ip>:9090`
     2. Use the `configure_ufw_from_csv.sh` script from the terminal - `sudo /usr/local/sbin/configure_ufw_from_csv.sh --show-rules`
@@ -81,13 +79,9 @@ The flowchart has the following three stages:
 
 - **List SMB Shares**
      1. On the appliance, cd to `Haas_Data_collect` and run `./lshares.sh`
-     2. Lists the Haas share and the <share_name> share.Lists the Haas share and the <share_name> share.
-        1. `smb_audit.exe -u <username> -s <share_name> <appliance_ip>` on Windows
-        2. `./smb_audit` on Linux.
-        3. `./smb_audit-macos-arm64` on Apple Silicon Macs
+     2. Lists the Haas share and the <share_name> share.
 - **Check Credentials**
-     1. Run `python smb_audit.py -u <username> <appliance_ip>`. Pass/Fail message on provided credentials
-     2. Run `manager_users.sh <username> --set-password` to reset the password
+     1. Run `manager_users.sh <username> --set-password` to reset the password
 - **Domain name** - The domain name is `WORKGROUP` by default, all caps
 - **Check DNS** - If you are using a FQDN instead of an ip use `dig` or `nslookup` to verify the appliance is registered in DNS
 - **Check Time Sync** - SSH to the appliance and run `date` to see the current date/time on the appliance
@@ -131,29 +125,6 @@ The flowchart has the following three stages:
     Final user info:
     uid=1007(mspadmin) gid=1011(mspadmin) groups=1011(mspadmin),27(sudo),1004(HaasGroup)
     Done.
-
-            -------------------------------
-
-    ./smb_audit 192.168.10.127 -u mspadmin -s st30l
-
-    2026-04-17 15:52:32,648 - INFO - Haas SMB Audit Tool
-    2026-04-17 15:52:32,653 - INFO - ---------------------
-
-    2026-04-17 15:52:32,653 - INFO - Run this tool from an authorized network location.
-    2026-04-17 15:52:32,653 - INFO - Then run it from an unauthorized network location.
-
-    Enter password for mspadmin:
-    2026-04-17 15:52:36,542 - INFO - --- Starting SMB Compliance Audit ---
-    2026-04-17 15:52:36,543 - INFO - Source: 1S1K-G5 (192.168.10.143) | Target: 192.168.10.127
-    2026-04-17 15:52:36,543 - INFO - Connecting to 192.168.10.127...
-    2026-04-17 15:52:36,608 - INFO - [PASS] Authentication successful for mspadmin.
-    2026-04-17 15:52:36,608 - INFO - Auditing Machine Tool Shares...
-    2026-04-17 15:52:36,644 - INFO - [PASS] Accessible share(s) that could be verified:
-    2026-04-17 15:52:36,645 - INFO -     - Haas
-    2026-04-17 15:52:36,645 - INFO -     - st30l
-    2026-04-17 15:52:36,645 - INFO - Testing Anonymous Access (Compliance Check)...
-    2026-04-17 15:52:36,647 - INFO - [PASS] Anonymous access successfully refused.
-
 
             -------------------------------
 
@@ -317,29 +288,6 @@ The flowchart has the following three stages:
     Apr 08 19:20:41 haas systemd[1]: Started smbd.service - Samba SMB Daemon.
     Apr 09 00:00:17 haas systemd[1]: Reloading smbd.service - Samba SMB Daemon...
     Apr 09 00:00:17 haas systemd[1]: Reloaded smbd.service - Samba SMB Daemon.
-
-            -------------------------------
-
-    ┌─[mhubbard@1S1K-G5] - [~/Insync/GD/04_Tools/Haas/Haas_Data_collect/releases] - [9532]
-    └─[$] ./smb_audit 192.168.10.127 -u mspadmin -s st30l
-
-    2026-04-17 15:52:32,648 - INFO - Haas SMB Audit Tool
-    2026-04-17 15:52:32,653 - INFO - ---------------------
-
-    2026-04-17 15:52:32,653 - INFO - Run this tool from an authorized network location.
-    2026-04-17 15:52:32,653 - INFO - Then run it from an unauthorized network location.
-
-    Enter password for mspadmin:
-    2026-04-17 15:52:36,542 - INFO - --- Starting SMB Compliance Audit ---
-    2026-04-17 15:52:36,543 - INFO - Source: 1S1K-G5 (192.168.10.143) | Target: 192.168.10.127
-    2026-04-17 15:52:36,543 - INFO - Connecting to 192.168.10.127...
-    2026-04-17 15:52:36,608 - INFO - [PASS] Authentication successful for mspadmin.
-    2026-04-17 15:52:36,608 - INFO - Auditing Machine Tool Shares...
-    2026-04-17 15:52:36,644 - INFO - [PASS] Accessible share(s) that could be verified:
-    2026-04-17 15:52:36,645 - INFO -     - Haas
-    2026-04-17 15:52:36,645 - INFO -     - st30l
-    2026-04-17 15:52:36,645 - INFO - Testing Anonymous Access (Compliance Check)...
-    2026-04-17 15:52:36,647 - INFO - [PASS] Anonymous access successfully refused.
     ```
 
 ----------------------------------------------------------------

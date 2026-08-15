@@ -166,11 +166,7 @@ For reference, here's what a per-machine share stanza looks like once created (t
 
 ----------------------------------------------------------------
 
-If you have double or triple digits of machines to set up, doing them one at a time through Create Share gets tedious — see [Scaling up](configuring_appliance.md/#scaling-up) for the `conf-gen_xlsx_v1.py` script, which bulk-generates both the systemd service files and the matching `smb.conf` share stanzas from a spreadsheet.
-
-----------------------------------------------------------------
-
-The following options are needed so that files created from Windows, Mac, Linux with mapped drives get the correct permissions — Create Share fills these in for you, but they're explained here since they matter if you're troubleshooting a permissions issue (see [Permission errors](#permission-errors) below) or reviewing the share bulk-generation script's output:
+The following options are needed so that files created from Windows, Mac, Linux with mapped drives get the correct permissions — Create Share fills these in for you, but they're explained here since they matter if you're troubleshooting a permissions issue (see [Permission errors](#permission-errors) below):
 
 1. **force user = haas:** Ensures that all operations on this share are performed as the user haas, making them the owner of all new files.
 1. **force group = HaasGroup:** Ensures that all new files and directories are assigned to the group HaasGroup.

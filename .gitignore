@@ -1,3 +1,7 @@
+# Local-only archive of retired/tangential files — kept on disk for
+# reference, never published
+/archive/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
