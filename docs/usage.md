@@ -127,16 +127,16 @@ options:
 
 Examples:
     CLIENT MODE (Connect to the Haas CNC machine):
-    python haas_logger.py -t 172.16.1.100                 # Connect to machine at this IP
-    python haas_logger.py -t 172.16.1.100 -p 5063         # Connect to machine on custom port
-    python haas_logger.py -t 172.16.1.100 -a -n "Mill_1"  # Connect with append mode and custom name
+    python  haas_logger2.py -t 172.16.1.100                 # Connect to machine at this IP
+    python  haas_logger2.py -t 172.16.1.100 -p 5063         # Connect to machine on custom port
+    python  haas_logger2.py -t 172.16.1.100 -a -n "Mill_1"  # Connect with append mode and custom name
 
     ---------------------
 
     SERVER MODE (Listens for connections. Only used for script development, not production):
-    python haas_logger.py                          # Listen on default port 5062
-    python haas_logger.py -p 5063 -a               # Listen on port 5063 with append mode
-    python haas_logger.py -H 0.0.0.0 -p 5062       # Listen on all interfaces
+    python  haas_logger2.py                          # Listen on default port 5062
+    python  haas_logger2.py -p 5063 -a               # Listen on port 5063 with append mode
+    python  haas_logger2.py -H 0.0.0.0 -p 5062       # Listen on all interfaces
 
 Notes:
     - Use -t to connect to a Haas machine (client mode)
