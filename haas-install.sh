@@ -323,7 +323,7 @@ if [[ ! -d "$COCKPIT_SRC" ]]; then
   exit 1
 fi
 
-for f in manifest.json index.html haas-firewall.js haas-firewall.css icon.png; do
+for f in manifest.json index.html haas-firewall.js haas-firewall.css; do
   if [[ ! -f "$COCKPIT_SRC/$f" ]]; then
     banner "${YELLOW}[ERROR] Missing Cockpit file:${RESET}${CYAN} $COCKPIT_SRC/$f ${RESET}"
     exit 1
