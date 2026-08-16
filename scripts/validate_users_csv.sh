@@ -76,7 +76,7 @@ declare -A SEEN_IPS
 LINE_NUM=1  # Start at 1 for header; increment as we read data rows.
 
 # Use process substitution to keep everything in the same shell.
-while IFS=',' read -r username ip role; do
+while IFS=',' read -r username ip role || [[ -n "$username" ]]; do
     LINE_NUM=$((LINE_NUM + 1))
 
     # Skip completely empty lines (defensive, but usually not present).

@@ -220,6 +220,45 @@ countdown too, not just the timer's own scheduled runs.
     `--dry-run`, `--compare`, or `--show-rules`, since none of those
     apply a real change worth persisting.
 
+### Checking service/timer status
+
+```bash
+systemctl status haas-firewall.service haas-firewall.timer
+```
+
+`haas-firewall.service` is a one-shot unit — it runs
+`configure_ufw_from_csv.sh`, applies the rules, and exits.
+**`inactive (dead)` with `status=0/SUCCESS` is the expected steady
+state, not a failure** — it only ever shows `active (running)` for the
+few seconds it's actually executing. `haas-firewall.timer`, by contrast,
+should always show `active (waiting)` between runs; `Trigger:` shows
+when it fires next.
+
+```text title='Healthy output'
+○ haas-firewall.service - Haas Appliance Firewall Auto-Configuration
+     Loaded: loaded (/etc/systemd/system/haas-firewall.service; enabled; preset: enabled)
+     Active: inactive (dead) since Sat 2026-08-15 21:24:33 PDT; 7min ago
+TriggeredBy: ● haas-firewall.timer
+    Process: 2635555 ExecStart=/usr/local/sbin/configure_ufw_from_csv.sh (code=exited, status=0/SUCCESS)
+   Main PID: 2635555 (code=exited, status=0/SUCCESS)
+        CPU: 3.036s
+
+Aug 15 21:24:33 haas systemd[1]: haas-firewall.service: Deactivated successfully.
+Aug 15 21:24:33 haas systemd[1]: Finished haas-firewall.service - Haas Appliance Firewall Auto-Configuration.
+Aug 15 21:24:33 haas systemd[1]: haas-firewall.service: Consumed 3.036s CPU time.
+
+● haas-firewall.timer - Periodic Haas Firewall Refresh
+     Loaded: loaded (/etc/systemd/system/haas-firewall.timer; enabled; preset: enabled)
+     Active: active (waiting) since Sat 2026-08-15 21:26:16 PDT; 5min ago
+    Trigger: Sun 2026-08-16 01:26:16 PDT; 3h 54min left
+   Triggers: ● haas-firewall.service
+```
+
+If you instead see `Active: failed` on the service, or `code=exited,
+status=1/FAILURE` (any nonzero status), that's a real problem — check
+`journalctl -u haas-firewall.service` for what
+`configure_ufw_from_csv.sh` actually failed on.
+
 ----------------------------------------------------------------
 
 ## Logs

@@ -212,7 +212,7 @@ build_planned_rules() {
     echo "ALLOW 445/tcp FROM $HAAS_MACHINES_SUBNET_V6 (v6)" >> "$outfile"
   fi
 
-  tail -n +2 "$csv" | while IFS=',' read -r user ip role; do
+  tail -n +2 "$csv" | while IFS=',' read -r user ip role || [[ -n "$user" ]]; do
     [[ -z "$user" && -z "$ip" && -z "$role" ]] && continue
     role_lower=$(echo "$role" | tr 'A-Z' 'a-z')
     case "$role_lower" in
@@ -283,7 +283,7 @@ apply_ufw_rules() {
     fi
   fi
 
-  tail -n +2 "$csv" | while IFS=',' read -r user ip role; do
+  tail -n +2 "$csv" | while IFS=',' read -r user ip role || [[ -n "$user" ]]; do
     [[ -z "$user" && -z "$ip" && -z "$role" ]] && continue
     role_lower=$(echo "$role" | tr 'A-Z' 'a-z')
 
