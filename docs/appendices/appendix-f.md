@@ -100,8 +100,27 @@
 
     **List Shares sorted by share name**
     ```
-    smbutil view //<user>@<appliance_ip> | sort
+    smbutil view //<user>@<appliance_ip>
     ```
+
+----------------------------------------------------------------
+
+```bash hl_lines='1' title='Example Output"
+smbutil view //haas@haas.pu.pri
+Share                                           Type    Comments
+-------------------------------
+minimill                                        Disk    File Share for minimill
+IPC$                                            Pipe    IPC Service (Haas Data Collector (Samba, Ubuntu))
+st30                                            Disk    File Share for st30
+vf5ss                                           Disk    File Share for vf5ss
+st40                                            Disk    File Share for st40
+st30l                                           Disk    File Share for srt30l
+vf2ss                                           Disk    File Share for vf2ss
+machines                                        Disk    File Share for all machines
+Haas                                            Disk    Haas Data Collection Share
+```
+
+----------------------------------------------------------------
 
     **Test Anonymous Access (should fail)**
 
@@ -111,10 +130,41 @@
     smbutil view //<appliance_ip>
     ```
 
+    ```bash hl_lines="1" title='Example Output'
+    $ smbutil view //haas.pu.pri
+    smbutil: server rejected the authentication: Authentication error
+    ```
+
+----------------------------------------------------------------
+
     **Check SMB Dialects**
     ```
     nmap -Pn -p 445 --script smb-protocols <appliance_ip>
     ```
+
+----------------------------------------------------------------
+
+    ```bash hl_lines='1' title="Example Output"
+    nmap -Pn -p 445 --script smb-protocols haas.pu.pri
+    Starting Nmap 7.99 ( https://nmap.org ) at 2026-08-15 20:52 -0700
+    Nmap scan report for haas.pu.pri (192.168.10.122)
+    Host is up (0.032s latency).
+
+    PORT    STATE SERVICE
+    445/tcp open  microsoft-Deep Seek
+
+    Host script results:
+    | smb-protocols:
+    |   dialects:
+    |     2.1
+    |     3.0
+    |     3.0.2
+    |_    3.1.1
+
+    Nmap done: 1 IP address (1 host up) scanned in 7.23 seconds
+    ```
+
+----------------------------------------------------------------
 
     **Active Directory Verification**
 
@@ -122,19 +172,40 @@
 
     **Kerberos Ticket Status**
 
+----------------------------------------------------------------
 
     ```
     klist
     ```
+
+----------------------------------------------------------------
 
     **Check Active Directory Binding**
     ```
     dsconfigad -show
     ```
 
+----------------------------------------------------------------
+
     **Firewall Check Ports SSH (22), SMB (445), Cockpit (9090)**
     ```
-    nmap -p 22,445,9090 <appliance_ip>
+    nmap -p 22,445,9090 -Pn <appliance_ip>
+    ```
+
+----------------------------------------------------------------
+
+    ```bash linenums='1' hl_lines='1'
+    nmap -p 22,445,9090 -Pn haas.pu.pri
+    Starting Nmap 7.99 ( https://nmap.org ) at 2026-08-15 20:53 -0700
+    Nmap scan report for haas.pu.pri (192.168.10.122)
+    Host is up (0.069s latency).
+
+    PORT     STATE SERVICE
+    22/tcp   open  ssh
+    445/tcp  open  microsoft-Deep Seek
+    9090/tcp open  zeus-admin
+
+    Nmap done: 1 IP address (1 host up) scanned in 0.69 seconds
     ```
 
 === "Windows"
@@ -185,7 +256,7 @@
     klist
     ```
 
----
+----------------------------------------------------------------
 
 ## Common Failure Causes
 
