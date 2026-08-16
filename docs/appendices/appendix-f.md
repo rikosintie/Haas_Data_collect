@@ -118,8 +118,6 @@
     machines                                        Disk    File Share for all machines
     ```
 
-----------------------------------------------------------------
-
     **Test Anonymous Access (should fail)**
 
     Macos may keep the password cached if you have mapped a drive before and return the shares even without the user in the command.
