@@ -677,7 +677,7 @@ What flipping the 7th bit looks like:
 
 ### Disable IPv6
 
-I don't like to disable IPv6 because it is the future. But your company security policy may mandate it.
+I don't like to disable IPv6 because it is the future, but in my case it's genuinely necessary: my home lab runs a full IPv6 setup — a Cisco router sending Router Advertisements, a Windows Server 2022 DHCPv6 server handing out addresses, and Windows DNS automatically creating AAAA records for anything that picks up a DHCP lease. The appliance's UFW firewall doesn't accept IPv6, so once the appliance gets a global IPv6 address and it lands in DNS, SSHing or opening Cockpit by hostname (`haas.pu.pri`) resolves that AAAA record, tries IPv6 first, gets nowhere, and only falls back to IPv4 after a stall. If your network doesn't run IPv6 internally, or your DNS doesn't publish AAAA records for DHCP clients, you probably don't have this problem and can skip this section — but if SSH/Cockpit is hanging for several seconds before eventually connecting, this is almost certainly why.
 
 - Change to the to `/etc/netplan` directory using `cd /etc/netplan`
 - View the files in the directory using `l` (that is a lowercase elle, not an i). There should only be one `yaml` file in the directory.
@@ -767,14 +767,9 @@ ip a show eth0
     assigns it automatically at the kernel level regardless of these
     netplan settings. What those two settings actually prevent is the
     appliance obtaining a *global* (routable) IPv6 address via DHCPv6 or
-    router advertisements. That's the part worth disabling: my reason for
-    doing this in the first place was that the appliance had picked up a
-    global IPv6 address that got published to DNS, but that address
-    won't work for reaching Cockpit or SSH on the appliance because the UFW firewall isn't configured for IPv6. — so a client resolving the appliance's hostname would get an IPv6
-    address back and try that first, stall, and only fall back to IPv4
-    after a delay. Disabling global IPv6 address acquisition here stops
-    that AAAA record from ever existing to begin with. The link-local
-    address doesn't cause this problem — it's never published to DNS and
+    router advertisements — the part that was actually causing the
+    AAAA-record/SSH-stall problem described above. The link-local
+    address doesn't cause that problem — it's never published to DNS and
     isn't reachable outside the local network segment, so leaving it in
     place is harmless.
 
