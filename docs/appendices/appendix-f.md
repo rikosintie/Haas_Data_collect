@@ -104,7 +104,7 @@
     smbutil view //<user>@<appliance_ip>
     ```
 
-    ```bash hl_lines='1' title='Example Output'
+    ```unixconfig hl_lines='1' title='Example Output'
     smbutil view //haas@haas.pu.pri
     Share                                           Type    Comments
     -------------------------------
@@ -136,7 +136,7 @@
     nmap -Pn -p 445 --script smb-protocols <appliance_ip>
     ```
 
-    ```bash hl_lines='1' title="Example Output"
+    ```unixconfig hl_lines='1' title="Example Output"
     nmap -Pn -p 445 --script smb-protocols haas.pu.pri
     Starting Nmap 7.99 ( https://nmap.org ) at 2026-08-15 20:52 -0700
     Nmap scan report for haas.pu.pri (192.168.10.122)
@@ -176,7 +176,7 @@
     nmap -p 22,445,9090 -Pn <appliance_ip>
     ```
 
-    ```bash linenums='1' hl_lines='1'
+    ```unixconfig linenums='1' hl_lines='1'
     nmap -p 22,445,9090 -Pn haas.pu.pri
     Starting Nmap 7.99 ( https://nmap.org ) at 2026-08-15 20:53 -0700
     Nmap scan report for haas.pu.pri (192.168.10.122)
