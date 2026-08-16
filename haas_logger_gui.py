@@ -1,6 +1,6 @@
 import sys
 import tkinter as tk
-from tkinter import ttk
+from tkinter import messagebox, ttk
 
 
 class HaasLoggerGUI:
@@ -63,13 +63,23 @@ class HaasLoggerGUI:
         ).grid(row=3, column=1, sticky=tk.W, padx=(10, 0))
 
         # Port
-        ttk.Label(main_frame, text="Port:").grid(row=4, column=0, sticky=tk.W, pady=10)
-        self.port_var = tk.StringVar(value="5062")
-        port_combo = ttk.Combobox(
-            main_frame, textvariable=self.port_var, width=32, state="readonly"
+        ttk.Label(main_frame, text="Port (5001-5099):").grid(
+            row=4, column=0, sticky=tk.W, pady=10
         )
-        port_combo["values"] = [str(p) for p in range(5050, 5061)]
-        port_combo.grid(row=4, column=1, sticky=(tk.W, tk.E), pady=10, padx=(10, 0))
+        self.port_var = tk.StringVar(value="5062")
+        # "key" validation only restricts what a keystroke can produce (digits,
+        # max 4 chars) — it must accept partial values like "5" or "50" while
+        # the user is still typing, so the actual 5001-5099 range is checked
+        # separately in _is_valid_port(), called from on_ok().
+        vcmd = (self.root.register(self._validate_port_keystroke), "%P")
+        self.port_entry = ttk.Entry(
+            main_frame,
+            textvariable=self.port_var,
+            width=35,
+            validate="key",
+            validatecommand=vcmd,
+        )
+        self.port_entry.grid(row=4, column=1, sticky=(tk.W, tk.E), pady=10, padx=(10, 0))
 
         # Append Mode
         ttk.Label(main_frame, text="File Mode:").grid(
@@ -149,20 +159,34 @@ class HaasLoggerGUI:
         # Focus on IP entry
         self.ip_entry.focus()
 
-    def update_command_preview(self, *args) -> None:
+    def _validate_port_keystroke(self, proposed: str) -> bool:
         """
-        Update the command preview text box.
+        Restrict Port entry while typing to digits, at most 4 characters.
 
-        Builds the command string based on current GUI values and displays it.
+        This only guards individual keystrokes, so it must accept partial
+        values like "5" or "50" that aren't valid ports on their own — the
+        full 5001-5099 range is checked separately by _is_valid_port(),
+        once the user has finished typing.
         """
-        command_parts = ["python haas_logger.py"]
+        if proposed == "":
+            return True
+        return proposed.isdigit() and len(proposed) <= 4
+
+    def _is_valid_port(self) -> bool:
+        """Check whether the current Port field is a complete value in 5001-5099."""
+        value = self.port_var.get().strip()
+        return value.isdigit() and 5001 <= int(value) <= 5099
+
+    def _build_command(self) -> str:
+        """Build the haas_logger2.py command line from the current GUI values."""
+        command_parts = ["python haas_logger2.py"]
 
         # Add target IP if provided
         if self.ip_var.get().strip():
             command_parts.append(f"-t {self.ip_var.get().strip()}")
 
         # Add port
-        command_parts.append(f"-p {self.port_var.get()}")
+        command_parts.append(f"-p {self.port_var.get().strip()}")
 
         # Add machine name if provided
         if self.name_var.get().strip():
@@ -172,7 +196,15 @@ class HaasLoggerGUI:
         if self.append_var.get():
             command_parts.append("-a")
 
-        command = " ".join(command_parts)
+        return " ".join(command_parts)
+
+    def update_command_preview(self, *args) -> None:
+        """
+        Update the command preview text box.
+
+        Builds the command string based on current GUI values and displays it.
+        """
+        command = self._build_command()
 
         # Update text widget
         self.command_text.config(state=tk.NORMAL)
@@ -187,27 +219,16 @@ class HaasLoggerGUI:
         Prints the command to stdout and closes the GUI, allowing the user
         to press Enter in the terminal to execute it.
         """
-        command_parts = ["python haas_logger.py"]
-
-        # Add target IP if provided
-        if self.ip_var.get().strip():
-            command_parts.append(f"-t {self.ip_var.get().strip()}")
-
-        # Add port
-        command_parts.append(f"-p {self.port_var.get()}")
-
-        # Add machine name if provided
-        if self.name_var.get().strip():
-            command_parts.append(f'-n "{self.name_var.get().strip()}"')
-
-        # Add append flag if selected
-        if self.append_var.get():
-            command_parts.append("-a")
-
-        command = " ".join(command_parts)
+        if not self._is_valid_port():
+            messagebox.showerror(
+                "Invalid Port",
+                "Port must be a number between 5001 and 5099 "
+                "(Haas's recommended TCP/IP port range).",
+            )
+            return
 
         # Print command to terminal
-        print(command)
+        print(self._build_command())
 
         # Close the window
         self.root.destroy()

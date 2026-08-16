@@ -105,6 +105,36 @@ When you execute the script, `Haas_logger2.py`, it runs continuously until you p
 
 The script will connect to the machine using the IP address like putty does in the Haas Video.
 
+## GUI Configuration Tool
+
+If you're not building the full appliance and just want to run
+`haas_logger2.py` directly on a Windows desktop while a CNC machine is in
+production, `haas_logger_gui.py` gives you a simple form instead of
+memorizing the command-line flags below.
+
+Run it with:
+
+```bash
+python haas_logger_gui.py
+```
+
+Fill in the target IP address (leave blank for server mode), an optional
+machine name, the port configured in the CNC's Setting 263 (5001-5099,
+Haas's recommended range), and whether to append all cycles for one part
+number to a single file or start a new file every cycle. The dialog
+builds the equivalent `haas_logger2.py` command line and shows it live in
+the **Command Preview** box as you type.
+
+Click **OK** and the finished command prints to the terminal you launched
+it from — press Enter there to actually run it. **Cancel** closes the
+dialog without printing anything.
+
+Requires `tkinter`, which ships with the standard Python installer on
+Windows. On Linux, install it separately if it's missing (e.g. `sudo apt
+install python3-tk` on Ubuntu/Debian).
+
+----------------------------------------------------------------
+
 ### The script help text
 
 If you run the script with just `-h` as a parameter, the following help will be printed to the screen.
