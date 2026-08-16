@@ -10,6 +10,21 @@ YELLOW=$'\e[1;33m'
 RED=$'\e[1;31m'
 RESET=$'\e[0m'
 
+# copy files to cockpit after a git pull
+# restart the cockpit services
+h-deploy() {
+  local app="$1"
+  local target="$2"
+  sudo cp ~/Haas_Data_collect/"$app"/{index.html,*.js,*.css,manifest.json} /usr/share/cockpit/"$target"/ && \
+  sudo systemctl restart cockpit && \
+  sudo systemctl restart cockpit.socket
+}
+
+alias h-python="h-deploy cockpit_python haas-python"
+alias h-update="h-deploy cockpit_updates haas-update-appliance"
+alias h-firewall="h-deploy cockpit_firewall haas-firewall"
+alias h-samba="h-deploy cockpit_samba haas-samba"
+
 # Display Linux users
 alias haas-lusers='awk -F: '\''$3 >= 1000 {print $1}'\'' /etc/passwd'
 
