@@ -131,14 +131,10 @@
     smbutil: server rejected the authentication: Authentication error
     ```
 
-----------------------------------------------------------------
-
     **Check SMB Dialects**
     ```
     nmap -Pn -p 445 --script smb-protocols <appliance_ip>
     ```
-
-----------------------------------------------------------------
 
     ```bash hl_lines='1' title="Example Output"
     nmap -Pn -p 445 --script smb-protocols haas.pu.pri
@@ -160,35 +156,25 @@
     Nmap done: 1 IP address (1 host up) scanned in 7.23 seconds
     ```
 
-----------------------------------------------------------------
-
     **Active Directory Verification**
 
     Only if appliance is Active Directory integrated
 
     **Kerberos Ticket Status**
 
-----------------------------------------------------------------
-
     ```
     klist
     ```
-
-----------------------------------------------------------------
 
     **Check Active Directory Binding**
     ```
     dsconfigad -show
     ```
 
-----------------------------------------------------------------
-
     **Firewall Check Ports SSH (22), SMB (445), Cockpit (9090)**
     ```
     nmap -p 22,445,9090 -Pn <appliance_ip>
     ```
-
-----------------------------------------------------------------
 
     ```bash linenums='1' hl_lines='1'
     nmap -p 22,445,9090 -Pn haas.pu.pri
