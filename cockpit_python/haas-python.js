@@ -94,6 +94,11 @@ function isValidServicePort(port) {
 // at the same address means one of them is very likely misconfigured
 // against the wrong machine — the kind of thing that shows up as "this
 // CNC just isn't writing a CSV" without an obvious error to explain why.
+// Keyed on the ip:port PAIR, not port alone — reusing the same port
+// across different machine IPs is normal and expected (see usage.md:
+// "the port number doesn't have to be unique per machine ... the IP
+// address ... is unique so the ports can all be the same"), so flagging
+// same-port-different-IP as a duplicate would be a false positive.
 //
 // Each ExecStart line is normalized by scanning for "-t"/"--port"/"--name"
 // by NAME, not by field position — a fixed "cut -f4-" broke the moment
@@ -118,12 +123,13 @@ var HAAS_PORTS_SCRIPT = [
     "    if (port != \"\") printf \"-t %s --port %s --name %s\\n\", ip, port, name;",
     "}' | sort -k4,4n | awk '{",
     "    print;",
-    "    port=$4; name=$6;",
-    "    count[port]++; names[port]=names[port]\" \"name;",
+    "    ip=$2; port=$4; name=$6;",
+    "    key=ip \":\" port;",
+    "    count[key]++; names[key]=names[key]\" \"name;",
     "}",
     "END {",
     "    dup=0",
-    "    for (p in count) if (count[p] > 1) { print \"  [DUPLICATE PORT] \" p \":\" names[p]; dup=1 }",
+    "    for (k in count) if (count[k] > 1) { print \"  [DUPLICATE PORT] \" k \":\" names[k]; dup=1 }",
     "    if (dup == 0) print \"No duplicate ports found.\"",
     "}'"
 ].join("\n");
@@ -721,11 +727,15 @@ function parsePortsOutput(text) {
         if (line.indexOf("---") === 0) return;
         var m = line.match(/^-t (\S+) --port (\S+) --name (\S+)$/);
         if (m) byMachine[m[3].toLowerCase()] = { ip: m[1], port: m[2] };
+        // "$1" here is the ip:port pair HAAS_PORTS_SCRIPT's awk now keys
+        // duplicates on (see comment above HAAS_PORTS_SCRIPT) — not the
+        // port alone, so this only flags a genuine same-IP collision.
         var d = line.match(/\[DUPLICATE PORT\] (\S+):/);
         if (d) dupPortSet[d[1]] = true;
     });
     Object.keys(byMachine).forEach(function(key) {
-        if (dupPortSet[byMachine[key].port]) byMachine[key].dup = true;
+        var ipPort = byMachine[key].ip + ":" + byMachine[key].port;
+        if (dupPortSet[ipPort]) byMachine[key].dup = true;
     });
     return byMachine;
 }
