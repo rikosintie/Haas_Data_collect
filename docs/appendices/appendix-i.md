@@ -90,7 +90,7 @@ haas-services='systemctl list-unit-files --type=service | grep haas'
 haas-ssh='cd /etc/ssh/sshd_config.d/'
 haas-sshd='sudo fresh /etc/ssh/sshd_config.d/99-haas-hardening.conf'
 haas-system='cd /etc/systemd/system'
-haas-updates='cd /usr/share/cockpit/haas-update-appliance/'
+haas-updates='cd /usr/share/cockpit/haas-updates/'
 ```
 
 ----------------------------------------------------------------
@@ -500,7 +500,7 @@ The `treed` alias displays all of the directories using a `Human Readable` forma
 ```
 
 ```bash
-/usr/share/cockpit/haas-update-appliance
+/usr/share/cockpit/haas-updates
 ```
 
 ```bash

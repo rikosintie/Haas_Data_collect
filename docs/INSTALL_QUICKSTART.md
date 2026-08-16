@@ -74,7 +74,7 @@ sudo ./haas-install.sh # launch the installer
 - Installs Cockpit (web UI, port 9090) plus four custom extensions:
   - `haas-firewall` — firewall management
   - `haas-samba` — manage Samba shares/users
-  - `haas-update-appliance` — view/trigger CLI tool updates
+  - `haas-updates` — view/trigger CLI tool updates
   - `haas-python` — Python script services (CNC-logger management)
 - Installs CLI tools listed in `tools.yaml` (via `install-tools.sh` /
   `gh-updater.lib.sh`) — currently:

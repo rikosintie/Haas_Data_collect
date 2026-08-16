@@ -1,7 +1,7 @@
 {
   "version": 0,
   "tools": {
-    "haas-update-appliance": {
+    "haas-updates": {
       "label": "Updates - Logs",
       "path": "index.html"
     }

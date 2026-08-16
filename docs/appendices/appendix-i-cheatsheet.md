@@ -20,7 +20,7 @@ Type `haas` then press `Tab` to list all haas aliases.
 | `haas-samba` | `/usr/share/cockpit/haas-samba` |
 | `haas-ssh` | `/etc/ssh/sshd_config.d` |
 | `haas-systemd` | `/etc/systemd/system` |
-| `haas-updates` | `/usr/share/cockpit/haas-update-appliance` |
+| `haas-updates` | `/usr/share/cockpit/haas-updates` |
 
 ---
 
@@ -77,7 +77,7 @@ mkd machines/vf2ss/cnc_logs    # creates full path and switches to it
 | `/etc/ssh/sshd_config.d/99-haas-hardening.conf` | SSH hardening config |
 | `/etc/issue.net` | Pre-login banner |
 | `/usr/share/cockpit/haas-firewall` | Cockpit Firewall extension |
-| `/usr/share/cockpit/haas-update-appliance` | Cockpit System Updates extension |
+| `/usr/share/cockpit/haas-updates` | Cockpit System Updates extension |
 | `/usr/share/cockpit/haas-samba` | Cockpit Samba extension |
 
 ---

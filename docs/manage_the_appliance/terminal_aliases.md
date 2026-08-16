@@ -104,7 +104,7 @@ t-ufwf audit
 | `haas-firewall` | `/usr/share/cockpit/haas-firewall/` |
 | `haas-python` | `/usr/share/cockpit/haas-python/` |
 | `haas-samba` | `/usr/share/cockpit/haas-samba/` |
-| `haas-updates` | `/usr/share/cockpit/haas-update-appliance/` |
+| `haas-updates` | `/usr/share/cockpit/haas-updates/` |
 | `haas-log` | `/var/log/` |
 | `haas-repo` | `/home/haas/Haas_Data_collect/` |
 | `haas-ssh` | `/etc/ssh/sshd_config.d/` |

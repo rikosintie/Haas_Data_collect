@@ -41,7 +41,7 @@
 #   - Installs custom Cockpit extensions:
 #       /usr/share/cockpit/haas-firewall          (from cockpit_firewall/)
 #       /usr/share/cockpit/haas-samba             (from cockpit_samba/)
-#       /usr/share/cockpit/haas-update-appliance  (from cockpit_updates/)
+#       /usr/share/cockpit/haas-updates  (from cockpit_updates/)
 #       /usr/share/cockpit/haas-python            (from cockpit_python/)
 #   - Installs the nala package manager
 #   - Installs the linux tree command
@@ -1078,7 +1078,7 @@ echo ""
 ########################################
 
 
-COCKPIT_UPDATE_DST="/usr/share/cockpit/haas-update-appliance"
+COCKPIT_UPDATE_DST="/usr/share/cockpit/haas-updates"
 
 echo ""
 echo ""

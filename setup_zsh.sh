@@ -167,7 +167,7 @@ if command -v zoxide >/dev/null 2>&1; then
         /usr/share/cockpit/haas-samba/ \
         /etc/ssh/sshd_config.d \
         /etc/systemd/system \
-        /usr/share/cockpit/haas-update-appliance/ \
+        /usr/share/cockpit/haas-updates/ \
         /usr/share/cockpit/haas-python/
     do
         sudo -H -u "$TARGET_USER" zoxide add "$dir"

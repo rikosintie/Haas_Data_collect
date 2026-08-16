@@ -21,7 +21,7 @@ h-deploy() {
 }
 
 alias h-python="h-deploy cockpit_python haas-python"
-alias h-update="h-deploy cockpit_updates haas-update-appliance"
+alias h-update="h-deploy cockpit_updates haas-updates"
 alias h-firewall="h-deploy cockpit_firewall haas-firewall"
 alias h-samba="h-deploy cockpit_samba haas-samba"
 
@@ -68,7 +68,7 @@ alias haas-python='cd /usr/share/cockpit/haas-python/' # The cockpit directory f
 alias haas-samba='cd /usr/share/cockpit/haas-samba/' # The cockpit directory for the samba extension
 alias haas-ssh='cd /etc/ssh/sshd_config.d/' # the sshd_config.d directory for te ssh customization file
 alias haas-system='cd /etc/systemd/system' # The haas service files
-alias haas-updates='cd /usr/share/cockpit/haas-update-appliance/' # The cockpit directory for the update/logs extension
+alias haas-updates='cd /usr/share/cockpit/haas-updates/' # The cockpit directory for the update/logs extension
 
 # List all haas functions
 alias haas-list-functions='print -l ${(k)functions} | grep '^haas' | sort'
@@ -377,7 +377,7 @@ haas-repo          – cd /home/haas/Haas_Data_collect/
 haas-samba         – cd /usr/share/cockpit/haas-samba/
 haas-ssh           – cd to sshd_config.d directory
 haas-system        – cd /etc/systemd/system
-haas-updates       – cd /usr/share/cockpit/haas-update-appliance/
+haas-updates       – cd /usr/share/cockpit/haas-updates/
 
 # Firewall Config editing
 haas-fw-conf       – Edit firewall config with sudo

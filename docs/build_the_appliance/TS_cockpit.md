@@ -112,7 +112,7 @@ this renderer mismatch never applies to it.
 ## A Cockpit extension change doesn't take effect
 
 Every custom extension (`haas-firewall`, `haas-samba`,
-`haas-update-appliance`, `haas-python`) lives in the repo as a
+`haas-updates`, `haas-python`) lives in the repo as a
 `cockpit_X/` source folder, but Cockpit never runs that folder directly —
 it only serves whatever was copied to `/usr/share/cockpit/haas-X/` by
 `haas-install.sh` at install time. Editing the repo (even `git pull`ing a
