@@ -99,26 +99,24 @@
 === "macOS"
 
     **List Shares sorted by share name**
-    ```
+
+    ```bash
     smbutil view //<user>@<appliance_ip>
     ```
 
-----------------------------------------------------------------
-
-```bash hl_lines='1' title='Example Output"
-smbutil view //haas@haas.pu.pri
-Share                                           Type    Comments
--------------------------------
-minimill                                        Disk    File Share for minimill
-IPC$                                            Pipe    IPC Service (Haas Data Collector (Samba, Ubuntu))
-st30                                            Disk    File Share for st30
-vf5ss                                           Disk    File Share for vf5ss
-st40                                            Disk    File Share for st40
-st30l                                           Disk    File Share for srt30l
-vf2ss                                           Disk    File Share for vf2ss
-machines                                        Disk    File Share for all machines
-Haas                                            Disk    Haas Data Collection Share
-```
+    ```bash hl_lines='1' title='Example Output'
+    smbutil view //haas@haas.pu.pri
+    Share                                           Type    Comments
+    -------------------------------
+    minimill                                        Disk    File Share for minimill
+    IPC$                                            Pipe    IPC Service (Haas Data Collector (Samba, Ubuntu))
+    st30                                            Disk    File Share for st30
+    vf5ss                                           Disk    File Share for vf5ss
+    st40                                            Disk    File Share for st40
+    st30l                                           Disk    File Share for st30l
+    vf2ss                                           Disk    File Share for vf2ss
+    machines                                        Disk    File Share for all machines
+    ```
 
 ----------------------------------------------------------------
 
