@@ -248,7 +248,7 @@ var HAAS_CONNECTIVITY_SCRIPT = [
     "    }",
     "    if (port != \"\") printf \"-t %s --port %s --name %s\\n\", ip, port, name;",
     "}' | sort -k4,4n |",
-    "while read -r line; do",
+    "while read -r line || [ -n \"$line\" ]; do",
     "    ip=\"\"; port=\"\"; name=\"\"",
     "    set -- $line",
     "    while [ $# -gt 0 ]; do",

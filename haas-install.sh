@@ -821,7 +821,7 @@ id "haas"
         echo "Reading users from $USER_FILE"
 
         # Skip header line and read username and password columns
-        tail -n +2 "$USER_FILE" | while IFS=',' read -r username password; do
+        tail -n +2 "$USER_FILE" | while IFS=',' read -r username password || [[ -n "$username" ]]; do
             # Trim whitespace
             username=$(echo "$username" | xargs)
             password=$(echo "$password" | xargs)
