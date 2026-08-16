@@ -85,7 +85,7 @@ class HaasLoggerGUI:
         ttk.Label(main_frame, text="File Mode:").grid(
             row=5, column=0, sticky=tk.W, pady=10
         )
-        self.append_var = tk.BooleanVar(value=False)
+        self.append_var = tk.BooleanVar(value=True)
 
         radio_frame = ttk.Frame(main_frame)
         radio_frame.grid(row=5, column=1, sticky=tk.W, pady=10, padx=(10, 0))
