@@ -1,5 +1,11 @@
 # Installation Quick Start
 
+----------------------------------------------------------------
+
+![screenshot](./quick-start-tux.jpg)
+
+----------------------------------------------------------------
+
 This is the short version. For the full walkthrough (partitioning, Ubuntu
 install, networking, etc.) see the docs under [Use an appliance for the scripts](https://rikosintie.github.io/Haas_Data_collect/build_the_appliance/build_an_appliance/){: target="_blank" rel="noopener" }.
 
