@@ -36,25 +36,28 @@ function colorizeSharesOutput(rawText) {
 }
 
 // Same concept as colorizeSharesOutput, but list_shares_csv.sh's output
-// is comma-delimited (list_shares_csv.sh:7) rather than fixed-width, so
-// the SHARE field is bounded by the first comma instead of a fixed
-// column offset. Same raw-text-in, escape-after-split contract, for the
-// same reason (an entity split across the boundary).
+// is comma-delimited (list_shares_csv.sh:7) rather than fixed-width, and
+// every column (including the header) gets its own color instead of just
+// SHARE. Split strictly on "," — valid_users holds space-separated
+// entries like "@HaasGroup haas", and that space must stay inside its
+// own cell rather than be mistaken for a delimiter. A row that doesn't
+// split into exactly 4 fields (share,path,valid_users,read_only) is left
+// uncolored rather than guessed at. Rejoins with a bare "," so the
+// copy-pasted text is still valid CSV for Excel/LibreOffice.
+const SHARES_CSV_COLUMN_CLASSES = ["info", "warn", "success", "error"];
 function colorizeSharesCsvOutput(rawText) {
-    return rawText.split("\n").map(function(line, i) {
-        if (i === 0) {
-            return "<span class=\"info\">" + escapeHtml(line) + "</span>";
-        }
+    return rawText.split("\n").map(function(line) {
         if (line.trim() === "") {
             return line;
         }
-        var commaIdx = line.indexOf(",");
-        if (commaIdx === -1) {
+        var fields = line.split(",");
+        if (fields.length !== SHARES_CSV_COLUMN_CLASSES.length) {
             return escapeHtml(line);
         }
-        var shareCol = line.slice(0, commaIdx);
-        var rest = line.slice(commaIdx);
-        return "<span class=\"info\">" + escapeHtml(shareCol) + "</span>" + escapeHtml(rest);
+        return fields.map(function(field, i) {
+            return "<span class=\"" + SHARES_CSV_COLUMN_CLASSES[i] + "\">" +
+                escapeHtml(field) + "</span>";
+        }).join(",");
     }).join("\n");
 }
 

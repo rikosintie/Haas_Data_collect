@@ -56,7 +56,7 @@ share, since each one is only a single line to begin with.
 
 ----------------------------------------------------------------
 
-![screenshot](./img/display-shares.resized.png)
+![screenshot](./img/samba-display-shares.png){ width="500"}
 
 ----------------------------------------------------------------
 
@@ -79,6 +79,12 @@ it into a new, empty text file (`t-editor`, `fresh`, Notepad, TextEdit —
 anything plain text works) saved with a `.csv` extension. Opening that
 file in a spreadsheet program should trigger an import dialog rather
 than just dropping the raw text into cell A1.
+
+Each of the four columns — **share**, **path**, **valid_users**,
+**read_only** — is colored differently on screen, in every row including
+the header, so it's easy to scan down a single column. The coloring is
+just for readability; copying the text still gives you plain,
+comma-separated values.
 
 !!! warning "Leave \"Space\" unchecked"
     Some values in this CSV contain spaces of their own — `valid_users`
