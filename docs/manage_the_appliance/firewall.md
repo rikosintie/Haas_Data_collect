@@ -221,6 +221,12 @@ Rollback lives at the very bottom of the page for that reason.
   before touching anything; if it doesn't, the firewall is left untouched
   and you get an error instead.
 
+----------------------------------------------------------------
+
+![screenshot](./img/firewall-apply-confirm.png){ width="500"}
+
+----------------------------------------------------------------
+
 Both buttons refresh **Active Firewall Rules** immediately once the
 command actually finishes, rather than waiting on the dashboard's normal
 2-second polling — since these are exactly the two actions that change
@@ -248,6 +254,18 @@ state even briefly.
     firewall access being revoked doesn't quietly leave their login
     account still active because deleting it never happened.
 
+----------------------------------------------------------------
+
+Confirm the changes before applying:
+
+![screenshot](./img/firewall-apply-confirm.png){ width="500"}
+
+----------------------------------------------------------------
+
+![screenshot](./img/firewall-panel-output.png){ width="500"}
+
+----------------------------------------------------------------
+
 ## Rollback Firewall Rules from a Backup
 
 Every time the firewall config is applied, a timestamped copy of the CSV is
@@ -267,3 +285,17 @@ restores into whatever `CSV_PATH` currently points to (normally
 **Apply Users-B (or a custom CSV) instead of Users-A** and pops up a
 reminder to click **Apply Firewall Changes**, exactly like saving from
 **Edit Users-A**.
+
+----------------------------------------------------------------
+
+When you click "List Backups" you will see the backups in the dropdown.
+
+![screenshot](./img/firewall-rollback.png){ width="500"}
+
+----------------------------------------------------------------
+
+When you select a backup, it will be displayed in the panel so that you can review it.
+
+![screenshot](./img/firewall-list-backup.png){ width="500"}
+
+----------------------------------------------------------------
