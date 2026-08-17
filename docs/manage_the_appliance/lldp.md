@@ -2,6 +2,10 @@
 
 ----------------------------------------------------------------
 
+![screenshot](./img/tux-lldp.jpg)
+
+----------------------------------------------------------------
+
 This page is for anyone who isn't a network engineer — MSP staff, help-desk,
 or shop floor personnel — who needs to know what LLDP is, why the
 appliance uses it, and how to check it without needing to already know
