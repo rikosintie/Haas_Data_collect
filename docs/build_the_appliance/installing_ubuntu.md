@@ -1,5 +1,11 @@
 # Which version of Ubuntu should you use
 
+----------------------------------------------------------------
+
+![screenshot](./img/tux-install-ubuntu.jpg)
+
+----------------------------------------------------------------
+
 Ubuntu comes in two versions — Server (no desktop) and Desktop (includes
 the GNOME desktop). Use **Server**.
 
