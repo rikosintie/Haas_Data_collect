@@ -78,7 +78,7 @@ At the top of the page:
 
 ----------------------------------------------------------------
 
-![screenshot](./img/firewall-logs.png)
+![screenshot](./img/firewall-logs.png){ width="500"}
 
 ----------------------------------------------------------------
 
@@ -100,6 +100,12 @@ check what *would* happen:
 | Edit Users-A | Opens `~/Haas_Data_collect/users-a.csv` in an inline editor (see below) |
 | Edit Users-B | Opens `~/Haas_Data_collect/users-b.csv` in an inline editor (see below) |
 | Compare Users-A to Users-B | Runs `configure_ufw_from_csv.sh --compare users-b.csv` against the currently active rules — answers "what would change if I applied Users-B instead" |
+
+----------------------------------------------------------------
+
+![screenshot](./img/firewall-compare.png){ width="500"}
+
+----------------------------------------------------------------
 
 !!! note "Users-A and Users-B — two interchangeable slots, not a hierarchy"
     Neither slot is inherently "the real one" — think of it like an A/B
