@@ -2,6 +2,10 @@
 
 ----------------------------------------------------------------
 
+![screenshot](./img/tux-third-party.jpg){width="500"}
+
+----------------------------------------------------------------
+
 `/usr/local/sbin/tools.yaml` lists a handful of small, single-purpose terminal tools that `install-tools.sh` downloads and installs for the `haas` user — the same script the **Sync Tools** button on the Updates - Logs page runs, so
 `Sync Tools` is how you install these for the first time or pick up new
 releases later.
