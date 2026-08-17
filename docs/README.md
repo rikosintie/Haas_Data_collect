@@ -8,7 +8,11 @@ The code for the project can be found at this [Github repository](https://github
 
 ----------------------------------------------------------------
 
-If you want to build an appliance that runs the python scripts 24/7, and allows CNC programmers to save programs and the Haas machines to load, them see the [Installation Quick Start](./INSTALL_QUICKSTART.md){: target="_blank" rel="noopener" }.
+If you want to run the Python logger script on a PC see [Introduction to the Haas Data Collect Project](Introduction.md){: target="_blank" rel="noopener" }.
+
+----------------------------------------------------------------
+
+If you want to build an appliance that runs the python scripts 24/7, and allows CNC programmers to save programs and the Haas machines to load them, see the [Installation Quick Start](./INSTALL_QUICKSTART.md){: target="_blank" rel="noopener" }.
 
 **The appliance can be built using:**
 
