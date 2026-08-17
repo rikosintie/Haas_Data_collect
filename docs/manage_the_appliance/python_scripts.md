@@ -2,6 +2,10 @@
 
 ----------------------------------------------------------------
 
+![screenshot](./img/tux-python.jpg)
+
+----------------------------------------------------------------
+
 The `haas-install.sh` installer sets up a dedicated Cockpit extension for
 managing the `haas-*.service` systemd units that run the per-machine CNC
 data-collection scripts — separate from the general **Updates - Logs**
