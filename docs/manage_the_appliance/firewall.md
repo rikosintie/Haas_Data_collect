@@ -34,7 +34,7 @@ for what it means and why more than one active interface is flagged.
 At the top of the page:
 
 - A colored status indicator (green = enabled, red = disabled) plus your
-  logged-in username, user ID, groups, and shell.
+  logged-in username, user ID, groups, and shell. Great for troubleshooting.
 - An **Enable Firewall** / **Disable Firewall (for testing)** toggle button
   that reflects the current state. Both directions ask for confirmation
   first — disabling warns that all rules are removed and the appliance
