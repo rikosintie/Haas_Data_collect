@@ -2,6 +2,10 @@
 
 ----------------------------------------------------------------
 
+![screenshot](./img/tux-firewall.jpg)
+
+----------------------------------------------------------------
+
 The `haas-install.sh` installer sets up a Cockpit extension for managing the
 appliance's firewall day to day, so you don't need SSH access for routine
 firewall work. Log into Cockpit at `https://<appliance-ip>:9090` and look
