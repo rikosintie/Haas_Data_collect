@@ -27,7 +27,7 @@ for what it means and why more than one active interface is flagged.
 
 ----------------------------------------------------------------
 
-![screenshot](./img/firewall-dash.png)
+![screenshot](./img/firewall-dash.png){ width="500"}
 
 ----------------------------------------------------------------
 
