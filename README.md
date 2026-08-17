@@ -17,8 +17,14 @@
 
 # Haas_Data_collect
 
-This is the code repository for the project.
+This is the GitHub code repository for the project.
 
-**New here? Start with [Quick Start](https://rikosintie.github.io/Haas_Data_collect/INSTALL_QUICKSTART/).**
+----------------------------------------------------------------
 
-**The complete project documentation is a Github book located [here](https://rikosintie.github.io/Haas_Data_collect/).**
+If you want to run the Python logger script on a PC see [Introduction to the Haas Data Collect Project](Introduction.md){: target="_blank" rel="noopener" }.
+
+----------------------------------------------------------------
+
+If you want to build an appliance that runs the python scripts 24/7, and allows CNC programmers to save programs and the Haas machines to load them, see the [Installation Quick Start](./INSTALL_QUICKSTART.md){: target="_blank" rel="noopener" }.
+
+**The complete project documentation is a [Github book located here](https://rikosintie.github.io/Haas_Data_collect/).**
