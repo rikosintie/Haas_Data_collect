@@ -75,7 +75,7 @@ begins. It isn't an Excel-only format; it's a universal one that
 LibreOffice Calc, Microsoft Excel, Google Sheets, and just about
 anything else that opens spreadsheets can read.
 
-Click `Shares CSV`, select all the text in the output panel, and paste
+Click `Shares CSV`, select all the text in the output panel below "--- Samba Shares (CSV) ---", and paste
 it into a new, empty text file (`t-editor`, `fresh`, Notepad, TextEdit —
 anything plain text works) saved with a `.csv` extension. Opening that
 file in a spreadsheet program should trigger an import dialog rather
@@ -109,7 +109,7 @@ comma-separated values.
 
 ----------------------------------------------------------------
 
-![screenshot](./img/shares-csv-excel.resized.png)
+![screenshot](./img/shares-csv-excel.png){ width="500"}
 
 ----------------------------------------------------------------
 
