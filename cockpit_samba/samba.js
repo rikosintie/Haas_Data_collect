@@ -1164,7 +1164,7 @@ windowsMappingBtn.addEventListener("click", function() {
             }
 
             var intro = "Run these from a Windows Command Prompt (cmd.exe) on " + username +
-                "'s PC — each one prompts for " + username + "'s password rather than " +
+                "'s PC — each one prompts for " + username + "'s password rather than \n" +
                 "taking it as plain text, and lets Windows pick the next free drive letter:\n\n";
 
             var commands = shareNames.map(function(share) {
