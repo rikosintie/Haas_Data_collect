@@ -216,8 +216,10 @@ class HaasLoggerGUI:
         """
         Handle OK button click.
 
-        Prints the command to stdout and closes the GUI, allowing the user
-        to press Enter in the terminal to execute it.
+        Prints the command to stdout for a visual record, and copies it to
+        the clipboard so the user can paste and press Enter in the terminal
+        to run it — plain stdout output has no way to land in the
+        terminal's own input line for Enter to run directly.
         """
         if not self._is_valid_port():
             messagebox.showerror(
@@ -227,8 +229,19 @@ class HaasLoggerGUI:
             )
             return
 
+        command = self._build_command()
+
         # Print command to terminal
-        print(self._build_command())
+        print(command)
+
+        # Copy to clipboard so the user can paste-and-run instead of having
+        # to highlight the printed line themselves. update() is required
+        # before destroy() — Tk only hands the clipboard off to the OS on
+        # the next event loop tick, so destroying the window right after
+        # clipboard_append() can drop the clipboard contents.
+        self.root.clipboard_clear()
+        self.root.clipboard_append(command)
+        self.root.update()
 
         # Close the window
         self.root.destroy()

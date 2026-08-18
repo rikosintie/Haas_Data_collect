@@ -122,16 +122,24 @@ Fill in the target IP address (leave blank for server mode), an optional
 machine name, the port configured in the CNC's Setting 263 (5001-5099,
 Haas's recommended range), and whether to append all cycles for one part
 number to a single file or start a new file every cycle. The dialog
-builds the equivalent `haas_logger2.py` command line and shows it live in
+builds the correct `haas_logger2.py` command line and shows it live in
 the **Command Preview** box as you type.
 
 Click **OK** and the finished command prints to the terminal you launched
-it from — press Enter there to actually run it. **Cancel** closes the
+it from and is also copied to your clipboard — click back into that
+terminal, paste (Ctrl+V), and press Enter to run it. **Cancel** closes the
 dialog without printing anything.
 
-Requires `tkinter`, which ships with the standard Python installer on
-Windows. On Linux, install it separately if it's missing (e.g. `sudo apt
-install python3-tk` on Ubuntu/Debian).
+----------------------------------------------------------------
+
+![screenshot](./img/python-logger-windows.png){ width="500"}
+
+----------------------------------------------------------------
+
+!!! note
+  Requires `tkinter`, which ships with the standard Python installer on
+  Windows. On Linux, install it separately if it's missing (e.g. `sudo apt
+  install python3-tk` on Ubuntu/Debian).
 
 ----------------------------------------------------------------
 
