@@ -1,3 +1,5 @@
+import platform
+import subprocess
 import sys
 import tkinter as tk
 from tkinter import messagebox, ttk
@@ -212,6 +214,42 @@ class HaasLoggerGUI:
         self.command_text.insert(1.0, command)
         self.command_text.config(state=tk.DISABLED)
 
+    @staticmethod
+    def _copy_to_clipboard(text: str) -> bool:
+        """
+        Copy text to the OS clipboard via a native command-line tool.
+
+        Tk's own clipboard_clear()/clipboard_append() only answer paste
+        requests while this process's Tk event loop is still running —
+        they don't hand the content off to the OS. Since on_ok() destroys
+        the window (and the interpreter then exits) right after, a paste
+        can lose that race and come up empty, which is exactly what this
+        replaces: `clip`/`pbcopy`/`xclip`/`xsel` write straight into the
+        OS-level clipboard and don't depend on this process staying alive.
+
+        Returns True if a copy command actually ran, False if no known
+        clipboard tool exists for this platform (e.g. Linux without
+        xclip/xsel installed) — the caller still has the printed line in
+        the terminal as a fallback either way.
+        """
+        system = platform.system()
+        try:
+            if system == "Windows":
+                subprocess.run(["clip"], input=text, encoding="utf-8", check=True)
+                return True
+            if system == "Darwin":
+                subprocess.run(["pbcopy"], input=text, encoding="utf-8", check=True)
+                return True
+            for cmd in (["xclip", "-selection", "clipboard"], ["xsel", "--clipboard", "--input"]):
+                try:
+                    subprocess.run(cmd, input=text, encoding="utf-8", check=True)
+                    return True
+                except FileNotFoundError:
+                    continue
+            return False
+        except subprocess.CalledProcessError:
+            return False
+
     def on_ok(self) -> None:
         """
         Handle OK button click.
@@ -235,13 +273,8 @@ class HaasLoggerGUI:
         print(command)
 
         # Copy to clipboard so the user can paste-and-run instead of having
-        # to highlight the printed line themselves. update() is required
-        # before destroy() — Tk only hands the clipboard off to the OS on
-        # the next event loop tick, so destroying the window right after
-        # clipboard_append() can drop the clipboard contents.
-        self.root.clipboard_clear()
-        self.root.clipboard_append(command)
-        self.root.update()
+        # to highlight the printed line themselves.
+        self._copy_to_clipboard(command)
 
         # Close the window
         self.root.destroy()

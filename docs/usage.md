@@ -141,6 +141,13 @@ dialog without printing anything.
   Windows. On Linux, install it separately if it's missing (e.g. `sudo apt
   install python3-tk` on Ubuntu/Debian).
 
+!!! note "Clipboard copy on Linux needs xclip or xsel"
+    The clipboard copy uses `clip` on Windows and `pbcopy` on macOS, both
+    built in. On Linux it looks for `xclip` first, then `xsel` — if
+    neither is installed, the command still prints to the terminal, you'll
+    just need to select and copy it yourself (e.g. `sudo apt install
+    xclip`).
+
 ----------------------------------------------------------------
 
 ### The script help text
