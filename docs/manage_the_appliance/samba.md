@@ -76,10 +76,9 @@ LibreOffice Calc, Microsoft Excel, Google Sheets, and just about
 anything else that opens spreadsheets can read.
 
 Click `Shares CSV`, select all the text in the output panel below "--- Samba Shares (CSV) ---", and paste
-it into a new, empty text file (`t-editor`, `fresh`, Notepad, TextEdit —
-anything plain text works) saved with a `.csv` extension. Opening that
+it into a new, empty text file (Notepad, Notepad++), save it with a `.csv` extension. Opening that
 file in a spreadsheet program should trigger an import dialog rather
-than just dropping the raw text into cell A1.
+than just dropping the raw text into cell A1. You can also paste it into a new spreadsheet. That will bring up the same "Text Import" dialog.
 
 Each of the four columns — **share**, **path**, **valid_users**,
 **read_only** — is colored differently on screen, in every row including
