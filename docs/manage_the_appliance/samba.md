@@ -256,7 +256,7 @@ filled in from a fixed template.
 
 Output if the share was created successfully:
 
-   ![screenshot](./img/create-share-final.resized.png)
+   ![screenshot](./img/create-share-final.png){ width="500"}
 
   ----------------------------------------------------------------
 
@@ -264,7 +264,7 @@ Output if the share was created successfully:
 
   ----------------------------------------------------------------
 
-   ![screenshot](./img/create-share-stanza.png)
+   ![screenshot](./img/create-share-stanza.png){ width="500"}
 
   ----------------------------------------------------------------
 
@@ -308,7 +308,7 @@ Each section is sorted alphabetically and each user is numbered. After all users
 
 ----------------------------------------------------------------
 
-![screenshot](./img/users.png)
+![screenshot](./img/users.png){ width="500"}
 
 ----------------------------------------------------------------
 
@@ -335,7 +335,7 @@ by hand.
 
 ----------------------------------------------------------------
 
-![screenshot](./img/create-user.resized.png)
+![screenshot](./img/create-user.png){ width="500"}
 
 ----------------------------------------------------------------
 
