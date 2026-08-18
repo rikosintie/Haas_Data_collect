@@ -76,16 +76,17 @@ At the top of the page:
 
 ## Firewall Log
 
-----------------------------------------------------------------
-
-![screenshot](./img/firewall-logs.png){ width="500"}
-
-----------------------------------------------------------------
-
 Click **Firewall Log** to stream the live UFW log (`journalctl -f`) into the
 rules pane, with radio filters for **All**, **BLOCK**, **ALLOW**, or
 **Audit** entries. Click **Stop** to end the stream and go back to showing
 the static rule list.
+
+----------------------------------------------------------------
+In this example, I was trying to open Cockpit from 192.168.10.148, which isn't in the firewall rules.
+
+![screenshot](./img/firewall-logs.png){ width="500"}
+
+----------------------------------------------------------------
 
 ## Simulate / Compare
 
