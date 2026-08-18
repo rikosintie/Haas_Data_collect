@@ -144,6 +144,12 @@ that line.
 net use * \\192.168.10.141\st30 /user:jdoe * /persistent:yes
 ```
 
+----------------------------------------------------------------
+
+![screenshot](./img/samba-drive-mapping.png){ width="500"}
+
+----------------------------------------------------------------
+
 Two details are deliberate:
 
 - The `*` in place of the password makes `net use` prompt for it
@@ -343,11 +349,17 @@ by hand.
 
 ----------------------------------------------------------------
 
-![screenshot](./img/creaet-user-confirm.png)
+![screenshot](./img/samba-create-user-confirm.png){ width="500"}
 
 ----------------------------------------------------------------
 
 4\. Click **Clear Output** instead to discard the form and cancel.
+
+----------------------------------------------------------------
+
+![screenshot](./img/samba-regular-user.png){ width="500"}
+
+----------------------------------------------------------------
 
 For the **Administrator** role, once the account itself is created the
 panel automatically runs `setup_zsh.sh <repo_dir> <username>` for the new
@@ -368,6 +380,12 @@ step is skipped for them.
     the panel automatically re-checks the new account end-to-end and
     prints a PASS/FAIL line for each of five checks directly in the output
     panel:
+
+----------------------------------------------------------------
+
+![screenshot](./img/samba-create-admin-user-confirm.png){ width="500"}
+
+----------------------------------------------------------------
 
     - Shell is `zsh` and home directory is `/home/<username>`
     - Member of both `sudo` and `HaasGroup`
