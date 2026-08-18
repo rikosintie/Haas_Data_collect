@@ -69,6 +69,12 @@ const displayUsersBtn       = document.getElementById("displayUsersBtn");
 const clearOutputBtn       = document.getElementById("clearOutputBtn");
 const displaySharesByUserBtn = document.getElementById("displaySharesByUserBtn");
 const usernameInput        = document.getElementById("usernameInput");
+const windowsMappingBtn    = document.getElementById("windowsMappingBtn");
+
+// Set by loadNetworkInfo() once the appliance's active interface(s) are
+// known — Windows Drive Mapping needs this to build "net use" commands.
+// null until that first async call resolves.
+let applianceIp = null;
 
 const createShareBtn    = document.getElementById("createShareBtn");
 const createShareForm   = document.getElementById("createShareForm");
@@ -228,6 +234,7 @@ function lockAll() {
     displayUsersBtn.disabled        = true;
     clearOutputBtn.disabled         = true;
     displaySharesByUserBtn.disabled = true;
+    windowsMappingBtn.disabled      = true;
     createUserBtn.disabled          = true;
     deleteUserBtn.disabled          = true;
     changePasswordBtn.disabled      = true;
@@ -249,6 +256,7 @@ function unlockNormal() {
     displayUsersBtn.disabled        = false;
     clearOutputBtn.disabled         = false;
     displaySharesByUserBtn.disabled = false;
+    windowsMappingBtn.disabled      = false;
     createUserBtn.disabled          = false;
     deleteUserBtn.disabled          = false;
     changePasswordBtn.disabled      = false;
@@ -269,6 +277,7 @@ function unlockEditMode() {
     displayUsersBtn.disabled        = true;
     clearOutputBtn.disabled         = false;   // acts as Cancel
     displaySharesByUserBtn.disabled = true;
+    windowsMappingBtn.disabled      = true;
     createUserBtn.disabled          = true;
     deleteUserBtn.disabled          = true;
     changePasswordBtn.disabled      = true;
@@ -287,6 +296,7 @@ function lockForChangePassword() {
     displayUsersBtn.disabled        = true;
     clearOutputBtn.disabled         = true;
     displaySharesByUserBtn.disabled = true;
+    windowsMappingBtn.disabled      = true;
     createUserBtn.disabled          = true;
     deleteUserBtn.disabled          = true;
     changePasswordBtn.disabled      = true;
@@ -1118,6 +1128,61 @@ displaySharesByUserBtn.addEventListener("click", function() {
         });
 });
 
+// ── Windows Drive Mapping ───────────────────────────────────────────────────
+
+// Generates a "net use" command per share for the given username, using
+// the appliance IP captured by loadNetworkInfo(). The "*" in place of a
+// password makes net use prompt for it interactively instead of it being
+// typed in plain text on the command line; "net use *" in place of a
+// fixed drive letter lets Windows pick the next free one, so running
+// several of these back to back doesn't collide on the same letter.
+windowsMappingBtn.addEventListener("click", function() {
+    var username = usernameInput.value.trim();
+    if (!username) {
+        showOutputPanel("ERROR: Enter a username first.");
+        return;
+    }
+    if (!applianceIp) {
+        showOutputPanel("ERROR: Appliance IP not detected yet — wait for the network line at the top of the page to finish loading, then try again.");
+        return;
+    }
+    lockAll();
+    showOutputPanel("Building Windows drive mapping commands for: " + username + "...\n");
+
+    cockpit.spawn(["/usr/local/sbin/list_shares_csv.sh"], { superuser: "require", err: "message" })
+        .done(function(data) {
+            var lines = (data || "").split("\n").filter(function(l) { return l.trim() !== ""; });
+            var shareNames = lines.slice(1).map(function(line) {
+                return line.split(",")[0];
+            }).filter(function(name) { return name !== ""; });
+
+            var header = "<span class=\"info\">--- Windows Drive Mapping: " + escapeHtml(username) + " ---</span>\n\n";
+
+            if (shareNames.length === 0) {
+                output.innerHTML = header + "(no shares defined)";
+                return;
+            }
+
+            var intro = "Run these from a Windows Command Prompt (cmd.exe) on " + username +
+                "'s PC — each one prompts for " + username + "'s password rather than " +
+                "taking it as plain text, and lets Windows pick the next free drive letter:\n\n";
+
+            var commands = shareNames.map(function(share) {
+                return "net use * \\\\" + applianceIp + "\\" + share + " /user:" + username + " * /persistent:yes";
+            }).join("\n");
+
+            output.innerHTML = header + escapeHtml(intro) + escapeHtml(commands);
+        })
+        .fail(function(ex, data) {
+            var header = "<span class=\"info\">--- Windows Drive Mapping: " + escapeHtml(username) + " ---</span>\n\n";
+            output.innerHTML = header + "<span class=\"error\">ERROR: " + escapeHtml(ex.message || JSON.stringify(ex)) + "</span>";
+            if (data) output.innerHTML += "\n" + escapeHtml(data);
+        })
+        .always(function() {
+            unlockNormal();
+        });
+});
+
 // ── Display Users (Samba section + Linux section) ─────────────────────────────
 
 // Renders one heading + alternating-color, numbered list of plain strings —
@@ -1267,6 +1332,13 @@ clearOutputBtn.addEventListener("click", function() {
                 const fields = line.split('|');
                 return fields[0] + ": " + fields[1] + " (MAC " + fields[2] + ")";
             });
+
+            // Windows Drive Mapping needs one IP to build "net use" commands
+            // against — the first active interface, same one shown first in
+            // this line. If more than one interface is active the warning
+            // below already tells the admin to fix that; we don't try to
+            // guess which one the Windows PC would actually reach.
+            applianceIp = lines[0].split('|')[1];
 
             el.innerHTML = "";
 

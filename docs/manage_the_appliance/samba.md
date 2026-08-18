@@ -43,6 +43,7 @@ These are read-only and safe to click any time:
 | Shares CSV | Runs `list_shares_csv.sh` — same share list in CSV format for use in Excel |
 | Users | Three numbered sections: **Samba Users** — every account in the Samba password database (`pdbedit -L`); **Linux Users (login-capable, with a home directory)** — only the accounts that also have a real shell and home directory (i.e. admin accounts), showing UID, GID, and home directory; **Linux Users (no home directory, Samba share only)** — the machine-tool/share-only accounts, so the count difference between the first two sections is self-explanatory instead of looking like a discrepancy. A totals line after all three sections gives the count of each, for comparing against Cockpit's own **Accounts** page (which only lists accounts with a home directory) or an auditor's own tally |
 | Shares by User | Enter a username in the field next to the button, then click it to run `smbstatus --user=<name>` and show that user's **active** Samba sessions |
+| Drive Mapping | Enter a username in the field next to the button, then click it to generate a Windows `net use` command for every share, ready to hand off to that user |
 
 ----------------------------------------------------------------
 
@@ -86,6 +87,12 @@ the header, so it's easy to scan down a single column. The coloring is
 just for readability; copying the text still gives you plain,
 comma-separated values.
 
+----------------------------------------------------------------
+
+![screenshot](./img/samba-display-shaers-csv.png){ width="500"}
+
+----------------------------------------------------------------
+
 !!! warning "Leave \"Space\" unchecked"
     Some values in this CSV contain spaces of their own — `valid_users`
     values like `@HaasGroup haas` are one field, not two. It's tempting
@@ -106,7 +113,7 @@ comma-separated values.
 
 ----------------------------------------------------------------
 
-The data in the spreadsheet program. This is Libre Calc, but it's the in Excel, Google Sheets.
+The data in the spreadsheet program. This is Libre Calc, but it's the in Excel, Google Sheets. You can share this to anyone that needs to map a drive.
 
 ----------------------------------------------------------------
 
@@ -123,6 +130,30 @@ In this example, I'm checking on user `thubbard`:
 ----------------------------------------------------------------
 
 ![screenshot](./img/share-user.png)
+
+----------------------------------------------------------------
+
+### Drive Mapping
+
+Enter a username in the field and click `Drive Mapping` to get a
+ready-to-send Windows drive mapping command for every share currently
+defined — pick out the line(s) that user actually needs and send them
+that line.
+
+```text
+net use * \\192.168.10.141\st30 /user:jdoe * /persistent:yes
+```
+
+Two details are deliberate:
+
+- The `*` in place of the password makes `net use` prompt for it
+  interactively (Windows doesn't echo it back) instead of the password
+  sitting in plain text in the command itself — which matters, since
+  this is a command you're handing off in an email or chat message.
+- The `*` in place of a drive letter (instead of e.g. `Z:`) lets Windows
+  pick the next free drive letter on its own, so running more than one
+  of these back to back on the same PC won't collide over which letter
+  to use.
 
 ----------------------------------------------------------------
 
