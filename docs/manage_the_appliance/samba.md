@@ -37,6 +37,8 @@ only while you're editing `smb.conf`, creating a share, or creating a user
 — instead of sitting permanently in the button row, disabled, when it
 doesn't apply.
 
+----------------------------------------------------------------
+
 ## View buttons
 
 These are read-only and safe to click any time:
@@ -204,6 +206,8 @@ Two details are deliberate:
     was manually removed. Add `SMBDOPTIONS=""` (and `NMBDOPTIONS=""`) to
     that file and restart `smbd` to make it stop for good.
 
+----------------------------------------------------------------
+
 ## Create Share
 
 Adds a new share stanza to `smb.conf` without hand-editing the file — the
@@ -273,6 +277,8 @@ Output if the share was created successfully:
   ----------------------------------------------------------------
 
 4\. Click `Clear Output` to discard the form and cancel — it doubles as `Cancel` here too.
+
+----------------------------------------------------------------
 
 ## Delete Share
 
@@ -417,6 +423,8 @@ step is skipped for them.
     [Firewall Control](./firewall.md) for the reminder that ties the two
     together.
 
+----------------------------------------------------------------
+
 ## Delete User
 
 Removes a Linux + Samba account — pick from a dropdown, confirm, done,
@@ -444,6 +452,8 @@ the command to terminate the session first (`sudo pkill -KILL -u
 <username>`) before retrying. The account is not silently left in place
 without a warning — deletion either fully succeeds or is reported as
 failed. Have the user logout of the SSH or Cockpit session.
+
+----------------------------------------------------------------
 
 ## Change Password
 
@@ -473,6 +483,8 @@ way to be done without SSH access.
    selection without changing anything and return to the dropdown; the
    list (and its done-markers) is rebuilt fresh each time you click
    **Change Password** itself.
+
+----------------------------------------------------------------
 
 ## Clear Output
 
