@@ -118,6 +118,12 @@ Run it with:
 python haas_logger_gui.py
 ```
 
+----------------------------------------------------------------
+
+![screenshot](./img/python-logger-gui.png){ width="500"}
+
+----------------------------------------------------------------
+
 Fill in the target IP address (leave blank for server mode), an optional
 machine name, the port configured in the CNC's Setting 263 (5001-5099,
 Haas's recommended range), and whether to append all cycles for one part
@@ -127,7 +133,7 @@ the **Command Preview** box as you type.
 
 Click **OK** and the finished command prints to the terminal you launched
 it from and is also copied to your clipboard — click back into that
-terminal, paste (Ctrl+V), and press Enter to run it. **Cancel** closes the
+terminal, paste (Ctrl+V Windows), (cmd+v Mac), (shift+ctrl+v Linux) and press Enter to run it. **Cancel** closes the
 dialog without printing anything.
 
 ----------------------------------------------------------------
