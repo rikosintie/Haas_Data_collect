@@ -112,11 +112,11 @@ comma-separated values.
 
 ----------------------------------------------------------------
 
-The data in the spreadsheet program. This is Libre Calc, but it's the in Excel, Google Sheets. You can share this to anyone that needs to map a drive.
+The data in the spreadsheet program. This is Libre Calc, but it's the same concept in Excel or Google Sheets. You can share this to anyone that needs to map a drive or create documentation for an auditor.
 
 ----------------------------------------------------------------
 
-![screenshot](./img/shares-imported-correctly.png)
+![screenshot](./img/shares-imported-correctly.png){ width="500"}
 
 ----------------------------------------------------------------
 
