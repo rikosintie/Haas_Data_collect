@@ -1,6 +1,8 @@
+import os
 import platform
 import subprocess
 import sys
+import time
 import tkinter as tk
 from tkinter import messagebox, ttk
 

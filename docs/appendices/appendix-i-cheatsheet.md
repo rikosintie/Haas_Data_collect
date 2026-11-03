@@ -75,7 +75,7 @@ mkd machines/vf2ss/cnc_logs    # creates full path and switches to it
 | `/var/log/samba` | Samba log files (one per connected machine) |
 | `/etc/haas-firewall.conf` | Firewall configuration |
 | `/etc/ssh/sshd_config.d/99-haas-hardening.conf` | SSH hardening config |
-| `/etc/issue.net` | Pre-login banner |
+| `/etc/ssh/haas-banner` | Pre-login banner |
 | `/usr/share/cockpit/haas-firewall` | Cockpit Firewall extension |
 | `/usr/share/cockpit/haas-updates` | Cockpit System Updates extension |
 | `/usr/share/cockpit/haas-samba` | Cockpit Samba extension |

@@ -8,7 +8,7 @@
 #   - Detects the repo directory dynamically (can be anywhere)
 #   - Writes /etc/haas-firewall.conf with:
 #       CSV_PATH, BACKUP_DIR, HAAS_MACHINES_SUBNET_V4, HAAS_MACHINES_SUBNET_V6, SSH_PORT
-#   - Copies issue.net to /etc/issue.net (Pre-logon banner)
+#   - Copies issue.net to /etc/ssh/haas-banner (Pre-logon banner)
 #   - Installs firewall scripts (from scripts/) into /usr/local/sbin
 #        scripts/configure_ufw_from_csv.sh
 #        scripts/gh-updater.lib.sh
@@ -421,7 +421,11 @@ fix_var_log_perms
 sudo cp "$REPO_DIR/scripts/configure_ufw_from_csv.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/scripts/gh-updater.lib.sh" /usr/local/sbin/
 sudo cp "$REPO_DIR/scripts/install-tools.sh" /usr/local/sbin/
-sudo cp "$REPO_DIR/issue.net" /etc/issue.net
+# The SSH banner deliberately does NOT go to /etc/issue.net: that file is a
+# dpkg conffile owned by base-files, so overwriting it makes every later
+# base-files upgrade stop and ask "keep your version?" — which hung the
+# Cockpit Updates page. /etc/ssh/haas-banner is ours alone.
+sudo cp "$REPO_DIR/issue.net" /etc/ssh/haas-banner
 sudo cp "$REPO_DIR/cockpit_samba/list_shares.sh" /usr/local/sbin
 sudo cp "$REPO_DIR/cockpit_samba/list_shares_csv.sh" /usr/local/sbin
 sudo cp "$REPO_DIR/scripts/rollback_csv.sh" /usr/local/sbin/
@@ -446,7 +450,7 @@ sudo rm -f /etc/ssh/sshd_config.d/99-haas-hardening.conf
 # Create a custom ssh options file for hardening
 sudo tee /etc/ssh/sshd_config.d/99-haas-hardening.conf > /dev/null << 'EOF'
 #pre-authentication login banner
-Banner /etc/issue.net
+Banner /etc/ssh/haas-banner
 ChallengeResponseAuthentication no
 LogLevel VERBOSE
 PasswordAuthentication yes
@@ -485,10 +489,10 @@ EOF
 sudo systemctl restart ssh
 
 # Verify the banner setting in sshd_config
-if [ -f /etc/issue.net ] && grep -q "^Banner" /etc/ssh/sshd_config.d/99-haas-hardening.conf && sudo sshd -t; then
+if [ -f /etc/ssh/haas-banner ] && grep -q "^Banner" /etc/ssh/sshd_config.d/99-haas-hardening.conf && sudo sshd -t; then
     echo ""
     echo ""
-    banner "✅ ${CYAN}Success: /etc/issue.net exists and SSH config is valid.${RESET}"
+    banner "✅ ${CYAN}Success: /etc/ssh/haas-banner exists and SSH config is valid.${RESET}"
     echo ""
     echo ""
 else
@@ -498,7 +502,7 @@ else
     echo ""
     echo ""
 
-    [ ! -f /etc/issue.net ] && echo "   -> /etc/issue.net is missing."
+    [ ! -f /etc/ssh/haas-banner ] && echo "   -> /etc/ssh/haas-banner is missing."
     ! grep -q "^Banner" /etc/ssh/sshd_config.d/99-haas-hardening.conf && echo "   -> Banner line not found in config."
     ! sudo sshd -t && echo "   -> sshd syntax error detected."
     exit 1

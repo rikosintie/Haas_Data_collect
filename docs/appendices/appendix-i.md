@@ -223,7 +223,7 @@ permitemptypasswords no
 allowtcpforwarding no
 allowagentforwarding no
 macs hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,umac-128-etm@openssh.com
-banner /etc/issue.net
+banner /etc/ssh/haas-banner
 hostkeyagent none
 kexalgorithms curve25519-sha256,curve25519-sha256@libssh.org
 hostkeyalgorithms ssh-ed25519,ssh-ed25519-cert-v01@openssh.com
@@ -512,7 +512,7 @@ The `treed` alias displays all of the directories using a `Human Readable` forma
 ### Prelogin banner is located here
 
 ```bash
-/etc/issue.net
+/etc/ssh/haas-banner
 ```
 
 ----------------------------------------------------------------

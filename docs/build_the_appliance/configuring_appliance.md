@@ -76,7 +76,7 @@ The repository includes a script named: `haas-install.sh`. The script does a lot
 - Installs the "fresh" cli text editor
 - Installs Python PIP
 - Installs the Linux "tree" command for listing directories and files.
-- Copies `issue.net` to `/etc/issue.net` (This is the Pre-logon banner)
+- Copies `issue.net` to `/etc/ssh/haas-banner` (This is the Pre-logon banner)
 - Copies csvlens binary to /usr/local/sbin - csvlens is a cli tool for viewing csv files. Example `csvlens users-a.csv`
 - Creates the backup directory in the repo
 - Triggers an initial firewall configuration via systemd using the `users-a.csv` file.
@@ -93,7 +93,7 @@ There are a three files in the `Haas_Data_collect` directory that need to be upd
 
 - users-a.csv - This file contains usernames, ip addresses and roles for configuring the firewall. A second slot, users-b.csv, is also present alongside it for planned/alternate rule sets — see [Simulate / Compare](../manage_the_appliance/firewall.md#simulate-compare) for how the two are used day to day.
 - initial_users.csv - Users who need access to the Windows shares on the appliance. The CNC controls will use the `haassvc` user account. Add CNC programmers, and operations personnel that need to copy files to/from the appliance.
-- issue.net - This is the login banner. It gets copied to `/etc/issue.net` by the `haas-firewall-install.sh` script. This is a generic file. Update it per your company's security policy.
+- issue.net - This is the login banner. It gets copied to `/etc/ssh/haas-banner` by the `haas-firewall-install.sh` script. This is a generic file. Update it per your company's security policy.
 
 These files are used as input to the `haas-firewall-install.sh` script that is presented next.
 
@@ -298,7 +298,7 @@ If you are in the Desktop version of Ubuntu you can open the `Files` application
 
 ----------------------------------------------------------------
 
-This is a text file that is displayed ***before*** a user logs in over ssh. The included file is a basic "You need Authorization" banner. Modify it to match your organization's security policy before running the installation script. If you need to update it later, use `sudo nano /etc/issue.net` to open the file. ASCII art is a method of making banners using ASCII characters. I used the [ASCII Art Archive](https://www.asciiart.eu/text-to-ascii-art) to create this banner. You can get much fancier if you want to spend the time! If you are also responsible for network equipment, you can use the approved banner from a switch or router.
+This is a text file that is displayed ***before*** a user logs in over ssh. The included file is a basic "You need Authorization" banner. Modify it to match your organization's security policy before running the installation script. If you need to update it later, use `sudo nano /etc/ssh/haas-banner` to open the file. ASCII art is a method of making banners using ASCII characters. I used the [ASCII Art Archive](https://www.asciiart.eu/text-to-ascii-art) to create this banner. You can get much fancier if you want to spend the time! If you are also responsible for network equipment, you can use the approved banner from a switch or router.
 
 ----------------------------------------------------------------
 

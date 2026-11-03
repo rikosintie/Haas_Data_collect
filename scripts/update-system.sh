@@ -2,6 +2,9 @@
 set -e
 
 export DEBIAN_FRONTEND=noninteractive
+# Same "keep the local file" answer for ucf-managed configs (e.g.
+# /etc/samba/smb.conf, which haas-install.sh rewrites).
+export UCF_FORCE_CONFFOLD=1
 
 # DEBIAN_FRONTEND only silences debconf. dpkg's own "configuration file
 # modified" prompt (e.g. a hand-edited /etc/issue.net) still blocks, and

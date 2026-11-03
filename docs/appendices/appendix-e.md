@@ -116,7 +116,7 @@ Ensures secure permissions on user SSH files.
 - **Port 22**
 Standard SSH port for compatibility with MSP tooling.
 
-- **Banner /etc/issue.net**
+- **Banner /etc/ssh/haas-banner**
 Displays a security banner before authentication.
 
 ----------------------------------------------------------------
@@ -146,7 +146,7 @@ cat /etc/ssh/sshd_config.d/99-haas-hardening.conf
 
 ```bash title='Command Output'
 #pre-authentication login banner
-Banner /etc/issue.net
+Banner /etc/ssh/haas-banner
 ChallengeResponseAuthentication no
 LogLevel VERBOSE
 PasswordAuthentication yes
@@ -216,7 +216,7 @@ permitemptypasswords no
 allowtcpforwarding no
 allowagentforwarding no
 macs hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,umac-128-etm@openssh.com
-banner /etc/issue.net
+banner /etc/ssh/haas-banner
 hostkeyagent none
 kexalgorithms curve25519-sha256,curve25519-sha256@libssh.org
 hostkeyalgorithms ssh-ed25519,ssh-ed25519-cert-v01@openssh.com

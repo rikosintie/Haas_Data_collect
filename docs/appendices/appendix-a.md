@@ -98,7 +98,7 @@ Out of the box, the appliance supports username/password login for SSH. The foll
 
 - Root login is disabled (PermitRootLogin no)
 - Empty Passwords are not permitted (PermitEmptyPasswords no)
-- Pre-login banner is configured (Banner /etc/issue.net)
+- Pre-login banner is configured (Banner /etc/ssh/haas-banner)
 
 If the environment uses SSH keys for logins, the following additional steps can be taken to lock the appliance down using SSH Keys. Do not run this unless you are sure that you have configured ssh keys on your laptop and copied the public key to the appliance!
 
@@ -179,7 +179,7 @@ permitemptypasswords no
 allowtcpforwarding no
 allowagentforwarding no
 macs hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,umac-128-etm@openssh.com
-banner /etc/issue.net
+banner /etc/ssh/haas-banner
 hostkeyagent none
 kexalgorithms curve25519-sha256,curve25519-sha256@libssh.org
 hostkeyalgorithms ssh-ed25519,ssh-ed25519-cert-v01@openssh.com
@@ -405,7 +405,7 @@ pubkeyauthentication yes
 passwordauthentication yes
 x11forwarding no
 permitemptypasswords no
-banner /etc/issue.net
+banner /etc/ssh/haas-banner
 ```
 
 #### 3. Check Firewall Rules
