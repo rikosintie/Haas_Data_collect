@@ -12,7 +12,29 @@ export UCF_FORCE_CONFFOLD=1
 # default when there is one; confold otherwise keeps the local file
 # (the same as answering N). stdin is /dev/null so anything else that
 # still prompts fails immediately instead of hanging the page.
-APT_OPTS=(-y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold)
+# Lock::Timeout makes apt wait for the dpkg lock instead of failing at once.
+APT_OPTS=(-y -o DPkg::Lock::Timeout=300 -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold)
+
+# Right after boot, unattended-upgrades / apt-daily often hold apt's locks
+# for a few minutes. Wait for them (up to 5 minutes) rather than failing
+# with "Could not get lock". Keep in sync with update-check.sh.
+wait_for_apt() {
+    local waited=0
+    while pgrep -x 'apt|apt-get|dpkg|unattended-upgr' >/dev/null; do
+        if [ "$waited" -ge 300 ]; then
+            echo "Another apt/dpkg process is still running after 5 minutes:" >&2
+            pgrep -ax 'apt|apt-get|dpkg|unattended-upgr' >&2
+            return 1
+        fi
+        if [ $((waited % 30)) -eq 0 ]; then
+            echo "Waiting for another apt/dpkg process (automatic updates) to finish..."
+        fi
+        sleep 5
+        waited=$((waited + 5))
+    done
+}
+
+wait_for_apt
 
 echo "Updating package lists..."
 apt-get update </dev/null

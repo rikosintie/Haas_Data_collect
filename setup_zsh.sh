@@ -53,8 +53,13 @@ ZSH_CUSTOM_DIR="$TARGET_HOME/.oh-my-zsh/custom"
 
 # ── Install zsh ───────────────────────────────────────────────────────────────
 
+# Non-interactive apt (this runs under cockpit.spawn with no terminal), and
+# wait up to 5 minutes for the dpkg lock — right after boot, automatic
+# updates often hold it.
+APT_INSTALL=(env DEBIAN_FRONTEND=noninteractive apt-get install -y -o DPkg::Lock::Timeout=300)
+
 header "Installing zsh"
-if apt install zsh -y; then
+if "${APT_INSTALL[@]}" zsh </dev/null; then
     ZSH_VERSION=$(zsh --version | awk '{print $2}')
     ok "zsh $ZSH_VERSION installed"
 else
@@ -65,7 +70,7 @@ fi
 # ── Install zsh-syntax-highlighting (apt package) ─────────────────────────────
 
 header "Installing zsh-syntax-highlighting"
-if apt install zsh-syntax-highlighting -y; then
+if "${APT_INSTALL[@]}" zsh-syntax-highlighting </dev/null; then
     ok "zsh-syntax-highlighting installed"
 else
     warn "Failed to install zsh-syntax-highlighting — the last line of .zshrc sources it."
@@ -76,12 +81,20 @@ fi
 # --unattended: skips interactive prompts, does not change the default shell,
 # and still creates ~/.oh-my-zsh and a default ~/.zshrc (which we overwrite below).
 
+# Abort a git transfer that drops below 1 KB/s for 60s, and never prompt
+# for credentials — with no terminal under cockpit.spawn, either one would
+# otherwise hang the Create User page indefinitely. Passed through `env`
+# because sudo -u resets the environment.
+GIT_ENV=(GIT_TERMINAL_PROMPT=0 GIT_HTTP_LOW_SPEED_LIMIT=1000 GIT_HTTP_LOW_SPEED_TIME=60)
+
 header "Installing Oh My Zsh for $TARGET_USER"
 if [[ -d "$TARGET_HOME/.oh-my-zsh" ]]; then
     ok "Oh My Zsh already present — skipping install"
 else
-    sudo -u "$TARGET_USER" env HOME="$TARGET_HOME" \
-        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" \
+    # The Oh My Zsh installer runs its own `git clone`, so it gets the same
+    # GIT_ENV stall limits as clone_plugin below.
+    sudo -u "$TARGET_USER" env HOME="$TARGET_HOME" "${GIT_ENV[@]}" \
+        sh -c "$(curl -fsSL --connect-timeout 15 --max-time 120 https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" \
         "" --unattended
 
     if [[ -d "$TARGET_HOME/.oh-my-zsh" ]]; then
@@ -105,7 +118,7 @@ clone_plugin() {
     else
         echo ""
         echo -e "  ${CYAN}Cloning $name...${RESET}"
-        if sudo -u "$TARGET_USER" git clone "$url" "$dest"; then
+        if sudo -u "$TARGET_USER" env "${GIT_ENV[@]}" git clone "$url" "$dest" </dev/null; then
             ok "$name cloned"
         else
             warn "Failed to clone $name — add it manually later."

@@ -101,6 +101,74 @@ create_samba_user() {
         fi
     }
 
+    # ---------------------------
+    # Password input
+    # ---------------------------
+    # From a terminal, passwd/smbpasswd prompt as usual. Under Cockpit (no
+    # terminal) the password arrives on stdin instead: read it once and hand
+    # it to chpasswd / smbpasswd -s, so success no longer depends on stdin
+    # lines lining up with whatever prompts passwd/smbpasswd happen to show
+    # (an extra prompt used to shift them and silently set nothing). Cockpit
+    # sends the password on four lines (what the old prompt-driven version
+    # needed); only the first two — password + confirmation — are used.
+    local INTERACTIVE=false
+    [[ -t 0 ]] && INTERACTIVE=true
+    local STDIN_PW=""
+    local STDIN_PW_READ=false
+
+    read_stdin_password() {
+        $STDIN_PW_READ && return 0
+        local pw2
+        if ! IFS= read -r STDIN_PW || ! IFS= read -r pw2; then
+            echo "ERROR: Expected the password (twice) on stdin." >&2
+            return 1
+        fi
+        if [[ -z "$STDIN_PW" || "$STDIN_PW" != "$pw2" ]]; then
+            echo "ERROR: Password on stdin was empty, or the two copies didn't match." >&2
+            return 1
+        fi
+        STDIN_PW_READ=true
+    }
+
+    set_linux_password() {
+        if $DRY_RUN; then
+            echo "[DRY-RUN] set Linux password for $USERNAME"
+        elif $INTERACTIVE; then
+            passwd "$USERNAME"
+        else
+            read_stdin_password || return 1
+            printf '%s:%s\n' "$USERNAME" "$STDIN_PW" | chpasswd
+        fi
+    }
+
+    # $1: "-a" to add a new Samba user, "" to change an existing one's password
+    set_samba_password() {
+        local add_flag=()
+        [[ -n "$1" ]] && add_flag=("$1")
+        if $DRY_RUN; then
+            echo "[DRY-RUN] set Samba password for $USERNAME"
+        elif $INTERACTIVE; then
+            smbpasswd "${add_flag[@]}" "$USERNAME"
+        else
+            read_stdin_password || return 1
+            printf '%s\n%s\n' "$STDIN_PW" "$STDIN_PW" | smbpasswd -s "${add_flag[@]}" "$USERNAME"
+        fi
+    }
+
+    # Runs one create/update step and names it if it fails. Callers stop on
+    # the first failure (`step ... || return 1`) so the script exits non-zero
+    # and Cockpit shows [ERROR] — previously nothing checked these, the
+    # script always ended on `echo "Done."`, and Cockpit reported [SUCCESS]
+    # even when the password was never set.
+    step() {
+        "$@"
+        local rc=$?
+        if [[ $rc -ne 0 ]]; then
+            echo "ERROR: Step failed (exit $rc): $*" >&2
+        fi
+        return $rc
+    }
+
     echo "Processing user: $USERNAME"
 
     # ---------------------------
@@ -190,6 +258,12 @@ create_samba_user() {
     # ---------------------------
     # CREATE / UPDATE USER
     # ---------------------------
+    # Validate a stdin password before changing anything, so a bad one
+    # can't leave behind a new account that has no password set.
+    if ! $INTERACTIVE && ! $DRY_RUN && { $SET_PASSWORD || ! id "$USERNAME" &>/dev/null; }; then
+        read_stdin_password || return 1
+    fi
+
     if id "$USERNAME" &>/dev/null; then
         echo "User exists"
 
@@ -214,10 +288,10 @@ create_samba_user() {
         # login-capable (non-nologin) account.
         if [[ "$current_shell" != "/usr/sbin/nologin" && -n "$home_dir" && ! -d "$home_dir" ]]; then
             echo "WARNING: $USERNAME's home directory ($home_dir) is missing — recreating it." >&2
-            run_cmd sudo mkdir -p "$home_dir"
-            run_cmd sudo cp -a /etc/skel/. "$home_dir"
-            run_cmd sudo chown -R "$USERNAME":"$USERNAME" "$home_dir"
-            run_cmd sudo chmod 750 "$home_dir"
+            step run_cmd sudo mkdir -p "$home_dir" || return 1
+            step run_cmd sudo cp -a /etc/skel/. "$home_dir" || return 1
+            step run_cmd sudo chown -R "$USERNAME":"$USERNAME" "$home_dir" || return 1
+            step run_cmd sudo chmod 750 "$home_dir" || return 1
         fi
 
         if ! $SET_PASSWORD && ! $FORCE; then
@@ -227,7 +301,7 @@ create_samba_user() {
 
         if $SET_PASSWORD; then
             echo "Updating system password"
-            run_cmd sudo passwd "$USERNAME"
+            step set_linux_password || return 1
         fi
     else
         if $ADMIN_USER; then
@@ -246,15 +320,15 @@ create_samba_user() {
                 echo "WARNING: /home/$USERNAME already exists (left over from a previous account of this name)." >&2
                 echo "Reusing it and resetting ownership to $USERNAME — any files inside belong to that earlier account, not this one. Review /home/$USERNAME manually if that matters." >&2
             fi
-            run_cmd sudo useradd -m -s /bin/bash -c "MSP Admin Account" "$USERNAME"
-            run_cmd sudo usermod -aG sudo "$USERNAME"
-            run_cmd sudo chown -R "$USERNAME":"$USERNAME" "/home/$USERNAME"
+            step run_cmd sudo useradd -m -s /bin/bash -c "MSP Admin Account" "$USERNAME" || return 1
+            step run_cmd sudo usermod -aG sudo "$USERNAME" || return 1
+            step run_cmd sudo chown -R "$USERNAME":"$USERNAME" "/home/$USERNAME" || return 1
         else
             echo "Creating standard Samba user"
-            run_cmd sudo useradd -M -s /usr/sbin/nologin "$USERNAME"
+            step run_cmd sudo useradd -M -s /usr/sbin/nologin "$USERNAME" || return 1
         fi
 
-        run_cmd sudo passwd "$USERNAME"
+        step set_linux_password || return 1
     fi
 
     # ---------------------------
@@ -265,20 +339,20 @@ create_samba_user() {
 
         if $SET_PASSWORD; then
             echo "Updating Samba password"
-            run_cmd sudo smbpasswd "$USERNAME"
+            step set_samba_password "" || return 1
         fi
     else
         echo "Creating Samba user"
-        run_cmd sudo smbpasswd -a "$USERNAME"
+        step set_samba_password -a || return 1
     fi
 
-    run_cmd sudo smbpasswd -e "$USERNAME"
+    step run_cmd sudo smbpasswd -e "$USERNAME" || return 1
 
     # ---------------------------
     # Group assignment
     # ---------------------------
     if getent group "$GROUP_NAME" > /dev/null; then
-        run_cmd sudo usermod -aG "$GROUP_NAME" "$USERNAME"
+        step run_cmd sudo usermod -aG "$GROUP_NAME" "$USERNAME" || return 1
     else
         echo "Warning: Group $GROUP_NAME does not exist"
     fi
@@ -292,17 +366,17 @@ create_samba_user() {
         SSH_DIR="/home/$USERNAME/.ssh"
         AUTH_KEYS="$SSH_DIR/authorized_keys"
 
-        run_cmd sudo mkdir -p "$SSH_DIR"
-        run_cmd sudo chmod 700 "$SSH_DIR"
+        step run_cmd sudo mkdir -p "$SSH_DIR" || return 1
+        step run_cmd sudo chmod 700 "$SSH_DIR" || return 1
 
         if ! sudo grep -qxF "$SSH_KEY" "$AUTH_KEYS" 2>/dev/null; then
-            run_cmd sudo bash -c "echo '$SSH_KEY' >> '$AUTH_KEYS'"
+            step run_cmd sudo bash -c "echo '$SSH_KEY' >> '$AUTH_KEYS'" || return 1
         else
             echo "SSH key already exists"
         fi
 
-        run_cmd sudo chmod 600 "$AUTH_KEYS"
-        run_cmd sudo chown -R "$USERNAME":"$USERNAME" "$SSH_DIR"
+        step run_cmd sudo chmod 600 "$AUTH_KEYS" || return 1
+        step run_cmd sudo chown -R "$USERNAME":"$USERNAME" "$SSH_DIR" || return 1
     fi
 
     # ---------------------------
@@ -312,6 +386,7 @@ create_samba_user() {
     run_cmd id "$USERNAME"
 
     echo "Done."
+    return 0
 }
 
 create_samba_user "$@"

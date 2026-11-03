@@ -3,6 +3,24 @@
 # Errors go to stderr with a non-zero exit so cockpit.spawn() rejects and
 # the page shows "Error checking updates" instead of a false "up to date".
 
+# Right after boot, unattended-upgrades / apt-daily often hold apt's locks
+# for a few minutes. Wait for them (up to 5 minutes) rather than failing
+# with "Could not get lock". Keep in sync with update-system.sh.
+wait_for_apt() {
+    local waited=0
+    while pgrep -x 'apt|apt-get|dpkg|unattended-upgr' >/dev/null; do
+        if [ "$waited" -ge 300 ]; then
+            echo "Another apt/dpkg process is still running after 5 minutes:" >&2
+            pgrep -ax 'apt|apt-get|dpkg|unattended-upgr' >&2
+            return 1
+        fi
+        sleep 5
+        waited=$((waited + 5))
+    done
+}
+
+wait_for_apt || exit 1
+
 # Keep apt update quiet on success, but capture its output for the error case.
 # apt-get update can exit 0 when a repo is unreachable (it only warns), so
 # also treat fetch failures in the output as an error.

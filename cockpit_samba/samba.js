@@ -526,15 +526,12 @@ saveRestartBtn.addEventListener("click", function() {
             args.push("--admin-user");
         }
 
-        // manage_users.sh interactively prompts twice for the Linux
-        // password (passwd) and, for a brand-new username, twice more for
-        // the Samba password (smbpasswd -a) — four lines total, fed as
-        // one stdin write. This matches the script's own logic exactly
-        // (verified by reading it — both prompts run unconditionally for
-        // a genuinely new username, for either role), but the actual
-        // interactive behavior under cockpit.spawn hasn't been exercised
-        // against a real appliance yet — test with a throwaway account
-        // first before relying on this for a real person.
+        // With no terminal, manage_users.sh reads the password from stdin
+        // (first two lines: password + confirmation) and sets it with
+        // chpasswd / smbpasswd -s, exiting non-zero if either fails — so
+        // .fail() below really means the password wasn't set. Four lines
+        // are still sent so an appliance whose repo hasn't been pulled yet
+        // (older, prompt-driven manage_users.sh) keeps working too.
         var stdinSequence = pw1 + "\n" + pw1 + "\n" + pw1 + "\n" + pw1 + "\n";
 
         lockAll();
@@ -1021,11 +1018,7 @@ changePasswordSubmitBtn.addEventListener("click", function() {
         return;
     }
 
-    // Same 4-line stdin sequence as Create User: for an *existing* user,
-    // --set-password drives one `passwd` prompt (2 lines) then one plain
-    // `smbpasswd` prompt (2 lines) — verified by reading manage_users.sh,
-    // not by exercising it against a real appliance. Test with a
-    // throwaway account first.
+    // Same stdin sequence as Create User — see the comment there.
     var stdinSequence = pw1 + "\n" + pw1 + "\n" + pw1 + "\n" + pw1 + "\n";
 
     lockAll();

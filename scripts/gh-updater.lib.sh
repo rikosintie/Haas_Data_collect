@@ -13,6 +13,13 @@ set -euo pipefail
 # =========================
 GH_INSTALL_DIR="${GH_INSTALL_DIR:-/usr/local/bin}"
 
+# Network timeouts — Sync Tools streams this under cockpit.spawn, and a
+# stalled connection with no timeout hangs the page indefinitely.
+# API calls are small, so a hard cap; downloads can be large, so instead
+# abort only if the transfer drops below 1 KB/s for 60s.
+GH_CURL_API=(curl -fsSL --connect-timeout 15 --max-time 60)
+GH_CURL_DOWNLOAD=(curl -fL --connect-timeout 15 --speed-limit 1024 --speed-time 60)
+
 # =========================
 # BOOTSTRAP (jq + yq)
 # =========================
@@ -22,8 +29,8 @@ gh_bootstrap() {
     # jq (required)
     if ! command -v jq >/dev/null 2>&1; then
         echo "[BOOTSTRAP] Installing jq..."
-        sudo apt-get update -y
-        sudo apt-get install -y jq
+        sudo apt-get update -y </dev/null
+        sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y -o DPkg::Lock::Timeout=300 jq </dev/null
     fi
 
     # yq (required for YAML parsing)
@@ -35,11 +42,11 @@ gh_bootstrap() {
 
         case "$arch" in
             x86_64)
-                sudo wget -qO /usr/local/bin/yq \
+                sudo wget -q --timeout=30 --tries=2 -O /usr/local/bin/yq \
                     https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
                 ;;
             aarch64|arm64)
-                sudo wget -qO /usr/local/bin/yq \
+                sudo wget -q --timeout=30 --tries=2 -O /usr/local/bin/yq \
                     https://github.com/mikefarah/yq/releases/latest/download/yq_linux_arm64
                 ;;
             *)
@@ -100,7 +107,7 @@ gh_current_version() {
 gh_latest_version() {
     local repo="$1"
 
-    curl -fsSL "https://api.github.com/repos/$repo/releases/latest" \
+    "${GH_CURL_API[@]}" "https://api.github.com/repos/$repo/releases/latest" \
         | jq -r .tag_name \
         | sed 's/^v//'
 }
@@ -111,7 +118,7 @@ gh_latest_version() {
 gh_get_asset_url() {
     local repo="$1"
     local json
-    json=$(curl -fsSL "https://api.github.com/repos/$repo/releases/latest")
+    json=$("${GH_CURL_API[@]}" "https://api.github.com/repos/$repo/releases/latest")
 
     # Patterns are tried in priority order. Rust-style triples (gnu/musl)
     # are preferred when present; Go-style arch names (amd64/arm64) are
@@ -174,7 +181,7 @@ gh_install_from_url() {
     cd "$tmp"
 
     echo "[DOWNLOAD] $url"
-    curl -fLO "$url"
+    "${GH_CURL_DOWNLOAD[@]}" -O "$url"
 
     local file
     file=$(basename "$url")
@@ -187,7 +194,7 @@ gh_install_from_url() {
             tar -xJf "$file"
             ;;
         *.zip)
-            unzip "$file"
+            unzip -o "$file"
             ;;
         *)
             chmod +x "$file"
