@@ -368,19 +368,53 @@ function checkUpdates() {
         });
 }
 
+// apt-get prints a line per package as it downloads/unpacks/configures, so
+// this long with no output means the update is stuck (e.g. waiting on a
+// prompt). The process is deliberately NOT killed: killing apt mid-dpkg
+// leaves packages half-configured, which is worse than a hung page.
+var UPDATE_STALL_MS = 10 * 60 * 1000;
+
 function runUpdate() {
     disableButtons(true);
     output.textContent = "Installing updates...\n";
 
+    var stallTimer = null;
+    var stalled = false;
+
+    function onStall() {
+        stalled = true;
+        output.textContent +=
+            "\nWARNING: no output for " + (UPDATE_STALL_MS / 60000) + " minutes — the update looks stuck.\n" +
+            "It is still running on the appliance. Check it from a shell:\n" +
+            "    ps aux | grep -E '[a]pt|[d]pkg'\n" +
+            "If apt/dpkg is hung, kill it, then recover with:\n" +
+            "    sudo dpkg --configure -a --force-confdef --force-confold\n";
+        output.scrollTop = output.scrollHeight;
+        setStatus("Update stalled", "bad");
+        disableButtons(false);
+    }
+
+    function resetStallTimer() {
+        clearTimeout(stallTimer);
+        if (!stalled) stallTimer = setTimeout(onStall, UPDATE_STALL_MS);
+    }
+
+    resetStallTimer();
+
     cockpit.spawn(["/usr/local/sbin/update-system.sh"], { superuser: "require", err: "message" })
-        .stream(function(data) { output.textContent += data; })
+        .stream(function(data) {
+            resetStallTimer();
+            output.textContent += data;
+        })
         .done(function() {
+            clearTimeout(stallTimer);
             var now = new Date().toLocaleString();
             lastRun.textContent = "Last updated: " + now;
             localStorage.setItem("haasLastUpdate", now);
             checkUpdates();
         })
         .fail(function(ex, data) {
+            clearTimeout(stallTimer);
             output.textContent += "\nERROR: " + (ex.message || JSON.stringify(ex));
             if (data) output.textContent += "\n" + data;
             setStatus("Update failed", "bad");
