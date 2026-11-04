@@ -53,7 +53,10 @@ apt-get update </dev/null
 
 echo ""
 echo "Upgrading packages..."
-apt-get "${APT_OPTS[@]}" upgrade </dev/null
+# --with-new-pkgs: what the original `apt upgrade` did by default. Plain
+# `apt-get upgrade` never installs new packages, so it silently skips
+# every kernel update. Keep in sync with update-check.sh.
+apt-get "${APT_OPTS[@]}" upgrade --with-new-pkgs </dev/null
 
 echo ""
 echo "Checking reboot status..."

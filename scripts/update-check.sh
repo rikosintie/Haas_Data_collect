@@ -50,7 +50,11 @@ fi
 # Simulate upgrade to determine what would actually be installed.
 # The summary line "N upgraded" is the authoritative count — it respects
 # phased/deferred packages the same way a real apt upgrade does.
-SIMULATE=$(apt-get upgrade -s 2>&1 </dev/null)
+# --with-new-pkgs must match update-system.sh: plain `apt-get upgrade`
+# never installs new packages, so it keeps back every kernel update (each
+# one is a new linux-image-<version> package) and reported "up to date"
+# while the login banner showed updates waiting.
+SIMULATE=$(apt-get upgrade -s --with-new-pkgs 2>&1 </dev/null)
 SIMULATE_RC=$?
 if [ "$SIMULATE_RC" -ne 0 ]; then
     echo "apt-get upgrade -s failed (exit $SIMULATE_RC):" >&2
@@ -80,6 +84,14 @@ if [ "$UPGRADED" -gt 0 ]; then
     echo "UPDATES_AVAILABLE"
 else
     echo "System is up to date"
+fi
+
+# Anything still left over is deferred by Ubuntu's phased rollout (it
+# arrives on its own over a few days) or held back. Say so, so this count
+# doesn't look like a contradiction of the login banner's "N updates".
+NOT_UPGRADED=$(echo "$SIMULATE" | grep -E "^[0-9]+ upgraded" | grep -oE "[0-9]+ not upgraded" | awk '{print $1}')
+if [ "${NOT_UPGRADED:-0}" -gt 0 ]; then
+    echo "Note: $NOT_UPGRADED more package(s) deferred by Ubuntu's phased rollout or held back — not installed yet."
 fi
 
 if [ -f /var/run/reboot-required ]; then
