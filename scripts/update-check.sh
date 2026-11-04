@@ -6,13 +6,28 @@
 # Right after boot, unattended-upgrades / apt-daily often hold apt's locks
 # for a few minutes. Wait for them (up to 5 minutes) rather than failing
 # with "Could not get lock". Keep in sync with update-system.sh.
+#
+# Not `pgrep -x unattended-upgr`: process names are cut to 15 characters,
+# so that also matches unattended-upgrade-shutdown, a helper that runs
+# permanently (waiting for a reboot signal), never holds the lock, and made
+# every check wait 5 minutes and fail. Match the real updater by its full
+# command line instead.
+apt_busy() {
+    pgrep -x 'apt|apt-get|dpkg' >/dev/null ||
+        pgrep -f 'python3 /usr/bin/unattended-upgrade( |$)' >/dev/null
+}
+
 wait_for_apt() {
     local waited=0
-    while pgrep -x 'apt|apt-get|dpkg|unattended-upgr' >/dev/null; do
+    while apt_busy; do
         if [ "$waited" -ge 300 ]; then
             echo "Another apt/dpkg process is still running after 5 minutes:" >&2
-            pgrep -ax 'apt|apt-get|dpkg|unattended-upgr' >&2
+            pgrep -ax 'apt|apt-get|dpkg' >&2
+            pgrep -af 'python3 /usr/bin/unattended-upgrade( |$)' >&2
             return 1
+        fi
+        if [ $((waited % 30)) -eq 0 ]; then
+            echo "Waiting for another apt/dpkg process (automatic updates) to finish..." >&2
         fi
         sleep 5
         waited=$((waited + 5))
