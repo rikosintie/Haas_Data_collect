@@ -94,6 +94,20 @@ if [ "${NOT_UPGRADED:-0}" -gt 0 ]; then
     echo "Note: $NOT_UPGRADED more package(s) deferred by Ubuntu's phased rollout or held back — not installed yet."
 fi
 
+# A new Ubuntu release (e.g. 24.04 -> 26.04) is a distribution upgrade via
+# do-release-upgrade, never an apt update, so it can't appear in the table.
+# The login banner gets its "New release ... available" text from this
+# cache file (refreshed daily by ubuntu-release-upgrader); show the same
+# fact here so Check doesn't look like it contradicts the banner.
+RELEASE_FILE=/var/lib/ubuntu-release-upgrader/release-upgrade-available
+if [ -s "$RELEASE_FILE" ]; then
+    NEW_RELEASE=$(grep -oE "New release '[^']+'" "$RELEASE_FILE" | head -n1 | cut -d"'" -f2)
+    if [ -n "$NEW_RELEASE" ]; then
+        CURRENT_RELEASE=$(. /etc/os-release && echo "$VERSION")
+        echo "Note: Ubuntu $NEW_RELEASE is available. That is a major version upgrade (do-release-upgrade), not installed by Update; this appliance stays on Ubuntu $CURRENT_RELEASE."
+    fi
+fi
+
 if [ -f /var/run/reboot-required ]; then
     echo "REBOOT_REQUIRED"
 fi
