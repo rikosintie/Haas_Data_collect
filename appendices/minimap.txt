@@ -1,0 +1,17 @@
+```mermaid
+
+flowchart LR
+
+    classDef stage1 fill:#e3f2fd,stroke:#1e88e5,color:#0d47a1;
+    classDef stage2 fill:#e8f5e9,stroke:#43a047,color:#1b5e20;
+    classDef stage3 fill:#fce4ec,stroke:#d81b60,color:#880e4f;
+
+    A([🟢 Start: SMB Issue Reported]) --> B([1. Port Reachability & Firewall])
+    B --> C([2. SMB Listing & Authentication])
+    C --> D([3. User Authentication & Permissions])
+    D --> E([🟦 End: SMB Functioning Correctly])
+
+    class B stage1
+    class C stage2
+    class D stage3
+```
